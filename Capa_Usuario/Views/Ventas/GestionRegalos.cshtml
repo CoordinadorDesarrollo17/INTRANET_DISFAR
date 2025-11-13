@@ -2,18 +2,201 @@
 @using Capa_Entidad.Ventas_ENT.TablasSql
 
 @{
-    ViewBag.Title = "GestionRegalos";
-    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.Title = "Gestión Regalos";
+    Layout = "~/Views/Shared/_DefaultLayout.cshtml";
     OREG_E f = (OREG_E)ViewBag.Regalos;
 }
 
+<div class="pt-4">
+    <nav>
+        <ol class="cd-breadcrumb bg-cobefar-degradado-1">
+            <li><a href="@Url.Action("Sesion", "Index")">Inicio</a></li>
+            <li class="current">
+                <a href="@Url.Action("GestionRegalos", "Ventas")">
+                    Módulo gestión regalos
+                </a>
+            </li>
+        </ol>
+    </nav>
+</div>
+
+
+<div class="border-cabecera-seccion bg-cobefar-degradado-1 pb-2">
+    <div class="row px-3 pt-3 mb-2">
+        <h3 class="titulo-seccion">@ViewBag.Title.ToUpper()</h3>
+    </div>
+    <div class="row pl-2 w-100 py-1">
+        <div class="d-flex col-lg-8 col-md-6 col-sm-12 col-6 mb-3">
+            <button type="button" class="btn btn-success ms-2" data-bs-toggle="modal" data-bs-target="#modalNuevoRegalo">
+                <i class="bi bi-plus-lg me-1"></i> Nuevo Regalo
+            </button>
+            <a href="@Url.Action("GestionClienteRegalos", "Ventas")" class="btn btn-outline-info ms-2">
+                <i class="bi bi-gift me-1"></i> Regalos Clientes
+            </a>
+            <button type="button" class="btn btn-outline-light ms-2" onclick="ExporteReporteGeneralTicketsRegalos()">
+                <i class="bi bi-file-earmark-excel me-1"></i> Generar Reporte
+            </button>
+        </div>
+    </div>
+</div>
+
+<form name="filterForm" id="filterForm">
+
+   
+
+    <div class="bg-white px-3 py-3 align-items-center">
+        <div class="table-responsive">
+            <table id="tbl_ListadoRegalos" class="dt-container dt-empty-footer table table-sm table-hover font-14">
+                <thead class="thead-cobefar">
+                    <tr>
+                        <th class="text-center border-end">
+                            @Html.DisplayName("Id")
+                        </th>
+                        <th class="text-center border-end">
+                            @Html.DisplayNameFor(model => model.Categoria)
+                        </th>
+                        <th class="text-center border-end">
+                            @Html.DisplayNameFor(model => model.Tipo)
+                        </th>
+                        <th class="text-center border-end">
+                            @Html.DisplayName("Estado")
+                        </th>
+                        <th class="text-center border-end"> Stock Total</th>
+                        <th class="text-center border-end"> Disponible</th>
+                        <th class="text-center border-end"> Comprometido</th>
+                        <th class="text-center"></th>
+                        <th class="text-center"></th>
+                        <th class="text-center"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td class="text-center border-end">
+                                @Html.DisplayFor(modelItem => item.Id)
+                            </td>
+                            <td class="text-center border-end">
+                                @Html.DisplayFor(modelItem => item.Categoria)
+                            </td>
+                            <td class="text-center border-end">
+                                @Html.DisplayFor(modelItem => item.Tipo)
+                            </td>
+                            <td class="text-center border-end">
+                                @Html.DisplayFor(modelItem => item.Estado)
+                            </td>
+                            <td class="text-center border-end">@Html.DisplayFor(modelItem => item.StockTotal)</td>
+                            <td class="text-center border-end">@Html.DisplayFor(modelItem => item.StockDisp)</td>
+                            <td class="text-center border-end">@Html.DisplayFor(modelItem => item.StockComp)</td>
+                            <td class="text-center border-end">
+                                <a href="@Url.Action("GestionarStock", "Ventas", new { id = item.Id })" class="btn btn-sm btn-outline-secondary" title="Administrar stock">
+                                    <i class="bi bi-box-seam"></i>
+                                </a>
+                            </td>
+                            <td class="text-center border-end">
+                                <a href="@Url.Action("TransaccionesRegalo", "Ventas", new { id = item.Id })" class="btn btn-sm btn-outline-dark" title="Transacciones">
+                                    <i class="bi bi-arrow-left-right"></i>
+                                </a>
+                            </td>
+                            <td class="text-center border-end">
+                                @if (item.Estado == "Activo")
+                                {
+                                    <button type="button" class="btn btn-sm btn-outline-info" title="Inactivar" onclick="inactivarRegalo(@item.Id)">
+                                        <i class="bi bi-slash-circle me-0"></i>
+                                    </button>
+                                }
+                                else if (item.Estado == "Inactivo")
+                                {
+                                    <button type="button" class="btn btn-sm btn-outline-success" title="Activar" onclick="activarRegalo(@item.Id)">
+                                        <i class="bi bi-check-circle me-0"></i>
+                                    </button>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</form>
+
+<!-- Modal Nuevo Regalo centrado y reducido -->
+<div class="modal fade" id="modalNuevoRegalo" tabindex="-1" aria-labelledby="modalNuevoRegaloLabel" aria-hidden="true">
+    <div class="modal-dialog modal-md modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-cobefar-degradado-1">
+                <h5 class="modal-title text-light" id="modalNuevoRegaloLabel">Registrar Nuevo Regalo</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body">
+                <form id="NuevoRegalo" enctype="multipart/form-data">
+                    <div class="row justify-content-center">
+                        <div class="col-10">
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label for="categoria" class="form-label">Categoría:</label>
+                                    <input class="form-control border-success" type="text" id="categoria" name="Categoria" />
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="tipo" class="form-label">Tipo:</label>
+                                    <input class="form-control border-success" type="text" id="tipo" name="Tipo" />
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label for="estado" class="form-label">Estado:</label>
+                                    <select id="estado" name="Estado" class="form-select border-success">
+                                        <option value="">Seleccione</option>
+                                        <option value="Activo">Activo</option>
+                                        <option value="Inactivo">Inactivo</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="StockTotal" class="form-label">Stock:</label>
+                                    <input class="form-control border-success" type="number" name="StockTotal" placeholder="Digite el stock en unidades" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer justify-content-center">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-success" onclick="guardarNuevoRegalo();">
+                    <i class="bi bi-check-lg"></i> Registrar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
-    $(document).ready(function () {
-        $('#filterModal').on('shown.bs.modal', function () {
-            $('#filterModal input:first').focus();
-        });
-    });
-    function filtrar() {
+    function validarEnviarFormulario() {
+        var object = $("#NuevoRegalo").serialize();
+        $.ajax('/Ventas/validarNuevoRegalo', {
+            data: object,
+            dataType: 'html',
+            cache: false,
+            type: 'post'
+        })
+            .done(function (response) {
+                if (response != "true") {
+                    Swal.fire({ title: response, text: "Presione OK para continuar", icon: "warning" });
+                    return false;
+                } else {
+                    $("#NuevoRegalo")[0].submit();
+                }
+            });
+    }
+
+    if ('@ViewBag.Mensaje' != "") {
+        Swal.fire('@ViewBag.Mensaje')
+    }
+    document.addEventListener('DOMContentLoaded', function () {
+        if (!$.fn.DataTable.isDataTable('tbl_ListadoRegalos')) {
+            inicializarDataTable('tbl_ListadoRegalos', 20, true, false); // El tercer parámetro indica que no hay ordenamiento
+        }
+    }); function filtrar() {
         var object = $("#filterForm").serialize();
         $(location).attr('href', "/Ventas/GestionRegalos?" + object);
     }
@@ -32,55 +215,70 @@
         filtrar();
     }
     function ExporteReporteGeneralTicketsRegalos() {
-        // Crear el contenido del modal
+        // Crear el contenido del modal con Bootstrap 5 y Bootstrap Icons
         const modalContent = `
-    <form id="formReporteRegalos">
-        <div class="form-group">
-            <label for="FechaSapTicketDesde">Fecha Desde</label>
-            <input type="date" id="FechaSapTicketDesde" class="form-control border-success" />
-        </div>
-        <div class="form-group">
-            <label for="FechaSapTicketHasta">Fecha Hasta</label>
-            <input type="date" id="FechaSapTicketHasta" class="form-control border-success" />
-        </div>
-        <div class="form-group">
-            <label for="EstadoTicket">Estado del Ticket</label>
-            <select id="EstadoTicket" class="form-control border-success">
-                <option value="">Seleccione</option>
-                <option value="SEPARADO">SEPARADO</option>
-                <option value="ABIERTO">ABIERTO</option>
-                <option value="RECIBIDO">RECIBIDO</option>
-                <option value="PICKEANDO">PICKEANDO</option>
-                <option value="VERIFICANDO">VERIFICANDO</option>
-                <option value="EMPACANDO">EMPACANDO</option>
-                <option value="EMPACADO">EMPACADO</option>
-                <option value="PESADO">PESADO</option>
-                <option value="PREENVIO">PREENVIO</option>
-                <option value="ENVIADO">ENVIADO</option>
-                <option value="ENTREGADO">ENTREGADO</option>
-                <option value="ANULADO">ANULADO</option>
-                <option value="CANCELADO">CANCELADO</option>
-            </select>
-        </div>
-        <div class="form-group">
-            <label for="EstadoRegalo">Estado del Regalo</label>
-            <select id="EstadoRegalo" class="form-control border-success">
-                <option value="">Seleccione Estado</option>
-                <option value="Pendiente">Pendiente</option>
-                <option value="Entregado">Entregado</option>
-            </select>
-        </div>
-    </form>
-`;
+        <form id="formReporteRegalos">
+            <div class="mb-3">
+                <label for="FechaSapTicketDesde" class="form-label">
+                    <i class="bi bi-calendar-date me-1"></i> Fecha Desde
+                </label>
+                <input type="date" id="FechaSapTicketDesde" class="form-control border-success" />
+            </div>
+            <div class="mb-3">
+                <label for="FechaSapTicketHasta" class="form-label">
+                    <i class="bi bi-calendar-date me-1"></i> Fecha Hasta
+                </label>
+                <input type="date" id="FechaSapTicketHasta" class="form-control border-success" />
+            </div>
+            <div class="mb-3">
+                <label for="EstadoTicket" class="form-label">
+                    <i class="bi bi-ticket-perforated me-1"></i> Estado del Ticket
+                </label>
+                <select id="EstadoTicket" class="form-select border-success">
+                    <option value="">Seleccione</option>
+                    <option value="SEPARADO">SEPARADO</option>
+                    <option value="ABIERTO">ABIERTO</option>
+                    <option value="RECIBIDO">RECIBIDO</option>
+                    <option value="PICKEANDO">PICKEANDO</option>
+                    <option value="VERIFICANDO">VERIFICANDO</option>
+                    <option value="EMPACANDO">EMPACANDO</option>
+                    <option value="EMPACADO">EMPACADO</option>
+                    <option value="PESADO">PESADO</option>
+                    <option value="PREENVIO">PREENVIO</option>
+                    <option value="ENVIADO">ENVIADO</option>
+                    <option value="ENTREGADO">ENTREGADO</option>
+                    <option value="ANULADO">ANULADO</option>
+                    <option value="CANCELADO">CANCELADO</option>
+                </select>
+            </div>
+            <div class="mb-3">
+                <label for="EstadoRegalo" class="form-label">
+                    <i class="bi bi-gift me-1"></i> Estado del Regalo
+                </label>
+                <select id="EstadoRegalo" class="form-select border-success">
+                    <option value="">Seleccione Estado</option>
+                    <option value="Pendiente">Pendiente</option>
+                    <option value="Entregado">Entregado</option>
+                </select>
+            </div>
+        </form>
+    `;
 
 
-        // Mostrar el modal
+        // Mostrar el modal con encabezado moderno
         Swal.fire({
-            title: 'Reporte General de Tickets y Regalos',
+            title: '<span class="d-flex align-items-center"><i class="bi bi-file-earmark-bar-graph-fill me-2"></i>Reporte General de Tickets y Regalos</span>',
             html: modalContent,
             showCancelButton: true,
-            confirmButtonText: 'Enviar',
-            cancelButtonText: 'Cancelar',
+            confirmButtonText: '<i class="bi bi-check-lg"></i> Enviar',
+            cancelButtonText: '<i class="bi bi-x-lg"></i> Cancelar',
+            customClass: {
+                popup: 'p-0 overflow-hidden',
+                title: 'bg-cobefar-degradado-1 text-light py-3 px-4 rounded-top',
+                actions: 'd-flex justify-content-center gap-2 pb-3',
+                confirmButton: 'btn btn-success',
+                cancelButton: 'btn btn-secondary'
+            },
             preConfirm: () => {
                 // Obtener valores de los inputs
                 const fechaTicketDesde = document.getElementById('FechaSapTicketDesde').value;
@@ -99,7 +297,6 @@
         }).then((result) => {
             if (result.isConfirmed) {
                 const { fechaTicketDesde, fechaTicketHasta, estadoTicket, estadoRegalo } = result.value;
-                console.log(result.value);
                 // Enviar datos al servidor
                 $.ajax({
                     url: '/Ventas/VerificarExistenciaDatos',
@@ -125,160 +322,119 @@
         });
     }
 
+    function inactivarRegalo(id) {
+        Swal.fire({
+            title: '¿Está seguro que desea inactivar este regalo?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: '<i class="bi bi-check-lg"></i> Sí, inactivar',
+            cancelButtonText: '<i class="bi bi-x-lg"></i> Cancelar',
+            customClass: {
+                confirmButton: 'btn btn-success',
+                cancelButton: 'btn btn-secondary'
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax({
+                    url: '/Ventas/InactivarRegaloPost',
+                    type: 'POST',
+                    data: { Id: id },
+                    success: function (response) {
+                        Swal.fire({
+                            title: 'Regalo inactivado',
+                            text: 'La operación se realizó correctamente.',
+                            icon: 'success',
+                            confirmButtonText: 'OK',
+                            customClass: { confirmButton: 'btn btn-success' }
+                        }).then(() => {
+                            location.reload();
+                        });
+                    },
+                    error: function (xhr) {
+                        Swal.fire({
+                            title: 'Error',
+                            text: xhr.responseText || 'No se pudo inactivar el regalo.',
+                            icon: 'error',
+                            confirmButtonText: 'OK',
+                            customClass: { confirmButton: 'btn btn-danger' }
+                        });
+                    }
+                });
+            }
+        });
+    }
 
-</script>
+    function activarRegalo(id) {
+        Swal.fire({
+            title: '¿Está seguro que desea activar este regalo?',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: '<i class="bi bi-check-lg"></i> Sí, activar',
+            cancelButtonText: '<i class="bi bi-x-lg"></i> Cancelar',
+            customClass: {
+                confirmButton: 'btn btn-success',
+                cancelButton: 'btn btn-secondary'
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax({
+                    url: '/Ventas/RevertirInactivarRegalo',
+                    type: 'POST',
+                    data: { Id: id },
+                    success: function (response) {
+                        Swal.fire({
+                            title: 'Regalo activado',
+                            text: 'La operación se realizó correctamente.',
+                            icon: 'success',
+                            confirmButtonText: 'OK',
+                            customClass: { confirmButton: 'btn btn-success' }
+                        }).then(() => {
+                            location.reload();
+                        });
+                    },
+                    error: function (xhr) {
+                        Swal.fire({
+                            title: 'Error',
+                            text: xhr.responseText || 'No se pudo activar el regalo.',
+                            icon: 'error',
+                            confirmButtonText: 'OK',
+                            customClass: { confirmButton: 'btn btn-danger' }
+                        });
+                    }
+                });
+            }
+        });
+    }
 
-<div class="pt-3">
-    <nav>
-        <ol class="cd-breadcrumb bg-cobefar-degradado-1">
-            <li><a href="@Url.Action("Sesion", "Index")">Inicio</a></li>
-            <li class="current"><em>Módulo gestión regalos</em></li>
-        </ol>
-    </nav>
-</div>
-
-<div class="border-cabecera-seccion bg-cobefar-degradado-1 pb-3">
-    <div class="px-3 pt-3"><h3 class="titulo-seccion">MÓDULO GESTIÓN REGALOS</h3></div>
-
-
-    <div class="row pl-2 w-100 py-1">
-        <div class="d-flex col-lg-8 col-md-6 col-sm-12 col-6">
-            <a href="@Url.Action("NuevoRegalo", "Ventas")" class="btn btn-success ml-2">
-                <i class="icon icon-plus"> </i> Nuevo Regalo
-            </a>
-            <a href="@Url.Action("GestionClienteRegalos", "Ventas")" class="btn btn-info ml-2">
-                <i class="icon icon-gift"> </i> Regalos Clientes
-            </a>
-            <button type="button" class="btn btn-primary ml-2" data-toggle="modal" data-target="#filterModal"><i class="icon-filter"> </i> Filtrar</button>
-            <button type="button" class="btn btn-secondary ml-2" onclick="ExporteReporteGeneralTicketsRegalos()"><i class="icon-file-excel"></i> Generar Reporte</button>
-        </div>
-    </div>
-</div>
-
-<form name="filterForm" id="filterForm">
-    
-    <!-- Modal para Filtros -->
-    <div class="modal fade" id="filterModal" tabindex="-1" role="dialog" aria-labelledby="filterModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
-            <div class="modal-content">
-                <div class="modal-header bg-headerModals">
-                    <h5 class="modal-title text-light" id="modalFiltrosLabel">Filtros de Búsqueda</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true" class="text-light">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <div class="container-fluid">
-                        <div class="row">
-                            <div class="col-md-2">
-                                <div class="form-group">
-                                    <label for="Id">Id</label>
-                                    <input type="number" name="Id" id="Id" class="form-control" value="@if (!f.Id.Equals(0)) { Write(f.Id); }" />
-                                </div>
-                            </div>
-                            <div class="col-md-3">
-                                <div class="form-group">
-                                    <label for="Categoria">Categoría</label>
-                                    <input type="text" name="Categoria" id="Categoria" class="form-control" value="@f.Categoria" />
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="form-group">
-                                    <label for="Tipo">Tipo</label>
-                                    <input type="text" name="Tipo" id="Tipo" class="form-control" value="@f.Tipo" />
-                                </div>
-                            </div>
-                            <div class="col-md-3">
-                                <div class="form-group">
-                                    <label for="Estado">Estado </label>
-                                    <select name="Estado" id="Estado" class="form-control">
-                                        <option value=""></option>
-                                        <option value="Activo" @{ if (f.Estado == "Activo") { Write("selected"); } }>Activo</option>
-                                        <option value="Inactivo" @{ if (f.Estado == "Inactivo") { Write("selected"); } }>Inactivo</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
-                    <button type="button" class="btn btn-info" onclick="limpiarFiltros();">Limpiar</button>
-                    <button type="button" class="btn btn-primary" onclick="filtrar();">Aplicar Filtros</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="bg-white bg-form-cobefar pt-3">
-        <table class="table table-light table-sm table-hover cls-dataTable50" cellspacing="0" width="100%">
-            <thead class="bg-cobefar-6">
-                <tr>
-                    <th class="text-center">
-                        @Html.DisplayName("Id")
-                    </th>
-                    <th class="text-center">
-                        @Html.DisplayNameFor(model => model.Categoria)
-                    </th>
-                    <th class="text-center">
-                        @Html.DisplayNameFor(model => model.Tipo)
-                    </th>
-                    <th class="text-center">
-                        @Html.DisplayName("Estado")
-                    </th>
-                    <th class="text-center"> Stock Total</th>
-                    <th class="text-center"> Disponible</th>
-                    <th class="text-center"> Comprometido</th>
-                    <th class="text-center"></th>
-                    <th class="text-center"></th>
-                    <th class="text-center"></th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var item in Model)
-                {
-                    <tr>
-                        <td class="text-center">
-                            @Html.DisplayFor(modelItem => item.Id)
-                        </td>
-                        <td class="text-center">
-                            @Html.DisplayFor(modelItem => item.Categoria)
-                        </td>
-                        <td class="text-center">
-                            @Html.DisplayFor(modelItem => item.Tipo)
-                        </td>
-                        <td class="text-center">
-                            @Html.DisplayFor(modelItem => item.Estado)
-                        </td>
-                        <td class="text-center">@Html.DisplayFor(modelItem => item.StockTotal)</td>
-                        <td class="text-center">@Html.DisplayFor(modelItem => item.StockDisp)</td>
-                        <td class="text-center">@Html.DisplayFor(modelItem => item.StockComp)</td>
-                        <td class="text-center">
-                            <a href="@Url.Action( "GestionarStock", "Ventas", new { id = item.Id } )" class="btn btn-sm btn-outline-secondary">
-                                <i class="icon icon-clipboard"> </i> Administrar stock
-                            </a>
-                        </td>
-                        <td class="text-center">
-                            <a href="@Url.Action("TransaccionesRegalo", "Ventas", new { id = item.Id } )" class="btn btn-outline-dark btn-sm">
-                                <i class="icon icon-tab"> </i>  Transacciones
-                            </a>
-                        </td>
-                        <td class="text-center">
-                            <a href="@Url.Action("InactivarRegalo", "Ventas", new { id = item.Id } )" class="btn btn-outline-info btn-sm">
-                                <i class="icon icon-blocked"> </i> Inactivar
-                            </a>
-                        </td>
-                    </tr>
-                }
-            </tbody>
-        </table>
-    </div>
-</form>
-<script>
-    if ('@ViewBag.Mensaje' != "") {
-        Swal.fire('@ViewBag.Mensaje')
+    function guardarNuevoRegalo() {
+        var object = $("#NuevoRegalo").serialize();
+        $.ajax({
+            url: '/Ventas/NuevoRegalo',
+            type: 'POST',
+            data: object,
+            success: function (response) {
+                Swal.fire({
+                    title: 'Regalo registrado',
+                    text: 'El nuevo regalo se ha guardado correctamente.',
+                    icon: 'success',
+                    confirmButtonText: 'OK',
+                    customClass: { confirmButton: 'btn btn-success' }
+                }).then(() => {
+                    $('#modalNuevoRegalo').modal('hide');
+                    location.reload();
+                });
+            },
+            error: function (xhr) {
+                Swal.fire({
+                    title: 'Error',
+                    text: xhr.responseText || 'No se pudo registrar el regalo.',
+                    icon: 'error',
+                    confirmButtonText: 'OK',
+                    customClass: { confirmButton: 'btn btn-danger' }
+                });
+            }
+        });
     }
 </script>
-
 
 
