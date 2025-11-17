@@ -268,7 +268,17 @@
                 <tr style="background:@fondoReg">
                     <td>
                         <strong>Regalo</strong>
-                    <td>@(Math.Round(Model.Det5[0].RegCant, 0) + " " + Model.Det5[0].RegCate + " " + Model.Det5[0].RegTipo)</td>
+                    <td>
+                        @if (Model.Det5[0].IdReg == 16)
+                        {
+                            @(Math.Round(Model.Det5[0].RegCant, 0) + " " + Model.Det5[0].RegCate + " (X 6 UND)")
+                        }
+                        else
+                        {
+                            @(Math.Round(Model.Det5[0].RegCant, 0) + " " + Model.Det5[0].RegCate + " " + Model.Det5[0].RegTipo)
+                        }
+                    </td>
+
                 </tr>
             }
         }

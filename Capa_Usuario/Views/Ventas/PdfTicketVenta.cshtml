@@ -72,9 +72,20 @@
                 if (Model.Det5.Count > 0 && Model.Det5[0].RegCant > 0)
                 {
                     <tr>
-                        <th colspan="2" style="vertical-align:auto;">
-                            <img style="width:70px; height:70px;" src="~/imagenes/index/Ventas/TicketVenta/regalo.jpg" />
-                            <label style="font-size:25px;margin-left:40px;">@(Math.Round(Model.Det5[0].RegCant, 0) + "  " + Model.Det5[0].RegCate)</label>
+                        <th colspan="2" style="vertical-align:middle; text-align:center; padding:10px;">
+                            <div style="display:flex; flex-direction:column; align-items:center;">
+                                <img style="width:180; height:110px;" src="~/imagenes/index/Ventas/TicketVenta/navidad.jpg" />
+                                <span style="font-size:22px; font-weight:bold;">
+                                    @if (Model.Det5[0].IdReg == 16)
+                                    {
+                                        @($"{Math.Round(Model.Det5[0].RegCant, 0)}  {Model.Det5[0].RegCate}  (x6 UND)")
+                                    }
+                                    else
+                                    {
+                                        @($"{Math.Round(Model.Det5[0].RegCant, 0)}  {Model.Det5[0].RegCate}")
+                                    }
+                                </span>
+                            </div>
                         </th>
 
                     </tr>
