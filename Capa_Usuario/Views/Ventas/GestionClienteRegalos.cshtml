@@ -162,6 +162,7 @@
     </div>
 </div>
 
+<!-- jQuery debe ir antes que cualquier script que use $ -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
     $(document).ready(function () {
@@ -268,5 +269,47 @@
             if (iden == identificador) { Swal.fire("El valor ya se encuentra en la tabla", "Verifique", "warning"); sinRegistro = false; }
         });
         return sinRegistro;
+    }
+
+    function validar() {
+        var object = $("#NuevoClienteRegalo").serialize();
+        $.ajax({
+            url: '/Ventas/NuevoClienteRegalo',
+            type: 'POST',
+            data: object,
+            success: function (response) {
+                // Si la respuesta es exactamente "true", éxito
+                if (response === "true") {
+                    Swal.fire({
+                        title: 'Cliente-Regalo registrado',
+                        text: 'El registro se ha guardado correctamente.',
+                        icon: 'success',
+                        confirmButtonText: 'OK',
+                        customClass: { confirmButton: 'btn btn-success' }
+                    }).then(() => {
+                        $('#modalNuevoClienteRegalo').modal('hide');
+                        location.reload();
+                    });
+                } else {
+                    // Si la respuesta es un mensaje de error, mostrarlo
+                    Swal.fire({
+                        title: 'Error de validación',
+                        text: response,
+                        icon: 'warning',
+                        confirmButtonText: 'OK',
+                        customClass: { confirmButton: 'btn btn-danger' }
+                    });
+                }
+            },
+            error: function (xhr) {
+                Swal.fire({
+                    title: 'Error',
+                    text: xhr.responseText || 'No se pudo registrar el cliente-regalo.',
+                    icon: 'error',
+                    confirmButtonText: 'OK',
+                    customClass: { confirmButton: 'btn btn-danger' }
+                });
+            }
+        });
     }
 </script>

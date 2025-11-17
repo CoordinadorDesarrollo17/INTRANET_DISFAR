@@ -93,7 +93,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                     //Revisado
                     otrcD.RegistrarTransaccionDesdeRegalo(new OTRC_E()
                     {
-                        IdReg = auxId,
+                        IdReg = auxId,  
                         RegName = obj.Categoria + " " + obj.Tipo,
                         Sentido = "Entrada",
                         Detalle = "Saldo Inicial",
