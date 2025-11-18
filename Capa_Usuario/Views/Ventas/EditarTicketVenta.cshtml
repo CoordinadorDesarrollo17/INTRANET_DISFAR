@@ -152,6 +152,36 @@
         document.getElementById('NroSolicitudReclamo').value = lista.join(', ');
         document.getElementById('SolicitudesReclamoSeleccionadas').value = lista.join(',');
     }
+
+    function quitarRegaloTicket() {
+        var docEntry = $("#DocEntry").val();
+        Swal.fire({
+            title: '¿Quitar regalo?',
+            text: 'Se eliminará el regalo del ticket.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Sí, quitar',
+            cancelButtonText: 'Cancelar'
+        }).then(function (result) {
+            if (result.isConfirmed) {
+                $.post('/Ventas/quitarRegalo', { docEntry: docEntry })
+                    .done(function (resp) {
+                        if (resp.success) {
+                            $("#IdReg").val('');
+                            $("#Det5_RegCant_0").val(0);
+                            $("#RegCate").val('');
+                            $("#RegTipo").val('');
+                            Swal.fire('Hecho', resp.mensaje, 'success');
+                        } else {
+                            Swal.fire('Error', resp.mensaje, 'error');
+                        }
+                    })
+                    .fail(function () {
+                        Swal.fire('Error', 'No se pudo procesar la solicitud.', 'error');
+                    });
+            }
+        });
+    }
 </script>
 <script src="~/Scripts/Ventas/TicketDeVenta.js"></script>
 <div class="pt-4">
@@ -678,7 +708,8 @@
                             <label for="RegCant" class="text-dark form-label font-weight-bold font-18">CantRegalo:</label>
                             <div class="d-flex">
                                 <input type="number" class="form-control border-success" id="Det5_RegCant_0" name="Det5[0].RegCant" value="@if (Model.Det5 != null && Model.Det5.Count >= 1) { Write(Model.Det5[0].RegCant); }" />
-                                <a id="RptClienteRegalos" class="btn btn-warning" onclick="clienteRegalos();">SaldoReg</a>
+                                <a id="RptClienteRegalos" class="btn btn-warning mx-1" onclick="clienteRegalos();">SaldoReg</a>
+                                <button type="button" id="BtnQuitarRegalo" class="btn btn-danger" onclick="quitarRegaloTicket();">Quitar Regalo</button>
                             </div>
                         </div>
 
@@ -871,7 +902,7 @@
                     </div>
 
                     <div class="px-2 pt-2 ml-5 bg-light" style="border-radius: 10px;">
-                        <input type="checkbox" id="chk_buscarxprovinciaOficinas" class="form-check-inline" onclick="busqueda($('#busqueda_oficinas').val(),'Oficinas');" /><label for="chk_buscarxprovinciaOficinas" class="text-dark font-weight-bold">Buscar por Provincia</label>
+                        <input type="checkbox" id="chk_buscarxprovinciaOficinas" class="form-check-inline" onclick="busqueda($('#busqueda_oficinas').val(),'Oficinas');" /><label for="chk_buscarxprovinciaOficinas" class="text-dark font-weight-bold">Buscar porProvincia</label>
                     </div>
 
                     <div class="px-2 pt-2 ml-5 bg-light" style="border-radius: 10px;">

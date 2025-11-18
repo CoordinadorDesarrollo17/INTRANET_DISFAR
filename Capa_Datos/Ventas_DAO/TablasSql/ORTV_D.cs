@@ -3867,5 +3867,46 @@ AND YEAR(T0.FechaSapTicket) = 2025 AND ((SELECT  Estado FROM vt.BusquedaProducto
             return resultado;
         }
 
+        public int RevertirAsignacionRegalo(int docEntry, ORTV_E ticket)
+        {
+            if (ticket == null) throw new ArgumentNullException(nameof(ticket));
+            int resultado = 0;
+            SqlConnection cn = null;
+            SqlCommand cmd = null;
+            try
+            {
+                cn = new SqlConnection(new Utilitarios().cadSql);
+                cmd = new SqlCommand("vt.MANT_OREG", cn)
+                {
+                    CommandType = CommandType.StoredProcedure
+                };
+
+                cmd.Parameters.AddWithValue("@TipoMantenimiento", "REVASIG");
+                var pId = new SqlParameter("@Id", SqlDbType.Int) { Direction = ParameterDirection.Output };
+                cmd.Parameters.Add(pId);
+
+                cmd.Parameters.AddWithValue("@OpRegistro", ticket.Operario ?? string.Empty);
+                cmd.Parameters.AddWithValue("@Detalle", ticket.DocNum.ToString());
+
+                var tvp = new DataTable();
+                tvp.Columns.Add("IdReg", typeof(int));
+                tvp.Columns.Add("StockComp", typeof(decimal));
+                cmd.Parameters.Add(new SqlParameter("@TablaDatos", SqlDbType.Structured)
+                {
+                    TypeName = "dbo.TbDatosReg",
+                    Value = tvp
+                });
+
+                cn.Open();
+                cmd.ExecuteNonQuery();
+                resultado = pId.Value != DBNull.Value ? (int)pId.Value : 0;
+            }
+            catch (SqlException ex)
+            {
+                throw new Exception("Error al revertir la asignación de regalo: " + ex.Message, ex);
+            }
+            return resultado;
+        }
+
     }
 }
