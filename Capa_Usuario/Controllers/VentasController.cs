@@ -4091,5 +4091,35 @@ namespace Capa_Usuario.Controllers
             }
         }
 
+        [HttpPost]
+        public JsonResult quitarRegalo(int docEntry)
+        {
+            try
+            {
+                var ticket = _ticketN.ObtenerDatosCompletosTicket(docEntry);
+                Usuario_E usu = (Usuario_E)Session["UsuarioId"];
+                var operario = $"{usu.Nombres} {usu.Apellidos}";
+                if (ticket == null)
+                    return Json(new { success = false, mensaje = "Ticket no encontrado" });
+                ticket.Operario = operario;
+                if (ticket.Det5 != null && ticket.Det5.Count > 0)
+                {
+                    // Reset regalo
+                    ticket.Det5[0].IdReg = 0;
+                    ticket.Det5[0].RegCant = 0;
+                    ticket.Det5[0].RegCate = null;
+                    ticket.Det5[0].RegTipo = null;
+                }
+
+                _ticketN.EditarRegalo(docEntry, ticket);
+
+                return Json(new { success = true, mensaje = "Regalo retirado del ticket" });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, mensaje = ex.Message });
+            }
+        }
+
     }
 }
