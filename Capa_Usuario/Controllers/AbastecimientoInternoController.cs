@@ -11,6 +11,7 @@ using Capa_Negocio.Almacen_NEG.Tablas;
 using Capa_Negocio.DireccionTecnica_NEG.TablasSql;
 using Capa_Negocio.Seguridad_NEG.TablasSql;
 using Capa_Usuario.Helpers;
+using DocumentFormat.OpenXml.Spreadsheet;
 using dotless.Core.Parser.Tree;
 using Microsoft.ReportingServices.ReportProcessing.ReportObjectModel;
 using OfficeOpenXml;
@@ -353,6 +354,83 @@ namespace Capa_Usuario.Controllers
                 return resultadoAcceso;
             }
         }
+
+        private readonly StockMinProductos_N _stockMinimoN = new StockMinProductos_N();
+
+
+        [HttpGet]
+        public ActionResult ExportarExcelStockMinimoPicking()
+        {
+            try
+            {
+                // 1️⃣ Llama a la capa de negocio
+                var lista = _stockMinimoN.ListarStockMinProductos();
+
+                if (lista == null || !lista.Any())
+                    return Content("No se encontraron registros para exportar.");
+
+                // 2️⃣ Generar Excel con EPPlus
+                using (var excel = new OfficeOpenXml.ExcelPackage())
+                {
+                    var hoja = excel.Workbook.Worksheets.Add("StockMinimoPicking");
+
+                    // ENCABEZADOS
+                    hoja.Cells[1, 1].Value = "Código de Artículo";
+                    hoja.Cells[1, 2].Value = "Descripción";
+                    hoja.Cells[1, 3].Value = "Stock Mínimo Abastecimiento";
+                    hoja.Cells[1, 4].Value = "Clasificación";
+
+                    using (var rango = hoja.Cells[1, 1, 1, 4])
+                    {
+                        rango.Style.Font.Bold = true;
+                        rango.Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
+                        rango.Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.FromArgb(0, 102, 51));
+                        rango.Style.Font.Color.SetColor(System.Drawing.Color.White);
+                        rango.Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
+                    }
+
+
+                    // 🔹 AGREGAR FILTROS AUTOMÁTICOS
+                    hoja.Cells["A1:D1"].AutoFilter = true;
+
+                    // DATOS
+                    int fila = 2;
+                    foreach (var item in lista)
+                    {
+                        hoja.Cells[fila, 1].Value = item.ItemCode;
+                        hoja.Cells[fila, 2].Value = item.ItemName;
+                        hoja.Cells[fila, 3].Value = item.StockMinAbastecimiento;
+                        hoja.Cells[fila, 4].Value = item.Clasificacion;
+                        fila++;
+                    }
+
+                    hoja.Cells.AutoFitColumns();
+
+                    using (var rango = hoja.Cells[1, 1, fila - 1, 4])
+                    {
+                        rango.Style.Border.Top.Style = OfficeOpenXml.Style.ExcelBorderStyle.Thin;
+                        rango.Style.Border.Bottom.Style = OfficeOpenXml.Style.ExcelBorderStyle.Thin;
+                        rango.Style.Border.Left.Style = OfficeOpenXml.Style.ExcelBorderStyle.Thin;
+                        rango.Style.Border.Right.Style = OfficeOpenXml.Style.ExcelBorderStyle.Thin;
+                    }
+
+                    // 3️⃣ Retornar archivo
+                    string nombreArchivo = $"Reporte_StockMinimoPicking_{DateTime.Now:yyyyMMdd_HHmm}.xlsx";
+                    string contentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+
+                    return File(excel.GetAsByteArray(), contentType, nombreArchivo);
+                }
+            }
+            catch (Exception ex)
+            {
+                return Content($"Error al generar el reporte: {ex.Message}");
+            }
+        }
+
+
+
+
+
         /************************* U B I C A C I O N E S   R E S E R V A *************************/
         public ActionResult UbicacionesReserva(int idOperation = 3200)
         {
@@ -2498,7 +2576,7 @@ namespace Capa_Usuario.Controllers
             var resultadoAcceso = VerificarPermiso(idOperation);
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
-                int columnas = 14;
+                int columnas = 17;
                 var lista = _reporteKardex.ListarKardexIngreso(fechaInicio, fechaFin);
 
                 if (lista != null && lista.Any())
@@ -2565,7 +2643,7 @@ namespace Capa_Usuario.Controllers
             }
         }
 
-        public JsonResult CrearRequerimientoAutomatico(int idOperation = 3807)
+        public JsonResult CrearRequerimientoAutomatico(int porcentaje, int idOperation = 3807)
         {
             var resultadoAcceso = VerificarPermiso(idOperation);
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode != 200)
@@ -2578,7 +2656,7 @@ namespace Capa_Usuario.Controllers
             var lista = new List<UbicacionesLotesMaster_E>();
 
             // 1. Obtenemos la lista de ItemCodes que requieren abastecimiento en Picking
-            var listaItemCodes = _reporteStockPicking.ListarArticulosConStockPickingInsuficiente();
+            var listaItemCodes = _reporteStockPicking.ListarArticulosConStockPickingInsuficiente(porcentaje);
             //var listaItemCodes = new List<string> { "VITPH0042" };
 
             // 2. Iteramos cada ItemCode para consultar stock en RESERVA y obtener la cantidad solicitada por ItemCode
@@ -2587,8 +2665,10 @@ namespace Capa_Usuario.Controllers
                 foreach (var item in listaItemCodes)
                 {
                     // Orden: próxima fecha de vencimiento, primera fecha de admisión registrada, la menor cantidad en unidades
-                    List<UbicacionesLotesMaster_E> listaLotesM = _ubicacionesLotesMasterN.BuscarArticulos(new UbicacionesLotesMaster_E { ItemCode = item.ItemCode }) ?? new List<UbicacionesLotesMaster_E>();
-                    if (listaLotesM != null && listaLotesM.Any())
+                    List<UbicacionesLotesMaster_E> listaLotesM =
+                        (_ubicacionesLotesMasterN.BuscarArticulos(new UbicacionesLotesMaster_E { ItemCode = item.ItemCode }) ?? new List<UbicacionesLotesMaster_E>())
+                        .Where(x => x.QuantityMaster > 0)
+                        .ToList(); if (listaLotesM != null && listaLotesM.Any())
                     {
                         // Verificar si todas las fechas ExpDate e InDate son iguales
                         bool fechasIguales = listaLotesM.All(a => a.ExpDate == listaLotesM.First().ExpDate) && listaLotesM.All(a => a.InDate == listaLotesM.First().InDate);
@@ -2995,6 +3075,149 @@ namespace Capa_Usuario.Controllers
             {
                 return Json(new { Titulo = "Error en la operación", Mensajes = new List<string> { "Sin accesos." }, Icono = "error" });
             }
+        }
+    
+        // --- INICIO: Cambio masivo de ubicación en Reserva ---
+        [HttpPost]
+        public JsonResult CambiarUbicacionReservaMasivo(MasivoCambioUbicacionReservaRequest request, int idOperation = 3207)
+        {
+            var resultadoAcceso = VerificarPermiso(idOperation);
+            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode != 200)
+            {
+                return Json(new { Titulo = "Error en la operación", Mensajes = new List<string> { "Sin accesos." }, Icono = "error" });
+            }
+            var usuarioSesion = Session["UsuarioId"] as Usuario_E;
+            if (usuarioSesion == null)
+                return Json(new { Titulo = "No se pudo completar la acción", Mensajes = new List<string> { "Inicia sesión nuevamente para continuar" }, Icono = "error" });
+
+            if (request?.items == null || !request.items.Any())
+                return Json(new { Titulo = "Error", Mensajes = new List<string> { "No se recibieron ítems para procesar." }, Icono = "error" });
+
+            var mensajes = new List<string>();
+            var errores = new List<string>();
+            foreach (var item in request.items)
+            {
+                if (string.IsNullOrWhiteSpace(item.nuevoCodigoUbicacion) || item.ubicacionLoteMasterId <= 0)
+                {
+                    errores.Add($"Ubicación inválida para el ítem con ID {item.ubicacionLoteMasterId}.");
+                    continue;
+                }
+                try
+                {
+                    var obj = _ubicacionesLotesMasterN.Obtener(item.ubicacionLoteMasterId);
+                    bool resultValidarSku = _requerimientosN.ValidarSkuParaCambioUbicacion(obj.ItemCode, obj.BatchNum, obj.CodigoUbicacion);
+                    if (!resultValidarSku)
+                    {
+                        errores.Add($"ID {item.ubicacionLoteMasterId}: SKU/Lote/Ubicación comprometidos en proceso.");
+                        continue;
+                    }
+                    List<DetalleRequerimientos_E> listaEnvioDatos = new List<DetalleRequerimientos_E> { new DetalleRequerimientos_E {
+                ItemCode=obj.ItemCode,
+                ItemName=obj.ItemName,
+                BatchNum=obj.BatchNum,
+                UmAlm=obj.UmAlm,
+                ValorUmAlm=obj.ValorUmAlm,
+                QuantityMaster=obj.QuantityMaster,
+                QuantitySaldo = obj.QuantitySaldo,
+                QuantityUnidadesCajas= obj.QuantityUnidadesCajas,
+                CodigoUbicacionOrigen=obj.CodigoUbicacion
+            } };
+                    Utilitarios uti = new Utilitarios();
+                    using (var scope = new TransactionScope(TransactionScopeOption.Required,
+                       new TransactionOptions { IsolationLevel = System.Transactions.IsolationLevel.ReadCommitted },
+                       TransactionScopeAsyncFlowOption.Enabled))
+                    {
+                        using (SqlConnection cn = new SqlConnection(uti.cadSql2))
+                        {
+                            cn.Open();
+                            var resultSalidaUbicacionesLotesMaster = _ubicacionesLotesMasterN.Salida(listaEnvioDatos, cn);
+                            if (resultSalidaUbicacionesLotesMaster.Icono.Equals("error"))
+                            {
+                                errores.Add($"ID {item.ubicacionLoteMasterId}: {string.Join("; ", resultSalidaUbicacionesLotesMaster.Mensajes)}");
+                                continue;
+                            }
+                            var resultSalidaUbicacionesLotes = _ubicacionesLotesN.Salida(listaEnvioDatos, cn);
+                            if (resultSalidaUbicacionesLotes.Icono.Equals("error"))
+                            {
+                                errores.Add($"ID {item.ubicacionLoteMasterId}: {string.Join("; ", resultSalidaUbicacionesLotes.Mensajes)}");
+                                continue;
+                            }
+                            var resultIngresoUbicacionesLotes = _ubicacionesLotesN.Ingreso(new DetalleTransferenciaReserva_E
+                            {
+                                ItemCode = obj.ItemCode,
+                                ItemName = obj.ItemName,
+                                BatchNum = obj.BatchNum,
+                                CodigoUbicacion = item.nuevoCodigoUbicacion,
+                                QuantityUnidadesCajas = Convert.ToInt32(obj.QuantityUnidadesCajas)
+                            }, cn);
+                            if (resultIngresoUbicacionesLotes.Icono.Equals("error"))
+                            {
+                                errores.Add($"ID {item.ubicacionLoteMasterId}: {string.Join("; ", resultIngresoUbicacionesLotes.Mensajes)}");
+                                continue;
+                            }
+                            var resultIngresoUbicacionesLotesMaster = _ubicacionesLotesMasterN.Ingreso(resultIngresoUbicacionesLotes.Id, new DetalleTransferenciaReserva_E
+                            {
+                                ItemCode = obj.ItemCode,
+                                ItemName = obj.ItemName,
+                                BatchNum = obj.BatchNum,
+                                CodigoUbicacion = item.nuevoCodigoUbicacion,
+                                QuantityMaster = obj.QuantityMaster,
+                                QuantitySaldo = obj.QuantitySaldo,
+                                UmAlm = obj.UmAlm,
+                                ValorUmAlm = obj.ValorUmAlm
+                            }, cn);
+                            if (resultIngresoUbicacionesLotesMaster.Icono.Equals("error"))
+                            {
+                                errores.Add($"ID {item.ubicacionLoteMasterId}: {string.Join("; ", resultIngresoUbicacionesLotesMaster.Mensajes)}");
+                                continue;
+                            }
+                            scope.Complete();
+                            mensajes.Add($"ID {item.ubicacionLoteMasterId}: Cambio realizado correctamente.");
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    errores.Add($"ID {item.ubicacionLoteMasterId}: {ex.Message}");
+                }
+            }
+            if (errores.Any())
+            {
+                return Json(new { Titulo = "Errores en el cambio masivo", Mensajes = errores, Icono = "error" });
+            }
+            return Json(new { Titulo = "Acción completada", Mensajes = mensajes, Icono = "success" });
+        }
+
+        public class MasivoCambioUbicacionReservaRequest
+        {
+            public List<ItemCambioUbicacionReserva> items { get; set; }
+        }
+        public class ItemCambioUbicacionReserva
+        {
+            public int ubicacionLoteMasterId { get; set; }
+            public string nuevoCodigoUbicacion { get; set; }
+        }
+        [HttpPost]
+        public JsonResult EliminarItemsDetalleRequerimiento(List<int> itemIDs, int idOperation = 3806)
+        {
+            var resultadoAcceso = VerificarPermiso(idOperation);
+            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode != 200)
+                return Json(new { Titulo = "Error en la operación", Mensajes = new List<string> { "Sin accesos." }, Icono = "error" });
+
+            var user = Session["UsuarioId"] as Usuario_E;
+            if (user == null)
+                return Json(new { Titulo = "Error en la operación", Mensajes = new List<string> { "No existe usuario logueado, se terminó la sesión." }, Icono = "error" });
+
+            var operarioRegistra = $"{user.Nombres} {user.Apellidos}";
+            var resultados = new List<object>();
+
+            foreach (var id in itemIDs)
+            {
+                var resultado = new DetalleRequerimientos_N().EliminarItem(id, operarioRegistra);
+                resultados.Add(resultado);
+            }
+
+            return Json(new { Titulo = "Eliminación masiva completada", Resultados = resultados, Icono = "success" }, JsonRequestBehavior.AllowGet);
         }
     }
 }

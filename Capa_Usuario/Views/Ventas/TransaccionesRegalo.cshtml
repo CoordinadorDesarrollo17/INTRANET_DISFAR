@@ -3,17 +3,11 @@
 
 @{
     ViewBag.Title = "TransaccionesRegalo";
-    Layout = "~/Views/Shared/_Layout.cshtml";
+    Layout = "~/Views/Shared/_DefaultLayout.cshtml";
     OREG_E reg = (OREG_E)ViewBag.Regalo;
 }
 
-<script>
-    function exportarTransacciones() {
-        var object = $("#frm").serialize();
-        $(location).attr('href', "/Ventas/ExportarExcelTransReg?" + object);
-    }
-</script>
-<div class="pt-4">
+<div class="pt-3">
     <nav>
         <ol class="cd-breadcrumb bg-cobefar-degradado-1">
             <li><a href="@Url.Action("Sesion", "Index")">Inicio</a></li>
@@ -50,86 +44,98 @@
         </div>
     </form>
 
-    <div class="bg-white bg-form-cobefar pt-3">
-        <table class="table table-light table-hover cls-dataTable50" cellspacing="0" width="100%">
-            <thead class="bg-cobefar-6">
-                <tr>
-                    <th class="text-center">
-                        @Html.DisplayNameFor(model => model.Id)
-                    </th>
-                    <th class="text-center">
-                        @Html.DisplayName("Descripcion")
-                    </th>
-                    <th class="text-center">
-                        @Html.DisplayName("Ruc")
-                    </th>
-                    <th class="text-center">
-                        @Html.DisplayName("Razon Social")
-                    </th>
-                    <th class="text-center">
-                        @Html.DisplayNameFor(model => model.Sentido)
-                    </th>
-                    <th class="text-center">
-                        @Html.DisplayNameFor(model => model.Detalle)
-                    </th>
-                    <th class="text-center">
-                        @Html.DisplayNameFor(model => model.Cantidad)
-                    </th>
-                    <th class="text-center">
-                        @Html.DisplayNameFor(model => model.Imputado)
-                    </th>
-                    <th class="text-center">
-                        @Html.DisplayNameFor(model => model.Operario)
-                    </th>
-                    <th class="text-center">
-                        @Html.DisplayNameFor(model => model.FechaRegistro)
-                    </th>
-                    <th class="text-center">
-                        @Html.DisplayNameFor(model => model.HoraRegistro)
-                    </th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var item in Model)
-                {
+    <div class="bg-white px-3 py-3 align-items-center">
+        <div class="table-responsive">
+            <table id="tbl_ListadoTransacciones" class="dt-container dt-empty-footer table table-sm table-hover font-14">
+                <thead class="thead-cobefar">
                     <tr>
-                        <td class="text-center">
-                            @Html.DisplayFor(modelItem => item.Id)
-                        </td>
-                        <td class="text-center">
-                            @Html.DisplayFor(modelItem => item.RegName)
-                        </td>
-                        <td class="text-center">
-                            @Html.DisplayFor(modelItem => item.CardCode)
-                        </td>
-                        <td class="text-center">
-                            @Html.DisplayFor(modelItem => item.CardName)
-                        </td>
-                        <td class="text-center">
-                            @Html.DisplayFor(modelItem => item.Sentido)
-                        </td>
-                        <td class="text-center">
-                            @Html.DisplayFor(modelItem => item.Detalle)
-                        </td>
-                        <td class="text-center">
-                            @Html.DisplayFor(modelItem => item.Cantidad)
-                        </td>
-                        <td class="text-center">
-                            @Html.DisplayFor(modelItem => item.Imputado)
-                        </td>
-                        <td class="text-center">
-                            @Html.DisplayFor(modelItem => item.Operario)
-                        </td>
-                        <td class="text-center">
-                            @Html.DisplayFor(modelItem => item.FechaRegistro)
-                        </td>
-                        <td class="text-center">
-                            @Html.DisplayFor(modelItem => item.HoraRegistro)
-                        </td>
+                        <th class="text-center border-end">
+                            @Html.DisplayNameFor(model => model.Id)
+                        </th>
+                        <th class="text-center border-end">
+                            @Html.DisplayName("Descripcion")
+                        </th>
+                        <th class="text-center border-end">
+                            @Html.DisplayName("Ruc")
+                        </th>
+                        <th class="text-center border-end">
+                            @Html.DisplayName("Razon Social")
+                        </th>
+                        <th class="text-center border-end">
+                            @Html.DisplayNameFor(model => model.Sentido)
+                        </th>
+                        <th class="text-center border-end">
+                            @Html.DisplayNameFor(model => model.Detalle)
+                        </th>
+                        <th class="text-center border-end">
+                            @Html.DisplayNameFor(model => model.Cantidad)
+                        </th>
+                        <th class="text-center border-end">
+                            @Html.DisplayNameFor(model => model.Imputado)
+                        </th>
+                        <th class="text-center border-end">
+                            @Html.DisplayNameFor(model => model.Operario)
+                        </th>
+                        <th class="text-center border-end">
+                            @Html.DisplayNameFor(model => model.FechaRegistro)
+                        </th>
+                        <th class="text-center border-end">
+                            @Html.DisplayNameFor(model => model.HoraRegistro)
+                        </th>
                     </tr>
-                }
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td class="text-center border-end border-start">
+                                @Html.DisplayFor(modelItem => item.Id)
+                            </td>
+                            <td class="text-center border-end">
+                                @Html.DisplayFor(modelItem => item.RegName)
+                            </td>
+                            <td class="text-center border-end">
+                                @Html.DisplayFor(modelItem => item.CardCode)
+                            </td>
+                            <td class="text-center border-end">
+                                @Html.DisplayFor(modelItem => item.CardName)
+                            </td>
+                            <td class="text-center border-end">
+                                @Html.DisplayFor(modelItem => item.Sentido)
+                            </td>
+                            <td class="text-center border-end">
+                                @Html.DisplayFor(modelItem => item.Detalle)
+                            </td>
+                            <td class="text-center border-end">
+                                @Html.DisplayFor(modelItem => item.Cantidad)
+                            </td>
+                            <td class="text-center border-end">
+                                @Html.DisplayFor(modelItem => item.Imputado)
+                            </td>
+                            <td class="text-center border-end">
+                                @Html.DisplayFor(modelItem => item.Operario)
+                            </td>
+                            <td class="text-center border-end">
+                                @Html.DisplayFor(modelItem => item.FechaRegistro)
+                            </td>
+                            <td class="text-center border-end">
+                                @Html.DisplayFor(modelItem => item.HoraRegistro)
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
     </div>
-
-</div>
+    </div>
+<script>
+    function exportarTransacciones() {
+        var object = $("#frm").serialize();
+        $(location).attr('href', "/Ventas/ExportarExcelTransReg?" + object);
+    }
+    document.addEventListener('DOMContentLoaded', function () {
+        if (!$.fn.DataTable.isDataTable('tbl_ListadoTransacciones')) {
+            inicializarDataTable('tbl_ListadoTransacciones', 50, true, false); // El tercer parámetro indica que no hay ordenamiento
+        }
+    });
+</script>

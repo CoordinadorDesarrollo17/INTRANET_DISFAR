@@ -101,7 +101,7 @@ namespace Capa_Negocio.AbastecimientoInterno_NEG.Reportes
                 .ToList();
         }
 
-        public List<OITW_E> ListarArticulosConStockPickingInsuficiente()
+        public List<OITW_E> ListarArticulosConStockPickingInsuficiente(int porcentaje)
         {
             var resultado = new List<OITW_E>();
             var controlStockInternoPicking = _datosReporte.ControlHistoricoDeIngresosAPicking();
@@ -114,48 +114,68 @@ namespace Capa_Negocio.AbastecimientoInterno_NEG.Reportes
                 .ToHashSet();
 
             // Obtener los artículos disponibles que no están en requerimientos
-            List<OITW_E> articulos = new Capa_Negocio.Almacen_NEG.Tablas.OITW_N()
+            List<OITW_E> articulos = _oitwN
                 .ListarDetArticulosInv(new OITW_E { WhsCode = "16" })
                 .Where(x => x.OnHand > 0 && !articulosEnRequerimientos.Contains(x.ItemCode))
                 .ToList();
 
-            int contador = 1;
             if (articulos != null && articulos.Any())
             {
-                // Iterar sobre una copia de la lista para evitar el error de modificación
-                foreach (var item in articulos.ToList())
+                // 1) Preparar índices por ItemCode para evitar N+1
+                var itemCodes = articulos.Select(a => a.ItemCode).Distinct().ToList();
+
+                // 1.a) Requerimientos por ItemCode
+                var detallesReq = _requerimientosN.ListarDetalles(itemCodes, "CantidadSolicitada");
+                var reqPorItem = detallesReq
+                    .GroupBy(r => r.ItemCode)
+                    .ToDictionary(g => g.Key, g => g.Sum(x => x.QuantityUnidadesCajas));
+
+                // 1.b) Ubicaciones de lotes por ItemCode (solo RESERVA)
+                var ubicaciones = _ubicacionesLotesN.ObtenerDatosPorItemCode(itemCodes);
+                var ubiPorItem = ubicaciones
+                    .Where(x => x.Almacen == "RESERVA")
+                    .GroupBy(x => x.ItemCode)
+                    .ToDictionary(g => g.Key, g => g.Sum(x => x.QuantityUnidadesCajas));
+
+                // 1.c) Parámetros de control (StockMinAbastecimiento) por ItemCode
+                var controlPorItem = controlStockInternoPicking
+                    .GroupBy(x => x.ItemCode)
+                    .ToDictionary(g => g.Key, g => g.First());
+
+                foreach (var item in articulos)
                 {
-                    // Tener en cuenta solo 20 SKUs
-                    //if (contador == 20)
-                    //    break;
+                    // Cantidad solicitada acumulada
+                    int quantityReq = reqPorItem.TryGetValue(item.ItemCode, out var qReq) ? (qReq ?? 0) : 0;
 
-                    // 1. Obtener la cantidad solicitada para este ItemCode
-                    List<DetalleRequerimientos_E> resultDetReq = _requerimientosN.ListarDetalles_OLD(item.ItemCode, "CantidadSolicitada");
-                    int quantityReq = resultDetReq?.Sum(r => r.QuantityUnidadesCajas) ?? 0;
+                    // Cantidad en ubicaciones de RESERVA
+                    int quantityUbi;
+                    ubiPorItem.TryGetValue(item.ItemCode, out quantityUbi);
 
-                    // 2. Obtener los lotes disponibles para ese ItemCode
-                    List<UbicacionesLotes_E> resultUbicacionesLotes = _ubicacionesLotesN.Obtener(item.ItemCode).Where(x => x.Almacen.Equals("RESERVA")).ToList();
-                    int quantityUbicacionesLote = resultUbicacionesLotes?.Sum(r => r.QuantityUnidadesCajas) ?? 0;
-
-                    int stockDeAlmReserva = quantityUbicacionesLote - quantityReq;
+                    // Cálculos de stock
+                    int stockDeAlmReserva = quantityUbi - quantityReq; // RESERVA neto
                     decimal stockEnPicking = item.StockLibreUnidades - stockDeAlmReserva;
-                    decimal stockMinimoParaLaVenta = new StockMinProductos_N().Obtener(item.ItemCode).StockMinAbastecimiento;
-                    item.CantidadSolicitada = Convert.ToInt32(stockMinimoParaLaVenta - stockEnPicking);
 
-                    var controlPorItemCode = controlStockInternoPicking.FirstOrDefault(i => i.ItemCode == item.ItemCode);
+                    // Stock mínimo desde control interno (evita consulta por ítem)
+                    int stockMin = 0;
+                    if (controlPorItem.TryGetValue(item.ItemCode, out var ctrl) && item.StockLibreUnidades > 0)
+                        stockMin = ctrl.StockMinAbastecimiento;
 
+                    // Asignaciones usadas por la condición de salida
                     item.StockPicking = stockEnPicking;
-                    item.StockMinAbastecimiento = (controlPorItemCode != null && item.StockLibreUnidades > 0) ? controlPorItemCode.StockMinAbastecimiento : 0;        // Debe existir stock en RESERVA 
+                    item.StockMinAbastecimiento = stockMin;
 
-                    // Si está en condición crítica (<50%) y tiene stock en RESERVA, lo agregamos al resultado
-                    if (stockDeAlmReserva > 0 && item.StockPicking > 0 && item.StockPicking < item.StockMinAbastecimiento * 0.5M)
+                    // Cantidad a solicitar respecto al mínimo (si es negativa, no se usa para filtrar)
+                    item.CantidadSolicitada = Convert.ToInt32(stockMin - stockEnPicking);
+
+                    decimal factor = porcentaje / 100M;
+                    // Condición: crítico (<50%) y con stock en RESERVA
+                    if (stockDeAlmReserva > 0 && item.StockPicking > 0 && item.StockPicking < item.StockMinAbastecimiento * factor)
                     {
                         resultado.Add(new OITW_E
                         {
                             ItemCode = item.ItemCode,
                             CantidadSolicitada = item.CantidadSolicitada
                         });
-                        ++contador;
                     }
                 }
             }

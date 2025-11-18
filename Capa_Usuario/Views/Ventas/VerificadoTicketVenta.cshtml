@@ -13,11 +13,19 @@
     List<SAT1_E> productosTicket = (List<SAT1_E>)ViewBag.ListaArticulosTicket;
 }
 <script>
-    $(document).ready(function () { });
+
     function filtrar() {
         var object = $("#frm").serialize();
         $(location).attr('href', "/Ventas/ListadoTicketsAlmacen?" + object);
-    }</script>
+    }
+    function mostrarPendientes() {
+        Swal.fire({
+            icon: 'info',
+            title: 'Productos Pendientes',
+            text: 'Recuerde revisar y gestionar los productos pendientes antes de finalizar la verificación.'
+        });
+    }
+</script>
 
 <div class="pt-4">
     <nav>
@@ -60,7 +68,7 @@
             <div class="bg-section-form p-4 bg-form-cobefar">
                 <h2 class="text-cobefar font-weight-bold">VERIFICANDO TICKET DE VENTA</h2>
                 <form id="fmr_FinVerificar">
-                    
+
                     <div class="form-group row mt-4 ml-1" hidden>
                         <label for="FechaVerificado" class="col-sm-2 bg-cobefar text-white text-center py-2 px-2 col-form-label font-weight-bold font-18">Fecha Verificado:</label>
                         <div class="col-lg-2">
@@ -112,10 +120,9 @@
                 </datalist>
 
                 <div class="row mt-4">
-                    <div class="col-lg-2">
-                        <button type="button" class="btn btn-success" onclick="validarForm()"><i class="icon icon-checkmark"></i> Terminar Verificar</button>
+                    <div class="col-lg-2 d-flex align-items-center">
+                        <button type="button" class="btn btn-success mr-2" id="btnTerminarVerificar" onclick="validarForm()"><i class="icon icon-checkmark"></i> Terminar Verificar</button>
                     </div>
-
                 </div>
             </div>
         </div>
@@ -800,11 +807,12 @@
 
         if (typeof valor === 'undefined') {
             valor = "PRODUCTO INCORRECTO";
-            document.getElementById("producto_valido_bp").value = "NO";            
+            document.getElementById("producto_valido_bp").value = "NO";
         } else {
             document.getElementById("producto_valido_bp").value = "SI";
         }
 
         $('#' + idCampoDestino).val(valor);
     }
+
 </script>

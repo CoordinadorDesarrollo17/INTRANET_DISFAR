@@ -156,36 +156,24 @@
             <div class="row mt-lg-4">
                 <div class="col-lg-2">
                     <label for="CopilDesc" class="text-dark form-label font-weight-bold font-18">Copiloto 1:</label>
-                    @Html.EditorFor(model => model.CopilDesc, new
-                    {
-                        htmlAttributes = new
-                        {
-                            @type = "search",
-                            @class = "text-center form-control border-success",
-                            @list = "ListaCopilotos",
-                            @autocomplete = "off"
-                        }
-                    })
-                    <datalist id="ListaCopilotos">
+                    <select name="CopilDesc" id="CopilDesc" class="form-control bg-cobefar text-white border-success">
+                        <option value="">Seleccione</option>
                         @foreach (var x in Copilotos)
                         {
-                            <option value="@x.ToUpper()"></option>
+                            <option value="@x.ToUpper()" @if (Model.CopilDesc == x.ToUpper()) { <text> selected</text> }>@x.ToUpper()</option>
                         }
-                    </datalist>
+                    </select>
                 </div>
 
                 <div class="col-lg-2">
                     <label for="Copil2Desc" class="text-dark form-label font-weight-bold font-18">Copiloto 2:</label>
-                    @Html.EditorFor(model => model.Copil2Desc, new
-                    {
-                        htmlAttributes = new
+                    <select name="Copil2Desc" id="Copil2Desc" class="form-control bg-cobefar text-white border-success">
+                        <option value="">Seleccione</option>
+                        @foreach (var x in Copilotos)
                         {
-                            @type = "search",
-                            @class = "text-center form-control border-success",
-                            @list = "ListaCopilotos",
-                            @autocomplete = "off"
+                            <option value="@x.ToUpper()" @if (Model.Copil2Desc == x.ToUpper()) { <text> selected</text> }>@x.ToUpper()</option>
                         }
-                    })
+                    </select>
                 </div>
 
                 <div class="col-lg-2">
@@ -200,7 +188,7 @@
 
                 <div class="col-lg-4">
                     <label for="Observaciones" class="text-dark form-label font-weight-bold font-18">Observaciones:</label>
-                    @Html.EditorFor(model => model.Observaciones, new { htmlAttributes = new { @class = "form-control border-success",@autocomplete="off" } })
+                    @Html.EditorFor(model => model.Observaciones, new { htmlAttributes = new { @class = "form-control border-success", @autocomplete = "off" } })
                 </div>
             </div>
             <!--Boton de editar datos de cabecera-->
@@ -230,6 +218,7 @@
                                 <th hidden>CodSocio</th>
                                 <th class="text-center" style="width:250px">Socio</th>
                                 <th class="text-center" style="width: 270px">Guías</th>
+                                <th class="text-center" style="width:350px">Conductor/Placa</th> <!-- ✅ AGREGAR ESTA COLUMNA -->
                                 <th class="text-center" style="width: 80px">Cajas</th>
                                 <th hidden>Obs.</th>
                                 <th hidden>Direcciones</th>
@@ -242,7 +231,6 @@
                                 <th hidden>Vinculados</th>
                             </tr>
                         </thead>
-
                     </table>
                 </div>
 
@@ -260,6 +248,7 @@
                                     <th class="text-center">NroTicket</th>
                                     <th class="text-center">Socio</th>
                                     <th class="text-center">Guias</th>
+                                    <th class="text-center" style="width:350px">Conductor/Placa</th> <!-- ✅ AGREGAR ESTA COLUMNA -->
                                     <th class="text-center">Cajas</th>
                                     <th class="text-center">Obs.</th>
                                     <th class="text-center">Direcciones</th>
@@ -280,7 +269,7 @@
                                         <td><input name='DetRRU0[@(det.Linea - 1)].DocNumTicket' id="DocNumTDet@(det.Linea)" type='hidden' class="form-control border-success" value='@det.DocNumTicket' readonly />@det.DocNumTicket</td>
                                         <td><input name='DetRRU0[@(det.Linea - 1)].Socio' type='hidden' class="form-control border-success" value='@det.Socio' style='width:100px;' readonly />@det.Socio</td>
                                         <td><input name='DetRRU0[@(det.Linea - 1)].Guias' type='hidden' class="form-control border-success" value='@det.Guias' style='width:100px;' readonly />@det.Guias</td>
-                                        <td class="text-center"><input name='DetRRU0[@(det.Linea - 1)].Cajas' type='hidden' class="form-control border-success" value='@det.Cajas' readonly />@det.Cajas</td>
+                                        <td><input name='DetRRU0[@(det.Linea - 1)].ConducYPlaca' type='hidden' class="form-control border-success" value='@det.ConducYPlaca' style='width:100px;' readonly />@det.ConducYPlaca</td>                                        <td class="text-center"><input name='DetRRU0[@(det.Linea - 1)].Cajas' type='hidden' class="form-control border-success" value='@det.Cajas' readonly />@det.Cajas</td>
                                         <td><input name='DetRRU0[@(det.Linea - 1)].Observaciones' type='hidden' class="form-control border-success" value='@det.Observaciones' style='width:100px;' readonly />@det.Observaciones</td>
                                         <td><textarea name='DetRRU0[@(det.Linea - 1)].Direcciones' class="form-control border-success" readonly>@det.Direcciones</textarea></td>
                                         <td class="text-center"><input name='DetRRU0[@(det.Linea - 1)].MontoFinal' type='hidden' class="form-control border-success" value='@det.MontoFinal' style='width:90px;' readonly />@det.MontoFinal</td>

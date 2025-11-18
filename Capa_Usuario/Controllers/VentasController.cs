@@ -1024,15 +1024,35 @@ namespace Capa_Usuario.Controllers
         public void EnviarCorreo(int docEntry, string correoCliente)
         {
             Utilitarios uti = new Utilitarios();
+
             string destinatario = correoCliente;
-            string remitente = "cobefar.facturacion@gmail.com";
-            string asunto = "COBEFAR SAC - DOCUMENTOS ELECTRONICOS";
-            string cuerpo = "<html><body><h3 style='color:green;'>Gracias por su compra - COBEFAR SAC</h3><p style='font-size:16px;font-weight:bold'>Estimado cliente,<br>Adjuntamos sus comprobantes electrónicos.</p><span>Área Comercial - COBEFAR SAC</span></body></html>";
-            MailMessage ms = new MailMessage(remitente, destinatario, asunto, cuerpo)
-            {
-                IsBodyHtml = true
-            };
+            string remitente = "facturacion@cobefar.com.pe";
+            string claveRemitente = "jnrfpqmjzbngkzrv"; // ⚠️ cámbiala por la real
+
+            string asunto = "COBEFAR SAC - DOCUMENTOS ELECTRÓNICOS";
+            string cuerpo = @"
+                            <html>
+                            <body>
+                                <h3 style='color:green;'>Gracias por su compra - COBEFAR SAC</h3>
+                                <p style='font-size:16px;font-weight:bold'>
+                                    Estimado cliente,<br>
+                                    Adjuntamos sus comprobantes electrónicos.
+                                </p>
+                                <span>Área Comercial - COBEFAR SAC</span>
+                            </body>
+                            </html>";
+
+            // Crear mensaje
+            MailMessage ms = new MailMessage();
+            ms.From = new MailAddress(remitente, "COBEFAR SAC");
+            ms.To.Add(destinatario);
+            ms.Subject = asunto;
+            ms.Body = cuerpo;
+            ms.IsBodyHtml = true;
+
+            // Generar y adjuntar PDF
             string filePath = CrearYObtenerDocumento(docEntry, "F");
+
             try
             {
                 if (!string.IsNullOrWhiteSpace(filePath) && System.IO.File.Exists(filePath))
@@ -1043,25 +1063,38 @@ namespace Capa_Usuario.Controllers
                 {
                     throw new FileNotFoundException("No se encontró el archivo PDF para adjuntar.");
                 }
-                SmtpClient smtp = new SmtpClient(uti.Smtp, uti.CodigoSmtp)
+
+                // 🔹 SOLO aquí se usa Office 365
+                using (SmtpClient smtp = new SmtpClient("smtp.office365.com", 587))
                 {
-                    EnableSsl = true,
-                    Credentials = new NetworkCredential(remitente, "yrklhfztkobemclu")
-                };
-                ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
-                smtp.Send(ms);
+                    smtp.EnableSsl = true;
+                    smtp.UseDefaultCredentials = false;
+                    smtp.Credentials = new NetworkCredential(remitente, claveRemitente);
+                    smtp.DeliveryMethod = SmtpDeliveryMethod.Network;
+
+                    // Requerido por Microsoft (TLS 1.2)
+                    ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
+
+                    smtp.Send(ms);
+                    Console.WriteLine("✅ Correo enviado exitosamente a " + destinatario);
+                }
+            }
+            catch (SmtpException ex)
+            {
+                Console.WriteLine($"❌ Error SMTP: {ex.StatusCode} - {ex.Message}");
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error al enviar el correo: {ex.Message}");
+                Console.WriteLine($"❌ Error general: {ex.Message}");
             }
             finally
             {
+                // Eliminar PDF temporal
                 if (!string.IsNullOrWhiteSpace(filePath) && System.IO.File.Exists(filePath))
                 {
                     try
                     {
-                        System.IO.File.Delete(filePath);
+                        System.IO.File.Delete(filePath); 
                         Console.WriteLine("Archivo PDF eliminado después del envío del correo.");
                     }
                     catch (Exception deleteEx)
@@ -1071,6 +1104,8 @@ namespace Capa_Usuario.Controllers
                 }
             }
         }
+
+
         private List<Comprobante_E> ObtenerEncabezados(List<int> listDocEntrySap, ORTV_E obj, string Tipo)
         {
             Comprobante_N compN = new Comprobante_N();
@@ -1750,6 +1785,7 @@ namespace Capa_Usuario.Controllers
         }
         [HttpPost]
         public ActionResult VerificadoTicketVenta(int DocEntry, ORTV_E ticketPost, int idOperation = 808)
+
         {
             var resultadoAcceso = VerificarPermiso(idOperation);
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
@@ -1760,12 +1796,21 @@ namespace Capa_Usuario.Controllers
                     ORTV_E ticket = _ticketN.ObtenerDatosCompletosTicket(DocEntry);
                     ticket.OpRegistro = $"{u.Nombres} {u.Apellidos}";
                     ticket.Det12 = ticketPost.Det12;        // OpVerificador 2 y OpVerificador 3
-                    ticket.ProductoPendiente = ticketPost.ProductoPendiente;
-                    int DocNum = _ticketN.editarSeguimientoTicket("FIN VERIFICAR", DocEntry, ticket);
+                    ticket.ProductoPendiente = ticketPost.ProductoPendiente;  // IMPORTANTE: Se asigna el valor
+
                     var listaUsuarios = _usuarioN.ListaUsuarios(new Usuario_E() { Prefijo = "ALM" });
                     var usuariosDistinct = listaUsuarios.Select(x => $"{x.Nombres} {x.Apellidos}").Distinct().ToList();
                     ViewBag.ListaUsuarios = usuariosDistinct;
-                    return Json(new { DocNum, Mensaje = $"Ticket {DocNum} verificado correctamente" });
+
+                    // Registrar el ticket independientemente del valor de ProductoPendiente
+                    int DocNum = _ticketN.editarSeguimientoTicket("FIN VERIFICAR", DocEntry, ticket);
+
+                    // Mensaje diferente según si hay productos pendientes o no
+                    string mensaje = ticket.ProductoPendiente == 1
+                        ? $"Ticket {DocNum} verificado con productos pendientes"
+                        : $"Ticket {DocNum} verificado correctamente";
+
+                    return Json(new { DocNum, Mensaje = mensaje });
                 }
                 catch (Exception e)
                 {
@@ -1781,6 +1826,7 @@ namespace Capa_Usuario.Controllers
                 return resultadoAcceso;
             }
         }
+
         public ActionResult AnularVerificadoTicket(int DocEntry, int idOperation = 809)
         {
             var resultadoAcceso = VerificarPermiso(idOperation);
@@ -2809,11 +2855,19 @@ namespace Capa_Usuario.Controllers
                 try
                 {
                     ViewBag.CliReg = filtro;
+                    // Obtener listas necesarias para el modal de Nuevo Cliente Regalo
                     OCLR_N oclrN = new OCLR_N();
+                    OREG_N oregN = new OREG_N();
+                    OCRD_N ocrdN = new OCRD_N();
+                    OREG_E filtroRegalo = null;
+                    ViewBag.Regalos = oregN.listaRegalos(filtroRegalo);
+                    ViewBag.Clientes = ocrdN.listarSociosDeNegocios(new OCRD_E { CardType = "C" });
                     return View(oclrN.listadoRegaloCliente(filtro));
                 }
                 catch (Exception e)
-                { return RedirectToAction("GestionClienteRegalos", new { msj = e.Message }); }
+                {
+                    return RedirectToAction("GestionClienteRegalos", new { msj = e.Message });
+                }
             }
             else
             {
@@ -3269,7 +3323,7 @@ namespace Capa_Usuario.Controllers
                     {
                         if (t.LugarDestino == "Centro")
                         {
-                            t.TiempoEntrega = Convert.ToDateTime(t.TiempoEntrega).AddMinutes(90);
+                            t.TiempoEntrega = Convert.ToDateTime(t.TiempoEntrega).AddMinutes(120);
                         }
                         else if (t.LugarDestino == "Arriola")
                         {

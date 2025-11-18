@@ -24,10 +24,58 @@
 <style>
     #Detalles textarea {
         font-size: 12px;
+        white-space: pre-line; /* ✅ ESTO HACE QUE SE RESPETEN LOS SALTOS DE LÍNEA */
+        overflow-wrap: break-word;
+        resize: none; /* Evita que el usuario cambie el tamaño */
+    }
+
+    /* Estilos para las columnas de la tabla */
+    #detalleRuta th:nth-child(7), /* Guías */
+    #Detalles th:nth-child(5) { /* Guías en tabla detalle */
+        width: 200px !important;
+        max-width: 200px;
+    }
+
+    #detalleRuta th:nth-child(8), /* Conductor/Placa */
+    #Detalles th:nth-child(6) { /* Conductor/Placa en tabla detalle */
+        width: 350px !important;
+        max-width: 350px;
+    }
+
+    #detalleRuta td:nth-child(7), /* Guías */
+    #Detalles td:nth-child(5) { /* Guías en tabla detalle */
+        white-space: pre-line;
+        word-break: break-word;
+        font-size: 11px;
+    }
+
+    #detalleRuta td:nth-child(8), /* Conductor/Placa */
+    #Detalles td:nth-child(6) { /* Conductor/Placa en tabla detalle */
+        white-space: pre-line;
+        word-break: break-word;
+        font-size: 11px;
+        line-height: 1.4;
     }
 </style>
 <script>
     var contDet = 0;
+
+    // Ajustar altura de textareas automáticamente
+    function ajustarAlturaTextareas() {
+        document.querySelectorAll('#Detalles textarea').forEach(function (textarea) {
+            textarea.style.height = 'auto';
+            textarea.style.height = textarea.scrollHeight + 'px';
+        });
+    }
+
+    // Ejecutar cuando cargue la página
+    window.addEventListener('DOMContentLoaded', ajustarAlturaTextareas);
+
+    // Observar cambios en la tabla
+    const observer = new MutationObserver(ajustarAlturaTextareas);
+    document.addEventListener('DOMContentLoaded', function () {
+        observer.observe(document.querySelector('#Detalles tbody'), { childList: true });
+    });
 </script>
 <script src="~/Scripts/Rutas/HojaDeReparto.js?v=@DateTime.Now.Ticks>" defer></script>
 
@@ -94,6 +142,8 @@
                     <option value="AGENCIA">AGENCIA</option>
                     <option value="PREVENTA">PREVENTA</option>
                     <option value="ARRIOLA">ARRIOLA</option>
+                    <option value="CONO ARRIOLA"> CONO ARRIOLA</option>
+                    <option value="CONO AGENCIA">CONO AGENCIA</option>
                 </select>
             </div>
             <div id="div_almacen-origen" class="col-lg-2">
@@ -156,17 +206,23 @@
         <div class="row mt-lg-4">
             <div class="col-lg-2">
                 <label for="CopilDesc" class="text-dark form-label font-weight-bold font-18">Copiloto 1:</label>
-                @Html.EditorFor(model => model.CopilDesc, new { htmlAttributes = new { @class = "form-control border-success", @type = "search", @list = "ListaCopilotos", @autocomplete = "off" } })
-                <datalist id="ListaCopilotos">
+                <select name="CopilDesc" id="CopilDesc" class="form-control bg-cobefar text-white border-success">
+                    <option value="">Seleccione</option>
                     @foreach (var x in Copilotos)
                     {
-                        <option value="@x.ToUpper()"></option>
+                        <option value="@x.ToUpper()">@x.ToUpper()</option>
                     }
-                </datalist>
+                </select>
             </div>
             <div class="col-lg-2">
                 <label for="Copil2Desc" class="text-dark form-label font-weight-bold font-18">Copiloto 2:</label>
-                @Html.EditorFor(model => model.Copil2Desc, new { htmlAttributes = new { @class = "form-control border-success", @type = "search", @list = "ListaCopilotos", @autocomplete = "off" } })
+                <select name="Copil2Desc" id="Copil2Desc" class="form-control bg-cobefar text-white border-success">
+                    <option value="">Seleccione</option>
+                    @foreach (var x in Copilotos)
+                    {
+                        <option value="@x.ToUpper()">@x.ToUpper()</option>
+                    }
+                </select>
             </div>
             <div class="col-lg-2">
                 <label for="TiempoPac" class="text-dark form-label font-weight-bold font-18">Tiempo de entrega pactado: </label>
@@ -211,7 +267,8 @@
                         <th class="text-center">NroTicket</th>
                         <th hidden>CodSocio</th>
                         <th class="text-center" style="width:250px">Socio</th>
-                        <th class="text-center" style="width:450px">Guías</th>
+                        <th class="text-center" style="width:200px">Guías</th>
+                        <th class="text-center" style="width:350px">Conductor/Placa</th>
                         <th class="text-center">Cajas</th>
                         <th hidden>Obs.</th>
                         <th hidden>Direcciones</th>
@@ -230,18 +287,19 @@
 
     <!--Tabla principal que detalla los tickets agregados a la orden de reparto-->
     <h3 class="text-cobefar font-weight-bold mt-2">
-        DETALLE DE RUTA<br />
+     DETALLE DE RUTA<br />
     </h3>
     <div id="divDetalleRuta">
         <div class="mt-2">
             <table id="Detalles" class="table table-light table-sm table-hover" cellspacing="0" width="100%">
                 <thead class="bg-success">
-                    <tr>
+                    <tr>      
                         <th class="text-center">#</th>
                         <th hidden>DocEntryT</th>
                         <th class="text-center">NroTicket</th>
                         <th class="text-center">Socio</th>
-                        <th class="text-center">Guías</th>
+                        <th class="text-center" style="width:200px">Guías</th>
+                        <th class="text-center" style="width:350px">Conductor/Placa</th>
                         <th class="text-center">Cajas</th>
                         <th class="text-center">Obs.</th>
                         <th class="text-center">Direcciones</th>
@@ -254,7 +312,6 @@
                 <tbody></tbody>
             </table>
         </div>
-
     </div>
 
     <!-- Modal para ver tickets no enviados-->
@@ -297,3 +354,31 @@
         });
     </script>
 }
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const tipoRutaSelect = document.getElementById('TipoRuta');
+        const zonaSelect = document.getElementById('Zona');
+
+        function actualizarOpcionesZona() {
+            // Mostrar todas las opciones primero
+            Array.from(zonaSelect.options).forEach(opt => {
+                opt.hidden = false;
+            });
+
+            // Si es Domicilio, ocultar AGENCIA y ARRIOLA
+            if (tipoRutaSelect.value === 'VD') {
+                Array.from(zonaSelect.options).forEach(opt => {
+                    if (opt.value === 'AGENCIA' || opt.value === 'ARRIOLA') {
+                        opt.hidden = true;
+                        // Si está seleccionada, resetea el select
+                        if (zonaSelect.value === opt.value) zonaSelect.value = '';
+                    }
+                });
+            }
+        }
+        tipoRutaSelect.addEventListener('change', actualizarOpcionesZona);
+        // Ejecutar al cargar por si hay valor inicial
+        actualizarOpcionesZona();
+    });
+</script>

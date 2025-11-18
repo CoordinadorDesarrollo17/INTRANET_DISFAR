@@ -97,8 +97,10 @@
                 <label for="Zona" class="form-label fw-bold">Zona:</label>
                 <select id="Zona" name="Zona" class="form-select">
                     <option value="">Seleccione</option>
-                    <option value="Picking">Picking</option>
+                    <option value="Verificacion">Verificación</option>
                     <option value="Recepcion">Recepción</option>
+                    <option value="RECEP-URGENTE">RECEP-URGENTE</option>
+                    <option value="VERIF-URGENTE">VERIF-URGENTE</option>
                 </select>
             </div>
         </div><!-- // row-->
@@ -113,7 +115,7 @@
                 </button>
                 @if (ViewBag.PermisoRequerimientoAutomatico)
                 {
-                    <button type="button" id="btn_CrearRequerimientoAutomatico" class="btn btn-outline-secondary" onclick="crearRequerimientoAutomatico()">
+                    <button type="button" id="btn_CrearRequerimientoAutomatico" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#modalRequerimientoAutomatico">
                         <i class="bi bi-robot"></i> Req. Picking Autom.
                     </button>
                 }
@@ -251,6 +253,31 @@
         </div>
     </div>
 </div>
+
+<!-- Modal para seleccionar porcentaje de requerimiento automático -->
+<div class="modal fade" id="modalRequerimientoAutomatico" tabindex="-1" aria-labelledby="modalRequerimientoAutomaticoLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-headerModals text-white">
+                <h5 class="modal-title" id="modalRequerimientoAutomaticoLabel">Seleccionar porcentaje de requerimiento automático</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label for="porcentajeRequerimiento" class="form-label">Porcentaje:</label>
+                    <input type="number" id="porcentajeRequerimiento" class="form-control" min="1" max="100" step="1" placeholder="Ingrese el porcentaje (1-100)" />
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-success" id="btnCrearReqAutoPorcentaje" onclick="crearRequerimientoAutomaticoPorcentaje()">
+                    <i class="bi bi-robot"></i> Crear requerimiento automático
+                </button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @section Scripts{
     @Html.Raw("<script src=\"https://cdn.jsdelivr.net/npm/@yaireo/tagify/dist/tagify.min.js\" defer></script>")
     <script>
@@ -274,6 +301,19 @@
                 content: 'Crear requerimiento automático tipo picking',
                 animation: 'fade'
             });
+
+            // Solo permitir enteros en el campo porcentaje
+            var porcentajeInput = document.getElementById('porcentajeRequerimiento');
+            if (porcentajeInput) {
+                porcentajeInput.addEventListener('input', function () {
+                    // Elimina decimales si se escriben
+                    if (this.value.includes('.')) {
+                        this.value = this.value.split('.')[0];
+                    }
+                    // Elimina cualquier caracter no numérico
+                    this.value = this.value.replace(/[^0-9]/g, '');
+                });
+            }
 		});
 
 		async function buscarArticulos() {
@@ -898,6 +938,47 @@
                     title: 'Error al crear requerimiento',
                     text: error.message || 'Ocurrió un error inesperado.',
                 });
+            } finally {
+                boton.disabled = false;
+                boton.innerHTML = `<i class='bi bi-robot'></i> Req. Picking Autom.`;
+            }
+        }
+
+        async function crearRequerimientoAutomaticoPorcentaje() {
+            const boton = document.getElementById("btnCrearReqAutoPorcentaje");
+            const porcentaje = document.getElementById("porcentajeRequerimiento").value;
+            boton.disabled = true;
+            boton.innerHTML = `<span class='spinner-border spinner-border-sm' role='status' aria-hidden='true'></span> Procesando...`;
+            try {
+                const response = await fetch("/AbastecimientoInterno/CrearRequerimientoAutomatico", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ porcentaje })
+                });
+                if (!response.ok) throw new Error('Error inesperado del servidor.');
+                const json = await response.json();
+                Swal.fire({
+                    title: json.Titulo,
+                    html: json.Mensajes ? json.Mensajes.join('<br>') : '',
+                    icon: json.Icono
+                });
+                // Cerrar el modal si fue exitoso
+                if(json.Icono === "success") {
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('modalRequerimientoAutomatico'));
+                    if(modal) modal.hide();
+                }
+            } catch (error) {
+                console.error('Error al crear requerimiento automático:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error al crear requerimiento',
+                    text: error.message || 'Ocurrió un error inesperado.',
+                });
+            } finally {
+                boton.disabled = false;
+                boton.innerHTML = `<i class='bi bi-robot'></i> Crear requerimiento automático`;
             }
         }
     </script>

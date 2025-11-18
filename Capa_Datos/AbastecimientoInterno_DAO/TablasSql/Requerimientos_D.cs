@@ -278,7 +278,7 @@ namespace Capa_Datos.AbastecimientoInterno_DAO.TablasSql
                         Value = 0
                     };
                     cmd.Parameters.Add(param2);
-                    
+
                     // Para el Type @ItemCodeList
                     var table = new DataTable();
                     table.Columns.Add("ItemCode", typeof(string));
