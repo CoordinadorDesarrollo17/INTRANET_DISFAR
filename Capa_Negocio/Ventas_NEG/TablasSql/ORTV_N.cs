@@ -969,7 +969,7 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
 
         public bool GuardarComentario(int docEntry, string comentario)
         {
-            if(comentario.Length > 400) throw new Exception("El comentario no puede tener mas de 400 caracteres");
+            if (comentario.Length > 400) throw new Exception("El comentario no puede tener mas de 400 caracteres");
             return tkD.GuardarComentario(docEntry, comentario);
         }
 
@@ -980,6 +980,10 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
         public int AgenciaFill(string Agencia)
         {
             return tkD.AgenciaFill(Agencia.ToUpper());
+        }
+        public int EditarRegalo(int docEntry, ORTV_E ticket)
+        {
+            return tkD.RevertirAsignacionRegalo(docEntry, ticket);
         }
     }
 }
