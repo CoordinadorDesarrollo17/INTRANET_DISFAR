@@ -3090,7 +3090,7 @@ AND YEAR(T0.FechaSapTicket) = 2025 AND ((SELECT  Estado FROM vt.BusquedaProducto
             try
             {
                 cn.Open();
-                SqlCommand cmd = new SqlCommand("select DocEntry,DocNum,DirDestino,Referencia,Cajas,EnvioAgencia,Estado from vt.ORTV where DocEntry=" + DocEntry, cn);
+                SqlCommand cmd = new SqlCommand("select DocEntry,DocNum,DirDestino,Referencia,Cajas,EnvioAgencia,Estado, Cardname from vt.ORTV where DocEntry=" + DocEntry, cn);
                 cmd.CommandType = CommandType.Text;
                 SqlDataReader dr = cmd.ExecuteReader();
                 dr.Read();
@@ -3101,6 +3101,7 @@ AND YEAR(T0.FechaSapTicket) = 2025 AND ((SELECT  Estado FROM vt.BusquedaProducto
                 if (!dr.IsDBNull(4)) { t.Cajas = dr.GetInt32(4); }
                 if (!dr.IsDBNull(5)) { t.EnvioAgencia = dr.GetString(5); }
                 if (!dr.IsDBNull(6)) { t.Estado = dr.GetString(6); }
+                if (!dr.IsDBNull(7)) { t.Estado = dr.GetString(7); }
                 dr.Close();
                 cn.Close();
                 t.Det1 = obtenerDet1Ticket(DocEntry); if (t.Det1.Count == 0) { t.Det1 = null; }       //Persona de recojo
