@@ -2479,10 +2479,12 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                                         "CONVERT(varchar, T0.TiempoEntrega , 103) AS 'FECHA ESTIMADA ENTREGA', CONVERT(varchar, T0.TiempoEntrega , 8) AS 'HORA ESTIMADA ENTREGA', T1.LugarDeEntrega AS 'LUGAR ENTREGA', T0.NroMesa AS 'NRO MESA', " +
                                         "(SELECT STUFF((SELECT ', ' + cast(t1.AlmacenSalida as varchar(max)) FROM vt.RTV2 t1 INNER JOIN  vt.ORTV x ON x.DocEntry = t1.DocEntry WHERE t1.DocEntry = t0.DocEntry FOR XML PATH('')), 1,2, '')) AS 'ALMACEN SALIDA',T0.Comentario," +
                                         "(SELECT TOP 1 C.Comentario FROM vt.ComentarioFac C WHERE C.DocEntry = T0.DocEntry ORDER BY C.DocEntry DESC) AS 'COMENTARIO FAC', "+
-                                        "T0.Zona, T0.DirDestino, PesadoPedido.PesoTotal, CONVERT (varchar, T0.FechaPago, 103) AS 'FechaPagoVenta', CONVERT (varchar, T0.HoraPago, 108) AS 'HoraPagoVenta' " +
-                                        //"(Select top 1 CONVERT(varchar, FechaOperacion , 103) from vt.CC_ORTV where DocEntry=T0.DocEntry and Operacion='PREENVIAR' order by FechaOperacion,HoraOperacion desc ), " +
-                                        //"(Select top 1 CONVERT(varchar, FechaOperacion , 103) from vt.CC_ORTV where DocEntry=T0.DocEntry and Operacion='ENVIAR' order by FechaOperacion,HoraOperacion desc ) " +
-                                        "FROM VT.ORTV T0 INNER JOIN VT.RTV2 T1 ON T0.DocEntry=T1.DocEntry " +
+                                        "T0.Zona, T0.DirDestino,RTV3.Calle,RTV3.Distrito,RTV3.Provincia,RTV3.Departamento, PesadoPedido.PesoTotal, CONVERT (varchar, T0.FechaPago, 103) AS 'FechaPagoVenta', CONVERT (varchar, T0.HoraPago, 108) AS 'HoraPagoVenta' " +
+                                        "FROM VT.ORTV T0 INNER JOIN VT.RTV2 T1 ON T0.DocEntry=T1.DocEntry  " +
+                                        "OUTER APPLY ( " + "" +
+                                            "SELECT TOP 1 T3.Calle, T3.Distrito, T3.Departamento,T3.Provincia FROM VT.RTV3 T3 "+  
+                                            "WHERE T3.DocEntry = T0.DocEntry AND T3.IdDireccion = 2"+
+                                            ") RTV3 " +
                                         "OUTER APPLY ( " +
                                             "SELECT TOP 1 SUM(peso) AS 'PesoTotal' FROM VT.RTV6  " +
                                             "WHERE DocEntry = T0.DocEntry " +
@@ -2563,9 +2565,13 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                             if (!dr.IsDBNull(60)) { rpt.ComentarioFac = dr.GetString(60); }
                             if (!dr.IsDBNull(61)) { rpt.ZonaVenta = dr.GetString(61); }
                             if (!dr.IsDBNull(62)) { rpt.DirDestinoVenta = dr.GetString(62); }
-                            if (!dr.IsDBNull(63)) { rpt.PesoTotalPedido = dr.GetDecimal(63); }
-                            if (!dr.IsDBNull(64)) { rpt.FechaPagoTicket = dr.GetString(64); }
-                            if (!dr.IsDBNull(65)) { rpt.HoraPagoTicket = dr.GetString(65); }
+                            if (!dr.IsDBNull(63)) { rpt.Calle2 = dr.GetString(63); }
+                            if (!dr.IsDBNull(64)) { rpt.Distrito2 = dr.GetString(64); }
+                            if (!dr.IsDBNull(65)) { rpt.Provincia2 = dr.GetString(65); }
+                            if (!dr.IsDBNull(66)) { rpt.Departamento2 = dr.GetString(66); }
+                            if (!dr.IsDBNull(67)) { rpt.PesoTotalPedido = dr.GetDecimal(67); }
+                            if (!dr.IsDBNull(68)) { rpt.FechaPagoTicket = dr.GetString(68); }
+                            if (!dr.IsDBNull(69)) { rpt.HoraPagoTicket = dr.GetString(69); }
                             lista.Add(rpt);
                         }
                     }
