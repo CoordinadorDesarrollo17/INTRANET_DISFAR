@@ -1488,6 +1488,88 @@ namespace Capa_Usuario.Controllers
             return Json(orruN.listarGuiasTraslado(Origen));
         }
 
+
+        public ActionResult SolicitudDevolucion(string TipoRep, int idOperation = 235)
+        {
+            var resultadoAcceso = VerificarPermiso(idOperation);
+            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
+            {
+                // Cargar ViewBag base
+                CapturarViewBag(TipoRep, "VDE");
+
+                // AGREGAR: Cargar vehículos y conductores explícitamente
+                ViewBag.ListaVehiculos = new Capa_Negocio.Repartos_NEG.TablasHana.SYP_VEHICU_N().listar();
+                ViewBag.Conductores = new Capa_Negocio.Repartos_NEG.TablasHana.SYP_CONDUC_N().listar();
+
+                // Cargar clientes para el datalist
+                OCRD_N ocrdN = new OCRD_N();
+                ViewBag.Clientes = ocrdN.listarSociosDeNegocios(new OCRD_E { CardType = "C" });
+
+                return View(new ORRU_E());
+            }
+            else
+            {
+                return resultadoAcceso;
+            }
+        }
+
+        [HttpPost]
+        public ActionResult SolicitudDevolucion(ORRU_E o, string TipoRep, int idOperation = 235)
+        {
+            var resultadoAcceso = VerificarPermiso(idOperation);
+            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
+            {
+                try
+                {
+                    Usuario_E user = (Usuario_E)Session["UsuarioId"];
+                    o.Propietario = $"{user.Nombres} {user.Apellidos}";
+                    o.TipoRuta = "VDE";
+
+                    // Asignar TiempoPac por defecto si es null
+                    if (o.TiempoPac == null)
+                    {
+                        o.TiempoPac = o.FechaCont ?? DateTime.Now;
+                    }
+
+                    // TRUNCAR Observaciones a 400 caracteres
+                    if (!string.IsNullOrEmpty(o.Observaciones) && o.Observaciones.Length > 400)
+                    {
+                        o.Observaciones = o.Observaciones.Substring(0, 397) + "...";
+                    }
+
+                    // TRUNCAR AlmOrigenDesc2 y AlmDestinoDesc2 a 300 caracteres
+                    if (!string.IsNullOrEmpty(o.AlmOrigenDesc2) && o.AlmOrigenDesc2.Length > 300)
+                    {
+                        o.AlmOrigenDesc2 = o.AlmOrigenDesc2.Substring(0, 297) + "...";
+                    }
+
+                    if (!string.IsNullOrEmpty(o.AlmDestinoDesc2) && o.AlmDestinoDesc2.Length > 300)
+                    {
+                        o.AlmDestinoDesc2 = o.AlmDestinoDesc2.Substring(0, 297) + "...";
+                    }
+
+                    int DocNum = orruN.NuevaHojaDeReparto(o);
+
+                    return TipoRep == "Re"
+                        ? RedirectToAction("ListadoRepartos", new { DocNum })
+                        : RedirectToAction("ListadoRutas", new { DocNum });
+                }
+                catch (Exception e)
+                {
+                    CapturarViewBag(TipoRep, "VDE", mensaje: e.Message);
+                    ViewBag.ListaVehiculos = new Capa_Negocio.Repartos_NEG.TablasHana.SYP_VEHICU_N().listar();
+                    ViewBag.Conductores = new Capa_Negocio.Repartos_NEG.TablasHana.SYP_CONDUC_N().listar();
+                    OCRD_N ocrdN = new OCRD_N();
+                    ViewBag.Clientes = ocrdN.listarSociosDeNegocios(new OCRD_E { CardType = "C" });
+                    return View(o);
+                }
+            }
+            else
+            {
+                return resultadoAcceso;
+            }
+        }
+
         [HttpPost]
         public ActionResult ActualizarHoraLlegada(int DocEntry, int DocNum, string NuevaHora)
         {
@@ -1506,6 +1588,70 @@ namespace Capa_Usuario.Controllers
             catch (Exception ex)
             {
                 return Json(new { ok = false, msg = ex.Message });
+            }
+        }
+        [HttpPost]
+        public JsonResult ListarOrdenesDevolucionHana(string CardCode, string Fecha)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(CardCode) || string.IsNullOrWhiteSpace(Fecha))
+                {
+                    return Json(new
+                    {
+                        success = false,
+                        message = "Debe proporcionar código de cliente y fecha"
+                    });
+                }
+
+                var ordenesDevolucion = orruN.ListarOrdenesDevolucionDesdeHana(CardCode, Fecha);
+
+                return Json(new
+                {
+                    success = true,
+                    data = ordenesDevolucion,
+                    message = ordenesDevolucion.Count > 0 ? "Órdenes encontradas en ORRR" : "No se encontraron órdenes"
+                });
+            }
+            catch (Exception ex)
+            {
+                return Json(new
+                {
+                    success = false,
+                    message = "Error al consultar tabla ORRR en HANA: " + ex.Message
+                });
+            }
+        }
+        [HttpPost]
+        public JsonResult ListarClientesPorFechaHana(string Fecha)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(Fecha))
+                {
+                    return Json(new
+                    {
+                        success = false,
+                        message = "Debe proporcionar una fecha"
+                    });
+                }
+
+                var clientes = orruN.ListarClientesPorFechaDesdeHana(Fecha);
+
+                return Json(new
+                {
+                    success = true,
+                    data = clientes,
+                    message = clientes.Count > 0 ? "Clientes encontrados" : "No hay clientes para esta fecha"
+                });
+            }
+            catch (Exception ex)
+            {
+                return Json(new
+                {
+                    success = false,
+                    message = "Error al consultar clientes: " + ex.Message
+                });
             }
         }
     }

@@ -19,8 +19,7 @@ namespace Capa_Entidad.Rutas_ENT.TablasSql
 		public int DocNumTicket { get; set; }
 		public string Socio { get; set; }
 		public string Guias { get; set; }
-        public string ConducYPlaca { get; set; } // ✅ AGREGAR ESTA PROPIEDAD
-
+        public string ConducYPlaca { get; set; } 
         public string Verificado { get; set; }
 		public int Cajas { get; set; }
 		public string Observaciones { get; set; }

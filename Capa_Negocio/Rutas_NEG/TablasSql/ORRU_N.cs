@@ -58,7 +58,7 @@ namespace Capa_Negocio.Rutas_NEG.TablasSql
             if (o.FechaCont == null) { throw new Exception("No eligió FechaContabilizacion"); }
 
             //validaciones para tipos de ruta distinto a courier y agencia
-            if (o.TipoRuta != "VG" && o.TipoRuta != "AC" && (string.IsNullOrWhiteSpace(o.AlmOrigenCod) || string.IsNullOrWhiteSpace(o.AlmOrigenDesc)))
+            if (o.TipoRuta != "VG" && o.TipoRuta != "AC" && o.TipoRuta != "VDE" && (string.IsNullOrWhiteSpace(o.AlmOrigenCod) || string.IsNullOrWhiteSpace(o.AlmOrigenDesc)))
             {
                 throw new Exception("No eligió almacén origen");
             }
@@ -66,9 +66,58 @@ namespace Capa_Negocio.Rutas_NEG.TablasSql
             {
                 throw new Exception("No eligió almacén destino");
             }
-            if (o.TiempoPac == null) { throw new Exception("Debe haber tiempo pactado"); }
+            if (o.TipoRuta != "VDE" && o.TiempoPac == null) { throw new Exception("Debe haber tiempo pactado"); }
+
+            // VALIDACIONES ESPECÍFICAS PARA SOLICITUD DE DEVOLUCIÓN (VDE)
+            if (o.TipoRuta == "VDE")
+            {
+                // Validar que exista al menos un detalle (órdenes de devolución)
+                if (o.DetRRU0 == null || o.DetRRU0.Count <= 0)
+                {
+                    throw new Exception("Debe agregar al menos una orden de devolución al detalle");
+                }
+
+                // Validar almacén destino específico para devoluciones
+                if (string.IsNullOrWhiteSpace(o.AlmDestinoCod) || string.IsNullOrWhiteSpace(o.AlmDestinoDesc))
+                {
+                    throw new Exception("Debe seleccionar un almacén destino para la devolución");
+                }
+
+                // Validar cada detalle de devolución
+                foreach (RRU0_E d in o.DetRRU0)
+                {
+                    if (d.DocEntryTicket <= 0)
+                    {
+                        throw new Exception($"La orden en línea {d.Linea} no tiene un DocEntry válido");
+                    }
+
+                    if (string.IsNullOrWhiteSpace(d.DocNumTicket.ToString()) || d.DocNumTicket <= 0)
+                    {
+                        throw new Exception($"La orden en línea {d.Linea} no tiene un número de ticket válido");
+                    }
+
+                    // ✅ VALIDAR CAJAS (que viene como Bultos desde la vista)
+                    if (d.Cajas <= 0)
+                    {
+                        throw new Exception($"La orden {d.DocNumTicket} en línea {d.Linea} debe tener al menos 1 bulto/caja");
+                    }
+
+                    // Validar que tenga guías
+                    if (string.IsNullOrWhiteSpace(d.Guias))
+                    {
+                        throw new Exception($"La orden {d.DocNumTicket} en línea {d.Linea} no tiene guías asignadas");
+                    }
+
+                    // Validar formato conductor/placa si aplica
+                    if (!string.IsNullOrWhiteSpace(d.ConducYPlaca) && d.ConducYPlaca.Split('/').Length < 2)
+                    {
+                        throw new Exception($"La orden {d.DocNumTicket} en línea {d.Linea} tiene formato incorrecto de Conductor/Placa");
+                    }
+                }
+            }
+
             //Validaciones para todo tipo de ruta menos TA Transferencia entre almacenes
-            if (!o.TipoRuta.Equals("TA"))
+            if (!o.TipoRuta.Equals("TA") && !o.TipoRuta.Equals("VDE"))
             {
                 if (o.DetRRU0.Count <= 0) { throw new Exception("Debe haber detalles de documento"); }
                 foreach (RRU0_E d in o.DetRRU0)
@@ -124,7 +173,7 @@ namespace Capa_Negocio.Rutas_NEG.TablasSql
                 }
             }
             //Validaciones exclusivas para Transferencia entre almacenes ( tambien son parte de las hojas de ruta )
-            else
+            else if(o.TipoRuta.Equals("TA"))
             {
                 o.DetRRU1 = o.DetRRU1.Where(det => det.Guia != null).ToList();
                 foreach (RRU1_E r in o.DetRRU1)
@@ -269,6 +318,15 @@ namespace Capa_Negocio.Rutas_NEG.TablasSql
                 throw new Exception("Formato de hora inválido (HH:mm o HH:mm:ss)");
             if (nuevaHora.Length == 5) nuevaHora += ":00"; // normalizar
             return orruD.ActualizarHoraLlegada(docEntry, docNum, nuevaHora);
+        }
+        public List<dynamic> ListarOrdenesDevolucionDesdeHana(string cardCode, string fecha)
+        {
+            return new ORRU_D().ListarOrdenesDevolucionDesdeHana(cardCode, fecha);
+        }
+
+        public List<dynamic> ListarClientesPorFechaDesdeHana(string fecha)
+        {
+            return new ORRU_D().ListarClientesPorFechaDesdeHana(fecha);
         }
     }
 }

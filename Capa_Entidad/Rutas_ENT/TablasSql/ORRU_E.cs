@@ -74,6 +74,7 @@ namespace Capa_Entidad.Rutas_ENT.TablasSql
         public decimal MontoTotalIni { get; set; }
         public decimal MontoTotalFin { get; set; }
         public string CardCode { get; set; }
+        public string CardName { get; set; }
         public class RptRutas
         {
             public string TransDesc { get; set; }

@@ -1,0 +1,770 @@
+﻿@model Capa_Entidad.Rutas_ENT.TablasSql.ORRU_E
+@using Capa_Entidad.General_ENT.TablasSql
+@{
+    ViewBag.Title = "Nueva Solicitud de Devolución";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    List<OWHS_E> lstOriDest = (List<OWHS_E>)ViewBag.ListaOrigenesDestinos;
+    List<Capa_Entidad.Repartos_ENT.TablasHana.SYP_VEHICU_E> Vehiculos = (List<Capa_Entidad.Repartos_ENT.TablasHana.SYP_VEHICU_E>)ViewBag.ListaVehiculos;
+    List<string> Conductores = new List<string>(ViewBag.Conductores);
+    List<string> Copilotos = new List<string>(ViewBag.ListaCopilotos);
+
+    string urlAction = Url.Action("ListadoRutas", "Rutas");
+    string tituloListado = "Listado de rutas";
+    string tituloTipoRep = "Registrar Solicitud de Devolución";
+}
+
+<style>
+    /* ✅ Estilos mejorados para las tablas */
+    #Detalles textarea {
+        font-size: 12px;
+    }
+
+    .table-responsive-custom {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    #detalleRuta {
+        font-size: 13px;
+    }
+
+        #detalleRuta th,
+        #detalleRuta td {
+            white-space: nowrap;
+            vertical-align: middle !important;
+            padding: 8px 5px !important;
+        }
+
+            #detalleRuta th:nth-child(1), #detalleRuta td:nth-child(1) {
+                width: 40px;
+                text-align: center;
+            }
+
+            #detalleRuta th:nth-child(2), #detalleRuta td:nth-child(2) {
+                width: 50px;
+                text-align: center;
+            }
+
+            #detalleRuta th:nth-child(4), #detalleRuta td:nth-child(4) {
+                width: 100px;
+                text-align: center;
+            }
+
+            #detalleRuta th:nth-child(6), #detalleRuta td:nth-child(6) {
+                max-width: 200px;
+                white-space: normal;
+                word-wrap: break-word;
+            }
+
+            #detalleRuta th:nth-child(7), #detalleRuta td:nth-child(7) {
+                max-width: 150px;
+                white-space: normal;
+                word-wrap: break-word;
+            }
+
+            #detalleRuta th:nth-child(8), #detalleRuta td:nth-child(8) {
+                max-width: 150px;
+                white-space: normal;
+                word-wrap: break-word;
+            }
+
+            #detalleRuta th:nth-child(9), #detalleRuta td:nth-child(9) {
+                width: 60px;
+                text-align: center;
+            }
+
+            #detalleRuta th:nth-child(11), #detalleRuta td:nth-child(11) {
+                width: 100px;
+                text-align: right;
+            }
+
+    .cls-chkVerif {
+        width: 18px;
+        height: 18px;
+        cursor: pointer;
+    }
+
+    .form-row-custom {
+        margin-bottom: 1rem;
+    }
+
+    .form-label-custom {
+        margin-bottom: 0.3rem;
+        font-size: 14px;
+    }
+</style>
+
+<div class="pt-4">
+    <nav>
+        <ol class="cd-breadcrumb bg-cobefar-degradado-1">
+            <li><a href="/Index/Sesion">Inicio</a></li>
+            <li><a href="@urlAction">@tituloListado</a></li>
+            <li class="current"><em>Crear documento</em></li>
+        </ol>
+    </nav>
+</div>
+
+<div class="border-cabecera-seccion bg-cobefar-degradado-1 pb-2">
+    <div class="d-flex justify-content-between px-3 pt-3">
+        <h3 class="titulo-seccion">@tituloTipoRep.ToUpper()</h3>
+    </div>
+</div>
+
+@using (Html.BeginForm(null, null, FormMethod.Post, new { id = "form" }))
+{
+    <input name="TipoRep" type="hidden" value="VDE" readonly />
+    <div class="bg-form-pestanas-cobefar bg-section-form p-3 bg-form-cobefar">
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
+        <!-- Primera fila: Tipo de ruta, Cliente, Código -->
+        <div class="row form-row-custom">
+            <div class="col-lg-2 col-md-3 col-sm-6">
+                <label for="TipoRuta" class="text-dark form-label-custom font-weight-bold">Tipo de ruta:</label>
+                <select name="TipoRuta" id="TipoRuta" class="form-control bg-cobefar text-white form-control-sm">
+                    <option value="VDE">Devolución</option>
+                </select>
+            </div>
+            <div id="infoListaClientes" class="col-lg-6 col-md-5 col-sm-12">
+                <label for="CardName" class="text-dark form-label-custom font-weight-bold">Cliente:</label>
+                <input type="search" id="CardName" name="CardName" list='ListaClientes'
+                       class="form-control border-success txt-validacion form-control-sm"
+                       value="@Model.CardName" autocomplete="off">
+                <datalist id="ListaClientes"></datalist>
+            </div>
+            <div id="infoCliente" class="col-lg-2 col-md-3 col-sm-6">
+                <label for="CardCode" class="text-dark form-label-custom font-weight-bold">Código:</label>
+                <input type="text" id="CardCode" name="CardCode"
+                       class="form-control text-center border-success form-control-sm"
+                       readonly value="@Model.CardCode">
+            </div>
+        </div>
+
+        <!-- Segunda fila: Fecha, Almacén, Placa, Conductor -->
+        <div class="row form-row-custom">
+            <div class="col-lg-2 col-md-3 col-sm-6">
+                <label for="FechaCont" class="text-dark form-label-custom font-weight-bold">Fecha:</label>
+                <input type="date" name="FechaCont" id="FechaSapTicket"
+                       class="form-control border-success form-control-sm" />
+            </div>
+            <div id="div_almacen-destino" class="col-lg-3 col-md-4 col-sm-6">
+                <label for="AlmDestinoDesc" class="text-dark form-label-custom font-weight-bold">Almacén Destino:</label>
+                <input type="hidden" id="AlmDestinoCod" name="AlmDestinoCod" value="" />
+                <input type="hidden" id="AlmDestinoDesc2" name="AlmDestinoDesc2" value="" />
+                <select name="AlmDestinoDesc" id="AlmDestinoDesc" class="form-control bg-cobefar text-white form-control-sm">
+                    <option value="">Seleccione</option>
+                    <option value="DOMICILIOS" almdestinocod="08" almdestinodesc2="">DOMICILIOS</option>
+                    @foreach (var l in lstOriDest.Where(x => x.WhsCode == "09" || x.WhsCode == "01"))
+                    {
+                        <option value="@l.WhsName" almdestinocod="@l.WhsCode"
+                                almdestinodesc2="@(l.Street+" "+l.StreetNo+" "+l.Building+" "+l.Block+" "+l.City+" "+l.County)">
+                            @l.WhsName
+                        </option>
+                    }
+                    @foreach (var l in lstOriDest.Where(x => x.WhsCode == "16" || x.WhsCode == "ALM07" || x.WhsCode == "03"))
+                    {
+                        <option value="@l.WhsName" almdestinocod="@l.WhsCode"
+                                almdestinodesc2="@(l.Street+" "+l.StreetNo+" "+l.Building+" "+l.Block+" "+l.City+" "+l.County)" selected>
+                            @l.WhsName
+                        </option>
+                    }
+                </select>
+            </div>
+            <div class="col-lg-2 col-md-3 col-sm-6">
+                <label for="Placa" class="text-dark form-label-custom font-weight-bold">Placa:</label>
+                <select name="Placa" id="Placa" class="form-control bg-cobefar text-white border-success form-control-sm">
+                    <option value="">Seleccione</option>
+                    @foreach (var t in Vehiculos)
+                    {
+                        <option value="@t.U_SYP_VEPL" data-code="@t.Code" data-marca="@t.U_SYP_VEMA" data-modelo="@t.U_SYP_VEMO">
+                            @t.U_SYP_VEPL
+                        </option>
+                    }
+                </select>
+                @Html.EditorFor(model => model.Marca, new { htmlAttributes = new { @type = "hidden", @readonly = "true" } })
+                @Html.EditorFor(model => model.Modelo, new { htmlAttributes = new { @type = "hidden", @readonly = "true" } })
+                @Html.EditorFor(model => model.VehiculoCod, new { htmlAttributes = new { @type = "hidden", @readonly = "true" } })
+            </div>
+            <div class="col-lg-2 col-md-3 col-sm-6">
+                <label for="TransDesc" class="text-dark form-label-custom font-weight-bold">Conductor:</label>
+                <select name="TransDesc" id="TransDesc" class="form-control bg-cobefar text-white border-success form-control-sm">
+                    <option value="">Seleccione</option>
+                    @foreach (var x in Conductores)
+                    {
+                        <option value="@x">@x</option>
+                    }
+                </select>
+            </div>
+        </div>
+
+        <!-- Tercera fila: Copilotos, Bultos, Observaciones -->
+        <div class="row form-row-custom">
+            <div class="col-lg-2 col-md-3 col-sm-6">
+                <label for="CopilDesc" class="text-dark form-label-custom font-weight-bold">Copiloto 1:</label>
+                @Html.EditorFor(model => model.CopilDesc, new { htmlAttributes = new { @class = "form-control border-success form-control-sm", @type = "search", @list = "ListaCopilotos", @autocomplete = "off" } })
+                <datalist id="ListaCopilotos">
+                    @foreach (var x in Copilotos)
+                    {
+                        <option value="@x.ToUpper()"></option>
+                    }
+                </datalist>
+            </div>
+            <div class="col-lg-2 col-md-3 col-sm-6">
+                <label for="Copil2Desc" class="text-dark form-label-custom font-weight-bold">Copiloto 2:</label>
+                @Html.EditorFor(model => model.Copil2Desc, new { htmlAttributes = new { @class = "form-control border-success form-control-sm", @type = "search", @list = "ListaCopilotos", @autocomplete = "off" } })
+            </div>
+            <div class="col-lg-1 col-md-2 col-sm-4">
+                <label for="TotalBultos" class="text-dark form-label-custom font-weight-bold"># Bultos:</label>
+                <input id="TotalBultos" type="text" class="form-control border-success form-control-sm" readonly />
+            </div>
+            <div class="col-lg-5 col-md-8 col-sm-12">
+                <label for="Observaciones" class="text-dark form-label-custom font-weight-bold">Observaciones:</label>
+                @Html.EditorFor(model => model.Observaciones, new { htmlAttributes = new { @class = "form-control border-success form-control-sm", @autocomplete = "off" } })
+            </div>
+        </div>
+
+        <!-- Botones -->
+        <div class="row align-items-center py-3">
+            <div class="col-lg-8 col-md-6 col-sm-12 mb-2 mb-md-0">
+                <input type="checkbox" id="chk_verifTodos" />
+                <label for="chk_verifTodos" class="text-primary mb-0">Seleccionar Todos</label>
+            </div>
+            <div class="col-lg-4 col-md-6 col-sm-12 text-right">
+                <button type="button" class="btn btn-cobefar-2 btn-sm" id="btn-Agregar">
+                    <i class="icon icon-plus"></i> Agregar
+                </button>
+                <button type="button" class="btn btn-info btn-sm ml-2" id="btn-Guardar">
+                    <i class="icon icon-checkmark2"></i> Guardar
+                </button>
+            </div>
+        </div>
+
+        <!-- Tabla de órdenes disponibles -->
+        <div class="col-12 p-0">
+            <div class="table-responsive-custom">
+                <table id="detalleRuta" class="table table-light table-sm table-hover table-bordered" style="width:100%">
+                    <thead class="bg-cobefar-6 text-white">
+                        <tr>
+                            <th class="text-center">✓</th>
+                            <th class="text-center">#</th>
+                            <th hidden>DocEntry</th>
+                            <th class="text-center">DocNumSap</th>
+                            <th hidden>CodSocio</th>
+                            <th class="text-center">Socio</th>
+                            <th class="text-center">Guías</th>
+                            <th class="text-center">Conductor/Placa</th>
+                            <th class="text-center">Bultos</th>
+                            <th class="text-center">Almacen</th>
+                            <th class="text-center">Monto</th>
+                            <th hidden>Obs</th>
+                            <th hidden>Direcciones</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabla de detalle -->
+    <h3 class="text-cobefar font-weight-bold mt-3">DETALLE DE RUTA</h3>
+    <div id="divDetalleRuta">
+        <div class="table-responsive-custom mt-2">
+            <table id="Detalles" class="table table-light table-sm table-hover table-bordered" style="width:100%">
+                <thead class="bg-success text-white">
+                    <tr>
+                        <th class="text-center">#</th>
+                        <th hidden>DocEntryT</th>
+                        <th class="text-center">NroTicket</th>
+                        <th class="text-center">Socio</th>
+                        <th class="text-center">Guías</th>
+                        <th class="text-center">Conductor/Placa</th>
+                        <th class="text-center">Bultos</th>
+                        <th class="text-center">Obs.</th>
+                        <th class="text-center">Direcciones</th>
+                        <th class="text-center">Monto final</th>
+                        <th class="text-center"></th>
+                        <th class="text-center"></th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+}
+
+@if (!string.IsNullOrWhiteSpace(ViewBag.Mensaje))
+{
+    <script>
+        var mensaje = '@Html.Raw(ViewBag.Mensaje)';
+        Swal.fire({
+            text: mensaje,
+            showConfirmButton: false,
+            timer: 2000
+        });
+    </script>
+}
+
+<script>
+    // VARIABLES GLOBALES
+    var contDet = 0;
+    var tablaDetalleRuta;
+
+    // INICIALIZACIÓN DEL DOCUMENTO
+    $(document).ready(function () {
+        inicializarFormulario();
+        configurarEventos();
+    });
+
+    // FUNCIÓN DE INICIALIZACIÓN
+    function inicializarFormulario() {
+        $("#CardName").prop('disabled', true);
+        enviarValSelect('AlmDestinoDesc', 'AlmDestinoCod', 'almdestinocod');
+        enviarValSelect('AlmDestinoDesc', 'AlmDestinoDesc2', 'almdestinodesc2');
+    }
+
+    // CONFIGURAR TODOS LOS EVENTOS
+    function configurarEventos() {
+        // Evento: Cambio de fecha
+        $("#FechaSapTicket").on('change', function () {
+            validarFechaYCliente();
+            cargarListaClientes();
+        });
+
+        // Evento: Cambio de cliente
+        $("#CardName").on('change', function () {
+            if ($("#FechaSapTicket").val() !== '') {
+                var CardCode = $("#ListaClientes option[value='" + $(this).val() + "']").attr("data-cardcode");
+                $("#CardCode").val(CardCode);
+                cargarOrdenesDevolucion();
+            }
+        });
+
+        // Evento: Cambio de almacén destino
+        $("#AlmDestinoDesc").on('change', function () {
+            enviarValSelect('AlmDestinoDesc', 'AlmDestinoCod', 'almdestinocod');
+            enviarValSelect('AlmDestinoDesc', 'AlmDestinoDesc2', 'almdestinodesc2');
+        });
+
+        // Evento: Cambio de placa
+        $("#Placa").on('change', function () {
+            var selectedOption = $(this).find('option:selected');
+            $("#VehiculoCod").val(selectedOption.attr('data-code') || '');
+            $("#Marca").val(selectedOption.attr('data-marca') || '');
+            $("#Modelo").val(selectedOption.attr('data-modelo') || '');
+        });
+
+        // Evento: Seleccionar todos los checkboxes
+        $("#chk_verifTodos").on('click', function () {
+            seleccionarVerif();
+        });
+
+        // Evento: Botón agregar
+        $("#btn-Agregar").on('click', function () {
+            agregarTicketsDetalle();
+        });
+
+        // Evento: Botón guardar
+        $("#btn-Guardar").on('click', function () {
+            validarEnviarFormulario();
+        });
+
+        validarFechaYCliente();
+    }
+
+    // VALIDAR FECHA Y CLIENTE
+    function validarFechaYCliente() {
+        var fecha = $("#FechaSapTicket").val();
+        if (fecha === '' || fecha === null) {
+            $("#CardName").prop('disabled', true).val('');
+            $("#CardCode").val('');
+            $('#ListaClientes').empty();
+            if (tablaDetalleRuta && $.fn.DataTable.isDataTable('#detalleRuta')) {
+                tablaDetalleRuta.clear().draw();
+            }
+        } else {
+            $("#CardName").prop('disabled', false);
+            $("#CardName, #FechaSapTicket").removeClass('bg-danger text-white');
+        }
+    }
+
+    // CARGAR LISTA DE CLIENTES
+    function cargarListaClientes() {
+        var fecha = $('#FechaSapTicket').val();
+        if (fecha === "") return;
+
+        $.ajax({
+            url: '@Url.Action("ListarClientesPorFechaHana", "Rutas")',
+            data: { "Fecha": fecha },
+            dataType: 'json',
+            cache: false,
+            type: 'post',
+            beforeSend: function () {
+                $("#CardName").prop('disabled', true);
+                $('#ListaClientes').empty();
+            }
+        })
+        .done(function (response) {
+            if (response.success && response.data && response.data.length > 0) {
+                $.each(response.data, function (index, cliente) {
+                    var option = '<option value="' + cliente.CardName + '" data-cardcode="' + cliente.CardCode + '">' +
+                        cliente.CardCode + ' - ' + cliente.CardName + '</option>';
+                    $('#ListaClientes').append(option);
+                });
+                $("#CardName").prop('disabled', false);
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Clientes cargados',
+                    text: response.data.length + ' cliente(s) disponible(s)',
+                    timer: 2000,
+                    showConfirmButton: false
+                });
+            } else {
+                $("#CardName").prop('disabled', true);
+                Swal.fire({
+                    icon: 'info',
+                    title: 'Sin clientes',
+                    text: 'No hay clientes con solicitudes para esta fecha'
+                });
+            }
+        })
+        .fail(function (xhr, status, error) {
+            $("#CardName").prop('disabled', true);
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Error al cargar clientes: ' + error
+            });
+        });
+    }
+
+    // CARGAR ÓRDENES DE DEVOLUCIÓN
+    function cargarOrdenesDevolucion() {
+        var CardCode = $("#CardCode").val();
+        var fecha = $('#FechaSapTicket').val();
+
+        if (!CardCode || CardCode === "") {
+            Swal.fire({ icon: 'warning', title: 'Cliente no válido', text: 'Seleccione un cliente válido' });
+            return;
+        }
+        if (fecha === "") {
+            Swal.fire({ icon: 'warning', title: 'Fecha requerida', text: 'Debe seleccionar una fecha' });
+            return;
+        }
+
+        $.ajax({
+            url: '@Url.Action("ListarOrdenesDevolucionHana", "Rutas")',
+            data: { "CardCode": CardCode, "Fecha": fecha },
+            dataType: 'json',
+            cache: false,
+            type: 'post',
+            beforeSend: function () {
+                Swal.fire({
+                    title: 'Cargando...',
+                    text: 'Consultando SAP',
+                    allowOutsideClick: false,
+                    didOpen: () => { Swal.showLoading(); }
+                });
+            }
+        })
+        .done(function (response) {
+            Swal.close();
+            if (response.success && response.data && response.data.length > 0) {
+                inicializarTablaOrdenes(response.data);
+            } else {
+                Swal.fire({
+                    icon: 'info',
+                    title: 'Sin resultados',
+                    text: response.message || 'No se encontraron solicitudes'
+                });
+            }
+        })
+        .fail(function (xhr, status, error) {
+            Swal.close();
+            Swal.fire({ icon: 'error', title: 'Error', text: 'Error: ' + error });
+        });
+    }
+
+    // INICIALIZAR TABLA DE ÓRDENES
+    function inicializarTablaOrdenes(data) {
+        if ($.fn.DataTable.isDataTable('#detalleRuta')) {
+            tablaDetalleRuta = $('#detalleRuta').DataTable();
+            tablaDetalleRuta.clear();
+        } else {
+            tablaDetalleRuta = $('#detalleRuta').DataTable({
+                "language": { "url": "//cdn.datatables.net/plug-ins/1.10.21/i18n/Spanish.json" },
+                "pageLength": 10,
+                "ordering": true,
+                "searching": true,
+                "columnDefs": [{ "visible": false, "targets": [2, 4, 11, 12, 13] }]
+            });
+        }
+
+        var primerConductor = '', primerPlaca = '';
+
+        $.each(data, function (index, item) {
+            if (index === 0) {
+                primerConductor = item.Conductor || '';
+                primerPlaca = item.Placa || '';
+            }
+
+            var conductorPlaca = (item.Conductor || '') + ' / ' + (item.Placa || '');
+            var checkbox = '<input type="checkbox" class="cls-chkVerif" data-conductor="' + (item.Conductor || '') + '" data-placa="' + (item.Placa || '') + '" />';
+
+            tablaDetalleRuta.row.add([
+                checkbox,
+                (index + 1),
+                item.DocEntry || '',
+                item.DocNum || '',
+                item.CardCode || '',
+                item.CardName || '',
+                item.NumAtCard || '',
+                conductorPlaca,
+                item.Bultos || 0,  
+                item.Agencia || '',
+                parseFloat(item.DocTotal || 0).toFixed(2),
+                item.Comments || '',
+                item.Address || '',
+                '0'
+            ]);
+        });
+
+        tablaDetalleRuta.draw();
+
+        // Establecer primer conductor y placa
+        if (primerConductor) $('#TransDesc').val(primerConductor);
+        if (primerPlaca) $('#Placa').val(primerPlaca).trigger('change');
+
+        // Configurar evento de checkboxes
+        setTimeout(function () {
+            $('.cls-chkVerif').off('change').on('change', function () {
+                if ($(this).is(':checked')) {
+                    var conductor = $(this).data('conductor');
+                    var placa = $(this).data('placa');
+                    if (conductor) $('#TransDesc').val(conductor);
+                    if (placa) $('#Placa').val(placa).trigger('change');
+                }
+            });
+        }, 100);
+
+        Swal.fire({
+            icon: 'success',
+            title: 'Órdenes cargadas',
+            text: data.length + ' solicitud(es) encontrada(s)',
+            timer: 2000,
+            showConfirmButton: false
+        });
+    }
+
+    // AGREGAR TICKETS AL DETALLE
+    function agregarTicketsDetalle() {
+        if (!tablaDetalleRuta) {
+            Swal.fire('Error', 'No hay órdenes cargadas', 'warning');
+            return;
+        }
+
+        var checkboxesSeleccionados = tablaDetalleRuta.rows({ page: 'all' }).nodes().to$().find('.cls-chkVerif:checked');
+
+        if (checkboxesSeleccionados.length === 0) {
+            Swal.fire('Sin órdenes seleccionadas', 'Por favor, selecciona al menos una orden de devolución.', 'warning');
+            return;
+        }
+
+        checkboxesSeleccionados.each(function () {
+            var row = tablaDetalleRuta.row($(this).closest('tr'));
+            var rowData = row.data();
+
+            var docEntry = rowData[2];
+            var docNum = rowData[3];
+            var cardName = rowData[5];
+            var guias = rowData[6];
+            var conducyPlaca = rowData[7];
+            var bultos = rowData[8];
+            var docTotal = rowData[10];  
+            var obs = rowData[11];
+            var direcciones = rowData[12];
+
+            agregarItem(docEntry, docNum, cardName, guias, conducyPlaca, bultos, obs, direcciones, docTotal);  // ✅ CORREGIDO: Pasa "docTotal"
+        });
+
+        // Desmarcar checkboxes
+        checkboxesSeleccionados.prop('checked', false);
+        $("#chk_verifTodos").prop('checked', false);
+
+        // Scroll al detalle
+        $('html, body').animate({
+            scrollTop: $('#divDetalleRuta').offset().top
+        }, 1000);
+    }
+
+    // AGREGAR ITEM AL DETALLE
+    function agregarItem(docEntry, docNum, cardName, guias, conducyPlaca, bultos, obs, direcciones, docTotal) {  // ✅ CORREGIDO: Cambio de "Doctotal" a "docTotal"
+        // Validar duplicado
+        if (!validarUnicoCampoTabla(docEntry)) {
+            Swal.fire('Orden duplicada', 'Esta orden ya fue agregada al detalle.', 'warning');
+            return false;
+        }
+
+        if (!docEntry || docEntry === "") {
+            return false;
+        }
+
+        // Formatear datos
+        var guiasFormateadas = guias ? guias.replace(/,/g, '\n').trim() : '';
+        var conducyPlacaFormateada = conducyPlaca ? conducyPlaca.replace(/,/g, '\n').trim() : '';
+
+        // Construir fila
+        var fila = "<tr>" +
+            "<td><input name='DetRRU0[" + contDet + "].Linea' type='text' value='" + (contDet + 1) + "' style='width:40px' class='form-control form-control-sm' readonly/></td>" +
+            "<td hidden><input name='DetRRU0[" + contDet + "].DocEntryTicket' id='DocEntryTDet" + contDet + "' type='text' value='" + docEntry + "' class='form-control' readonly/></td>" +
+            "<td><input name='DetRRU0[" + contDet + "].DocNumTicket' id='DocNumTDet" + contDet + "' type='text' value='" + docNum + "' style='width:110px' class='form-control form-control-sm' readonly/></td>" +
+            "<td><input name='DetRRU0[" + contDet + "].Socio' type='text' value='" + cardName + "' style='width:200px' class='form-control form-control-sm' readonly/></td>" +
+            "<td><textarea name='DetRRU0[" + contDet + "].Guias' class='form-control form-control-sm' readonly rows='2'>" + guiasFormateadas + "</textarea></td>" +
+            "<td><textarea name='DetRRU0[" + contDet + "].ConducYPlaca' class='form-control form-control-sm' readonly rows='2'>" + conducyPlacaFormateada + "</textarea></td>" +
+            "<td><input name='DetRRU0[" + contDet + "].Cajas' type='text' value='" + bultos + "' style='width:60px' class='form-control form-control-sm text-center' readonly/></td>" +  // ✅ CAMBIADO A .Cajas
+            "<td><input name='DetRRU0[" + contDet + "].Observaciones' type='text' value='" + obs + "' class='form-control form-control-sm' readonly/></td>" +
+            "<td><textarea name='DetRRU0[" + contDet + "].Direcciones' class='form-control form-control-sm' readonly rows='2'>" + direcciones + "</textarea></td>" +
+            "<td><input name='DetRRU0[" + contDet + "].MontoFinal' type='text' value='" + parseFloat(docTotal).toFixed(2) + "' class='form-control form-control-sm text-right' readonly/></td>" +  // ✅ CORREGIDO: Usa "docTotal"
+            "<td class='text-center'><a href='SeguimientoDeTicket?DocEntry=" + docEntry + "' target='_blank' class='btn btn-outline-primary btn-sm' onclick='window.open(this.href,this.target,\"width=500,height=350,top=120,left=100,toolbar=no,location=no,status=no,menubar=no\"); return false;'><i class='icon-truck'></i></a></td>" +
+            "<td class='text-center'><button type='button' class='btn btn-outline-danger btn-sm' onclick='borrarLineaTabla(this)'><i class='icon icon-bin'></i></button></td>" +
+            "</tr>";
+
+        $("#Detalles tbody").append(fila);
+        calcularTotalBultos();
+        contDet++;
+        return true;
+    }
+
+    // BORRAR LÍNEA DE LA TABLA
+    function borrarLineaTabla(dom) {
+        Swal.fire({
+            title: '¿Estás seguro?',
+            text: 'Esta acción eliminará esta orden del detalle.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Sí, eliminar',
+            cancelButtonText: 'Cancelar'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $(dom).closest('tr').remove();
+                contDet--;
+                reindexarDetalles();
+                calcularTotalBultos();  // CAMBIADO
+                Swal.fire('Eliminado', 'La orden ha sido removida del detalle.', 'success');
+            }
+        });
+    }
+    // REINDEXAR DETALLES
+    function reindexarDetalles() {
+        var i = 0;
+        $("#Detalles tbody tr").each(function () {
+            $(this).find("td:eq(0) input").attr("name", "DetRRU0[" + i + "].Linea").val(i + 1);
+            $(this).find("td:eq(1) input").attr("name", "DetRRU0[" + i + "].DocEntryTicket");
+            $(this).find("td:eq(2) input").attr("name", "DetRRU0[" + i + "].DocNumTicket");
+            $(this).find("td:eq(3) input").attr("name", "DetRRU0[" + i + "].Socio");
+            $(this).find("td:eq(4) textarea").attr("name", "DetRRU0[" + i + "].Guias");
+            $(this).find("td:eq(5) textarea").attr("name", "DetRRU0[" + i + "].ConducYPlaca");
+            $(this).find("td:eq(6) input").attr("name", "DetRRU0[" + i + "].Cajas");  
+            $(this).find("td:eq(7) input").attr("name", "DetRRU0[" + i + "].Observaciones");
+            $(this).find("td:eq(8) textarea").attr("name", "DetRRU0[" + i + "].Direcciones");
+            $(this).find("td:eq(9) input").attr("name", "DetRRU0[" + i + "].MontoFinal");
+            i++;
+        });
+    }
+
+    //  VALIDAR CAMPO ÚNICO
+    function validarUnicoCampoTabla(docEntry) {
+        var existe = false;
+        $("#Detalles tbody tr").each(function () {
+            var docEntryExistente = $(this).find('input[id^="DocEntryTDet"]').val();
+            if (docEntryExistente === docEntry) {
+                existe = true;
+                return false;
+            }
+        });
+        return !existe;
+    }
+
+    // CALCULAR TOTAL DE BULTOS
+    function calcularTotalBultos() {
+        var totalBultos = 0;
+        $("#Detalles tbody tr").each(function () {
+            var bultos = parseInt($(this).find('input[name*=".Cajas"]').val()) || 0;  // ✅ CAMBIADO A .Cajas
+            totalBultos += bultos;
+        });
+        $("#TotalBultos").val(totalBultos);
+    }
+
+    // SELECCIONAR TODOS LOS CHECKBOXES
+    function seleccionarVerif() {
+        var checkTodos = $("#chk_verifTodos").is(':checked');
+        if (tablaDetalleRuta) {
+            tablaDetalleRuta.rows({ page: 'all' }).nodes().to$().find('.cls-chkVerif').prop('checked', checkTodos);
+        }
+    }
+
+    // VALIDAR Y ENVIAR FORMULARIO
+    function validarEnviarFormulario() {
+        // Validar que existan detalles
+        if ($("#Detalles tbody tr").length === 0) {
+            Swal.fire('Sin detalles', 'Debe agregar al menos una orden al detalle antes de guardar.', 'warning');
+            return false;
+        }
+
+        // Validar campos obligatorios
+        var fecha = $("#FechaSapTicket").val();
+        var placa = $("#Placa").val();
+        var conductor = $("#TransDesc").val();
+        var almacenDestino = $("#AlmDestinoDesc").val();
+
+        var errores = [];
+
+        if (!fecha) {
+            $("#FechaSapTicket").addClass('bg-danger text-white');
+            errores.push('Fecha');
+        }
+
+        if (!placa) {
+            $("#Placa").addClass('bg-danger text-white');
+            errores.push('Placa');
+        }
+
+        if (!conductor) {
+            $("#TransDesc").addClass('bg-danger text-white');
+            errores.push('Conductor');
+        }
+
+        if (!almacenDestino) {
+            $("#AlmDestinoDesc").addClass('bg-danger text-white');
+            errores.push('Almacén Destino');
+        }
+
+        if (errores.length > 0) {
+            Swal.fire('Campos requeridos', 'Complete los siguientes campos: ' + errores.join(', '), 'error');
+            return false;
+        }
+
+        // Confirmar envío
+        Swal.fire({
+            title: '¿Confirmar registro?',
+            text: 'Se registrará la hoja de devolución con ' + $("#Detalles tbody tr").length + ' orden(es)',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#28a745',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Sí, guardar',
+            cancelButtonText: 'Cancelar'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $("#form").submit();
+            }
+        });
+    }
+
+    function enviarValSelect(idSelect, idDestino, atributo) {
+        var selectedOption = $("#" + idSelect + " option:selected");
+        var valor = selectedOption.attr(atributo);
+        $("#" + idDestino).val(valor || '');
+    }
+</script>

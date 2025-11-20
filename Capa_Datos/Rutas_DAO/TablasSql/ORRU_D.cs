@@ -1256,5 +1256,113 @@ namespace Capa_Datos.Rutas_DAO.TablasSql
             }
             return filas > 0;
         }
+
+        public List<dynamic> ListarOrdenesDevolucionDesdeHana(string cardCode, string fecha)
+        {
+            var lista = new List<dynamic>();
+
+            try
+            {
+                // Convertir fecha a formato YYYY-MM-DD
+                string fechaFormato = DateTime.Parse(fecha).ToString("yyyy-MM-dd");
+
+                // Consulta ajustada - AGREGADO DocTotal
+                string query = @"
+        SELECT 
+            T0.""DocEntry"",
+            T0.""DocNum"",
+            T0.""CardCode"",
+            T0.""CardName"",
+            T0.""Address"",
+            T0.""Comments"",
+            T0.""JrnlMemo"",
+            IFNULL(T0.""U_SYP_MDTD"", '') || '-' || IFNULL(T0.""U_SYP_MDSD"", '') || '-' || IFNULL(T0.""U_SYP_MDCD"", '') AS ""NumGuia"",
+            T0.""U_SYP_MDMT"",
+            T0.""U_COB_LUGAREN"",
+            T0.""U_BPP_NUDOCCOND"",
+            T0.""U_SYP_MDFN"",
+            T0.""U_SYP_MDVC"",
+            IFNULL(T0.""U_BPP_NUMBUL"", 0) AS ""Bultos"",
+            IFNULL(T0.""DocTotal"", 0) AS ""DocTotal""
+        FROM " + uti.schemaHana + @"ORRR T0
+        WHERE T0.""CardCode"" = '" + cardCode + @"'
+            AND T0.""DocDate"" = '" + fechaFormato + @"'
+        ORDER BY T0.""DocNum"" DESC";
+
+                HanaDataReader hdr = db.HanaExecuteReaderNoSp(query);
+
+                while (hdr.Read())
+                {
+                    var orden = new
+                    {
+                        DocEntry = !hdr.IsDBNull(0) ? hdr.GetInt32(0) : 0,
+                        DocNum = !hdr.IsDBNull(1) ? hdr.GetInt32(1) : 0,
+                        CardCode = !hdr.IsDBNull(2) ? hdr.GetString(2) : "",
+                        CardName = !hdr.IsDBNull(3) ? hdr.GetString(3) : "",
+                        Address = !hdr.IsDBNull(4) ? hdr.GetString(4) : "",
+                        Comments = !hdr.IsDBNull(5) ? hdr.GetString(5) : "",
+                        JrnlMemo = !hdr.IsDBNull(6) ? hdr.GetString(6) : "",
+                        NumAtCard = !hdr.IsDBNull(7) ? hdr.GetString(7) : "", // Guía concatenada
+                        U_SYP_MDMT = !hdr.IsDBNull(8) ? hdr.GetString(8) : "",
+                        Agencia = !hdr.IsDBNull(9) ? hdr.GetString(9) : "", // U_COB_LUGAREN
+                        U_BPP_NUDOCCOND = !hdr.IsDBNull(10) ? hdr.GetString(10) : "",
+                        Conductor = !hdr.IsDBNull(11) ? hdr.GetString(11) : "", // U_SYP_MDFN
+                        Placa = !hdr.IsDBNull(12) ? hdr.GetString(12) : "", // U_SYP_MDVC
+                        Bultos = !hdr.IsDBNull(13) ? hdr.GetInt32(13) : 0, // U_BPP_NUMBUL
+                        DocTotal = !hdr.IsDBNull(14) ? hdr.GetDecimal(14) : 0 
+                    };
+
+                    lista.Add(orden);
+                }
+
+                hdr.Close();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error al listar solicitudes de devolución desde HANA (tabla ORRR): " + ex.Message);
+            }
+
+            return lista;
+        }
+        public List<dynamic> ListarClientesPorFechaDesdeHana(string fecha)
+        {
+            var lista = new List<dynamic>();
+
+            try
+            {
+                // Convertir fecha a formato YYYY-MM-DD para comparar con DocDate
+                string fechaFormato = DateTime.Parse(fecha).ToString("yyyy-MM-dd");
+
+                // Consulta a ORRR usando DocDate (campo correcto para la fecha)
+                string query = @"
+                SELECT DISTINCT
+                    T0.""CardCode"",
+                    T0.""CardName""
+                FROM " + uti.schemaHana + @"ORRR T0
+                WHERE T0.""DocDate"" = '" + fechaFormato + @"'
+                ORDER BY T0.""CardName"" ASC";
+
+                HanaDataReader hdr = db.HanaExecuteReaderNoSp(query);
+
+                while (hdr.Read())
+                {
+                    var cliente = new
+                    {
+                        CardCode = !hdr.IsDBNull(0) ? hdr.GetString(0) : "",
+                        CardName = !hdr.IsDBNull(1) ? hdr.GetString(1) : ""
+                    };
+
+                    lista.Add(cliente);
+                }
+
+                hdr.Close();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error al listar clientes desde HANA (tabla ORRR): " + ex.Message);
+            }
+
+            return lista;
+        }
     }
 }
