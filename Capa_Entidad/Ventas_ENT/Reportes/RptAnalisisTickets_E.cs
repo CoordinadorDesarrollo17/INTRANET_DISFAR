@@ -197,7 +197,9 @@ namespace Capa_Entidad.Ventas_ENT.Reportes
         public string Departamento2 { get; set; }
         public decimal PesoTotalPedido { get; set; }               
         public string FechaPagoTicket { get; set; }               
-        public string HoraPagoTicket { get; set; }                             
+        public string HoraPagoTicket { get; set; }
+        [DisplayName("Tipo Venta")]
+        public string TipoVenta { get; set; }
     }
 
     public class RptFiltrosAnalisisTickets_E : RptAnalisisTickets_E
