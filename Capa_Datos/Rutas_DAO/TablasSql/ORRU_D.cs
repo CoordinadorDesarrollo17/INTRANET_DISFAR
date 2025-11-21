@@ -10,6 +10,7 @@ using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
+using static Capa_Entidad.Rutas_ENT.TablasSql.ORRU_E;
 
 namespace Capa_Datos.Rutas_DAO.TablasSql
 {
@@ -456,6 +457,45 @@ namespace Capa_Datos.Rutas_DAO.TablasSql
                     SqlTransaction tran = cn.BeginTransaction();
                     try
                     {
+                        // Bloque de depuración temporal para registrar los valores de los parámetros
+                        var debugInfo = new StringBuilder();
+                        debugInfo.AppendLine("--- DEBUG: Parámetros para al.MANT_ORRU ---");
+                        Action<string, object> addDebugInfo = (name, val) => {
+                            string valStr = (val == null || val == DBNull.Value) ? "NULL" : val.ToString();
+                            debugInfo.AppendLine($"{name} (len: {valStr.Length}): {valStr}");
+                        };
+
+                        addDebugInfo("@TipoRuta", o.TipoRuta);
+                        addDebugInfo("@TransCod", o.TransCod);
+                        addDebugInfo("@TransDesc", o.TransDesc);
+                        addDebugInfo("@VehiculoCod", o.VehiculoCod);
+                        addDebugInfo("@Placa", o.Placa);
+                        addDebugInfo("@Marca", o.Marca);
+                        addDebugInfo("@Modelo", o.Modelo);
+                        addDebugInfo("@CopilDesc", o.CopilDesc);
+                        addDebugInfo("@Copil2Desc", o.Copil2Desc);
+                        addDebugInfo("@Copil3Desc", o.Copil3Desc);
+                        addDebugInfo("@Copil4Desc", o.Copil4Desc);
+                        addDebugInfo("@AlmOrigenCod", o.AlmOrigenCod);
+                        addDebugInfo("@AlmOrigenDesc", o.AlmOrigenDesc);
+                        addDebugInfo("@AlmOrigenDesc2", o.AlmOrigenDesc2);
+                        addDebugInfo("@AlmDestinoCod", o.AlmDestinoCod);
+                        addDebugInfo("@AlmDestinoDesc", o.AlmDestinoDesc);
+                        addDebugInfo("@AlmDestinoDesc2", o.AlmDestinoDesc2);
+                        addDebugInfo("@Propietario", o.Propietario);
+                        addDebugInfo("@Observaciones", o.Observaciones);
+                        if (o.TipoRuta == "AC")
+                        {
+                            addDebugInfo("@Agencia", o.Agencia);
+                            addDebugInfo("@RucAgencia", o.RucAgencia);
+                        }
+                        addDebugInfo("@Operario", o.Propietario);
+                        addDebugInfo("@Origen", o.Origen);
+
+                        // Escribir en la ventana de salida de depuración
+                        System.Diagnostics.Debug.WriteLine(debugInfo.ToString());
+
+
                         SqlCommand cmd = new SqlCommand("al.MANT_ORRU", cn, tran)
                         {
                             CommandType = CommandType.StoredProcedure
@@ -1257,72 +1297,84 @@ namespace Capa_Datos.Rutas_DAO.TablasSql
             return filas > 0;
         }
 
-        public List<dynamic> ListarOrdenesDevolucionDesdeHana(string cardCode, string fecha)
+        public List<OrdenDevolucionHana> ListarOrdenesDevolucionDesdeHana(string cardCode, string fecha)
         {
-            var lista = new List<dynamic>();
+            var lista = new List<OrdenDevolucionHana>();
+
+            if (string.IsNullOrWhiteSpace(cardCode) || string.IsNullOrWhiteSpace(fecha))
+                return lista;
+
+            if (!DateTime.TryParse(fecha, out DateTime fechaParsed))
+                throw new Exception("Fecha inválida: " + fecha);
+
+            string fechaFormato = fechaParsed.ToString("yyyy-MM-dd");
+
+            // Sanitizar cardCode simple (si no puedes parametrizar en HANA). Mejor: usar parámetros en tu DBHelper.
+            cardCode = cardCode.Replace("'", "''").Trim();
+
+            string query = @"
+                SELECT 
+                    T0.""DocEntry"",
+                    T0.""DocNum"",
+                    T0.""CardCode"",
+                    T0.""CardName"",
+                    T0.""Address"",
+                    T0.""Comments"",
+                    T0.""JrnlMemo"",
+                    IFNULL(T0.""U_SYP_MDTD"", '') || '-' || IFNULL(T0.""U_SYP_MDSD"", '') || '-' || IFNULL(T0.""U_SYP_MDCD"", '') AS ""NumGuia"",
+                    T0.""U_SYP_MDMT"",
+                    T0.""U_COB_LUGAREN"",
+                    T0.""U_BPP_NUDOCCOND"",
+                    T0.""U_SYP_MDFN"",
+                    T0.""U_SYP_MDVC"",
+                    IFNULL(T0.""U_BPP_NUMBUL"", 0) AS ""Bultos"",
+                    IFNULL(T0.""DocTotal"", 0) AS ""DocTotal""
+                FROM " + uti.schemaHana + @"ORRR T0
+                WHERE T0.""CardCode"" = '" + cardCode + @"'
+                  AND T0.""DocDate"" = '" + fechaFormato + @"'
+                ORDER BY T0.""DocNum"" DESC";
 
             try
             {
-                // Convertir fecha a formato YYYY-MM-DD
-                string fechaFormato = DateTime.Parse(fecha).ToString("yyyy-MM-dd");
-
-                // Consulta ajustada - AGREGADO DocTotal
-                string query = @"
-        SELECT 
-            T0.""DocEntry"",
-            T0.""DocNum"",
-            T0.""CardCode"",
-            T0.""CardName"",
-            T0.""Address"",
-            T0.""Comments"",
-            T0.""JrnlMemo"",
-            IFNULL(T0.""U_SYP_MDTD"", '') || '-' || IFNULL(T0.""U_SYP_MDSD"", '') || '-' || IFNULL(T0.""U_SYP_MDCD"", '') AS ""NumGuia"",
-            T0.""U_SYP_MDMT"",
-            T0.""U_COB_LUGAREN"",
-            T0.""U_BPP_NUDOCCOND"",
-            T0.""U_SYP_MDFN"",
-            T0.""U_SYP_MDVC"",
-            IFNULL(T0.""U_BPP_NUMBUL"", 0) AS ""Bultos"",
-            IFNULL(T0.""DocTotal"", 0) AS ""DocTotal""
-        FROM " + uti.schemaHana + @"ORRR T0
-        WHERE T0.""CardCode"" = '" + cardCode + @"'
-            AND T0.""DocDate"" = '" + fechaFormato + @"'
-        ORDER BY T0.""DocNum"" DESC";
-
-                HanaDataReader hdr = db.HanaExecuteReaderNoSp(query);
-
-                while (hdr.Read())
+                using (var hdr = db.HanaExecuteReaderNoSp(query))
                 {
-                    var orden = new
+                    while (hdr.Read())
                     {
-                        DocEntry = !hdr.IsDBNull(0) ? hdr.GetInt32(0) : 0,
-                        DocNum = !hdr.IsDBNull(1) ? hdr.GetInt32(1) : 0,
-                        CardCode = !hdr.IsDBNull(2) ? hdr.GetString(2) : "",
-                        CardName = !hdr.IsDBNull(3) ? hdr.GetString(3) : "",
-                        Address = !hdr.IsDBNull(4) ? hdr.GetString(4) : "",
-                        Comments = !hdr.IsDBNull(5) ? hdr.GetString(5) : "",
-                        JrnlMemo = !hdr.IsDBNull(6) ? hdr.GetString(6) : "",
-                        NumAtCard = !hdr.IsDBNull(7) ? hdr.GetString(7) : "", // Guía concatenada
-                        U_SYP_MDMT = !hdr.IsDBNull(8) ? hdr.GetString(8) : "",
-                        Agencia = !hdr.IsDBNull(9) ? hdr.GetString(9) : "", // U_COB_LUGAREN
-                        U_BPP_NUDOCCOND = !hdr.IsDBNull(10) ? hdr.GetString(10) : "",
-                        Conductor = !hdr.IsDBNull(11) ? hdr.GetString(11) : "", // U_SYP_MDFN
-                        Placa = !hdr.IsDBNull(12) ? hdr.GetString(12) : "", // U_SYP_MDVC
-                        Bultos = !hdr.IsDBNull(13) ? hdr.GetInt32(13) : 0, // U_BPP_NUMBUL
-                        DocTotal = !hdr.IsDBNull(14) ? hdr.GetDecimal(14) : 0 
-                    };
+                        var o = new OrdenDevolucionHana
+                        {
+                            DocEntry = !hdr.IsDBNull(0) ? hdr.GetInt32(0) : 0,
+                            DocNum = !hdr.IsDBNull(1) ? hdr.GetInt32(1) : 0,
+                            CardCode = !hdr.IsDBNull(2) ? hdr.GetString(2) : "",
+                            CardName = Trunc(!hdr.IsDBNull(3) ? hdr.GetString(3) : "", 200),
+                            Address = Trunc(!hdr.IsDBNull(4) ? hdr.GetString(4) : "", 200),
+                            Comments = Trunc(!hdr.IsDBNull(5) ? hdr.GetString(5) : "", 400),
+                            JrnlMemo = Trunc(!hdr.IsDBNull(6) ? hdr.GetString(6) : "", 100),
+                            NumAtCard = Trunc(!hdr.IsDBNull(7) ? hdr.GetString(7) : "", 50),
+                            TipoMotivo = Trunc(!hdr.IsDBNull(8) ? hdr.GetString(8) : "", 50),
+                            Agencia = Trunc(!hdr.IsDBNull(9) ? hdr.GetString(9) : "", 100),
+                            NumDocConductor = Trunc(!hdr.IsDBNull(10) ? hdr.GetString(10) : "", 20),
+                            Conductor = Trunc(!hdr.IsDBNull(11) ? hdr.GetString(11) : "", 100),
+                            Placa = Trunc(!hdr.IsDBNull(12) ? hdr.GetString(12) : "", 30),
+                            Bultos = !hdr.IsDBNull(13) ? hdr.GetInt32(13) : 0,
+                            DocTotal = !hdr.IsDBNull(14) ? hdr.GetDecimal(14) : 0m
+                        };
 
-                    lista.Add(orden);
+                        lista.Add(o);
+                    }
                 }
-
-                hdr.Close();
             }
             catch (Exception ex)
             {
-                throw new Exception("Error al listar solicitudes de devolución desde HANA (tabla ORRR): " + ex.Message);
+                throw new Exception("Error al listar devoluciones (HANA ORRR): " + ex.Message, ex);
             }
 
             return lista;
+
+            string Trunc(string val, int max)
+            {
+                if (string.IsNullOrEmpty(val)) return "";
+                return val.Length <= max ? val : val.Substring(0, max);
+            }
         }
         public List<dynamic> ListarClientesPorFechaDesdeHana(string fecha)
         {
@@ -1363,6 +1415,36 @@ namespace Capa_Datos.Rutas_DAO.TablasSql
             }
 
             return lista;
+        }
+
+        public void RecibirDevolucion(int DocEntry, string opRegistro)
+        {
+            using (SqlConnection cn = new SqlConnection(uti.cadSql))
+            {
+                try
+                {
+                    cn.Open();
+                    SqlCommand cmd = new SqlCommand("al.MANT_ORRU", cn);
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.Parameters.AddWithValue("@TipoMantenimiento", "URD");
+                    cmd.Parameters.AddWithValue("@DocEntry", DocEntry);
+                    cmd.Parameters.AddWithValue("@Operario", opRegistro);
+
+                    // Parámetros no utilizados pero requeridos por el SP, enviar NULL
+                    cmd.Parameters.AddWithValue("@DocNum", 0).Direction = ParameterDirection.Output;
+                    cmd.Parameters.AddWithValue("@Det", null);
+                    cmd.Parameters.AddWithValue("@Det1", null);
+                    cmd.Parameters.AddWithValue("@DetDoc", null);
+                    cmd.Parameters.AddWithValue("@DetProd", null);
+
+                    cmd.ExecuteNonQuery();
+                }
+                catch (Exception ex)
+                {
+                    // Es buena práctica relanzar la excepción para que la capa de negocio la maneje
+                    throw new Exception("Error en RecibirDevolucion: " + ex.Message);
+                }
+            }
         }
     }
 }

@@ -3861,7 +3861,6 @@ AND YEAR(T0.FechaSapTicket) = 2025 AND ((SELECT  Estado FROM vt.BusquedaProducto
             }
             catch (Exception ex)
             {
-                // Puedes registrar el error si tienes un logger
                 resultado = -1; // -1 indica error
             }
             return resultado;

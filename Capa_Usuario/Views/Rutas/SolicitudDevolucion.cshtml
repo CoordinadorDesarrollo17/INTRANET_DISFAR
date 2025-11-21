@@ -112,7 +112,7 @@
 
 @using (Html.BeginForm(null, null, FormMethod.Post, new { id = "form" }))
 {
-    <input name="TipoRep" type="hidden" value="VDE" readonly />
+    <input name="TipoRep" type="hidden" value="DE" readonly />
     <div class="bg-form-pestanas-cobefar bg-section-form p-3 bg-form-cobefar">
         @Html.ValidationSummary(true, "", new { @class = "text-danger" })
 
@@ -121,7 +121,7 @@
             <div class="col-lg-2 col-md-3 col-sm-6">
                 <label for="TipoRuta" class="text-dark form-label-custom font-weight-bold">Tipo de ruta:</label>
                 <select name="TipoRuta" id="TipoRuta" class="form-control bg-cobefar text-white form-control-sm">
-                    <option value="VDE">Devolución</option>
+                    <option value="DE">Devolución</option>
                 </select>
             </div>
             <div id="infoListaClientes" class="col-lg-6 col-md-5 col-sm-12">
@@ -274,7 +274,7 @@
                     <tr>
                         <th class="text-center">#</th>
                         <th hidden>DocEntryT</th>
-                        <th class="text-center">NroTicket</th>
+                        <th class="text-center">DocNumSap</th>
                         <th class="text-center">Socio</th>
                         <th class="text-center">Guías</th>
                         <th class="text-center">Conductor/Placa</th>
@@ -583,7 +583,7 @@
             var obs = rowData[11];
             var direcciones = rowData[12];
 
-            agregarItem(docEntry, docNum, cardName, guias, conducyPlaca, bultos, obs, direcciones, docTotal);  // ✅ CORREGIDO: Pasa "docTotal"
+            agregarItem(docEntry, docNum, cardName, guias, conducyPlaca, bultos, obs, direcciones, docTotal);  
         });
 
         // Desmarcar checkboxes
@@ -597,7 +597,7 @@
     }
 
     // AGREGAR ITEM AL DETALLE
-    function agregarItem(docEntry, docNum, cardName, guias, conducyPlaca, bultos, obs, direcciones, docTotal) {  // ✅ CORREGIDO: Cambio de "Doctotal" a "docTotal"
+    function agregarItem(docEntry, docNum, cardName, guias, conducyPlaca, bultos, obs, direcciones, docTotal) { 
         // Validar duplicado
         if (!validarUnicoCampoTabla(docEntry)) {
             Swal.fire('Orden duplicada', 'Esta orden ya fue agregada al detalle.', 'warning');
@@ -620,10 +620,10 @@
             "<td><input name='DetRRU0[" + contDet + "].Socio' type='text' value='" + cardName + "' style='width:200px' class='form-control form-control-sm' readonly/></td>" +
             "<td><textarea name='DetRRU0[" + contDet + "].Guias' class='form-control form-control-sm' readonly rows='2'>" + guiasFormateadas + "</textarea></td>" +
             "<td><textarea name='DetRRU0[" + contDet + "].ConducYPlaca' class='form-control form-control-sm' readonly rows='2'>" + conducyPlacaFormateada + "</textarea></td>" +
-            "<td><input name='DetRRU0[" + contDet + "].Cajas' type='text' value='" + bultos + "' style='width:60px' class='form-control form-control-sm text-center' readonly/></td>" +  // ✅ CAMBIADO A .Cajas
+            "<td><input name='DetRRU0[" + contDet + "].Cajas' type='text' value='" + bultos + "' style='width:60px' class='form-control form-control-sm text-center' readonly/></td>" + 
             "<td><input name='DetRRU0[" + contDet + "].Observaciones' type='text' value='" + obs + "' class='form-control form-control-sm' readonly/></td>" +
             "<td><textarea name='DetRRU0[" + contDet + "].Direcciones' class='form-control form-control-sm' readonly rows='2'>" + direcciones + "</textarea></td>" +
-            "<td><input name='DetRRU0[" + contDet + "].MontoFinal' type='text' value='" + parseFloat(docTotal).toFixed(2) + "' class='form-control form-control-sm text-right' readonly/></td>" +  // ✅ CORREGIDO: Usa "docTotal"
+            "<td><input name='DetRRU0[" + contDet + "].MontoFinal' type='text' value='" + parseFloat(docTotal).toFixed(2) + "' class='form-control form-control-sm text-right' readonly/></td>" +  
             "<td class='text-center'><a href='SeguimientoDeTicket?DocEntry=" + docEntry + "' target='_blank' class='btn btn-outline-primary btn-sm' onclick='window.open(this.href,this.target,\"width=500,height=350,top=120,left=100,toolbar=no,location=no,status=no,menubar=no\"); return false;'><i class='icon-truck'></i></a></td>" +
             "<td class='text-center'><button type='button' class='btn btn-outline-danger btn-sm' onclick='borrarLineaTabla(this)'><i class='icon icon-bin'></i></button></td>" +
             "</tr>";

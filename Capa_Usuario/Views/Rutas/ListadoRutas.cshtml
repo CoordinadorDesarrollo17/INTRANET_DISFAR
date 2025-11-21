@@ -81,7 +81,7 @@
                 Orden entre almacenes
             </a>
             <a href="@Url.Action("SolicitudDevolucion", "Rutas",new {TipoRep="Re" })" class="btn btn-success ml-2">
-                Solicitud Devoliución
+                Solicitud Devolución
             </a>
             <button data-toggle="modal" href="#ModalGestion" class="btn btn-warning d-none d-sm-none d-md-none d-lg-block d-xl-block ml-2">
                 <span>Módulo Gestión</span>
@@ -145,6 +145,8 @@
                             <option value="VD" @if (o != null && o.TipoRuta == "VD") { Write("selected"); }>DOMICILIO</option>
                             <option value="TA" @if (o != null && o.TipoRuta == "TA") { Write("selected"); }>TRASLADOS</option>
                             <option value="VA" @if (o != null && o.TipoRuta == "VA") { Write("selected"); }>ARRIOLA</option>
+                            <option value="DE" @if (o != null && o.TipoRuta == "DE") { Write("selected"); }>DEVOLUCION</option>
+
                         </select>
                     </th>
                     <th class="text-center">
@@ -204,6 +206,7 @@
                         </td>
                         <td class="text-center">
                             <div class="d-flex">
+                                @* Iniciar (mantener igual para todos los tipos) *@
                                 @if (item.Estado.Equals("CREADO"))
                                 {
                                     <button type="button" class="btn btn-success btn-sm d-block d-sm-block d-md-block d-lg-none d-xl-none mx-1" data-toggle="modal" data-target="#M1" onclick="llenarModal1(@item.DocEntry,@item.DocNum,0,0);">Ini</button>
@@ -213,15 +216,21 @@
                                 {
                                     <a href="@Url.Action("EditarHojaDeReparto", "Rutas", new { DocEntry = item.DocEntry, TipoRep = "Re" })" class="d-none d-sm-none d-md-none d-lg-block d-xl-block btn btn-light mx-1" data-toggle="tooltip" data-placement="top" title="Editar"><i class="icon-pencil text-primary"></i></a>
                                 }
-                                @if (item.Estado.Equals("ENVIADO") && item.TotalCajas > 0)
+
+                                @* Entrega (mobile) - ocultar solo si TipoRuta == "DE" *@
+                                @if (item.Estado.Equals("ENVIADO") && item.TotalCajas > 0 && item.TipoRuta != "DE")
                                 {
                                     <a href="@Url.Action("ListadoEntregaRepartos", "Rutas", new {TipoRep="Re", DocEntry = item.DocEntry })" class="btn btn-warning d-block d-sm-block d-md-block d-lg-none d-xl-none mx-1">Ent</a>
                                 }
+
                                 <a href="@Url.Action( "DocumentoRutas", "Rutas", new { DocEntry = item.DocEntry, TipoRuta = item.TipoRuta } )" class="btn d-none d-sm-none d-md-none d-lg-block d-xl-block btn-light mx-1" data-toggle="tooltip" data-placement="top" title="Pdf"><i class="icon-file-pdf text-danger"></i></a>
-                                @if (item.Estado.Equals("ENVIADO") && item.TotalCajas > 0)
+
+                                @* Terminar (mobile) - mostrar para ENVIADO OR DENOTADO DE DEVOLUCION *@
+                                @if (item.Estado.Equals("ENVIADO") && (item.TotalCajas > 0 || item.TipoRuta == "DE"))
                                 {
                                     <button type="button" class="btn btn-secondary d-block d-sm-block d-md-block d-lg-none d-xl-none mx-1" data-toggle="modal" data-target="#M2" onclick="llenarModal2(@item.DocEntry, @item.DocNum);">Ter</button>
                                 }
+
                                 <a href="@Url.Action("SeguimientoRepartoRutas", "Rutas", new { DocEntry = item.DocEntry, Vista="REPARTOS" })" class="btn btn-light text-light d-none d-sm-none d-md-none d-lg-block d-xl-block mx-1" data-toggle="tooltip" data-placement="top" title="Seguimiento"><i class="icon-truck text-dark"></i></a>
 
                                 @if (item.TipoRuta == "TA")
@@ -238,6 +247,14 @@
                                 {
                                     <a href="@Url.Action("ManifiestoCourier", "Rutas", new { DocEntry = item.DocEntry, Estado = item.Estado})" class="btn btn-danger d-none d-sm-none d-md-none d-lg-block d-xl-block mx-1"><i title="Manifiesto" class="icon-file-pdf"></i></a>
                                     <a href="@Url.Action("AnularHojaCargo", "Rutas", new { DocEntry = item.DocEntry,TipoRep="Re", Estado = item.Estado } )" class="btn btn-orange d-none d-sm-none d-md-none d-lg-block d-xl-block mx-1"><i title="Anular Hoja Cargo" class="icon-blocked"></i></a>
+                                }
+
+                                @* Recibir Devolución (mobile only) y sólo para tipo DE en ENVIADO *@
+                                @if (item.TipoRuta == "DE" && item.Estado == "ENVIADO")
+                                {
+                                    <a href="@Url.Action("RecibirDevolucion", "Rutas", new { DocEntry = item.DocEntry })" class="btn btn-success d-block d-sm-block d-md-block d-lg-none d-xl-none btn-sm mx-1" onclick="return confirm('¿Está seguro de recibir esta devolución?');" data-toggle="tooltip" data-placement="top" title="Recibir Devolución">
+                                        <i class="icon-checkmark"></i>
+                                    </a>
                                 }
                             </div>
                         </td>

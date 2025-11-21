@@ -58,7 +58,7 @@ namespace Capa_Negocio.Rutas_NEG.TablasSql
             if (o.FechaCont == null) { throw new Exception("No eligió FechaContabilizacion"); }
 
             //validaciones para tipos de ruta distinto a courier y agencia
-            if (o.TipoRuta != "VG" && o.TipoRuta != "AC" && o.TipoRuta != "VDE" && (string.IsNullOrWhiteSpace(o.AlmOrigenCod) || string.IsNullOrWhiteSpace(o.AlmOrigenDesc)))
+            if (o.TipoRuta != "VG" && o.TipoRuta != "AC" && o.TipoRuta != "DE" && (string.IsNullOrWhiteSpace(o.AlmOrigenCod) || string.IsNullOrWhiteSpace(o.AlmOrigenDesc)))
             {
                 throw new Exception("No eligió almacén origen");
             }
@@ -66,10 +66,10 @@ namespace Capa_Negocio.Rutas_NEG.TablasSql
             {
                 throw new Exception("No eligió almacén destino");
             }
-            if (o.TipoRuta != "VDE" && o.TiempoPac == null) { throw new Exception("Debe haber tiempo pactado"); }
+            if (o.TipoRuta != "DE" && o.TiempoPac == null) { throw new Exception("Debe haber tiempo pactado"); }
 
-            // VALIDACIONES ESPECÍFICAS PARA SOLICITUD DE DEVOLUCIÓN (VDE)
-            if (o.TipoRuta == "VDE")
+            // VALIDACIONES ESPECÍFICAS PARA SOLICITUD DE DEVOLUCIÓN (DE)
+            if (o.TipoRuta == "DE")
             {
                 // Validar que exista al menos un detalle (órdenes de devolución)
                 if (o.DetRRU0 == null || o.DetRRU0.Count <= 0)
@@ -117,7 +117,7 @@ namespace Capa_Negocio.Rutas_NEG.TablasSql
             }
 
             //Validaciones para todo tipo de ruta menos TA Transferencia entre almacenes
-            if (!o.TipoRuta.Equals("TA") && !o.TipoRuta.Equals("VDE"))
+            if (!o.TipoRuta.Equals("TA") && !o.TipoRuta.Equals("DE"))
             {
                 if (o.DetRRU0.Count <= 0) { throw new Exception("Debe haber detalles de documento"); }
                 foreach (RRU0_E d in o.DetRRU0)
@@ -319,14 +319,19 @@ namespace Capa_Negocio.Rutas_NEG.TablasSql
             if (nuevaHora.Length == 5) nuevaHora += ":00"; // normalizar
             return orruD.ActualizarHoraLlegada(docEntry, docNum, nuevaHora);
         }
-        public List<dynamic> ListarOrdenesDevolucionDesdeHana(string cardCode, string fecha)
+        public List<ORRU_E.OrdenDevolucionHana> ListarOrdenesDevolucionDesdeHana(string cardCode, string fecha)
         {
-            return new ORRU_D().ListarOrdenesDevolucionDesdeHana(cardCode, fecha);
+            return orruD.ListarOrdenesDevolucionDesdeHana(cardCode, fecha);
         }
 
         public List<dynamic> ListarClientesPorFechaDesdeHana(string fecha)
         {
             return new ORRU_D().ListarClientesPorFechaDesdeHana(fecha);
+        }
+
+        public void RecibirDevolucion(int DocEntry, string opRegistro)
+        {
+            orruD.RecibirDevolucion(DocEntry, opRegistro);
         }
     }
 }

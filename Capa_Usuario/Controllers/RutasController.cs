@@ -92,6 +92,7 @@ namespace Capa_Usuario.Controllers
                 return resultadoAcceso;
             }
         }
+
         private void CapturarViewBag(string tipoRep, string tipoRuta = "", string[] filtrosAlm = null, string mensaje = "", int filas = 30)
         {
             ViewBag.Mensaje = mensaje;
@@ -802,6 +803,10 @@ namespace Capa_Usuario.Controllers
                 {
                     return RedirectToAction("DocumentoRepartoAg", new { DocEntry = DocEntry });
                 }
+                else if (TipoRuta.Equals("DE"))
+                {
+                    return RedirectToAction("DocumentoRutasDevolucion", new { DocEntry = DocEntry });
+                }
                 else
                 { return View(); }
             }
@@ -1349,6 +1354,26 @@ namespace Capa_Usuario.Controllers
             ViewBag.Letra = 2;
             return View(o);
         }
+
+        public ActionResult DocumentoRutasDevolucion(int DocEntry)
+        {
+            //verificacionAccesos(0);
+            ORRU_E o = new ORRU_E(); ORTV_N ortvN = new ORTV_N();
+            try
+            {
+                o = orruN.obtenerOrdenDeRuta(DocEntry);
+                if (o.DetRRU0 != null)
+                {
+                    foreach (RRU0_E r0 in o.DetRRU0)
+                    {
+                        r0.Ticket = ortvN.ObtenerDatosCompletosTicket(r0.DocEntryTicket);
+                    }
+                }
+            }
+            catch { }
+            ViewBag.Letra = 2;
+            return View(o);
+        }
         public ActionResult ManifiestoCourier(int DocEntry)
         {
             //verificacionAccesos(0);
@@ -1495,7 +1520,7 @@ namespace Capa_Usuario.Controllers
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
                 // Cargar ViewBag base
-                CapturarViewBag(TipoRep, "VDE");
+                CapturarViewBag(TipoRep, "DE");
 
                 // AGREGAR: Cargar vehículos y conductores explícitamente
                 ViewBag.ListaVehiculos = new Capa_Negocio.Repartos_NEG.TablasHana.SYP_VEHICU_N().listar();
@@ -1523,7 +1548,7 @@ namespace Capa_Usuario.Controllers
                 {
                     Usuario_E user = (Usuario_E)Session["UsuarioId"];
                     o.Propietario = $"{user.Nombres} {user.Apellidos}";
-                    o.TipoRuta = "VDE";
+                    o.TipoRuta = "DE";
 
                     // Asignar TiempoPac por defecto si es null
                     if (o.TiempoPac == null)
@@ -1556,7 +1581,7 @@ namespace Capa_Usuario.Controllers
                 }
                 catch (Exception e)
                 {
-                    CapturarViewBag(TipoRep, "VDE", mensaje: e.Message);
+                    CapturarViewBag(TipoRep, "DE", mensaje: e.Message);
                     ViewBag.ListaVehiculos = new Capa_Negocio.Repartos_NEG.TablasHana.SYP_VEHICU_N().listar();
                     ViewBag.Conductores = new Capa_Negocio.Repartos_NEG.TablasHana.SYP_CONDUC_N().listar();
                     OCRD_N ocrdN = new OCRD_N();
@@ -1652,6 +1677,31 @@ namespace Capa_Usuario.Controllers
                     success = false,
                     message = "Error al consultar clientes: " + ex.Message
                 });
+            }
+        }
+
+        public ActionResult RecibirDevolucion(int DocEntry, int idOperation = 236)
+        {
+            var resultadoAcceso = VerificarPermiso(idOperation);
+            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
+            {
+                try
+                {
+                    Usuario_E user = (Usuario_E)Session["UsuarioId"];
+                    string opRegistro = $"{user.Nombres} {user.Apellidos}";
+                    orruN.RecibirDevolucion(DocEntry, opRegistro);
+                    TempData["Mensaje"] = "Devolución recibida y ruta terminada.";
+                    return RedirectToAction("ListadoRutas");
+                }
+                catch (Exception e)
+                {
+                    TempData["Mensaje"] = "Error al recibir la devolución: " + e.Message;
+                    return RedirectToAction("ListadoRutas");
+                }
+            }
+            else
+            {
+                return resultadoAcceso;
             }
         }
     }
