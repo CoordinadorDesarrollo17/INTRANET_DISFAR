@@ -2556,11 +2556,11 @@ namespace Capa_Usuario.Controllers
                     {
                         if (analisisTickets.Count >= 1)
                         {
-                            for (var col = 1; col <= 66; col++)
+                            for (var col = 1; col <= 71; col++)
                             {
                                 worksheet.Column(col).AutoFit();
                             }
-                            var tabla = worksheet.Tables.Add(new ExcelAddressBase(fromRow: 1, fromCol: 1, toRow: analisisTickets.Count + 1, toColumn: 66), "RptAnalisisTickets");
+                            var tabla = worksheet.Tables.Add(new ExcelAddressBase(fromRow: 1, fromCol: 1, toRow: analisisTickets.Count + 1, toColumn: 71), "RptAnalisisTickets");
                             tabla.ShowHeader = true;
                             tabla.TableStyle = OfficeOpenXml.Table.TableStyles.Medium2;
                         }

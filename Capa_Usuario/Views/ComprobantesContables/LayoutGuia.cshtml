@@ -137,60 +137,24 @@
                     </td>
                 </tr>
             }
-            @*
-                    var counter = 0;
 
-
-                    foreach (var item in Model)
-                    {
-                        if (counter % 33 == 0)
-                        {
-                            if (counter != 0)
-                            { @Html.Raw("</table><div class='page-break' ></div><table border='1' style='font-size:11px;'> <tr>\r\n                <th style=\"width: 60px;\">CANT.</th>\r\n                <th style=\"width: 400px;\">DESCRIPCION</th>\r\n                <th style=\"width: 50px;\">LAB.</th>\r\n                <th style=\"width: 50px;\">LOTE</th>\r\n                <th style=\"width: 70px;\">FECHA<br /> VC.</th>\r\n                <th style=\"width: 60px;\">UNID.</th>\r\n            </tr>")
-
-                        }
-
-                    }
-                    else
-                    {
-                    <tr style="text-align:center; page-break-inside: avoid;">
-                        <td style="width: 60px;">
-                            @Math.Round(item.cantVta(), 0)
-                            @item.UM()
-                        </td>
-                        <td style="width: 400px; text-align:left !important;">
-                            @Html.DisplayFor(modelItem => item.DescripcionArticulo)
-                        </td>
-                        <td style="width: 50px;">
-                            @Html.DisplayFor(modelItem => item.Laboratorio)
-                        </td>
-                        <td style="width: 50px;">
-                            @Html.DisplayFor(modelItem => item.LoteNum)
-                        </td>
-                        <td style="width: 70px;">
-                            @Html.DisplayFor(modelItem => item.VctoLote)
-                        </td>
-                        <td style="width: 60px;">
-                            @Html.DisplayFor(modelItem => item.UniMedida)
-                        </td>
-                    </tr>
-                }
-
-               counter++;
-            }
-
-                }*@
         </table>
         <table style="font-size:11px;margin-top:20px;" border="0">
             <tr>
                 <td>
                     @if (ViewBag.Tipo == "T")
-                    {<strong>N° Bultos : </strong>@Cab.Bulto}
+                    {<span>Peso: @(ViewBag.PesoTicket == "0" || string.IsNullOrWhiteSpace(ViewBag.PesoTicket) ? "No se registró peso" : ViewBag.PesoTicket +"Kg.")</span><br />
+                        <span>Nro. de Cajas: @ViewBag.NroCajas</span>}
                     else if (ViewBag.Tipo == "E")
                     {
-                    <strong>Encargado de recojo :</strong><br />
-                    <span>@ViewBag.PersonaRecojo.Item1</span><br />
-                    <span>@ViewBag.PersonaRecojo.Item2</span>}
+                        <strong>Encargado de recojo :</strong><br />
+                        <span>Nombre: @ViewBag.PersonaRecojo.Item1</span><br />
+                        <span>Documento: @ViewBag.PersonaRecojo.Item2</span><br />
+                        <span>Telefono: @ViewBag.PersonaRecojo.Item3</span><br /><br />
+
+                        <span>Peso: @(ViewBag.PesoTicket == "0" || string.IsNullOrWhiteSpace(ViewBag.PesoTicket) ? "No se registró peso" : ViewBag.PesoTicket +"Kg.")</span><br />
+                        <span>Nro. de Cajas: @ViewBag.NroCajas</span>
+                    }
                 </td>
             </tr>
 
