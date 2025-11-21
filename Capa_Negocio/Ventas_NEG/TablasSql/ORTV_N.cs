@@ -886,7 +886,7 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
             return ticket;
         }
         // Reformulando metodos
-        public (string Persona, string documento) obtenerPersonaRecojoParaGuia(int docNum)
+        public (string Persona, string documento, string telefono) obtenerPersonaRecojoParaGuia(int docNum)
         {
             return tkD.ObtenerPersonaRecojoParaGuia(docNum);
         }
@@ -984,6 +984,18 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
         public int EditarRegalo(int docEntry, ORTV_E ticket)
         {
             return tkD.RevertirAsignacionRegalo(docEntry, ticket);
+        }
+
+        public string PesoTicket(int Docnum)
+        {
+            return tkD.PesoTicket(Docnum);
+        }
+
+        public ORTV_E DatosTicket(int Docnum)
+        {
+            int docEntry = DocEntryTicket(Docnum);
+            ORTV_E t = tkD.ObtenerDatosCompletosTicket(docEntry);
+            return t;
         }
     }
 }
