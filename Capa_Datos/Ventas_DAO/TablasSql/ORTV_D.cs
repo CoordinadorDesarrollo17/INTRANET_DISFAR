@@ -1873,9 +1873,9 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
             }
             return info;
         }
-        public (string Persona, string Documento) ObtenerPersonaRecojoParaGuia(int docNum)
+        public (string Persona, string Documento, string telefono) ObtenerPersonaRecojoParaGuia(int docNum)
         {
-            string Persona = ""; string Documento = "";
+            string Persona = ""; string Documento = ""; string telefono = "";
             int docEntry = DocEntryTicket(docNum);
             var tk = ObtenerTicketVenta(docEntry);
             if (tk.LugarDestino.Equals("Domicilio") || tk.LugarDestino.Equals("Agencia"))
@@ -1883,8 +1883,9 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                 List<RTV1_E> rtv1 = obtenerDet1Ticket(docEntry);
                 Persona = rtv1[0].NombrePer;
                 Documento = rtv1[0].DocPer;
+                telefono = rtv1[0].TelfPer;
             }
-            return (Persona, Documento);
+            return (Persona, Documento, telefono);
         }
         public (string HtmlContent, string TipoVenta) GeneraInfoListaOrdenesDeVenta(string fecha, string cardCode, int docNum)
         {
@@ -3914,6 +3915,40 @@ AND YEAR(T0.FechaSapTicket) = 2025 AND ((SELECT  Estado FROM vt.BusquedaProducto
                 throw new Exception("Error al revertir la asignación de regalo: " + ex.Message, ex);
             }
             return resultado;
+        }
+
+        public string PesoTicket(int docnum)
+        {
+            int docEntry = DocEntryTicket(docnum);
+            string peso = "";
+            try
+            {
+                using (SqlConnection cn = new SqlConnection(uti.cadSql))
+                {
+                    cn.Open();
+                    string query = "SELECT SUM(Peso) FROM vt.RTV6 WHERE DocEntry = @DocEntry";
+                    using (SqlCommand cmd = new SqlCommand(query, cn))
+                    {
+                        cmd.Parameters.AddWithValue("@DocEntry", docEntry);
+                        object valor = cmd.ExecuteScalar();
+                        if (valor != null && valor != DBNull.Value)
+                        {
+                            peso = Convert.ToString(valor);
+                        }
+                        else
+                        {
+                            peso = "0";
+                        }
+                    }
+                    cn.Close();
+                }
+            }
+            catch (Exception ex)
+            {
+                // Puedes registrar el error si tienes un logger
+                peso = "-1"; // -1 indica error
+            }
+            return peso;
         }
 
     }
