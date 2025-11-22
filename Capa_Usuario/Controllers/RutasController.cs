@@ -1508,5 +1508,30 @@ namespace Capa_Usuario.Controllers
                 return Json(new { ok = false, msg = ex.Message });
             }
         }
+
+        public ActionResult DescargarRptRutasExcel(int docEntry)
+        {
+            var excelContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+            var lista = orruN.ObtenerRptRutasExcel(docEntry);
+
+            using (var package = new OfficeOpenXml.ExcelPackage())
+            {
+                var ws = package.Workbook.Worksheets.Add("RutasExcel");
+                ws.Cells["A1"].LoadFromCollection(lista, PrintHeaders: true);
+
+                if (lista != null && lista.Count > 0)
+                {
+                    for (int col = 1; col <= ws.Dimension.End.Column; col++)
+                    {
+                        ws.Column(col).AutoFit();
+                    }
+                    var tabla = ws.Tables.Add(ws.Cells[1, 1, lista.Count + 1, ws.Dimension.End.Column], "RutasExcel");
+                    tabla.ShowHeader = true;
+                    tabla.TableStyle = OfficeOpenXml.Table.TableStyles.Medium2;
+                }
+
+                return File(package.GetAsByteArray(), excelContentType, "RutasExcel.xlsx");
+            }
+        }
     }
 }

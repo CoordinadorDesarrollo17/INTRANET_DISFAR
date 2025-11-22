@@ -42,13 +42,15 @@
                 <table style="text-align:left" border="0">
                     <tr>
                         <td style="width:100px"><strong>Motivo de traslado : </strong></td>
-                        <td>Traslado entre establecimientos de la misma empresa</td>
+                        <td>
+                            @(Cab.Motivo_Trasl == "01" ? "Venta" : "Traslado entre establecimiento de la misma empresa")
+                        </td>
                         <td style="width:150px"><strong>Direc. Punto partida : </strong></td>
                         <td>@Cab.DirSalida<br /></td>
                     </tr>
                     <tr>
                         <td style="width:100px"><strong>Modalidad de traslado :</strong></td>
-                        <td>Transporte privado</td>
+                        <td>@(Cab.Modalidad_Trasl == "01" ? "Transporte Público" : "Transporte Privado")</td>
                         <td style="width:150px"><strong>Direc. Punto llegada : </strong></td>
                         <td>@Cab.DirLlegada</td>
                     </tr>
@@ -61,13 +63,17 @@
                 <table style="text-align:left" border="0">
                     <tr>
                         <td style="width:100px"><strong>Motivo de traslado :</strong> </td>
-                        <td>Venta</td>
+                        <td>
+                            @(Cab.Motivo_Trasl == "01" ? "Venta" : "Traslado entre establecimiento de la misma empresa")
+                        </td>
                         <td style="width:150px"><strong>Direc. Punto partida :</strong> </td>
                         <td>@Cab.DirSalida</td>
                     </tr>
                     <tr>
                         <td style="width:100px"><strong>Modalidad de traslado : </strong> </td>
-                        <td>Transporte privado</td>
+                        <td>
+                            @(Cab.Modalidad_Trasl == "01" ? "Transporte Público" : "Transporte Privado")
+                        </td>
                         <td style="width:150px"><strong>Direc. Punto llegada :</strong> </td>
                         <td>@Cab.DirCliente</td>
                     </tr>
@@ -93,11 +99,18 @@
                 <td><strong>Licencia : </strong> </td>
                 <td>@Cab.Licencia</td>
                 <td><strong>RUC : </strong></td>
-                <td>@Cab.RucTransportista</td>
+                @if (Cab.Modalidad_Trasl =="01")
+                {
+                    <td>@Cab.RucTransportista</td>
+                }
             </tr>
             <tr>
                 <td colspan="2"></td>
                 <td><strong>Razón social :</strong></td>
+                @if (Cab.Modalidad_Trasl == "01")
+                {
+                    <td>@Cab.NomTransportista</td>
+                }
                 <td></td>
             </tr>
         </table>
@@ -140,44 +153,37 @@
 
         </table>
         <table style="font-size:11px;margin-top:20px;" border="0">
-            <tr>
-                <td>
-                    @if (ViewBag.Tipo == "T")
-                    {<span>Peso: @(ViewBag.PesoTicket == "0" || string.IsNullOrWhiteSpace(ViewBag.PesoTicket) ? "No se registró peso" : ViewBag.PesoTicket +"Kg.")</span><br />
-                        <span>Nro. de Cajas: @ViewBag.NroCajas</span>}
-                    else if (ViewBag.Tipo == "E")
-                    {
-                        <strong>Encargado de recojo :</strong><br />
-                        <span>Nombre: @ViewBag.PersonaRecojo.Item1</span><br />
-                        <span>Documento: @ViewBag.PersonaRecojo.Item2</span><br />
-                        <span>Telefono: @ViewBag.PersonaRecojo.Item3</span><br /><br />
-
-                        <span>Peso: @(ViewBag.PesoTicket == "0" || string.IsNullOrWhiteSpace(ViewBag.PesoTicket) ? "No se registró peso" : ViewBag.PesoTicket +"Kg.")</span><br />
-                        <span>Nro. de Cajas: @ViewBag.NroCajas</span>
-                    }
-                </td>
-            </tr>
-
-            <tr>
-                <td style="padding:20px;font-size:11px;margin-right:10%">
-                    <div style="border: 2px solid black; border-radius: 5px; padding: 10px; text-align:center">
-                        Una vez salida la mercaderia del almacen no hay lugar a
-                        reclamo o devolucion, los gastos o riesgos de transporte
-                        corren por cuenta del cliente.
-                    </div>
-                </td>
-                <td style="padding: 0px 5px 0px 15px; font-size: 11px;width:50%">
-                    <p>
-                        Representación impresa -Guia de Remisión Electronica.
-                        Consultada de comprobante https://www.cobefar.com.pe/
-                        http://181.224.227.28/fe/
-                    </p>
-                </td>
-            </tr>
-        </table>
+    <tr>
+        @if (ViewBag.Tipo == "T")
+        {
+            <td style="vertical-align:top; width:100%; text-align:left;">
+                <span>Peso: @(ViewBag.PesoTicket == "0" || string.IsNullOrWhiteSpace(ViewBag.PesoTicket) ? "No se registró peso" : ViewBag.PesoTicket + "Kg.")</span><br />
+                <span>Nro. de Cajas: @ViewBag.NroCajas</span>
+            </td>
+        }
+        else if (ViewBag.Tipo == "E")
+        {
+            <td style="vertical-align:top; width:50%; text-align:left;">
+                <strong>Encargado de recojo :</strong><br />
+                <span>Nombre: @ViewBag.PersonaRecojo.Item1</span><br />
+                <span>Documento: @ViewBag.PersonaRecojo.Item2</span><br />
+                <span>Telefono: @ViewBag.PersonaRecojo.Item3</span><br /><br />
+            </td>
+            <td style="vertical-align:top; width:50%; text-align:right;">
+                @if (ViewBag.PesoTicket != "0" && !string.IsNullOrWhiteSpace(ViewBag.PesoTicket))
+                {
+                    <span>Peso: @(ViewBag.PesoTicket + "Kg.")</span><br />
+                }
+                <span>Nro. de Cajas: @ViewBag.NroCajas</span>
+            </td>
+        }
+    </tr>
+</table>
     </div>
 </body>
 </html>
+
+
 
 
 
