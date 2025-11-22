@@ -43,14 +43,14 @@
                     <tr>
                         <td style="width:100px"><strong>Motivo de traslado : </strong></td>
                         <td>
-                            @(Cab.Modalidad_Trasl == "01" ? "Transporte Público" : "Transporte Privado")
+                            @(Cab.Motivo_Trasl == "01" ? "Venta" : "Traslado entre establecimiento de la misma empresa")
                         </td>
                         <td style="width:150px"><strong>Direc. Punto partida : </strong></td>
                         <td>@Cab.DirSalida<br /></td>
                     </tr>
                     <tr>
                         <td style="width:100px"><strong>Modalidad de traslado :</strong></td>
-                        <td>@Cab.Modalidad_Trasl</td>
+                        <td>@(Cab.Modalidad_Trasl == "01" ? "Transporte Público" : "Transporte Privado")</td>
                         <td style="width:150px"><strong>Direc. Punto llegada : </strong></td>
                         <td>@Cab.DirLlegada</td>
                     </tr>
@@ -64,14 +64,16 @@
                     <tr>
                         <td style="width:100px"><strong>Motivo de traslado :</strong> </td>
                         <td>
-                            @(Cab.Modalidad_Trasl == "01" ? "Transporte Público" : "Transporte Privado")
+                            @(Cab.Motivo_Trasl == "01" ? "Venta" : "Traslado entre establecimiento de la misma empresa")
                         </td>
                         <td style="width:150px"><strong>Direc. Punto partida :</strong> </td>
                         <td>@Cab.DirSalida</td>
                     </tr>
                     <tr>
                         <td style="width:100px"><strong>Modalidad de traslado : </strong> </td>
-                        <td>@(Cab.Motivo_Trasl == "01" ? "Venta" : "Traslado entre establecimiento de la misma empresa")</td>
+                        <td>
+                            @(Cab.Modalidad_Trasl == "01" ? "Transporte Público" : "Transporte Privado")
+                        </td>
                         <td style="width:150px"><strong>Direc. Punto llegada :</strong> </td>
                         <td>@Cab.DirCliente</td>
                     </tr>
