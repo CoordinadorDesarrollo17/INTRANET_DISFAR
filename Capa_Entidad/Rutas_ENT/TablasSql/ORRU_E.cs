@@ -200,11 +200,11 @@ namespace Capa_Entidad.Rutas_ENT.TablasSql
         {
             public string Guias { get; set; }
             public string Factura { get; set; }
-            public string OrdenCompra { get; set; }
+            public int OrdenCompra { get; set; }
             public string Ruc { get; set; }
             public string Direccion { get; set; }
             public string Departamento { get; set; }
-            public string Peso { get; set; }
+            public decimal Peso { get; set; }
             public int DocEntry { get; set; }
 
         }

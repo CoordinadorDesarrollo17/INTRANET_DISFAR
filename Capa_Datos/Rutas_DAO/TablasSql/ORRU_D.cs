@@ -1288,11 +1288,11 @@ namespace Capa_Datos.Rutas_DAO.TablasSql
                         {
                             var item = new ORRU_E.RptRutasExcel();
                             if (!dr.IsDBNull(0)) item.Guias = dr.GetString(0);
-                            if (!dr.IsDBNull(1)) item.OrdenCompra = dr.GetString(1);
+                            if (!dr.IsDBNull(1)) item.OrdenCompra = dr.GetInt32(1);
                             if (!dr.IsDBNull(2)) item.Ruc = dr.GetString(2);
                             if (!dr.IsDBNull(3)) item.Direccion = dr.GetString(3);
                             if (!dr.IsDBNull(4)) item.Departamento = dr.GetString(4);
-                            if (!dr.IsDBNull(5)) item.Peso = dr.GetString(5);
+                            if (!dr.IsDBNull(5)) item.Peso = dr.GetDecimal(5);
                             if (!dr.IsDBNull(6)) item.DocEntry = dr.GetInt32(6);
                             lista.Add(item);
                         }
