@@ -1514,6 +1514,15 @@ namespace Capa_Usuario.Controllers
             var excelContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
             var lista = orruN.ObtenerRptRutasExcel(docEntry);
 
+            foreach (var item in lista)
+            {
+                if (!string.IsNullOrWhiteSpace(item.Guias))
+                {
+                    // Reemplaza espacios dobles y simples por comas
+                    item.Guias = item.Guias.Replace("\r\n", ",");
+                }
+            }
+
             using (var package = new OfficeOpenXml.ExcelPackage())
             {
                 var ws = package.Workbook.Worksheets.Add("RutasExcel");
