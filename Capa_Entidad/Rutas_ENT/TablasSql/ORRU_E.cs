@@ -206,7 +206,7 @@ namespace Capa_Entidad.Rutas_ENT.TablasSql
             public string Departamento { get; set; }
             public decimal Peso { get; set; }
             public int DocEntry { get; set; }
-
+            public int Cajas { get; set; }
         }
     }
 }
