@@ -411,6 +411,8 @@ namespace Capa_Usuario.Controllers
                 return resultadoAcceso;
             }
         }
+
+        [HttpPost]
         public ActionResult RevertirAtenderSolicitud(OSAT_E obj, int idOperation = 2707)
         {
             var resultadoAcceso = VerificarPermiso(idOperation);
