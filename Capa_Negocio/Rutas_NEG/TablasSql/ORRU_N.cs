@@ -8,6 +8,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
+using Capa_Negocio.Ventas_NEG.Tablas;
+using Capa_Entidad.Ventas_ENT.Tablas;
 
 namespace Capa_Negocio.Rutas_NEG.TablasSql
 {
@@ -269,6 +271,65 @@ namespace Capa_Negocio.Rutas_NEG.TablasSql
                 throw new Exception("Formato de hora inválido (HH:mm o HH:mm:ss)");
             if (nuevaHora.Length == 5) nuevaHora += ":00"; // normalizar
             return orruD.ActualizarHoraLlegada(docEntry, docNum, nuevaHora);
+        }
+        public List<ORRU_E.RptRutasExcel> ObtenerRptRutasExcel(int docEntry)
+        {
+            var ReporteExcel = orruD.ObtenerRptRutasExcel(docEntry);
+
+            var ordrN = new Capa_Negocio.Ventas_NEG.Tablas.ORDR_N();
+            var negtik = new Capa_Negocio.Ventas_NEG.TablasSql.ORTV_N();
+            var oinvNeg = new OINV_N();
+
+            foreach (var item in ReporteExcel)
+            {
+                var obj = negtik.ObtenerDatosCompletosTicket(item.DocEntry);
+                List<string> FB = new List<string>();
+
+                if (obj?.Det2 != null)
+                {
+                    foreach (var orden in obj.Det2)
+                    {
+                        var Ordenes = ordrN.listadoOrdenesDeVenta(
+                            new Capa_Entidad.Ventas_ENT.Tablas.ORDR_E { DocNum = orden.NroSap }, true);
+
+                        if (Ordenes.Count > 0)
+                        {
+                            foreach (var x in Ordenes[0].ComprobantesVinculados)
+                            {
+                                FB.Add(x.NumAtCard);
+                            }
+                        }
+                    }
+                }
+
+                List<OINV_E> lista = new List<OINV_E>();
+                foreach (var o in FB)
+                {
+                    if (!string.IsNullOrWhiteSpace(o) && o.Contains("F"))
+                    {
+                        var factura = oinvNeg.listadoFacturasDeVenta(
+                            new OINV_E { NumAtCard = o }).FirstOrDefault();
+                        if (factura != null) lista.Add(factura);
+                    }
+                    else if (!string.IsNullOrWhiteSpace(o) && o.Contains("B"))
+                    {
+                        var boleta = oinvNeg.listadoBoletasDeVenta(
+                            new OINV_E { NumAtCard = o }).FirstOrDefault();
+                        if (boleta != null) lista.Add(boleta);
+                    }
+                }
+
+                // Agrupa y asigna los números de factura/boleta al campo Factura
+                var facturas = lista
+                    .Where(x => x != null && !string.IsNullOrWhiteSpace(x.NumAtCard))
+                    .GroupBy(x => x.NumAtCard)
+                    .Select(g => g.First().NumAtCard)
+                    .ToList();
+
+                item.Factura = string.Join(", ", facturas);
+            }
+
+            return ReporteExcel;
         }
     }
 }
