@@ -153,38 +153,37 @@
 
         </table>
         <table style="font-size:11px;margin-top:20px;" border="0">
-            <tr>
-                <td>
-                    @if (ViewBag.Tipo == "T")
-                    {<span>Peso: @(ViewBag.PesoTicket == "0" || string.IsNullOrWhiteSpace(ViewBag.PesoTicket) ? "No se registró peso" : ViewBag.PesoTicket +"Kg.")</span><br />
-                        <span>Nro. de Cajas: @ViewBag.NroCajas</span>}
-                    else if (ViewBag.Tipo == "E")
-                    {
-                        <strong>Encargado de recojo :</strong><br />
-                        <span>Nombre: @ViewBag.PersonaRecojo.Item1</span><br />
-                        <span>Documento: @ViewBag.PersonaRecojo.Item2</span><br />
-                        <span>Telefono: @ViewBag.PersonaRecojo.Item3</span><br /><br />
-                        if (ViewBag.PesoTicket != "0" && !string.IsNullOrWhiteSpace(ViewBag.PesoTicket))
-                        {
-                            <span>Peso: @(ViewBag.PesoTicket + "Kg.")</span><br />
-                        }
-                        <span>Nro. de Cajas: @ViewBag.NroCajas</span>
-                    }
-                </td>
-            </tr>
-
-            <tr>
-                <td>
-                    <p>
-                        Consulte Guia de Remisión Electronica: https://www.cobefar.com.pe/
-                        http://181.224.227.28/fe/
-                    </p>
-                </td>
-            </tr>
-        </table>
+    <tr>
+        @if (ViewBag.Tipo == "T")
+        {
+            <td style="vertical-align:top; width:100%; text-align:left;">
+                <span>Peso: @(ViewBag.PesoTicket == "0" || string.IsNullOrWhiteSpace(ViewBag.PesoTicket) ? "No se registró peso" : ViewBag.PesoTicket + "Kg.")</span><br />
+                <span>Nro. de Cajas: @ViewBag.NroCajas</span>
+            </td>
+        }
+        else if (ViewBag.Tipo == "E")
+        {
+            <td style="vertical-align:top; width:50%; text-align:left;">
+                <strong>Encargado de recojo :</strong><br />
+                <span>Nombre: @ViewBag.PersonaRecojo.Item1</span><br />
+                <span>Documento: @ViewBag.PersonaRecojo.Item2</span><br />
+                <span>Telefono: @ViewBag.PersonaRecojo.Item3</span><br /><br />
+            </td>
+            <td style="vertical-align:top; width:50%; text-align:right;">
+                @if (ViewBag.PesoTicket != "0" && !string.IsNullOrWhiteSpace(ViewBag.PesoTicket))
+                {
+                    <span>Peso: @(ViewBag.PesoTicket + "Kg.")</span><br />
+                }
+                <span>Nro. de Cajas: @ViewBag.NroCajas</span>
+            </td>
+        }
+    </tr>
+</table>
     </div>
 </body>
 </html>
+
+
 
 
 
