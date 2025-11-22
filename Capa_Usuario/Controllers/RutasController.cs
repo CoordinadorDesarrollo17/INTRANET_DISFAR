@@ -1526,7 +1526,8 @@ namespace Capa_Usuario.Controllers
             var listaSinDocEntry = lista.Select(x => new
             {
                 // Incluye aquí solo las propiedades que quieres mostrar
-                x.Guias,x.Factura,x.OrdenCompra,x.Ruc,x.Direccion,x.Departamento,x.Peso,x.Cajas
+                x.Guias,x.Factura,x.OrdenCompra,x.Ruc,x.Direccion,x.Departamento,
+                x.Cajas,x.Peso
                 // ... agrega el resto de propiedades excepto DocEntry
                 // Ejemplo: x.Propiedad1, x.Propiedad2, ...
             }).ToList();
