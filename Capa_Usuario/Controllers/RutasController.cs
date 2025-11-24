@@ -1518,23 +1518,32 @@ namespace Capa_Usuario.Controllers
             {
                 if (!string.IsNullOrWhiteSpace(item.Guias))
                 {
-                    // Reemplaza espacios dobles y simples por comas
                     item.Guias = item.Guias.Replace("\r\n", ",");
                 }
             }
 
+            // Crear una lista de objetos anónimos sin DocEntry
+            var listaSinDocEntry = lista.Select(x => new
+            {
+                // Incluye aquí solo las propiedades que quieres mostrar
+                x.Guias,x.Factura,x.OrdenCompra,x.Ruc,x.Direccion,x.Departamento,
+                x.Cajas,x.Peso
+                // ... agrega el resto de propiedades excepto DocEntry
+                // Ejemplo: x.Propiedad1, x.Propiedad2, ...
+            }).ToList();
+
             using (var package = new OfficeOpenXml.ExcelPackage())
             {
                 var ws = package.Workbook.Worksheets.Add("RutasExcel");
-                ws.Cells["A1"].LoadFromCollection(lista, PrintHeaders: true);
+                ws.Cells["A1"].LoadFromCollection(listaSinDocEntry, PrintHeaders: true);
 
-                if (lista != null && lista.Count > 0)
+                if (listaSinDocEntry.Count > 0)
                 {
                     for (int col = 1; col <= ws.Dimension.End.Column; col++)
                     {
                         ws.Column(col).AutoFit();
                     }
-                    var tabla = ws.Tables.Add(ws.Cells[1, 1, lista.Count + 1, ws.Dimension.End.Column], "RutasExcel");
+                    var tabla = ws.Tables.Add(ws.Cells[1, 1, listaSinDocEntry.Count + 1, ws.Dimension.End.Column], "RutasExcel");
                     tabla.ShowHeader = true;
                     tabla.TableStyle = OfficeOpenXml.Table.TableStyles.Medium2;
                 }

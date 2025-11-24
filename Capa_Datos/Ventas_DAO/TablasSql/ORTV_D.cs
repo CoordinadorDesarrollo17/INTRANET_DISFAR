@@ -3687,10 +3687,11 @@ AND YEAR(T0.FechaSapTicket) = 2025 AND ((SELECT  Estado FROM vt.BusquedaProducto
                 if (user.IdRol == 53)
                 {
                     if (t.DocNum == 0 && t.FechaSapTicket == null && t.CardName == null && t.Vendedor == null && t.MontoFinal == 0 && t.Estado == null
-                    && t.EstadoFacturacion == null && t.EstadoPago == null && t.TipoVenta == null && t.TiempoEntrega == null && t.Zona == null)
+                    && t.EstadoFacturacion == null && t.EstadoPago == null && t.TipoVenta == null && t.TiempoEntrega == null && t.Zona == null && t.LugarDestino == null)
                     {
                         condWhere += $" AND t0.Estado in ( 'PICKEANDO','VERIFICANDO','EMPACANDO','EMPACADO','PESADO','ENVIADO','PREENVIO','ENTREGADO') " +
-                            $"AND t0.EstadoFacturacion in ('GRE EMITIDA','FACTURADO') AND t0.LugarDestino='{t.LugarDestino}'";
+                            //$"AND t0.EstadoFacturacion in ('GRE EMITIDA','FACTURADO') AND t0.LugarDestino='{t.LugarDestino}'";
+                            $"AND t0.EstadoFacturacion in ('GRE EMITIDA','FACTURADO')";
                     }
                     else
                     {
