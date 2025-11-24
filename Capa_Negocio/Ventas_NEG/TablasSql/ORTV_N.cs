@@ -193,10 +193,10 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
         {
             if (ticket.Embalaje != "CP") { throw new Exception("El embalaje debe ser Caja Provincia."); }
             //if (string.IsNullOrWhiteSpace(ticket.EnvioAgencia)) throw new Exception("Debe seleccionar el modo de envío.");
-            if (ticket.EnvioAgencia.Equals("Oficina de agencia") && string.IsNullOrWhiteSpace(ticket.Referencia)) throw new Exception("Debe llenar la referencia obligatoriamente.");
-            if (ticket.EnvioAgencia.Equals("Domicilio de cliente") && !string.IsNullOrWhiteSpace(ticket.Referencia)) throw new Exception("No debe llenar la referencia.");
-            if (string.IsNullOrWhiteSpace(ticket.Agencia)) throw new Exception("Debe llenar la agencia.");
-            if (string.IsNullOrWhiteSpace(ticket.DirDestino)) throw new Exception("Debe llenar la dirección de destino.");
+            //if (ticket.EnvioAgencia.Equals("Oficina de agencia") && string.IsNullOrWhiteSpace(ticket.Referencia)) throw new Exception("Debe llenar la referencia obligatoriamente.");
+            //if (ticket.EnvioAgencia.Equals("Domicilio de cliente") && !string.IsNullOrWhiteSpace(ticket.Referencia)) throw new Exception("No debe llenar la referencia.");
+            //if (string.IsNullOrWhiteSpace(ticket.Agencia)) throw new Exception("Debe llenar la agencia.");
+            //if (string.IsNullOrWhiteSpace(ticket.DirDestino)) throw new Exception("Debe llenar la dirección de destino.");
             ValidarPersona(ticket);
             ValidarLugarDeEntrega(ticket, new List<string> { "ALMACÉN N°8", "ALMACÉN FALTANTES", "ALMACÉN N°6 (Ureta)", "ALMACÉN N°3" });
         }
