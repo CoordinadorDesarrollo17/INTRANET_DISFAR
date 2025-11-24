@@ -1267,14 +1267,25 @@ namespace Capa_Datos.Rutas_DAO.TablasSql
             T5.CardCode,
             T4.Calle,
             CONCAT(T4.Departamento, ', ', T4.Provincia, ', ', T4.Distrito) AS Departamento,
-            T3.Peso,
+            SUM(T3.Peso) AS Peso,
             T0.DocEntryTicket,
             T0.Cajas
         FROM al.RRU0 T0
         LEFT OUTER JOIN vt.RTV6 T3 ON T3.DocEntry = T0.DocEntryTicket
         LEFT OUTER JOIN vt.RTV3 T4 ON T4.DocEntry = T0.DocEntryTicket
         LEFT OUTER JOIN vt.ORTV T5 ON T5.DocEntry = T0.DocEntryTicket
-        WHERE T0.DocEntry = @DocEntry";
+        WHERE T0.DocEntry = @DocEntry
+        GROUP BY 
+            T0.Guias,
+            T0.DocNumTicket,
+            T5.CardCode,
+            T4.Calle,
+            T4.Departamento,
+            T4.Provincia,
+            T4.Distrito,
+            T0.DocEntryTicket,
+            T0.Cajas
+        ";
 
             try
             {
