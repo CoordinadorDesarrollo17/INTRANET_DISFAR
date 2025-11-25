@@ -1521,15 +1521,11 @@ namespace Capa_Usuario.Controllers
                     item.Guias = item.Guias.Replace("\r\n", ",");
                 }
             }
-
-            // Crear una lista de objetos anónimos sin DocEntry
             var listaSinDocEntry = lista.Select(x => new
             {
-                // Incluye aquí solo las propiedades que quieres mostrar
                 x.Guias,x.Factura,x.OrdenCompra,x.Ruc,x.Direccion,x.Departamento,
                 x.Cajas,x.Peso
-                // ... agrega el resto de propiedades excepto DocEntry
-                // Ejemplo: x.Propiedad1, x.Propiedad2, ...
+
             }).ToList();
 
             using (var package = new OfficeOpenXml.ExcelPackage())
