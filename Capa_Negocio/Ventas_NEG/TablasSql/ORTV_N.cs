@@ -196,7 +196,7 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
             //if (ticket.EnvioAgencia.Equals("Oficina de agencia") && string.IsNullOrWhiteSpace(ticket.Referencia)) throw new Exception("Debe llenar la referencia obligatoriamente.");
             //if (ticket.EnvioAgencia.Equals("Domicilio de cliente") && !string.IsNullOrWhiteSpace(ticket.Referencia)) throw new Exception("No debe llenar la referencia.");
             //if (string.IsNullOrWhiteSpace(ticket.Agencia)) throw new Exception("Debe llenar la agencia.");
-            //if (string.IsNullOrWhiteSpace(ticket.DirDestino)) throw new Exception("Debe llenar la dirección de destino.");
+            if (string.IsNullOrWhiteSpace(ticket.DirDestino)) throw new Exception("Debe llenar la dirección de destino.");
             ValidarPersona(ticket);
             ValidarLugarDeEntrega(ticket, new List<string> { "ALMACÉN N°8", "ALMACÉN FALTANTES", "ALMACÉN N°6 (Ureta)", "ALMACÉN N°3" });
         }
