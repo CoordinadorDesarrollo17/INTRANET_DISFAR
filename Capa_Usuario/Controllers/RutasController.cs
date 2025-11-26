@@ -1,4 +1,5 @@
-﻿using Capa_Entidad.General_ENT.TablasSql;
+﻿using Capa_Datos;
+using Capa_Entidad.General_ENT.TablasSql;
 using Capa_Entidad.Rutas_ENT.ReportesSql;
 using Capa_Entidad.Rutas_ENT.TablasSql;
 using Capa_Entidad.Seguridad_ENT;
@@ -16,7 +17,9 @@ using OfficeOpenXml.Table;
 using Rotativa;
 using System;
 using System.Collections.Generic;
+using System.Data.SqlClient;
 using System.Linq;
+using System.util;
 using System.Web.Mvc;
 
 namespace Capa_Usuario.Controllers
@@ -203,6 +206,10 @@ namespace Capa_Usuario.Controllers
                 if (datosOrdenRuta?.TipoRuta == "TA")
                 {
                     nombreVista = "EditarTransferenciaEntreAlmacenes";
+                }
+                else if (datosOrdenRuta?.TipoRuta == "DE") // <--- NUEVA CONDICIÓN AGREGADA
+                {
+                    nombreVista = "EditarHojaDeRepartoDE"; 
                 }
                 CapturarViewBag(TipoRep, null, mensaje: string.Empty);
                 ViewBag.UsuarioSesion = $"{user.Nombres} {user.Apellidos}";
@@ -1357,20 +1364,59 @@ namespace Capa_Usuario.Controllers
 
         public ActionResult DocumentoRutasDevolucion(int DocEntry)
         {
-            //verificacionAccesos(0);
-            ORRU_E o = new ORRU_E(); ORTV_N ortvN = new ORTV_N();
+            // verificacionAccesos(0);
+            ORRU_E o = new ORRU_E();
+            ORTV_N ortvN = new ORTV_N();
+            Utilitarios uti = new Utilitarios();
+
             try
             {
                 o = orruN.obtenerOrdenDeRuta(DocEntry);
+
                 if (o.DetRRU0 != null)
                 {
-                    foreach (RRU0_E r0 in o.DetRRU0)
+                    // Usamos la cadena de conexión. Asegúrate que 'uti' es accesible aquí.
+                    // Si 'uti' no funciona aquí, usa la misma variable que usas en tu capa de datos (ej. ConfigurationManager...)
+                    using (SqlConnection cnAux = new SqlConnection(uti.cadSql))
                     {
-                        r0.Ticket = ortvN.ObtenerDatosCompletosTicket(r0.DocEntryTicket);
+                        cnAux.Open();
+
+                        foreach (RRU0_E r0 in o.DetRRU0)
+                        {
+                            // 1. Cargamos los datos completos del ticket (esto trae el RUC original)
+                            r0.Ticket = ortvN.ObtenerDatosCompletosTicket(r0.DocEntryTicket);
+
+                            // 2. APLICAMOS EL PARCHE AQUÍ: 
+                            // Si existe un Socio manual, buscamos su RUC y lo forzamos en el ticket
+                            if (!string.IsNullOrWhiteSpace(r0.Socio))
+                            {
+                                try
+                                {
+                                    string sqlRuc = "SELECT TOP 1 CardCode FROM vt.ORTV WHERE CardName COLLATE DATABASE_DEFAULT = @SocioName COLLATE DATABASE_DEFAULT";
+                                    using (SqlCommand cmdRuc = new SqlCommand(sqlRuc, cnAux))
+                                    {
+                                        cmdRuc.Parameters.AddWithValue("@SocioName", r0.Socio);
+                                        object resultado = cmdRuc.ExecuteScalar();
+
+                                        if (resultado != null && resultado != DBNull.Value)
+                                        {
+                                            // Sobrescribimos el RUC del ticket original con el del Socio encontrado
+                                            r0.Ticket.CardCode = resultado.ToString();
+                                        }
+                                    }
+                                }
+                                catch
+                                {
+                                    // Si falla, se queda el RUC original del ticket
+                                }
+                            }
+                        }
+                        cnAux.Close();
                     }
                 }
             }
             catch { }
+
             ViewBag.Letra = 2;
             return View(o);
         }

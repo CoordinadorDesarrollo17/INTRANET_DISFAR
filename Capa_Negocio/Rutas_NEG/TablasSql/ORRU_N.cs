@@ -208,33 +208,40 @@ namespace Capa_Negocio.Rutas_NEG.TablasSql
         }
         public void validarDatosEncabezadoRuta(ORRU_E o)
         {
-            //Solo edita los datos de encabezado de la hoja de ruta
+            // Solo edita los datos de encabezado de la hoja de ruta
             ORRU_E orruE = obtenerOrdenDeRuta(o.DocEntry);
             if (orruE.Estado != "CREADO") { throw new Exception("Solo puede editar un documento creado"); }
             if (string.IsNullOrWhiteSpace(o.TipoRuta)) { throw new Exception("No lleno tipo de ruta encabezado"); }
 
             if (o.FechaCont == null) { throw new Exception("No eligió fecha de contabilizacion"); }
 
-            //validaciones para tipos de ruta distinto a agencia
-            if (o.TipoRuta != "VG" && (string.IsNullOrWhiteSpace(o.AlmOrigenCod) || string.IsNullOrWhiteSpace(o.AlmOrigenDesc)))
+            // Validaciones para tipos de ruta distinto a agencia ("VG")
+            // CAMBIO 1: Excluir "DE" de la validación de Almacén Origen
+            if (o.TipoRuta != "VG" && o.TipoRuta != "DE" && (string.IsNullOrWhiteSpace(o.AlmOrigenCod) || string.IsNullOrWhiteSpace(o.AlmOrigenDesc)))
             {
                 throw new Exception("No eligió almacén origen");
             }
+
+            // El almacén destino se mantiene obligatorio (a donde se devuelve la mercadería)
             if (o.TipoRuta != "VG" && (string.IsNullOrWhiteSpace(o.AlmDestinoCod) || string.IsNullOrWhiteSpace(o.AlmDestinoDesc)))
             {
                 throw new Exception("No eligió almacén destino");
             }
 
-            if (o.TiempoPac == null) { throw new Exception("Debe haber tiempo pactado"); }
+            // CAMBIO 2: Tiempo pactado obligatorio SOLO si NO es "DE"
+            if (o.TipoRuta != "DE" && o.TiempoPac == null)
+            {
+                throw new Exception("Debe haber tiempo pactado");
+            }
+
             if (o.TipoRuta != "TA")
             {
                 if (string.IsNullOrWhiteSpace(o.Placa)) { throw new Exception("El documento debe tener placa"); }
-                //Todos los casos distintos, donde se escoge los valores de un desplegable
+                // Todos los casos distintos, donde se escoge los valores de un desplegable
                 if (string.IsNullOrWhiteSpace(o.TransDesc)) { throw new Exception("Debe elegir un conductor"); }
                 if (string.IsNullOrWhiteSpace(o.VehiculoCod)) { throw new Exception("Debe elegir un vehiculo"); }
                 if (string.IsNullOrWhiteSpace(o.CopilDesc)) { throw new Exception("El documento debe tener copiloto 1"); }
             }
-
         }
         public ORRU_E obtenerOrdenDeRutaTicket(int DocEntryTicket)
         {

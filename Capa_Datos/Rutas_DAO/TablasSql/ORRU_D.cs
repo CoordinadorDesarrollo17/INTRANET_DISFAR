@@ -285,6 +285,39 @@ namespace Capa_Datos.Rutas_DAO.TablasSql
                     ORTV_D ortv = new ORTV_D();
                     d.Ticket = ortv.ObtenerDatosCompletosTicket(d.DocEntryTicket);
 
+                    // --- INICIO DEL CAMBIO ---
+                    // Si hay un "Socio" escrito manualmente en RRU0, buscamos su RUC y reemplazamos el del ticket
+                    if (!string.IsNullOrWhiteSpace(d.Socio))
+                    {
+                        try
+                        {
+                            // NOTA: Asegúrate de usar una nueva conexión o verificar si 'cn' permite MultipleActiveResultSets. 
+                            // Para mayor seguridad, aquí abro una conexión rápida auxiliar solo para este dato.
+                            using (SqlConnection cnAux = new SqlConnection(uti.cadSql))
+                            {
+                                cnAux.Open();
+                                // Buscamos el CardCode en ORTV usando el nombre del Socio
+                                string sqlRuc = "SELECT TOP 1 CardCode FROM vt.ORTV WHERE CardName = @SocioName";
+                                SqlCommand cmdRuc = new SqlCommand(sqlRuc, cnAux);
+                                cmdRuc.Parameters.AddWithValue("@SocioName", d.Socio); // Importante: que sea idéntico
+
+                                object resultado = cmdRuc.ExecuteScalar();
+
+                                if (resultado != null)
+                                {
+                                    // ¡AQUÍ ESTÁ EL TRUCO! 
+                                    // Engañamos a la vista poniendo el RUC del socio dentro del objeto Ticket
+                                    d.Ticket.CardCode = resultado.ToString();
+                                }
+                                cnAux.Close();
+                            }
+                        }
+                        catch
+                        {
+                            // Si falla la búsqueda, no hacemos nada y se queda el RUC original del ticket
+                        }
+                    }
+                    // --- FIN DEL CAMBIO ---
                     o.DetRRU0.Add(d);
                 }
                 dr2.Close();
@@ -1441,7 +1474,6 @@ namespace Capa_Datos.Rutas_DAO.TablasSql
                 }
                 catch (Exception ex)
                 {
-                    // Es buena práctica relanzar la excepción para que la capa de negocio la maneje
                     throw new Exception("Error en RecibirDevolucion: " + ex.Message);
                 }
             }

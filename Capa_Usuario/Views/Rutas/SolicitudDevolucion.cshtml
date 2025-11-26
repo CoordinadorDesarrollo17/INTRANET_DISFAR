@@ -338,13 +338,11 @@
                 cargarOrdenesDevolucion();
             }
         });
-
         // Evento: Cambio de almacén destino
         $("#AlmDestinoDesc").on('change', function () {
             enviarValSelect('AlmDestinoDesc', 'AlmDestinoCod', 'almdestinocod');
             enviarValSelect('AlmDestinoDesc', 'AlmDestinoDesc2', 'almdestinodesc2');
         });
-
         // Evento: Cambio de placa
         $("#Placa").on('change', function () {
             var selectedOption = $(this).find('option:selected');
@@ -352,12 +350,10 @@
             $("#Marca").val(selectedOption.attr('data-marca') || '');
             $("#Modelo").val(selectedOption.attr('data-modelo') || '');
         });
-
         // Evento: Seleccionar todos los checkboxes
         $("#chk_verifTodos").on('click', function () {
             seleccionarVerif();
         });
-
         // Evento: Botón agregar
         $("#btn-Agregar").on('click', function () {
             agregarTicketsDetalle();
@@ -483,7 +479,6 @@
             Swal.fire({ icon: 'error', title: 'Error', text: 'Error: ' + error });
         });
     }
-
     // INICIALIZAR TABLA DE ÓRDENES
     function inicializarTablaOrdenes(data) {
         if ($.fn.DataTable.isDataTable('#detalleRuta')) {
@@ -498,7 +493,6 @@
                 "columnDefs": [{ "visible": false, "targets": [2, 4, 11, 12, 13] }]
             });
         }
-
         var primerConductor = '', primerPlaca = '';
 
         $.each(data, function (index, item) {
@@ -506,10 +500,8 @@
                 primerConductor = item.Conductor || '';
                 primerPlaca = item.Placa || '';
             }
-
             var conductorPlaca = (item.Conductor || '') + ' / ' + (item.Placa || '');
             var checkbox = '<input type="checkbox" class="cls-chkVerif" data-conductor="' + (item.Conductor || '') + '" data-placa="' + (item.Placa || '') + '" />';
-
             tablaDetalleRuta.row.add([
                 checkbox,
                 (index + 1),
@@ -527,7 +519,6 @@
                 '0'
             ]);
         });
-
         tablaDetalleRuta.draw();
 
         // Establecer primer conductor y placa
@@ -554,25 +545,21 @@
             showConfirmButton: false
         });
     }
-
     // AGREGAR TICKETS AL DETALLE
     function agregarTicketsDetalle() {
         if (!tablaDetalleRuta) {
             Swal.fire('Error', 'No hay órdenes cargadas', 'warning');
             return;
         }
-
         var checkboxesSeleccionados = tablaDetalleRuta.rows({ page: 'all' }).nodes().to$().find('.cls-chkVerif:checked');
 
         if (checkboxesSeleccionados.length === 0) {
             Swal.fire('Sin órdenes seleccionadas', 'Por favor, selecciona al menos una orden de devolución.', 'warning');
             return;
         }
-
         checkboxesSeleccionados.each(function () {
             var row = tablaDetalleRuta.row($(this).closest('tr'));
             var rowData = row.data();
-
             var docEntry = rowData[2];
             var docNum = rowData[3];
             var cardName = rowData[5];
@@ -585,7 +572,6 @@
 
             agregarItem(docEntry, docNum, cardName, guias, conducyPlaca, bultos, obs, direcciones, docTotal);  
         });
-
         // Desmarcar checkboxes
         checkboxesSeleccionados.prop('checked', false);
         $("#chk_verifTodos").prop('checked', false);
@@ -595,7 +581,6 @@
             scrollTop: $('#divDetalleRuta').offset().top
         }, 1000);
     }
-
     // AGREGAR ITEM AL DETALLE
     function agregarItem(docEntry, docNum, cardName, guias, conducyPlaca, bultos, obs, direcciones, docTotal) { 
         // Validar duplicado
@@ -603,15 +588,12 @@
             Swal.fire('Orden duplicada', 'Esta orden ya fue agregada al detalle.', 'warning');
             return false;
         }
-
         if (!docEntry || docEntry === "") {
             return false;
         }
-
         // Formatear datos
         var guiasFormateadas = guias ? guias.replace(/,/g, '\n').trim() : '';
         var conducyPlacaFormateada = conducyPlaca ? conducyPlaca.replace(/,/g, '\n').trim() : '';
-
         // Construir fila
         var fila = "<tr>" +
             "<td><input name='DetRRU0[" + contDet + "].Linea' type='text' value='" + (contDet + 1) + "' style='width:40px' class='form-control form-control-sm' readonly/></td>" +
@@ -633,7 +615,6 @@
         contDet++;
         return true;
     }
-
     // BORRAR LÍNEA DE LA TABLA
     function borrarLineaTabla(dom) {
         Swal.fire({
@@ -672,7 +653,6 @@
             i++;
         });
     }
-
     //  VALIDAR CAMPO ÚNICO
     function validarUnicoCampoTabla(docEntry) {
         var existe = false;
@@ -685,7 +665,6 @@
         });
         return !existe;
     }
-
     // CALCULAR TOTAL DE BULTOS
     function calcularTotalBultos() {
         var totalBultos = 0;
@@ -695,7 +674,6 @@
         });
         $("#TotalBultos").val(totalBultos);
     }
-
     // SELECCIONAR TODOS LOS CHECKBOXES
     function seleccionarVerif() {
         var checkTodos = $("#chk_verifTodos").is(':checked');
@@ -703,7 +681,6 @@
             tablaDetalleRuta.rows({ page: 'all' }).nodes().to$().find('.cls-chkVerif').prop('checked', checkTodos);
         }
     }
-
     // VALIDAR Y ENVIAR FORMULARIO
     function validarEnviarFormulario() {
         // Validar que existan detalles
@@ -711,35 +688,28 @@
             Swal.fire('Sin detalles', 'Debe agregar al menos una orden al detalle antes de guardar.', 'warning');
             return false;
         }
-
         // Validar campos obligatorios
         var fecha = $("#FechaSapTicket").val();
         var placa = $("#Placa").val();
         var conductor = $("#TransDesc").val();
         var almacenDestino = $("#AlmDestinoDesc").val();
-
         var errores = [];
-
         if (!fecha) {
             $("#FechaSapTicket").addClass('bg-danger text-white');
             errores.push('Fecha');
         }
-
         if (!placa) {
             $("#Placa").addClass('bg-danger text-white');
             errores.push('Placa');
         }
-
         if (!conductor) {
             $("#TransDesc").addClass('bg-danger text-white');
             errores.push('Conductor');
         }
-
         if (!almacenDestino) {
             $("#AlmDestinoDesc").addClass('bg-danger text-white');
             errores.push('Almacén Destino');
         }
-
         if (errores.length > 0) {
             Swal.fire('Campos requeridos', 'Complete los siguientes campos: ' + errores.join(', '), 'error');
             return false;
