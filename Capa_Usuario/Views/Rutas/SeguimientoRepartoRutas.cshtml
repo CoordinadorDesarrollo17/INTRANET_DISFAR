@@ -3,6 +3,13 @@
 @{
     ViewBag.Title = "SeguimientoRepartoRutas";
     Layout = "~/Views/Shared/_Layout.cshtml";
+
+    // --- LÓGICA DE ADAPTACIÓN ---
+    bool esDevolucion = Model.TipoRuta == "DE";
+    string tituloVista = esDevolucion ? "DEVOLUCIÓN" : ViewBag.Vista;
+    string labelCajas = esDevolucion ? "Total Bultos:" : "Total Cajas:";
+    string thCajas = esDevolucion ? "Bultos" : "Cajas";
+    string thTicket = esDevolucion ? "DocNumSAP" : "Ticket";
 }
 
 <style>
@@ -10,18 +17,31 @@
         font-size: 12px;
     }
 </style>
+
 <div class="pt-4">
     <nav>
         <ol class="cd-breadcrumb bg-cobefar-degradado-1">
             <li><a href="@Url.Action("Sesion", "Index")">Inicio</a></li>
             <li><a href="@Url.Action("ListadoRepartos", "Rutas")">Listado de repartos</a></li>
-            <li class="current"><em>Seguimiento de @ViewBag.Vista.ToLower()</em></li>
+            <li class="current"><em>Seguimiento de @tituloVista.ToLower()</em></li>
         </ol>
     </nav>
 </div>
 
 <div class="border-cabecera-seccion bg-cobefar-degradado-1 pb-2">
-    <div class="px-3 pt-3"><h3 class="titulo-seccion">SEGUIMIENTO DE @ViewBag.Vista</h3></div>
+    <div class="d-flex justify-content-between align-items-center px-3 pt-3">
+        <h3 class="titulo-seccion">SEGUIMIENTO DE @tituloVista</h3>
+
+        @if (esDevolucion)
+        {
+            <a href="@Url.Action("RptSolicitudDevolucion", "Rutas", new { DocEntry = Model.DocEntry })"
+               target="_blank"
+               class="btn btn-light text-danger font-weight-bold shadow-sm"
+               data-toggle="tooltip" title="Descargar Solicitud">
+                <i class="icon-file-pdf"></i> Reporte Devolución
+            </a>
+        }
+    </div>
 </div>
 
 <div class="bg-form-pestanas-cobefar">
@@ -61,11 +81,10 @@
                 </div>
 
                 <div class="col-lg-2">
-                    <label class="text-dark form-label font-weight-bold font-18">Total Cajas:</label>
+                    @* ETIQUETA DINÁMICA (Cajas/Bultos) *@
+                    <label class="text-dark form-label font-weight-bold font-18">@labelCajas</label>
                     <input type="text" value="@Model.TotCajas()" class="form-control text-center border-success" readonly />
                 </div>
-
-
 
                 <div class="col-lg-2">
                     <label class="text-dark form-label font-weight-bold font-18">Vehículo:</label>
@@ -77,17 +96,19 @@
                     @Html.EditorFor(model => model.Placa, new { htmlAttributes = new { @class = "form-control text-center border-success", @readonly = "true" } })
                 </div>
             </div>
-            <div class="row mt-4">
-                    <div class="col-lg-3">
-                        <label class="text-dark form-label font-weight-bold font-18">Copiloto1:</label>
-                        @Html.EditorFor(model => model.CopilDesc, new { htmlAttributes = new { @class = "form-control text-center border-success", @readonly = "true" } })
-                    </div>
 
-                    <div class="col-lg-3">
-                        <label class="text-dark form-label font-weight-bold font-18">Copiloto2:</label>
-                        @Html.EditorFor(model => model.Copil2Desc, new { htmlAttributes = new { @class = "form-control text-center border-success", @readonly = "true" } })
-                    </div>
+            <div class="row mt-4">
+                <div class="col-lg-3">
+                    <label class="text-dark form-label font-weight-bold font-18">Copiloto1:</label>
+                    @Html.EditorFor(model => model.CopilDesc, new { htmlAttributes = new { @class = "form-control text-center border-success", @readonly = "true" } })
+                </div>
+
+                <div class="col-lg-3">
+                    <label class="text-dark form-label font-weight-bold font-18">Copiloto2:</label>
+                    @Html.EditorFor(model => model.Copil2Desc, new { htmlAttributes = new { @class = "form-control text-center border-success", @readonly = "true" } })
+                </div>
             </div>
+
             <div class="row mt-4">
                 <div class="col-lg-2">
                     <label class="text-dark form-label font-weight-bold font-18">Fecha Cont:</label>
@@ -154,9 +175,11 @@
                         <tr>
                             <th class="text-center">#</th>
                             <th class="text-center">Socio</th>
-                            <th class="text-center">Ticket</th>
+                            @* CABECERA DINÁMICA TICKET/DOCNUMSAP *@
+                            <th class="text-center">@thTicket</th>
                             <th class="text-center">Guias</th>
-                            <th class="text-center">Cajas</th>
+                            @* CABECERA DINÁMICA CAJAS/BULTOS *@
+                            <th class="text-center">@thCajas</th>
                             <th class="text-center">Obs</th>
                             <th class="text-center">Direccion</th>
                             <th class="text-center">MontoFinal</th>
@@ -174,6 +197,7 @@
                     </thead>
                     @if (Model.TipoRuta == "TA")
                     {
+                        // ... Lógica TA (Transferencia Almacenes) se mantiene igual ...
                         if (Model.DetRRU1 != null)
                         {
                             <tbody class="table-light">
@@ -205,6 +229,7 @@
                     }
                     else
                     {
+                        // Lógica RRU0 (Ventas y Devoluciones)
                         if (Model.DetRRU0 != null)
                         {
                             <tbody class="table-light">
@@ -218,7 +243,22 @@
                                     <tr class="@styleLiberado">
                                         <td class="text-center">@Html.DisplayFor(model => dt.Linea)</td>
                                         <td>@Html.DisplayFor(model => dt.Socio)</td>
-                                        <td class="text-center">@Html.DisplayFor(model => dt.DocEntryTicket)</td>
+
+                                        @* COLUMNA DINÁMICA TICKET/DOCNUMSAP *@
+                                        <td class="text-center">
+                                            @if (esDevolucion)
+                                            {
+                                                // Si es Devolución mostramos el DocNumTicket (que debe traer el DocNumSAP)
+                                                // Asegúrate que en tu consulta SQL/Entidad 'DocNumTicket' traiga el número SAP para devoluciones
+                                                @Html.DisplayFor(model => dt.DocNumTicket)
+                                            }
+                                            else
+                                            {
+                                                // Si es normal mostramos DocEntryTicket
+                                                @Html.DisplayFor(model => dt.DocEntryTicket)
+                                            }
+                                        </td>
+
                                         <td class="text-center">@Html.DisplayFor(model => dt.Guias)</td>
                                         <td class="text-center">@Html.DisplayFor(model => dt.Cajas)</td>
                                         <td class="text-center">@Html.DisplayFor(model => dt.Observaciones)</td>
@@ -254,5 +294,4 @@
             </div>
         </form>
     </div>
-
 </div>

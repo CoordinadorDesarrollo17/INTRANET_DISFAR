@@ -58,7 +58,9 @@
 
         }).then(result => {
             if (result.value) {
-                $(location).attr('href', "/AtencionCliente/RevertirAtenderSolicitud?" + object);
+                var form = $("#AtenderSolicitud");
+                form.attr('action', '/AtencionCliente/RevertirAtenderSolicitud');
+                form.submit();
             }
         });
     }

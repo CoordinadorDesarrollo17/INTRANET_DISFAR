@@ -536,15 +536,15 @@
 
                     <div id="CamposAgDom">
                         <div class="row mt-4" id="CamposAgencia">
-                            <div class="col-lg-3">
+                            @*<div class="col-lg-3">
                                 <label class="text-dark form-label font-weight-bold font-18">Modo de envío:</label>
                                 <select name="EnvioAgencia" id="EnvioAgencia" class="form-control bg-cobefar text-white" onchange="mostrarOficinas();">
                                     <option value="">Seleccione</option>
                                     <option value="Oficina de agencia" @{ if (Model.EnvioAgencia == "Oficina de agencia") { Write("selected"); } }>Oficina de agencia</option>
                                     <option value="Domicilio de cliente" @{ if (Model.EnvioAgencia == "Domicilio de cliente") { Write("selected"); } }>Domicilio de cliente</option>
                                 </select>
-                            </div>
-                            <div class="col-lg-3">
+                            </div>*@
+                            @*<div class="col-lg-3">
                                 <label class="text-dark form-label font-weight-bold font-18">Agencia:</label>
                                 <input type="text" name="Agencia" id="Agencia" value="" class="form-control border-success" list="ListAgencias" autocomplete="off" />
                                 <datalist id="ListAgencias">
@@ -553,7 +553,7 @@
                                         <option value="@i.Nombre" />
                                     }
                                 </datalist>
-                            </div>
+                            </div>*@
                         </div>
                         <div class="row mt-4">
                             <div class="col-lg-9">
@@ -589,7 +589,7 @@
                                 </datalist>
                             </div>
                         </div>
-                        <div class="row mt-4">
+                        <div class="row mt-4" style="display:none;">
                             <div class="col-lg-7">
                                 <label class="text-dark form-label font-weight-bold font-18">DirDestino2:</label>
                                 <input type="text" name="Det3[1].Calle" id="DirDestino2" list="Oficinas" class="form-control border-success" autocomplete="off" onkeyup="validarDirDestino2(this.value);" value="" />

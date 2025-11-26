@@ -70,11 +70,13 @@ namespace Capa_Entidad.Rutas_ENT.TablasSql
         public string FecConIni { get; set; }
         public string FecConFin { get; set; }
         public string FechaRegistroDesde { get; set; }
-        public string FechaRegistroHasta{ get; set; }
+        public string FechaRegistroHasta { get; set; }
         public decimal MontoTotalIni { get; set; }
         public decimal MontoTotalFin { get; set; }
         public string CardCode { get; set; }
         public string CardName { get; set; }
+
+        public string Factura { get; set; }
         public class RptRutas
         {
             public string TransDesc { get; set; }
@@ -196,7 +198,6 @@ namespace Capa_Entidad.Rutas_ENT.TablasSql
             public string UniMed { get; set; }
             public decimal PrecioEnv { get; set; }
         }
-
         public class OrdenDevolucionHana
         {
             public int DocEntry { get; set; }
@@ -213,7 +214,19 @@ namespace Capa_Entidad.Rutas_ENT.TablasSql
             public string Conductor { get; set; }      // U_SYP_MDFN
             public string Placa { get; set; }          // U_SYP_MDVC
             public int Bultos { get; set; }
-            public decimal DocTotal { get; set; }
+            public decimal DocTotal { get; set; }   
+        }
+        public class RptRutasExcel
+        {
+            public string Guias { get; set; }
+            public string Factura { get; set; }
+            public int OrdenCompra { get; set; }
+            public string Ruc { get; set; }
+            public string Direccion { get; set; }
+            public string Departamento { get; set; }
+            public decimal Peso { get; set; }
+            public int DocEntry { get; set; }
+            public int Cajas { get; set; }
         }
     }
 }

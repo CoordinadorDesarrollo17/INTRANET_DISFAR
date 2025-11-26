@@ -62,18 +62,14 @@
         @if (ViewBag.Tipo == "T")
         {
             <div style="width: 100%; display: inline-block; border: 2px solid green; vertical-align: top; padding: 5px; border-radius: 15px; margin: 15px 0px 15px 0px; box-sizing: border-box; ">
-                <table style="font-size:12px;" border="0">
+                <table style="font-size:12px; width:auto;">
                     <tr>
-                        <td>Destinatario :</td>
-                        <td>@Cab.NombreBD</td>
-                        <td>Fecha de emisión :</td>
-                        <td>@Cab.DocDate</td>
+                        <td>Destinatario : @Cab.NombreBD</td>
+                        <td>Fecha de emisión : @Cab.DocDate</td>
                     </tr>
                     <tr>
-                        <td>R.U.C. :</td>
-                        <td>@Cab.RucBD</td>
-                        <td>Fecha de traslado :</td>
-                        <td>@Cab.FechaTrasl</td>
+                        <td>R.U.C. : @Cab.RucBD</td>
+                        <td>Fecha de traslado : @Cab.FechaTrasl</td>
                     </tr>
                 </table>
             </div>
@@ -84,21 +80,18 @@
             <div style="width: 100%; display: inline-block; border: 2px solid green; vertical-align: top; padding: 5px; border-radius: 15px; margin: 15px 0px 15px 0px; box-sizing: border-box; ">
                 <table style="font-size:12px;text-align:left" border="0">
                     <tr>
-                        <td>Destinatario :</td>
-                        <td>@Cab.CardName</td>
-                        <td>Fecha de emisión :</td>
-                        <td>@Cab.DocDate</td>
+                        <td>Destinatario : @Cab.CardName</td>
+                        <td>Fecha de emisión : @Cab.DocDate</td>
                     </tr>
                     <tr>
-                        <td>R.U.C. : </td>
                         <td>
-                            @if (Cab.CardCode!=null && Cab.CardCode.Length == 12)
+                            R.U.C. :  @if (Cab.CardCode != null && Cab.CardCode.Length == 12)
                             {@Cab.CardCode.Substring(1, 11)}
-                            else
-                            {@Cab.CardCode}
+                        else
+                        {@Cab.CardCode}
                         </td>
-                        <td>Fecha de traslado : </td>
-                        <td>@Cab.FechaTrasl</td>
+                      
+                        <td>Fecha de traslado : @Cab.FechaTrasl</td>
                     </tr>
                 </table>
             </div>

@@ -10,15 +10,14 @@
 }
 
 <script>
-    $(document).ready(function () {
-
-    });
+    $(document).ready(function () { });
 
     function filtrar() {
         var object = $("#filterForm").serialize();
         $(location).attr('href', "/Rutas/ListadoRutas?" + object);
     }
 
+    // --- FUNCIONES ESTÁNDAR (RUTAS NORMALES) ---
     function iniciarReparto() {
         var o = $("#formIni").serialize();
         $(location).attr('href', "/Rutas/IniciarReparto?" + o);
@@ -34,8 +33,6 @@
         $("#M1DocEntry").val(DocEntry);
         $("#M1Cajas").text(Cajas);
         $("#M1Tickets").text(Tickets);
-        // Reseteamos el modal a su estado normal por si se usó antes
-        $("#M1Titulo").html('<i class="icon-play"></i> INICIAR REPARTO');
     }
 
     function llenarModal2(DocEntry, DocNum) {
@@ -47,30 +44,38 @@
         window.open("/Rutas/RptControlTemperaturaHumedad?" + o, "_blank");
     }
 
-    // --- FUNCIÓN 1: RECIBIR DEVOLUCIÓN (Final del proceso) ---
+    // --- FUNCIONES AJAX PARA DEVOLUCIONES (SIN SALIR DE LA PANTALLA) ---
+
+    // 1. Recibir Devolución (Fin del proceso)
     function confirmarRecepcionDevolucion(docEntry) {
         Swal.fire({
             title: '¿Recibir Devolución?',
-            text: "¿Está seguro de recibir y cerrar esta devolución?",
+            text: "¿Confirma la recepción y cierre de esta devolución?",
             icon: 'question',
             showCancelButton: true,
-            confirmButtonColor: '#28a745',
+            confirmButtonColor: '#28a745', // Verde
             cancelButtonColor: '#6c757d',
             confirmButtonText: '<i class="icon-checkmark"></i> Sí, Recibir',
             cancelButtonText: 'Cancelar',
             reverseButtons: true
         }).then((result) => {
             if (result.isConfirmed) {
-                window.location.href = "/Rutas/RecibirDevolucion?DocEntry=" + docEntry;
+                $.get("/Rutas/RecibirDevolucion", { DocEntry: docEntry })
+                    .done(function() {
+                        location.reload(); // Recarga la página al terminar
+                    })
+                    .fail(function() {
+                        Swal.fire('Error', 'No se pudo procesar la solicitud.', 'error');
+                    });
             }
         })
     }
 
-    // --- FUNCIÓN 2: INICIAR DEVOLUCIÓN (Principio del proceso - Salta el Modal de Temp) ---
+    // 2. Iniciar Devolución (Inicio Rápido - Sin Modal Temperatura)
     function iniciarDevolucionRapida(docEntry) {
         Swal.fire({
             title: '¿Iniciar Recojo?',
-            text: "Se iniciará la ruta de devolución sin registrar temperatura.",
+            text: "Se iniciará la ruta de devolución (Estado -> ENVIADO).",
             icon: 'info',
             showCancelButton: true,
             confirmButtonColor: '#28a745',
@@ -79,8 +84,14 @@
             cancelButtonText: 'Cancelar'
         }).then((result) => {
             if (result.isConfirmed) {
-                // Pasamos TempI1=0 y TempI2=0 en la URL directamente
-                window.location.href = "/Rutas/IniciarReparto?DocEntry=" + docEntry + "&TempI1=0&TempI2=0";
+                // Envía Temp=0 por AJAX
+                $.get("/Rutas/IniciarReparto", { DocEntry: docEntry, TempI1: 0, TempI2: 0 })
+                    .done(function() {
+                        location.reload(); // Recarga la página al terminar
+                    })
+                    .fail(function() {
+                        Swal.fire('Error', 'No se pudo iniciar la ruta.', 'error');
+                    });
             }
         })
     }
@@ -102,6 +113,7 @@
         color: black;
     }
 
+    /* Estilos Móvil */
     .btn-mobile-block {
         display: block;
         width: 100%;
@@ -136,56 +148,35 @@
 
 <div class="border-cabecera-seccion bg-cobefar-degradado-1 pb-2">
     <div class="px-3 pt-3"><h3 class="titulo-seccion">LISTADO DE RUTAS</h3></div>
-
     <div class="w-100 p-3 botones-superiores">
         <div class="row mx-0">
-            <a href="@Url.Action("NuevaHojaDeReparto", "Rutas",new {TipoRep="Re" })" class="btn btn-success ml-2">
-                Hoja de reparto
-            </a>
-            <a href="@Url.Action("NuevaTransferenciaEntreAlmacenes", "Rutas",new {TipoRep="Re" })" class="btn btn-success ml-2">
-                Orden entre almacenes
-            </a>
-            <a href="@Url.Action("SolicitudDevolucion", "Rutas",new {TipoRep="Re" })" class="btn btn-success ml-2">
-                Solicitud Devolución
-            </a>
-
-            <button data-toggle="modal" href="#ModalGestion" class="btn btn-warning d-none d-lg-block d-xl-block ml-2">
-                <span>Módulo Gestión</span>
-            </button>
-
+            <a href="@Url.Action("NuevaHojaDeReparto", "Rutas",new {TipoRep="Re" })" class="btn btn-success ml-2">Hoja de reparto</a>
+            <a href="@Url.Action("NuevaTransferenciaEntreAlmacenes", "Rutas",new {TipoRep="Re" })" class="btn btn-success ml-2">Orden entre almacenes</a>
+            <a href="@Url.Action("SolicitudDevolucion", "Rutas",new {TipoRep="Re" })" class="btn btn-success ml-2">Solicitud Devolución</a>
+            <button data-toggle="modal" href="#ModalGestion" class="btn btn-warning d-none d-lg-block d-xl-block ml-2"><span>Módulo Gestión</span></button>
             <button type="button" class="btn btn-warning d-none d-lg-block d-xl-block ml-2" data-toggle="modal" data-target="#exampleModal">ReporteTemp</button>
         </div>
     </div>
 </div>
-
 
 <div class="modal" id="ModalGestion" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
         <div class="modal-content border border-secondary">
             <div class="modal-header bg-headerModals text-white">
                 <h5 class="modal-title" id="moduloGestionModal">MÓDULO PARA GESTIÓN</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span class="text-white" aria-hidden="true">&times;</span>
-                </button>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span class="text-white" aria-hidden="true">&times;</span></button>
             </div>
             <div class="modal-body bg-light">
                 <div class="d-flex justify-content-center">
-                    <a id="accion" href="@Url.Action("GestionarAgencias", "Repartos",new {TipoRep="Re" })" class="btn bg-cobefar-6 text-white d-none d-lg-block d-xl-block m-1">
-                        <i class="icon-home"></i> Agencias
-                    </a>
-                    <a id="accion" href="@Url.Action("GestionarOficinas", "Rutas",new {TipoRep="Re" })" class="btn bg-cobefar-6 text-white d-none d-lg-block d-xl-block m-1">
-                        <i class="icon-office"></i> Oficinas Courier
-                    </a>
-                    <a id="accion" href="@Url.Action("GestionarTarifarios", "Rutas",new {TipoRep="Re" })" class="btn bg-cobefar-6 text-white d-none d-lg-block d-xl-block m-1">
-                        <i class="icon-book"></i> Tarifario
-                    </a>
-                    <a id="accion" href="@Url.Action("GestionarVehiculos", "Rutas")" class=" btn bg-cobefar-6 text-white d-none d-lg-block d-xl-block m-1"><i class="icon-truck"></i> Vehículos</a>
+                    <a href="@Url.Action("GestionarAgencias", "Repartos",new {TipoRep="Re" })" class="btn bg-cobefar-6 text-white d-none d-lg-block d-xl-block m-1"><i class="icon-home"></i> Agencias</a>
+                    <a href="@Url.Action("GestionarOficinas", "Rutas",new {TipoRep="Re" })" class="btn bg-cobefar-6 text-white d-none d-lg-block d-xl-block m-1"><i class="icon-office"></i> Oficinas Courier</a>
+                    <a href="@Url.Action("GestionarTarifarios", "Rutas",new {TipoRep="Re" })" class="btn bg-cobefar-6 text-white d-none d-lg-block d-xl-block m-1"><i class="icon-book"></i> Tarifario</a>
+                    <a href="@Url.Action("GestionarVehiculos", "Rutas")" class=" btn bg-cobefar-6 text-white d-none d-lg-block d-xl-block m-1"><i class="icon-truck"></i> Vehículos</a>
                 </div>
             </div>
         </div>
     </div>
 </div>
-
 
 <form name="frm" id="filterForm">
     <div class="bg-white bg-form-cobefar p-3">
@@ -195,9 +186,7 @@
                     <th class="text-center">
                         @Html.DisplayNameFor(model => model.DocNum)<br />
                         @if (o != null && o.DocNum > 0)
-                        {
-                            <input class="form-control-sm border" type="text" name="DocNum" onchange="filtrar();" value="@o.DocNum" />
-                        }
+                        {<input class="form-control-sm border" type="text" name="DocNum" onchange="filtrar();" value="@o.DocNum" /> }
                         else
                         { <input class="form-control-sm border" type="text" name="DocNum" onchange="filtrar();" />}
                     </th>
@@ -219,15 +208,13 @@
                             @foreach (var x in Conductores)
                             {
                                 <option value="@x" @if (o != null && o.TransDesc == x) { Write("selected"); }>@x</option>
-                            }
+}
                         </select>
                     </th>
                     <th class="text-center">
                         @Html.DisplayNameFor(model => model.TiempoPac)<br />
                         @if (o != null && o.TiempoPac != null)
-                        {
-                            <input type="date" name="TiempoPac" class="form-control-sm border text-center" value="@Convert.ToDateTime(o.TiempoPac).ToString("yyyy-MM-dd")" onchange="filtrar();" />
-                        }
+                        {<input type="date" name="TiempoPac" class="form-control-sm border text-center" value="@Convert.ToDateTime(o.TiempoPac).ToString("yyyy-MM-dd")" onchange="filtrar();" /> }
                         else
                         { <input type="date" name="TiempoPac" class="form-control-sm border text-center" onchange="filtrar();" />}
                     </th>
@@ -249,131 +236,128 @@
             <tbody>
                 @foreach (var item in Model.Where(x => x.TipoRuta != "VG"))
                 {
+                    // Limpieza de variables
+                    string tipoRuta = (item.TipoRuta ?? "").Trim();
+                    string estado = (item.Estado ?? "").Trim();
+
                     <tr>
                         <td class="text-center @if (ViewBag.DocNum == item.DocNum) { Write("bg-success"); } ">
                             @Html.DisplayFor(modelItem => item.DocNum)
                         </td>
-                        <td class="text-center">
-                            @Html.DisplayFor(modelItem => item.TipoRuta)
-                        </td>
-                        <td class="text-center">
-                            @Html.DisplayFor(modelItem => item.TransDesc)
-                        </td>
+                        <td class="text-center">@Html.DisplayFor(modelItem => item.TipoRuta)</td>
+                        <td class="text-center">@Html.DisplayFor(modelItem => item.TransDesc)</td>
                         <td class="text-center">
                             @Convert.ToDateTime(item.TiempoPac).ToString("dd/MM/yyyy") <br class="d-md-none" />@Convert.ToDateTime(item.TiempoPac).ToString("HH:mm")
                         </td>
-                        <td class="text-center">
-                            @Html.DisplayFor(modelItem => item.Estado)
-                        </td>
-                        <td class="text-center">
-                            @Html.DisplayFor(modelItem => item.TotalCajas)
-                        </td>
+                        <td class="text-center">@Html.DisplayFor(modelItem => item.Estado)</td>
+                        <td class="text-center">@Html.DisplayFor(modelItem => item.TotalCajas)</td>
 
-                        <td class="text-center">
-                            <div class="d-flex flex-wrap justify-content-center align-items-center">
+                        <td class="text-center" style="min-width: 150px;">
+                            @{
+                                // --- REGLAS DE VISIBILIDAD ---
+                                bool esDE = tipoRuta == "DE";
+                                bool esEnviado = estado == "ENVIADO";
+                                bool tieneCajas = item.TotalCajas > 0;
+                                bool esCreado = estado == "CREADO";
 
-                                @{
-                                    bool esDE = item.TipoRuta == "DE";
-                                    bool esEnviado = item.Estado == "ENVIADO";
-                                    bool tieneCajas = item.TotalCajas > 0;
+                                bool showIniciar = esCreado;
+                                // Botones operativos: Se ocultan en devoluciones
+                                bool showEntrega = esEnviado && tieneCajas && !esDE;
+                                bool showTerminar = esEnviado && tieneCajas && !esDE;
+                                // Botón Recibir: Solo en devoluciones
+                                bool showRecibir = esEnviado && esDE;
+                            }
 
-                                    bool showIniciar = item.Estado == "CREADO";
-                                    bool showEntrega = esEnviado && tieneCajas && !esDE;
-                                    bool showTerminar = esEnviado && tieneCajas && !esDE;
-                                    bool showRecibir = esEnviado && esDE;
-                                }
+                            @* ============================================================ *@
+                            @* VISTA MÓVIL (Visible solo d-block d-lg-none)                 *@
+                            @* ============================================================ *@
+                            <div class="d-block d-lg-none w-100">
 
+                                @* 1. INICIAR (Ancho Completo) *@
                                 @if (showIniciar)
                                 {
                                     if (esDE)
                                     {
-                                        // SI ES DEVOLUCIÓN: BOTÓN DIRECTO (SIN MODAL)
-                                        <button type="button" class="btn btn-success btn-mobile-block d-lg-none d-xl-none shadow-sm mb-2"
+                                        <button type="button" class="btn btn-success btn-block font-weight-bold mb-2 shadow-sm"
                                                 onclick="iniciarDevolucionRapida(@item.DocEntry);">
                                             <i class="icon-play"></i> INICIAR RECOJO
                                         </button>
                                     }
                                     else
                                     {
-                                        // SI ES NORMAL: ABRE MODAL TEMPERATURA
-                                        <button type="button" class="btn btn-success btn-mobile-block d-lg-none d-xl-none shadow-sm mb-2"
+                                        <button type="button" class="btn btn-success btn-block font-weight-bold mb-2 shadow-sm"
                                                 data-toggle="modal" data-target="#M1"
-                                                onclick="llenarModal1(@item.DocEntry, @item.DocNum, 0, 0);">
+                                                onclick="llenarModal1(@item.DocEntry,@item.DocNum,0,0);">
                                             <i class="icon-play"></i> INICIAR
                                         </button>
                                     }
                                 }
 
-                                @if (showTerminar || showRecibir)
+                                @* 2. ENTREGA (Amarillo) y TERMINAR (Gris) -> 50% / 50% *@
+                                @if (showEntrega || showTerminar)
                                 {
-                                    <div class="d-flex w-100 d-lg-none d-xl-none mb-1">
+                                    <div class="d-flex mb-2">
+                                        @if (showEntrega)
+                                        {
+                                            <a href="@Url.Action("ListadoEntregaRepartos", "Rutas", new {TipoRep="Re", DocEntry = item.DocEntry })"
+                                               class="btn btn-warning text-dark font-weight-bold flex-fill shadow-sm @(showTerminar ? "mr-1" : "")">
+                                                <i class="icon-truck"></i> ENTREGA
+                                            </a>
+                                        }
+
                                         @if (showTerminar)
                                         {
                                             <button type="button"
-                                                    class="btn btn-secondary shadow-sm flex-fill @(showRecibir ? "mr-1" : "")"
-                                                    style="font-weight: bold;"
+                                                    class="btn btn-secondary font-weight-bold flex-fill shadow-sm @(showEntrega ? "ml-1" : "")"
                                                     data-toggle="modal" data-target="#M2" onclick="llenarModal2(@item.DocEntry, @item.DocNum);">
                                                 <i class="icon-flag"></i> TERMINAR
-                                            </button>
-                                        }
-
-                                        @if (showRecibir)
-                                        {
-                                            <button type="button"
-                                                    class="btn btn-success shadow-sm flex-fill @(showTerminar ? "ml-1" : "")"
-                                                    style="font-weight: bold;"
-                                                    onclick="confirmarRecepcionDevolucion(@item.DocEntry);">
-                                                <i class="icon-checkmark"></i> RECIBIR DEVOLUCIÓN
                                             </button>
                                         }
                                     </div>
                                 }
 
-                                @if (showEntrega)
-                                {
-                                    <a href="@Url.Action("ListadoEntregaRepartos", "Rutas", new {TipoRep="Re", DocEntry = item.DocEntry })" class="btn btn-warning btn-mobile-block d-lg-none d-xl-none shadow-sm mt-1 text-dark">
-                                        <i class="icon-truck"></i> ENTREGA
-                                    </a>
-                                }
-
-                                @* --- ESCRITORIO --- *@
-                                @if (item.Estado == "CREADO" || esEnviado)
-                                {
-                                    <a href="@Url.Action("EditarHojaDeReparto", "Rutas", new { DocEntry = item.DocEntry, TipoRep = "Re" })" class="d-none d-lg-block d-xl-block btn btn-light mx-1" data-toggle="tooltip" title="Editar"><i class="icon-pencil text-primary"></i></a>
-                                }
-                                @if (showEntrega)
-                                {
-                                    <a href="@Url.Action("ListadoEntregaRepartos", "Rutas", new {TipoRep="Re", DocEntry = item.DocEntry })" class="d-none d-lg-block d-xl-block btn btn-warning mx-1" data-toggle="tooltip" title="Entrega"><i class="icon-truck text-dark"></i></a>
-                                }
-
-                                <a href="@Url.Action( "DocumentoRutas", "Rutas", new { DocEntry = item.DocEntry, TipoRuta = item.TipoRuta } )" class="btn d-none d-lg-block d-xl-block btn-light mx-1" data-toggle="tooltip" title="Pdf"><i class="icon-file-pdf text-danger"></i></a>
-                                <a href="@Url.Action("SeguimientoRepartoRutas", "Rutas", new { DocEntry = item.DocEntry, Vista="REPARTOS" })" class="btn btn-light text-light d-none d-lg-block d-xl-block mx-1" data-toggle="tooltip" title="Seguimiento"><i class="icon-truck text-dark"></i></a>
-
-                                @if (showTerminar)
-                                {
-                                    <button type="button" class="d-none d-lg-block d-xl-block btn btn-secondary mx-1" data-toggle="modal" data-target="#M2" onclick="llenarModal2(@item.DocEntry, @item.DocNum);" title="Terminar"><i class="icon-flag"></i></button>
-                                }
-
+                                @* 3. RECIBIR (Verde) -> Ancho Completo (Solo Devoluciones) *@
                                 @if (showRecibir)
                                 {
-                                    <button type="button" class="d-none d-lg-block d-xl-block btn btn-success mx-1" onclick="confirmarRecepcionDevolucion(@item.DocEntry);" title="Recibir"><i class="icon-checkmark"></i></button>
+                                    <button type="button" class="btn btn-success btn-block font-weight-bold shadow-sm mb-2"
+                                            onclick="confirmarRecepcionDevolucion(@item.DocEntry);">
+                                        <i class="icon-checkmark"></i> RECIBIR DEVOLUCIÓN
+                                    </button>
                                 }
-
-                                @if (item.TipoRuta == "TA")
-                                {
-                                    <a href="@Url.Action( "AnularOrdenDeRuta", "Rutas", new { DocEntry = item.DocEntry,TipoRep="Re", Estado = item.Estado } )" class="btn btn-light d-none d-lg-block d-xl-block mx-1" data-toggle="tooltip" title="Anular"><i class="icon-blocked text-danger"></i></a>
-                                }
-                                @if (item.TipoRuta == "AC" && item.Estado != "TERMINADO")
-                                {
-                                    <a href="@Url.Action( "TerminarHojaCargo", "Rutas", new { DocEntry = item.DocEntry,TipoRep="Re", Estado = item.Estado } )" class="btn btn-danger d-none d-lg-block d-xl-block mx-1"><i title="Terminar HC" class="icon-checkmark"></i></a>
-                                }
-                                @if (item.TipoRuta == "AC")
-                                {
-                                    <a href="@Url.Action("ManifiestoCourier", "Rutas", new { DocEntry = item.DocEntry, Estado = item.Estado})" class="btn btn-danger d-none d-lg-block d-xl-block mx-1"><i title="Manifiesto" class="icon-file-pdf"></i></a>
-                                    <a href="@Url.Action("AnularHojaCargo", "Rutas", new { DocEntry = item.DocEntry,TipoRep="Re", Estado = item.Estado } )" class="btn btn-orange d-none d-lg-block d-xl-block mx-1"><i title="Anular Hoja Cargo" class="icon-blocked"></i></a>
-                                }
-
                             </div>
+
+                            @* ============================================================ *@
+                            @* VISTA ESCRITORIO (Visible solo d-none d-lg-block)            *@
+                            @* ============================================================ *@
+                            <div class="d-none d-lg-block">
+                                @* Solo iconos administrativos. Los botones operativos (Ent, Ter, Recibir) están ocultos aquí *@
+
+                                @if (esCreado || esEnviado)
+                                {
+                                    <a href="@Url.Action("EditarHojaDeReparto", "Rutas", new { DocEntry = item.DocEntry, TipoRep = "Re" })" class="btn btn-light btn-sm rounded-circle shadow-sm mx-1" data-toggle="tooltip" title="Editar"><i class="icon-pencil text-primary"></i></a>
+                                }
+
+                                <a href="@Url.Action( "DocumentoRutas", "Rutas", new { DocEntry = item.DocEntry, TipoRuta = item.TipoRuta } )" class="btn btn-light btn-sm rounded-circle shadow-sm mx-1" data-toggle="tooltip" title="Pdf"><i class="icon-file-pdf text-danger"></i></a>
+
+                                <a href="@Url.Action("SeguimientoRepartoRutas", "Rutas", new { DocEntry = item.DocEntry, Vista="REPARTOS" })" class="btn btn-light btn-sm rounded-circle shadow-sm mx-1 text-dark" data-toggle="tooltip" title="Seguimiento"><i class="icon-truck"></i></a>
+
+                                @if (tipoRuta == "TA")
+                                {
+                                    <a href="@Url.Action( "AnularOrdenDeRuta", "Rutas", new { DocEntry = item.DocEntry,TipoRep="Re", Estado = item.Estado } )" class="btn btn-light btn-sm mx-1" title="Anular"><i class="icon-blocked text-danger"></i></a>
+                                }
+
+                                @if (tipoRuta == "AC" && estado != "TERMINADO")
+                                {
+                                    <a href="@Url.Action( "TerminarHojaCargo", "Rutas", new { DocEntry = item.DocEntry,TipoRep="Re", Estado = item.Estado } )" class="btn btn-danger btn-sm mx-1"><i title="Terminar HC" class="icon-checkmark"></i></a>
+                                }
+
+                                @if (tipoRuta == "AC")
+                                {
+                                    <a href="@Url.Action("ManifiestoCourier", "Rutas", new { DocEntry = item.DocEntry, Estado = item.Estado})" class="btn btn-danger btn-sm mx-1"><i title="Manifiesto" class="icon-file-pdf"></i></a>
+                                    <a href="@Url.Action("AnularHojaCargo", "Rutas", new { DocEntry = item.DocEntry,TipoRep="Re", Estado = item.Estado } )" class="btn btn-orange btn-sm mx-1"><i title="Anular Hoja Cargo" class="icon-blocked"></i></a>
+                                }
+                            </div>
+
                         </td>
                     </tr>
                 }
@@ -382,14 +366,13 @@
     </div>
 </form>
 
+@* MODAL INICIAR (Para rutas normales) *@
 <div class="modal" id="M1" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
-            <div id="M1Header" class="modal-header bg-headerModals text-white">
-                <h5 class="modal-title" id="M1Titulo">INICIAR REPARTO</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span class="text-white" aria-hidden="true">&times;</span>
-                </button>
+            <div class="modal-header bg-headerModals text-white">
+                <h5 class="modal-title" id="exampleModalLabel">INICIAR REPARTO</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span class="text-white" aria-hidden="true">&times;</span></button>
             </div>
             <div class="modal-body bg-light">
                 <form id="formIni">
@@ -397,8 +380,7 @@
                         <label class="bg-cobefar text-white font-weight-bold px-3 py-2 font-18 rounded" id="M1DocNum"></label>
                         <input type="hidden" name="DocEntry" id="M1DocEntry" readonly>
                     </div>
-
-                    <div class="form-group" id="M1BloqueTemp">
+                    <div class="form-group">
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <div class="border p-3 rounded bg-white">
@@ -420,14 +402,9 @@
                             </div>
                         </div>
                     </div>
-
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-cobefar" onclick="iniciarReparto();">
-                            <i class="icon-checkmark"></i> Sí
-                        </button>
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">
-                            <i class="icon-cross"></i> No
-                        </button>
+                        <button type="button" class="btn btn-cobefar" onclick="iniciarReparto();"><i class="icon-checkmark"></i> Sí</button>
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal"><i class="icon-cross"></i> No</button>
                     </div>
                 </form>
             </div>
@@ -435,59 +412,13 @@
     </div>
 </div>
 
-<form id="frmReporteTemp" method="post">
-    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header bg-cobefar text-white">
-                    <h5 class="modal-title" id="exampleModalLabel">Reporte de control temperatura y humedad</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body text-center">
-                    <span style="float:left;margin-left:50px;"><strong>Vehículo</strong></span>
-                    <div style="float:right;margin-right:50px;">
-                        <select type="text" name="Placa" class="form-control">
-                            <option value="">Seleccione</option>
-                            @foreach (OVEH_E obj in listaVeh)
-                            {
-                                <option value="@obj.U_SYP_VEPL">@obj.U_SYP_VEPL</option>
-                            }
-                        </select>
-                    </div>
-                    <br /><br />
-                    <span style="float:left;margin-left:50px;"><strong>Fecha Entrega</strong></span>
-                    <div style="float:right;margin-right:50px;">
-                        <input name="FechaTerEn" type="date" class="form-control" />
-                    </div>
-                    <br /><br />
-                    <span style="float:left;margin-left:50px;"><strong>Termohigrómetro</strong></span>
-                    <div style="float:right;margin-right:50px;">
-                        <select name="Serie" class="form-control">
-                            <option value="SerieT1" selected>T1</option>
-                            <option value="SerieT2">T2</option>
-                        </select>
-                    </div>
-                    <br /><br />
-                    <br />
-                    <div style="float:right;margin-right:50px;">
-                        <button type="button" class="btn btn-success" onclick="GenerarReporteTemp();">Generar</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</form>
-
+@* MODAL TERMINAR *@
 <div class="modal" id="M2" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
             <div class="modal-header bg-cobefar text-white">
                 <h5 class="modal-title" id="exampleModalLabel">¿Terminar Reparto?</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span class="text-white" aria-hidden="true">&times;</span>
-                </button>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span class="text-white" aria-hidden="true">&times;</span></button>
             </div>
             <div class="modal-body bg-light">
                 <form id="formTer">
@@ -505,11 +436,49 @@
     </div>
 </div>
 
+@* MODAL REPORTE TEMP *@
+<form id="frmReporteTemp" method="post">
+    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-cobefar text-white">
+                    <h5 class="modal-title" id="exampleModalLabel">Reporte de control temperatura y humedad</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                </div>
+                <div class="modal-body text-center">
+                    <span style="float:left;margin-left:50px;"><strong>Vehículo</strong></span>
+                    <div style="float:right;margin-right:50px;">
+                        <select type="text" name="Placa" class="form-control">
+                            <option value="">Seleccione</option>
+                            @foreach (OVEH_E obj in listaVeh)
+                            {
+                                <option value="@obj.U_SYP_VEPL">@obj.U_SYP_VEPL</option>
+}
+                        </select>
+                    </div>
+                    <br /><br />
+                    <span style="float:left;margin-left:50px;"><strong>Fecha Entrega</strong></span>
+                    <div style="float:right;margin-right:50px;"><input name="FechaTerEn" type="date" class="form-control" /></div>
+                    <br /><br />
+                    <span style="float:left;margin-left:50px;"><strong>Termohigrómetro</strong></span>
+                    <div style="float:right;margin-right:50px;">
+                        <select name="Serie" class="form-control">
+                            <option value="SerieT1" selected>T1</option>
+                            <option value="SerieT2">T2</option>
+                        </select>
+                    </div>
+                    <br /><br /><br />
+                    <div style="float:right;margin-right:50px;">
+                        <button type="button" class="btn btn-success" onclick="GenerarReporteTemp();">Generar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
 <script>
     if ('@ViewBag.Mensaje' != "") {
-        Swal.fire({
-            icon: 'info',
-            text: `@ViewBag.Mensaje`
-        })
+        Swal.fire({ icon: 'info', text: `@ViewBag.Mensaje` })
     }
 </script>
