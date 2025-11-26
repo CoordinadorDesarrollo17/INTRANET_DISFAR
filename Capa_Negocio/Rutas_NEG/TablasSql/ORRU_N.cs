@@ -278,25 +278,53 @@ namespace Capa_Negocio.Rutas_NEG.TablasSql
         }
         public void TerminarReparto(ORRU_E o)
         {
-            //En este punto ya no valida el rango de temperaturas o humed para ninguno de los dos tipos de rutas.
-            //El rango se valida en RRU0 Y RRU1
-
-            if (o.Estado != "ENVIADO") { throw new Exception("El documento no esta enviado"); }
-            if (o.DetRRU0 != null)
+            // 1. VALIDACIÓN DE ESTADO SEGÚN TIPO DE RUTA
+            if (o.TipoRuta == "DE")
             {
-                foreach (RRU0_E a in o.DetRRU0.Where(x => x.Estado != "LIBERADO" && x.Estado != "ANULADO"))
+                // Para Devoluciones, el estado previo debe ser "DEVUELTO" (luego del botón recibir)
+                if (o.Estado != "DEVUELTO")
                 {
-                    if (a.Estado != "ENTREGADO") { throw new Exception("El ticket " + a.DocNumTicket + " no esta ENTREGADO"); }
+                    throw new Exception("La devolución debe estar recibida (Estado DEVUELTO) antes de terminar.");
                 }
             }
-            if (o.DetRRU1 != null)
+            else
             {
-                foreach (RRU1_E a in o.DetRRU1.Where(x => x.Estado != "LIBERADO"))
+                // Para Rutas Normales (VC, VD, etc), el estado debe ser "ENVIADO"
+                if (o.Estado != "ENVIADO")
                 {
-                    if (a.Estado != "ENTREGADO") { throw new Exception("Todos los tickets no estan como ENTREGADO"); }
+                    throw new Exception("El documento no está en estado ENVIADO.");
                 }
             }
 
+            // 2. VALIDACIÓN DE TICKETS (SOLO PARA RUTAS NORMALES)
+            // Si es DE, nos saltamos todo este bloque if
+            if (o.TipoRuta != "DE")
+            {
+                if (o.DetRRU0 != null)
+                {
+                    foreach (RRU0_E a in o.DetRRU0.Where(x => x.Estado != "LIBERADO" && x.Estado != "ANULADO"))
+                    {
+                        if (a.Estado != "ENTREGADO")
+                        {
+                            throw new Exception("El ticket " + a.DocNumTicket + " no esta ENTREGADO");
+                        }
+                    }
+                }
+
+                if (o.DetRRU1 != null)
+                {
+                    foreach (RRU1_E a in o.DetRRU1.Where(x => x.Estado != "LIBERADO"))
+                    {
+                        if (a.Estado != "ENTREGADO")
+                        {
+                            throw new Exception("Todos los tickets no estan como ENTREGADO");
+                        }
+                    }
+                }
+            }
+
+            // 3. EJECUTAR EL CIERRE EN LA BASE DE DATOS
+            // (Llama al SP con 'UTR' que pone el estado TERMINADO)
             orruD.TerminarReparto(o);
         }
         public string infoListaProductosOWTQ(string guia, int linea, string Origen)

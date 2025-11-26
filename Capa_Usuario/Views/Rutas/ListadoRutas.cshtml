@@ -17,15 +17,26 @@
         $(location).attr('href', "/Rutas/ListadoRutas?" + object);
     }
 
-    // --- FUNCIONES ESTÁNDAR (RUTAS NORMALES) ---
+    // --- FUNCIONES ESTÁNDAR ---
     function iniciarReparto() {
         var o = $("#formIni").serialize();
         $(location).attr('href', "/Rutas/IniciarReparto?" + o);
     }
 
+    // --- TERMINAR REPARTO (CORREGIDO CON AJAX) ---
+    // Ahora usa AJAX para NO irse a "ListadoRepartos". Se queda aquí.
     function terminarReparto() {
-        var o = $("#formTer").serialize();
-        $(location).attr('href', "/Rutas/TerminarReparto?" + o);
+        var data = $("#formTer").serialize();
+        
+        // Usamos $.post o $.get para enviar la orden sin cambiar de página
+        $.post("/Rutas/TerminarReparto", data)
+            .done(function(response) {
+                // Al terminar con éxito, solo recargamos ESTA página
+                location.reload();
+            })
+            .fail(function() {
+                Swal.fire('Error', 'Hubo un problema al terminar la ruta.', 'error');
+            });
     }
 
     function llenarModal1(DocEntry, DocNum, Cajas, Tickets) {
@@ -44,54 +55,40 @@
         window.open("/Rutas/RptControlTemperaturaHumedad?" + o, "_blank");
     }
 
-    // --- FUNCIONES AJAX PARA DEVOLUCIONES (SIN SALIR DE LA PANTALLA) ---
-
-    // 1. Recibir Devolución (Fin del proceso)
+    // --- FUNCIONES AJAX DEVOLUCIONES ---
     function confirmarRecepcionDevolucion(docEntry) {
         Swal.fire({
             title: '¿Recibir Devolución?',
             text: "¿Confirma la recepción y cierre de esta devolución?",
             icon: 'question',
             showCancelButton: true,
-            confirmButtonColor: '#28a745', // Verde
+            confirmButtonColor: '#28a745',
             cancelButtonColor: '#6c757d',
             confirmButtonText: '<i class="icon-checkmark"></i> Sí, Recibir',
-            cancelButtonText: 'Cancelar',
-            reverseButtons: true
+            cancelButtonText: 'Cancelar'
         }).then((result) => {
             if (result.isConfirmed) {
                 $.get("/Rutas/RecibirDevolucion", { DocEntry: docEntry })
-                    .done(function() {
-                        location.reload(); // Recarga la página al terminar
-                    })
-                    .fail(function() {
-                        Swal.fire('Error', 'No se pudo procesar la solicitud.', 'error');
-                    });
+                    .done(function() { location.reload(); })
+                    .fail(function() { Swal.fire('Error', 'Error al procesar.', 'error'); });
             }
         })
     }
 
-    // 2. Iniciar Devolución (Inicio Rápido - Sin Modal Temperatura)
     function iniciarDevolucionRapida(docEntry) {
         Swal.fire({
             title: '¿Iniciar Recojo?',
-            text: "Se iniciará la ruta de devolución (Estado -> ENVIADO).",
+            text: "Se iniciará la ruta de devolución.",
             icon: 'info',
             showCancelButton: true,
             confirmButtonColor: '#28a745',
             cancelButtonColor: '#6c757d',
-            confirmButtonText: 'Sí, Iniciar',
-            cancelButtonText: 'Cancelar'
+            confirmButtonText: 'Sí, Iniciar'
         }).then((result) => {
             if (result.isConfirmed) {
-                // Envía Temp=0 por AJAX
                 $.get("/Rutas/IniciarReparto", { DocEntry: docEntry, TempI1: 0, TempI2: 0 })
-                    .done(function() {
-                        location.reload(); // Recarga la página al terminar
-                    })
-                    .fail(function() {
-                        Swal.fire('Error', 'No se pudo iniciar la ruta.', 'error');
-                    });
+                    .done(function() { location.reload(); })
+                    .fail(function() { Swal.fire('Error', 'Error al iniciar.', 'error'); });
             }
         })
     }
@@ -100,7 +97,6 @@
 <style>
     .modal-body {
         position: relative;
-        -ms-flex: 1 1 auto;
         flex: 1 1 auto;
         padding: 1rem;
     }
@@ -119,7 +115,6 @@
         width: 100%;
         margin-bottom: 5px;
         font-weight: bold;
-        text-align: center;
         padding: 8px;
     }
 
@@ -164,7 +159,7 @@
         <div class="modal-content border border-secondary">
             <div class="modal-header bg-headerModals text-white">
                 <h5 class="modal-title" id="moduloGestionModal">MÓDULO PARA GESTIÓN</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span class="text-white" aria-hidden="true">&times;</span></button>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span class="text-white">&times;</span></button>
             </div>
             <div class="modal-body bg-light">
                 <div class="d-flex justify-content-center">
@@ -211,13 +206,15 @@
 }
                         </select>
                     </th>
+
                     <th class="text-center">
-                        @Html.DisplayNameFor(model => model.TiempoPac)<br />
+                        Tiempo entrega/recojo<br />
                         @if (o != null && o.TiempoPac != null)
                         {<input type="date" name="TiempoPac" class="form-control-sm border text-center" value="@Convert.ToDateTime(o.TiempoPac).ToString("yyyy-MM-dd")" onchange="filtrar();" /> }
                         else
                         { <input type="date" name="TiempoPac" class="form-control-sm border text-center" onchange="filtrar();" />}
                     </th>
+
                     <th class="text-center">
                         @Html.DisplayNameFor(model => model.Estado)<br />
                         <select name="Estado" class="form-control-sm border" onchange="filtrar();">
@@ -236,128 +233,101 @@
             <tbody>
                 @foreach (var item in Model.Where(x => x.TipoRuta != "VG"))
                 {
-                    // Limpieza de variables
                     string tipoRuta = (item.TipoRuta ?? "").Trim();
                     string estado = (item.Estado ?? "").Trim();
 
                     <tr>
-                        <td class="text-center @if (ViewBag.DocNum == item.DocNum) { Write("bg-success"); } ">
-                            @Html.DisplayFor(modelItem => item.DocNum)
-                        </td>
+                        <td class="text-center @if (ViewBag.DocNum == item.DocNum) { Write("bg-success"); } ">@Html.DisplayFor(modelItem => item.DocNum)</td>
                         <td class="text-center">@Html.DisplayFor(modelItem => item.TipoRuta)</td>
                         <td class="text-center">@Html.DisplayFor(modelItem => item.TransDesc)</td>
-                        <td class="text-center">
-                            @Convert.ToDateTime(item.TiempoPac).ToString("dd/MM/yyyy") <br class="d-md-none" />@Convert.ToDateTime(item.TiempoPac).ToString("HH:mm")
-                        </td>
+                        <td class="text-center">@Convert.ToDateTime(item.TiempoPac).ToString("dd/MM/yyyy") <br class="d-md-none" />@Convert.ToDateTime(item.TiempoPac).ToString("HH:mm")</td>
                         <td class="text-center">@Html.DisplayFor(modelItem => item.Estado)</td>
                         <td class="text-center">@Html.DisplayFor(modelItem => item.TotalCajas)</td>
 
-                        <td class="text-center" style="min-width: 150px;">
-                            @{
-                                // --- REGLAS DE VISIBILIDAD ---
-                                bool esDE = tipoRuta == "DE";
-                                bool esEnviado = estado == "ENVIADO";
-                                bool tieneCajas = item.TotalCajas > 0;
-                                bool esCreado = estado == "CREADO";
+                        <td class="text-center">
+                            <div class="d-flex flex-wrap justify-content-center align-items-center">
+                                @{
+                                    // VARIABLES DE ESTADO
+                                    bool esDE = tipoRuta == "DE";
+                                    bool esEnviado = estado == "ENVIADO";
+                                    bool esDevuelto = estado == "DEVUELTO"; // ESTA ES LA CLAVE
+                                    bool tieneCajas = item.TotalCajas > 0;
+                                    bool esCreado = estado == "CREADO";
 
-                                bool showIniciar = esCreado;
-                                // Botones operativos: Se ocultan en devoluciones
-                                bool showEntrega = esEnviado && tieneCajas && !esDE;
-                                bool showTerminar = esEnviado && tieneCajas && !esDE;
-                                // Botón Recibir: Solo en devoluciones
-                                bool showRecibir = esEnviado && esDE;
-                            }
+                                    bool showIniciar = esCreado;
 
-                            @* ============================================================ *@
-                            @* VISTA MÓVIL (Visible solo d-block d-lg-none)                 *@
-                            @* ============================================================ *@
-                            <div class="d-block d-lg-none w-100">
+                                    // 1. Lógica Entrega (Amarillo): NO DEVOLUCIONES
+                                    bool showEntrega = esEnviado && tieneCajas && !esDE;
 
-                                @* 1. INICIAR (Ancho Completo) *@
-                                @if (showIniciar)
-                                {
-                                    if (esDE)
+                                    // 2. Lógica Terminar (Gris):
+                                    //    a) Rutas normales: ENVIADO + CAJAS
+                                    //    b) Devoluciones: DEVUELTO (Aquí está la corrección)
+                                    bool showTerminar = (esEnviado && tieneCajas && !esDE) || (esDevuelto && esDE);
+
+                                    // 3. Lógica Recibir (Verde): Solo DEVOLUCIONES + ENVIADO
+                                    bool showRecibir = esEnviado && esDE;
+                                }
+
+                                @* --- BOTONES MÓVILES (SOLO VISIBLES EN CELULAR) --- *@
+                                <div class="d-block d-lg-none w-100">
+                                    @if (showIniciar)
                                     {
-                                        <button type="button" class="btn btn-success btn-block font-weight-bold mb-2 shadow-sm"
-                                                onclick="iniciarDevolucionRapida(@item.DocEntry);">
-                                            <i class="icon-play"></i> INICIAR RECOJO
-                                        </button>
+                                        if (esDE)
+                                        {
+                                            <button type="button" class="btn btn-success btn-mobile-block shadow-sm mb-2" onclick="iniciarDevolucionRapida(@item.DocEntry);"><i class="icon-play"></i> INICIAR RECOJO</button>
+                                        }
+                                        else
+                                        {
+                                            <button type="button" class="btn btn-success btn-mobile-block shadow-sm mb-2" data-toggle="modal" data-target="#M1" onclick="llenarModal1(@item.DocEntry,@item.DocNum,0,0);"><i class="icon-play"></i> INICIAR</button>
+                                        }
                                     }
-                                    else
+
+                                    @* LOGICA SPLIT (50/50) SOLO SI APARECEN ENTREGA Y TERMINAR JUNTOS *@
+                                    @if (showEntrega || showTerminar)
                                     {
-                                        <button type="button" class="btn btn-success btn-block font-weight-bold mb-2 shadow-sm"
-                                                data-toggle="modal" data-target="#M1"
-                                                onclick="llenarModal1(@item.DocEntry,@item.DocNum,0,0);">
-                                            <i class="icon-play"></i> INICIAR
-                                        </button>
+                                        <div class="d-flex mb-2">
+                                            @if (showEntrega)
+                                            {
+                                                <a href="@Url.Action("ListadoEntregaRepartos", "Rutas", new {TipoRep="Re", DocEntry = item.DocEntry })" class="btn btn-warning btn-mobile-block shadow-sm text-dark flex-fill @(showTerminar ? "mr-1" : "")"><i class="icon-truck"></i> ENTREGA</a>
+                                            }
+                                            @if (showTerminar)
+                                            {
+                                                <button type="button" class="btn btn-secondary btn-mobile-block shadow-sm flex-fill @(showEntrega ? "ml-1" : "")" data-toggle="modal" data-target="#M2" onclick="llenarModal2(@item.DocEntry, @item.DocNum);"><i class="icon-flag"></i> TERMINAR</button>
+                                            }
+                                        </div>
                                     }
-                                }
 
-                                @* 2. ENTREGA (Amarillo) y TERMINAR (Gris) -> 50% / 50% *@
-                                @if (showEntrega || showTerminar)
-                                {
-                                    <div class="d-flex mb-2">
-                                        @if (showEntrega)
-                                        {
-                                            <a href="@Url.Action("ListadoEntregaRepartos", "Rutas", new {TipoRep="Re", DocEntry = item.DocEntry })"
-                                               class="btn btn-warning text-dark font-weight-bold flex-fill shadow-sm @(showTerminar ? "mr-1" : "")">
-                                                <i class="icon-truck"></i> ENTREGA
-                                            </a>
-                                        }
+                                    @if (showRecibir)
+                                    {
+                                        <button type="button" class="btn btn-success btn-mobile-block shadow-sm mb-2" onclick="confirmarRecepcionDevolucion(@item.DocEntry);"><i class="icon-checkmark"></i> RECIBIR DEVOLUCIÓN</button>
+                                    }
+                                </div>
 
-                                        @if (showTerminar)
-                                        {
-                                            <button type="button"
-                                                    class="btn btn-secondary font-weight-bold flex-fill shadow-sm @(showEntrega ? "ml-1" : "")"
-                                                    data-toggle="modal" data-target="#M2" onclick="llenarModal2(@item.DocEntry, @item.DocNum);">
-                                                <i class="icon-flag"></i> TERMINAR
-                                            </button>
-                                        }
-                                    </div>
-                                }
+                                @* --- BOTONES ESCRITORIO (SOLO VISIBLES EN PC - Iconos simples) --- *@
+                                <div class="d-none d-lg-block">
+                                    @if (esCreado || esEnviado)
+                                    {
+                                        <a href="@Url.Action("EditarHojaDeReparto", "Rutas", new { DocEntry = item.DocEntry, TipoRep = "Re" })" class="btn btn-light btn-sm rounded-circle shadow-sm mx-1" data-toggle="tooltip" title="Editar"><i class="icon-pencil text-primary"></i></a>
+                                    }
 
-                                @* 3. RECIBIR (Verde) -> Ancho Completo (Solo Devoluciones) *@
-                                @if (showRecibir)
-                                {
-                                    <button type="button" class="btn btn-success btn-block font-weight-bold shadow-sm mb-2"
-                                            onclick="confirmarRecepcionDevolucion(@item.DocEntry);">
-                                        <i class="icon-checkmark"></i> RECIBIR DEVOLUCIÓN
-                                    </button>
-                                }
+                                    <a href="@Url.Action( "DocumentoRutas", "Rutas", new { DocEntry = item.DocEntry, TipoRuta = item.TipoRuta } )" class="btn btn-light btn-sm rounded-circle shadow-sm mx-1" data-toggle="tooltip" title="Pdf"><i class="icon-file-pdf text-danger"></i></a>
+                                    <a href="@Url.Action("SeguimientoRepartoRutas", "Rutas", new { DocEntry = item.DocEntry, Vista="REPARTOS" })" class="btn btn-light btn-sm rounded-circle shadow-sm mx-1 text-dark" data-toggle="tooltip" title="Seguimiento"><i class="icon-truck text-dark"></i></a>
+
+                                    @if (item.TipoRuta == "TA")
+                                    {
+                                        <a href="@Url.Action( "AnularOrdenDeRuta", "Rutas", new { DocEntry = item.DocEntry,TipoRep="Re", Estado = item.Estado } )" class="btn btn-light d-none d-lg-inline-block mx-1" title="Anular"><i class="icon-blocked text-danger"></i></a>
+                                    }
+                                    @if (item.TipoRuta == "AC" && item.Estado != "TERMINADO")
+                                    {
+                                        <a href="@Url.Action( "TerminarHojaCargo", "Rutas", new { DocEntry = item.DocEntry,TipoRep="Re", Estado = item.Estado } )" class="btn btn-danger d-none d-lg-inline-block mx-1"><i title="Terminar HC" class="icon-checkmark"></i></a>
+                                    }
+                                    @if (item.TipoRuta == "AC")
+                                    {
+                                        <a href="@Url.Action("ManifiestoCourier", "Rutas", new { DocEntry = item.DocEntry, Estado = item.Estado})" class="btn btn-danger d-none d-lg-inline-block mx-1"><i title="Manifiesto" class="icon-file-pdf"></i></a>
+                                        <a href="@Url.Action("AnularHojaCargo", "Rutas", new { DocEntry = item.DocEntry,TipoRep="Re", Estado = item.Estado } )" class="btn btn-orange d-none d-lg-inline-block mx-1"><i title="Anular Hoja Cargo" class="icon-blocked"></i></a>
+                                    }
+                                </div>
                             </div>
-
-                            @* ============================================================ *@
-                            @* VISTA ESCRITORIO (Visible solo d-none d-lg-block)            *@
-                            @* ============================================================ *@
-                            <div class="d-none d-lg-block">
-                                @* Solo iconos administrativos. Los botones operativos (Ent, Ter, Recibir) están ocultos aquí *@
-
-                                @if (esCreado || esEnviado)
-                                {
-                                    <a href="@Url.Action("EditarHojaDeReparto", "Rutas", new { DocEntry = item.DocEntry, TipoRep = "Re" })" class="btn btn-light btn-sm rounded-circle shadow-sm mx-1" data-toggle="tooltip" title="Editar"><i class="icon-pencil text-primary"></i></a>
-                                }
-
-                                <a href="@Url.Action( "DocumentoRutas", "Rutas", new { DocEntry = item.DocEntry, TipoRuta = item.TipoRuta } )" class="btn btn-light btn-sm rounded-circle shadow-sm mx-1" data-toggle="tooltip" title="Pdf"><i class="icon-file-pdf text-danger"></i></a>
-
-                                <a href="@Url.Action("SeguimientoRepartoRutas", "Rutas", new { DocEntry = item.DocEntry, Vista="REPARTOS" })" class="btn btn-light btn-sm rounded-circle shadow-sm mx-1 text-dark" data-toggle="tooltip" title="Seguimiento"><i class="icon-truck"></i></a>
-
-                                @if (tipoRuta == "TA")
-                                {
-                                    <a href="@Url.Action( "AnularOrdenDeRuta", "Rutas", new { DocEntry = item.DocEntry,TipoRep="Re", Estado = item.Estado } )" class="btn btn-light btn-sm mx-1" title="Anular"><i class="icon-blocked text-danger"></i></a>
-                                }
-
-                                @if (tipoRuta == "AC" && estado != "TERMINADO")
-                                {
-                                    <a href="@Url.Action( "TerminarHojaCargo", "Rutas", new { DocEntry = item.DocEntry,TipoRep="Re", Estado = item.Estado } )" class="btn btn-danger btn-sm mx-1"><i title="Terminar HC" class="icon-checkmark"></i></a>
-                                }
-
-                                @if (tipoRuta == "AC")
-                                {
-                                    <a href="@Url.Action("ManifiestoCourier", "Rutas", new { DocEntry = item.DocEntry, Estado = item.Estado})" class="btn btn-danger btn-sm mx-1"><i title="Manifiesto" class="icon-file-pdf"></i></a>
-                                    <a href="@Url.Action("AnularHojaCargo", "Rutas", new { DocEntry = item.DocEntry,TipoRep="Re", Estado = item.Estado } )" class="btn btn-orange btn-sm mx-1"><i title="Anular Hoja Cargo" class="icon-blocked"></i></a>
-                                }
-                            </div>
-
                         </td>
                     </tr>
                 }
@@ -366,13 +336,13 @@
     </div>
 </form>
 
-@* MODAL INICIAR (Para rutas normales) *@
+@* MODAL INICIAR *@
 <div class="modal" id="M1" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
-            <div class="modal-header bg-headerModals text-white">
-                <h5 class="modal-title" id="exampleModalLabel">INICIAR REPARTO</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span class="text-white" aria-hidden="true">&times;</span></button>
+            <div id="M1Header" class="modal-header bg-headerModals text-white">
+                <h5 class="modal-title" id="M1Titulo">INICIAR REPARTO</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span class="text-white">&times;</span></button>
             </div>
             <div class="modal-body bg-light">
                 <form id="formIni">
@@ -380,7 +350,7 @@
                         <label class="bg-cobefar text-white font-weight-bold px-3 py-2 font-18 rounded" id="M1DocNum"></label>
                         <input type="hidden" name="DocEntry" id="M1DocEntry" readonly>
                     </div>
-                    <div class="form-group">
+                    <div class="form-group" id="M1BloqueTemp">
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <div class="border p-3 rounded bg-white">
@@ -418,7 +388,7 @@
         <div class="modal-content">
             <div class="modal-header bg-cobefar text-white">
                 <h5 class="modal-title" id="exampleModalLabel">¿Terminar Reparto?</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span class="text-white" aria-hidden="true">&times;</span></button>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span class="text-white">&times;</span></button>
             </div>
             <div class="modal-body bg-light">
                 <form id="formTer">
