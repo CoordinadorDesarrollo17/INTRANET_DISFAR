@@ -7,18 +7,18 @@
     {
         fondo = "#90FBED";
     }
-    else if (Model.LugarDestino == "Agencia" || Model.LugarDestino == "Agencia Courier" || Model.LugarDestino == "Domicilio")
+    else if (Model.LugarDestino == "Agencia" || Model.LugarDestino == "Agencia Courier")
     {
         fondo = "#F3FF00";
+    }
+    else if (Model.LugarDestino == "Domicilio")
+    {
+        fondo = "#FFFFFF";
     }
     else if (Model.LugarDestino == "Arriola")
     {
         fondo = "#FD932A";
     }
-    // Lista de destinos que requieren Film para MARVISUR
-    var destinosFilm = new[] { "TINGO MARÍA", "TOCACHE", "AGUAYTÍA", "PUCALLPA",
-                               "CHACHAPOYAS", "RIOJA", "TARAPOTO", "JUANJUÍ",
-                               "YURIMAGUAS", "NAUTA", "IQUITOS" };
 
     // Obtenemos el distrito actual
     string distritoDestino = "";
@@ -28,26 +28,6 @@
         distritoDestino = Model.Det3[0].Distrito?.ToUpper().Trim() ?? "";
     }
 
-    bool esDestinoEspecial = destinosFilm.Contains(distritoDestino);
-    bool mostrarObligatorio = false;
-
-    // Caso normal: si isFill == 1, mostrar obligatorio
-    if (Model.LugarDestino == "Agencia" && Model.isFill == 1)
-    {
-        mostrarObligatorio = true;
-    }
-
-    // Si es MARVISUR y NO está en la lista → NO obligatorio
-    if (Model.LugarDestino == "Agencia" && Model.Agencia == "MARVISUR" && !esDestinoEspecial)
-    {
-        mostrarObligatorio = false;
-    }
-
-    // Si es MARVISUR y está en la lista → SÍ obligatorio (aunque isFill sea 0)
-    if (Model.LugarDestino == "Agencia" && Model.Agencia == "MARVISUR" && esDestinoEspecial)
-    {
-        mostrarObligatorio = true;
-    }
 }
 <!DOCTYPE html>
 
@@ -61,28 +41,29 @@
         <tr style="background:@fondo">
             <td>
                 <strong>@Html.DisplayNameFor(model => model.LugarDestino): </strong>
-
-                @if (Model.LugarDestino == "Agencia" && !string.IsNullOrWhiteSpace(Model.Agencia))
+                @if (Model.LugarDestino.ToUpper() == "AGENCIA" || Model.LugarDestino.ToUpper() == "AGENCIA COURIER")
                 {
-                    @Model.LugarDestino <span> - </span> @Model.Agencia
+                    <text>PROVINCIA</text>
                 }
                 else
                 {
-                    @Html.DisplayFor(model => model.LugarDestino)
+                    @Html.DisplayFor(m => m.LugarDestino)
                 }
             </td>
-            <td style="text-align:center;"><strong>@Html.DisplayNameFor(model => model.Zona): </strong><br />@Model.Zona</td>
+            <td style="text-align:center;">
+                <strong>@Html.DisplayNameFor(model => model.Zona): </strong><br />
+                @if (Model.Zona.ToUpper() == "AGENCIA" || Model.LugarDestino.ToUpper() == "AGENCIA COURIER")
+                {
+                    <text>PROVINCIA</text>
+                }
+                else
+                {
+                    @Model.Zona
+                }
+         
+            </td>
         </tr>
 
-        @if (mostrarObligatorio)
-        {
-            <tr style="background:@fondo">
-                <td colspan="2" style="text-align:center;">
-                    <strong>Film: </strong>
-                    <span style="color:red;font-weight:bold;">OBLIGATORIO</span>
-                </td>
-            </tr>
-        }
 
         <tr style="background:@fondo">
             <td width="30%"><strong>@Html.DisplayNameFor(model => model.DocNum): </strong></td>
