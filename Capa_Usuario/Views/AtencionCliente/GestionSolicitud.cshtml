@@ -198,7 +198,10 @@
                                 <option value="Interno-Externo" @(ViewBag.Osat.Factor == "Interno-Externo" ? "selected" : "")>Interno-Externo</option>
                             </select>
                         </th>
-
+                        <th>
+                            DocFact<br />
+                            <input type="text" name="DocFact" id="doc_fact" style="width: 150px;" class="form-control-sm border input_cls-estandar" onchange="filtrar();" value="@f.DocFact" />
+                        </th>
                         <th></th>
                     </tr>
                 </thead>
@@ -216,7 +219,7 @@
                             <td class="text-center @(((item.Estado == "Registrado" || item.Estado == "Proceso" || item.Estado == "Atendido") && item.DiasRetraso > 2) ? "text-rojo" : "")">@item.DiasRetraso</td>
                             <td class="text-center">@Html.DisplayFor(modelItem => item.Tipo)</td>
                             <td class="text-center">@Html.DisplayFor(modelItem => item.Factor)</td>
-                            @*<td class="text-center">@item.enlistarDetSolicitudes()</td>*@
+                            <td class="text-center">@item.enlistarDetSolicitudes()</td>
                             <td style="width: 20px">
                                 <div class="btn-group-inline">
                                     <a href="@Url.Action("DetallesSolicitud", "AtencionCliente", new { id = item.DocEntry })" class="btn btn-sm btn-light" data-toggle="tooltip" data-placement="top" title="Detalles Solicitud">
