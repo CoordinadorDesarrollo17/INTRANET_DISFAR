@@ -74,6 +74,7 @@ namespace Capa_Entidad.Rutas_ENT.TablasSql
         public decimal MontoTotalIni { get; set; }
         public decimal MontoTotalFin { get; set; }
         public string CardCode { get; set; }
+        public string Factura { get; set; }
         public class RptRutas
         {
             public string TransDesc { get; set; }
@@ -194,6 +195,18 @@ namespace Capa_Entidad.Rutas_ENT.TablasSql
             public decimal Peso { get; set; }
             public string UniMed { get; set; }
             public decimal PrecioEnv { get; set; }
+        }
+        public class RptRutasExcel
+        {
+            public string Guias { get; set; }
+            public string Factura { get; set; }
+            public int OrdenCompra { get; set; }
+            public string Ruc { get; set; }
+            public string Direccion { get; set; }
+            public string Departamento { get; set; }
+            public decimal Peso { get; set; }
+            public int DocEntry { get; set; }
+            public int Cajas { get; set; }
         }
     }
 }

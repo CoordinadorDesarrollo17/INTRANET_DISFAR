@@ -296,8 +296,10 @@ namespace Capa_Datos.ComprobantesContables_ENT
                                 if (!hdr.IsDBNull(23)) { c.Licencia = hdr.GetString(23); }
                                 if (!hdr.IsDBNull(24)) { c.Marca = hdr.GetString(24); }
                                 if (!hdr.IsDBNull(25)) { c.Placa = hdr.GetString(25); }
-                                if (!hdr.IsDBNull(26)) { c.TipoComprobantePago = hdr.GetString(26); }
-                                if (!hdr.IsDBNull(27)) { c.NroComprobantePago = hdr.GetString(27); }
+                                if (!hdr.IsDBNull(27)) { c.TipoComprobantePago = hdr.GetString(27); }
+                                if (!hdr.IsDBNull(28)) { c.NroComprobantePago = hdr.GetString(28); }
+                                if (!hdr.IsDBNull(29)) { c.RucTransportista = hdr.GetString(29); }
+                                if (!hdr.IsDBNull(30)) { c.NomTransportista = hdr.GetString(30); }
                                 lista.Add(c);
                             }
                         }

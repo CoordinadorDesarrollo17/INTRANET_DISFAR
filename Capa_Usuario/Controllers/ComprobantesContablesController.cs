@@ -326,6 +326,8 @@ namespace Capa_Usuario.Controllers
             var guia = ObtenerGuia(NumAtCard, Tabla, "Cuerpo");
             ORTV_N ortvN = new ORTV_N();
             ViewBag.PersonaRecojo = ortvN.obtenerPersonaRecojoParaGuia(DocNumTicket);
+            ViewBag.PesoTicket = ortvN.PesoTicket(DocNumTicket);
+            ViewBag.NroCajas = ortvN.DatosTicket(DocNumTicket).Cajas;
             ViewBag.Tipo = Tabla.Equals("OWTR") ? "T" : "E";
             return View(guia);
         }

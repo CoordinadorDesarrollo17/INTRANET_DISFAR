@@ -1873,9 +1873,9 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
             }
             return info;
         }
-        public (string Persona, string Documento) ObtenerPersonaRecojoParaGuia(int docNum)
+        public (string Persona, string Documento, string telefono) ObtenerPersonaRecojoParaGuia(int docNum)
         {
-            string Persona = ""; string Documento = "";
+            string Persona = ""; string Documento = ""; string telefono = "";
             int docEntry = DocEntryTicket(docNum);
             var tk = ObtenerTicketVenta(docEntry);
             if (tk.LugarDestino.Equals("Domicilio") || tk.LugarDestino.Equals("Agencia"))
@@ -1883,8 +1883,9 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                 List<RTV1_E> rtv1 = obtenerDet1Ticket(docEntry);
                 Persona = rtv1[0].NombrePer;
                 Documento = rtv1[0].DocPer;
+                telefono = rtv1[0].TelfPer;
             }
-            return (Persona, Documento);
+            return (Persona, Documento, telefono);
         }
         public (string HtmlContent, string TipoVenta) GeneraInfoListaOrdenesDeVenta(string fecha, string cardCode, int docNum)
         {
@@ -2479,10 +2480,12 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                                         "CONVERT(varchar, T0.TiempoEntrega , 103) AS 'FECHA ESTIMADA ENTREGA', CONVERT(varchar, T0.TiempoEntrega , 8) AS 'HORA ESTIMADA ENTREGA', T1.LugarDeEntrega AS 'LUGAR ENTREGA', T0.NroMesa AS 'NRO MESA', " +
                                         "(SELECT STUFF((SELECT ', ' + cast(t1.AlmacenSalida as varchar(max)) FROM vt.RTV2 t1 INNER JOIN  vt.ORTV x ON x.DocEntry = t1.DocEntry WHERE t1.DocEntry = t0.DocEntry FOR XML PATH('')), 1,2, '')) AS 'ALMACEN SALIDA',T0.Comentario," +
                                         "(SELECT TOP 1 C.Comentario FROM vt.ComentarioFac C WHERE C.DocEntry = T0.DocEntry ORDER BY C.DocEntry DESC) AS 'COMENTARIO FAC', "+
-                                        "T0.Zona, T0.DirDestino, PesadoPedido.PesoTotal, CONVERT (varchar, T0.FechaPago, 103) AS 'FechaPagoVenta', CONVERT (varchar, T0.HoraPago, 108) AS 'HoraPagoVenta' " +
-                                        //"(Select top 1 CONVERT(varchar, FechaOperacion , 103) from vt.CC_ORTV where DocEntry=T0.DocEntry and Operacion='PREENVIAR' order by FechaOperacion,HoraOperacion desc ), " +
-                                        //"(Select top 1 CONVERT(varchar, FechaOperacion , 103) from vt.CC_ORTV where DocEntry=T0.DocEntry and Operacion='ENVIAR' order by FechaOperacion,HoraOperacion desc ) " +
-                                        "FROM VT.ORTV T0 INNER JOIN VT.RTV2 T1 ON T0.DocEntry=T1.DocEntry " +
+                                        "T0.Zona, T0.DirDestino,RTV3.Calle,RTV3.Distrito,RTV3.Provincia,RTV3.Departamento, PesadoPedido.PesoTotal, CONVERT (varchar, T0.FechaPago, 103) AS 'FechaPagoVenta', CONVERT (varchar, T0.HoraPago, 108) AS 'HoraPagoVenta', T0.TipoVenta " +
+                                        "FROM VT.ORTV T0 INNER JOIN VT.RTV2 T1 ON T0.DocEntry=T1.DocEntry  " +
+                                        "OUTER APPLY ( " + "" +
+                                            "SELECT TOP 1 T3.Calle, T3.Distrito, T3.Departamento,T3.Provincia FROM VT.RTV3 T3 "+  
+                                            "WHERE T3.DocEntry = T0.DocEntry AND T3.IdDireccion = 2"+
+                                            ") RTV3 " +
                                         "OUTER APPLY ( " +
                                             "SELECT TOP 1 SUM(peso) AS 'PesoTotal' FROM VT.RTV6  " +
                                             "WHERE DocEntry = T0.DocEntry " +
@@ -2563,9 +2566,14 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                             if (!dr.IsDBNull(60)) { rpt.ComentarioFac = dr.GetString(60); }
                             if (!dr.IsDBNull(61)) { rpt.ZonaVenta = dr.GetString(61); }
                             if (!dr.IsDBNull(62)) { rpt.DirDestinoVenta = dr.GetString(62); }
-                            if (!dr.IsDBNull(63)) { rpt.PesoTotalPedido = dr.GetDecimal(63); }
-                            if (!dr.IsDBNull(64)) { rpt.FechaPagoTicket = dr.GetString(64); }
-                            if (!dr.IsDBNull(65)) { rpt.HoraPagoTicket = dr.GetString(65); }
+                            if (!dr.IsDBNull(63)) { rpt.Calle2 = dr.GetString(63); }
+                            if (!dr.IsDBNull(64)) { rpt.Distrito2 = dr.GetString(64); }
+                            if (!dr.IsDBNull(65)) { rpt.Provincia2 = dr.GetString(65); }
+                            if (!dr.IsDBNull(66)) { rpt.Departamento2 = dr.GetString(66); }
+                            if (!dr.IsDBNull(67)) { rpt.PesoTotalPedido = dr.GetDecimal(67); }
+                            if (!dr.IsDBNull(68)) { rpt.FechaPagoTicket = dr.GetString(68); }
+                            if (!dr.IsDBNull(69)) { rpt.HoraPagoTicket = dr.GetString(69); }
+                            if (!dr.IsDBNull(70)) { rpt.TipoVenta = dr.GetString(70); }
                             lista.Add(rpt);
                         }
                     }
@@ -3083,7 +3091,7 @@ AND YEAR(T0.FechaSapTicket) = 2025 AND ((SELECT  Estado FROM vt.BusquedaProducto
             try
             {
                 cn.Open();
-                SqlCommand cmd = new SqlCommand("select DocEntry,DocNum,DirDestino,Referencia,Cajas,EnvioAgencia,Estado from vt.ORTV where DocEntry=" + DocEntry, cn);
+                SqlCommand cmd = new SqlCommand("select DocEntry,DocNum,DirDestino,Referencia,Cajas,EnvioAgencia,Estado, Cardname from vt.ORTV where DocEntry=" + DocEntry, cn);
                 cmd.CommandType = CommandType.Text;
                 SqlDataReader dr = cmd.ExecuteReader();
                 dr.Read();
@@ -3094,6 +3102,7 @@ AND YEAR(T0.FechaSapTicket) = 2025 AND ((SELECT  Estado FROM vt.BusquedaProducto
                 if (!dr.IsDBNull(4)) { t.Cajas = dr.GetInt32(4); }
                 if (!dr.IsDBNull(5)) { t.EnvioAgencia = dr.GetString(5); }
                 if (!dr.IsDBNull(6)) { t.Estado = dr.GetString(6); }
+                if (!dr.IsDBNull(7)) { t.Estado = dr.GetString(7); }
                 dr.Close();
                 cn.Close();
                 t.Det1 = obtenerDet1Ticket(DocEntry); if (t.Det1.Count == 0) { t.Det1 = null; }       //Persona de recojo
@@ -3678,10 +3687,11 @@ AND YEAR(T0.FechaSapTicket) = 2025 AND ((SELECT  Estado FROM vt.BusquedaProducto
                 if (user.IdRol == 53)
                 {
                     if (t.DocNum == 0 && t.FechaSapTicket == null && t.CardName == null && t.Vendedor == null && t.MontoFinal == 0 && t.Estado == null
-                    && t.EstadoFacturacion == null && t.EstadoPago == null && t.TipoVenta == null && t.TiempoEntrega == null && t.Zona == null)
+                    && t.EstadoFacturacion == null && t.EstadoPago == null && t.TipoVenta == null && t.TiempoEntrega == null && t.Zona == null && t.LugarDestino == null)
                     {
                         condWhere += $" AND t0.Estado in ( 'PICKEANDO','VERIFICANDO','EMPACANDO','EMPACADO','PESADO','ENVIADO','PREENVIO','ENTREGADO') " +
-                            $"AND t0.EstadoFacturacion in ('GRE EMITIDA','FACTURADO') AND t0.LugarDestino='{t.LugarDestino}'";
+                            //$"AND t0.EstadoFacturacion in ('GRE EMITIDA','FACTURADO') AND t0.LugarDestino='{t.LugarDestino}'";
+                            $"AND t0.EstadoFacturacion in ('GRE EMITIDA','FACTURADO')";
                     }
                     else
                     {
@@ -3865,6 +3875,81 @@ AND YEAR(T0.FechaSapTicket) = 2025 AND ((SELECT  Estado FROM vt.BusquedaProducto
                 resultado = -1; // -1 indica error
             }
             return resultado;
+        }
+
+        public int RevertirAsignacionRegalo(int docEntry, ORTV_E ticket)
+        {
+            if (ticket == null) throw new ArgumentNullException(nameof(ticket));
+            int resultado = 0;
+            SqlConnection cn = null;
+            SqlCommand cmd = null;
+            try
+            {
+                cn = new SqlConnection(new Utilitarios().cadSql);
+                cmd = new SqlCommand("vt.MANT_OREG", cn)
+                {
+                    CommandType = CommandType.StoredProcedure
+                };
+
+                cmd.Parameters.AddWithValue("@TipoMantenimiento", "REVASIG");
+                var pId = new SqlParameter("@Id", SqlDbType.Int) { Direction = ParameterDirection.Output };
+                cmd.Parameters.Add(pId);
+
+                cmd.Parameters.AddWithValue("@OpRegistro", ticket.Operario ?? string.Empty);
+                cmd.Parameters.AddWithValue("@Detalle", ticket.DocNum.ToString());
+
+                var tvp = new DataTable();
+                tvp.Columns.Add("IdReg", typeof(int));
+                tvp.Columns.Add("StockComp", typeof(decimal));
+                cmd.Parameters.Add(new SqlParameter("@TablaDatos", SqlDbType.Structured)
+                {
+                    TypeName = "dbo.TbDatosReg",
+                    Value = tvp
+                });
+
+                cn.Open();
+                cmd.ExecuteNonQuery();
+                resultado = pId.Value != DBNull.Value ? (int)pId.Value : 0;
+            }
+            catch (SqlException ex)
+            {
+                throw new Exception("Error al revertir la asignación de regalo: " + ex.Message, ex);
+            }
+            return resultado;
+        }
+
+        public string PesoTicket(int docnum)
+        {
+            int docEntry = DocEntryTicket(docnum);
+            string peso = "";
+            try
+            {
+                using (SqlConnection cn = new SqlConnection(uti.cadSql))
+                {
+                    cn.Open();
+                    string query = "SELECT SUM(Peso) FROM vt.RTV6 WHERE DocEntry = @DocEntry";
+                    using (SqlCommand cmd = new SqlCommand(query, cn))
+                    {
+                        cmd.Parameters.AddWithValue("@DocEntry", docEntry);
+                        object valor = cmd.ExecuteScalar();
+                        if (valor != null && valor != DBNull.Value)
+                        {
+                            peso = Convert.ToString(valor);
+                        }
+                        else
+                        {
+                            peso = "0";
+                        }
+                    }
+                    cn.Close();
+                }
+            }
+            catch (Exception ex)
+            {
+                // Puedes registrar el error si tienes un logger
+                peso = "-1"; // -1 indica error
+            }
+            return peso;
         }
 
     }

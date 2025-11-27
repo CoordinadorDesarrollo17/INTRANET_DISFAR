@@ -1256,5 +1256,72 @@ namespace Capa_Datos.Rutas_DAO.TablasSql
             }
             return filas > 0;
         }
+
+        public List<ORRU_E.RptRutasExcel> ObtenerRptRutasExcel(int docEntry)
+        {
+            var lista = new List<ORRU_E.RptRutasExcel>();
+            string query = @"
+        SELECT 
+            T0.Guias,
+            T0.DocNumTicket,
+            T5.CardCode,
+            T4.Calle,
+            CONCAT(T4.Departamento, ', ', T4.Provincia, ', ', T4.Distrito) AS Departamento,
+            SUM(T3.Peso) AS Peso,
+            T0.DocEntryTicket,
+            T0.Cajas
+        FROM al.RRU0 T0
+        LEFT OUTER JOIN vt.RTV6 T3 ON T3.DocEntry = T0.DocEntryTicket
+        LEFT OUTER JOIN vt.RTV3 T4 ON T4.DocEntry = T0.DocEntryTicket
+        LEFT OUTER JOIN vt.ORTV T5 ON T5.DocEntry = T0.DocEntryTicket
+        WHERE T0.DocEntry = @DocEntry
+        GROUP BY 
+            T0.Guias,
+            T0.DocNumTicket,
+            T5.CardCode,
+            T4.Calle,
+            T4.Departamento,
+            T4.Provincia,
+            T4.Distrito,
+            T0.DocEntryTicket,
+            T0.Cajas
+        ";
+
+            try
+            {
+                using (var cn = new SqlConnection(uti.cadSql))
+                using (var cmd = new SqlCommand(query, cn))
+                {
+                    cmd.Parameters.AddWithValue("@DocEntry", docEntry);
+                    cn.Open();
+                    using (var dr = cmd.ExecuteReader())
+                    {
+                        while (dr.Read())
+                        {
+                            var item = new ORRU_E.RptRutasExcel();
+                            if (!dr.IsDBNull(0)) item.Guias = dr.GetString(0);
+                            if (!dr.IsDBNull(1)) item.OrdenCompra = dr.GetInt32(1);
+                            if (!dr.IsDBNull(2)) item.Ruc = dr.GetString(2);
+                            if (!dr.IsDBNull(3)) item.Direccion = dr.GetString(3);
+                            if (!dr.IsDBNull(4)) item.Departamento = dr.GetString(4);
+                            if (!dr.IsDBNull(5)) item.Peso = dr.GetDecimal(5);
+                            if (!dr.IsDBNull(6)) item.DocEntry = dr.GetInt32(6);
+                            if (!dr.IsDBNull(7)) item.Cajas = dr.GetInt32(7);
+                            lista.Add(item);
+                        }
+                    }
+                    cn.Close();
+                }
+            }
+            catch (Exception ex)
+            {
+                // Puedes registrar el error si tienes un logger, por ejemplo:
+                // LogHelper.RegistrarError(ex, "Error en ObtenerRptRutasExcel");
+                throw new Exception("Error en ObtenerRptRutasExcel: " + ex.Message, ex);
+            }
+            return lista;
+        }
+
+
     }
 }

@@ -9,6 +9,7 @@ using Capa_Entidad.Ventas_ENT.Reportes;
 using Capa_Entidad.Ventas_ENT.Tablas;
 using Capa_Entidad.Ventas_ENT.TablasSql;
 using Capa_Negocio.Seguridad_NEG.TablasSql;
+using Capa_Negocio.SocioNegocios_NEG.TablasExternas;
 using Capa_Negocio.Ventas_NEG.Tablas;
 using Microsoft.ReportingServices.ReportProcessing.ReportObjectModel;
 using Sap.Data.Hana;
@@ -114,6 +115,8 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
         }
         private void ValidarTicketGeneral(ORTV_E ticket)
         {
+            Capa_Negocio.Ventas_NEG.TablasSql.OCLR_N oclrN = new Capa_Negocio.Ventas_NEG.TablasSql.OCLR_N();
+            var regalo = oclrN.buscarClienteRegalo(ticket.CardCode);
             if (ticket.Det2 == null || !ticket.Det2.Any()) throw new Exception("No puede registrar con detalles vacíos.");
             if (string.IsNullOrWhiteSpace(ticket.FechaSapTicket)) throw new Exception("No eligió la fecha del ticket.");
             if (ticket.DocNum <= 0) throw new Exception("No seleccionó un número de ticket.");
@@ -131,6 +134,14 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
             if (ticket.MontoFinal <= 0) { throw new Exception("No se puede registrar un monto final en cero o negativo."); }
             if (string.IsNullOrEmpty(ticket.TiempoEntrega.ToString()) || ticket.TiempoEntrega == null) { throw new Exception("Debe llenar el tiempo de entrega."); }
             if (!string.IsNullOrEmpty(ticket.Zona) && ticket.Zona.Equals("AGENCIA") && !ticket.LugarDestino.Equals("Agencia")) { throw new Exception("Debe seleccionar Lugar destino Agencia"); }
+            // Busca el regalo correspondiente en la lista de regalos del cliente
+            var regaloCliente = regalo.Det.FirstOrDefault(r => r.IdReg == ticket.Det5[0].IdReg);
+
+            // Verifica si existe y compara la cantidad
+            if (regaloCliente != null && ticket.Det5[0].RegCant > regaloCliente.Cantidad)
+            {
+                throw new Exception("La cantidad solicitada supera el stock disponible del regalo.");
+            }
         }
         private void ValidarPersona(ORTV_E ticket)
         {
@@ -181,10 +192,10 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
         private void ValidarAgencia(ORTV_E ticket)
         {
             if (ticket.Embalaje != "CP") { throw new Exception("El embalaje debe ser Caja Provincia."); }
-            if (string.IsNullOrWhiteSpace(ticket.EnvioAgencia)) throw new Exception("Debe seleccionar el modo de envío.");
-            if (ticket.EnvioAgencia.Equals("Oficina de agencia") && string.IsNullOrWhiteSpace(ticket.Referencia)) throw new Exception("Debe llenar la referencia obligatoriamente.");
-            if (ticket.EnvioAgencia.Equals("Domicilio de cliente") && !string.IsNullOrWhiteSpace(ticket.Referencia)) throw new Exception("No debe llenar la referencia.");
-            if (string.IsNullOrWhiteSpace(ticket.Agencia)) throw new Exception("Debe llenar la agencia.");
+            //if (string.IsNullOrWhiteSpace(ticket.EnvioAgencia)) throw new Exception("Debe seleccionar el modo de envío.");
+            //if (ticket.EnvioAgencia.Equals("Oficina de agencia") && string.IsNullOrWhiteSpace(ticket.Referencia)) throw new Exception("Debe llenar la referencia obligatoriamente.");
+            //if (ticket.EnvioAgencia.Equals("Domicilio de cliente") && !string.IsNullOrWhiteSpace(ticket.Referencia)) throw new Exception("No debe llenar la referencia.");
+            //if (string.IsNullOrWhiteSpace(ticket.Agencia)) throw new Exception("Debe llenar la agencia.");
             if (string.IsNullOrWhiteSpace(ticket.DirDestino)) throw new Exception("Debe llenar la dirección de destino.");
             ValidarPersona(ticket);
             ValidarLugarDeEntrega(ticket, new List<string> { "ALMACÉN N°8", "ALMACÉN FALTANTES", "ALMACÉN N°6 (Ureta)", "ALMACÉN N°3" });
@@ -875,7 +886,7 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
             return ticket;
         }
         // Reformulando metodos
-        public (string Persona, string documento) obtenerPersonaRecojoParaGuia(int docNum)
+        public (string Persona, string documento, string telefono) obtenerPersonaRecojoParaGuia(int docNum)
         {
             return tkD.ObtenerPersonaRecojoParaGuia(docNum);
         }
@@ -958,7 +969,7 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
 
         public bool GuardarComentario(int docEntry, string comentario)
         {
-            if(comentario.Length > 400) throw new Exception("El comentario no puede tener mas de 400 caracteres");
+            if (comentario.Length > 400) throw new Exception("El comentario no puede tener mas de 400 caracteres");
             return tkD.GuardarComentario(docEntry, comentario);
         }
 
@@ -969,6 +980,22 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
         public int AgenciaFill(string Agencia)
         {
             return tkD.AgenciaFill(Agencia.ToUpper());
+        }
+        public int EditarRegalo(int docEntry, ORTV_E ticket)
+        {
+            return tkD.RevertirAsignacionRegalo(docEntry, ticket);
+        }
+
+        public string PesoTicket(int Docnum)
+        {
+            return tkD.PesoTicket(Docnum);
+        }
+
+        public ORTV_E DatosTicket(int Docnum)
+        {
+            int docEntry = DocEntryTicket(Docnum);
+            ORTV_E t = tkD.ObtenerDatosCompletosTicket(docEntry);
+            return t;
         }
     }
 }
