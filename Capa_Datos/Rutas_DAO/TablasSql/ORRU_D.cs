@@ -1365,7 +1365,7 @@ namespace Capa_Datos.Rutas_DAO.TablasSql
                 FROM " + uti.schemaHana + @"ORRR T0
                 WHERE T0.""CardCode"" = '" + cardCode + @"'
                   AND T0.""DocDate"" = '" + fechaFormato + @"'
-                   AND TO.""CANCELED"" = 'N'
+                   AND T0.""CANCELED"" = 'N'
                 ORDER BY T0.""DocNum"" DESC";
 
             try

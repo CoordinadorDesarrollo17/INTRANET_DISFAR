@@ -13,8 +13,6 @@
         nombreSocio = Model.DetRRU0[0].Socio;
     }
 
-    // El Código lo dejaremos vacío inicialmente si no viene en el modelo,
-    // y dejaremos que el JavaScript lo busque automáticamente.
     string codigoSocio = Model.CardCode;
 
     List<OWHS_E> lstOriDest = (List<OWHS_E>)ViewBag.ListaOrigenesDestinos;
@@ -128,251 +126,260 @@
 
         @using (Html.BeginForm("EditarHojaDeReparto", "Rutas", FormMethod.Post, new { id = "form" }))
         {
-            @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
 
-            <input name="DocEntry" id="doc_entry" type="hidden" value="@Model.DocEntry" readonly />
-            <input name="DocNum" type="hidden" value="@Model.DocNum" readonly />
-            <input name="TipoRep" type="hidden" value="DE" readonly />
-            <input name="TipoRuta" type="hidden" value="DE" readonly />
-            <input name="Estado" type="hidden" value="@Model.Estado" readonly />
+        <input name="DocEntry" id="doc_entry" type="hidden" value="@Model.DocEntry" readonly />
+        <input name="DocNum" type="hidden" value="@Model.DocNum" readonly />
+        <input name="TipoRep" type="hidden" value="DE" readonly />
+        <input name="TipoRuta" type="hidden" value="DE" readonly />
+        <div class="row mb-2">
+            <div class="col-lg-2 col-md-3">
+                <label class="form-label-custom">Tipo de ruta:</label>
+                <select class="form-control form-control-custom bg-green-custom border-0" disabled>
+                    <option>Devolución</option>
+                </select>
+            </div>
 
-            <div class="row mb-2">
-                <div class="col-lg-2 col-md-3">
-                    <label class="form-label-custom">Tipo de ruta:</label>
-                    <select class="form-control form-control-custom bg-green-custom border-0" disabled>
-                        <option>Devolución</option>
-                    </select>
-                </div>
+            <div class="col-lg-2 col-md-3">
+                <label class="form-label-custom">Estado:</label>
+                @Html.EditorFor(model => model.Estado, new { htmlAttributes = new { @class = "form-control form-control-custom font-weight-bold text-center text-primary", @readonly = "true" } })
+            </div>
 
-                <div class="col-lg-8 col-md-6">
-                    <label class="form-label-custom">Cliente (Asignado):</label>
-                    <input type="text" id="CardName" name="CardName"
-                           class="form-control form-control-custom font-weight-bold text-dark"
-                           value="@nombreSocio" readonly />
-                </div>
+            <div class="col-lg-6 col-md-6">
+                <label class="form-label-custom">Cliente (Asignado):</label>
+                <input type="text" id="CardName" name="CardName"
+                       class="form-control form-control-custom font-weight-bold text-dark"
+                       value="@nombreSocio" readonly />
+            </div>
 
-                <div class="col-lg-2 col-md-3">
-                    <label class="form-label-custom">Código:</label>
-                    <div class="input-group">
-                        <input type="text" id="CardCode" name="CardCode"
-                               class="form-control form-control-custom text-center bg-light"
-                               value="@codigoSocio" readonly />
-                        <div class="input-group-append d-none" id="loadingCode">
-                            <span class="input-group-text bg-white border-0"><i class="spinner-border spinner-border-sm text-success"></i></span>
-                        </div>
+            <div class="col-lg-2 col-md-3">
+                <label class="form-label-custom">Código:</label>
+                <div class="input-group">
+                    <input type="text" id="CardCode" name="CardCode"
+                           class="form-control form-control-custom text-center bg-light"
+                           value="@codigoSocio" readonly />
+                    <div class="input-group-append d-none" id="loadingCode">
+                        <span class="input-group-text bg-white border-0"><i class="spinner-border spinner-border-sm text-success"></i></span>
                     </div>
                 </div>
             </div>
+        </div>
 
-            <div class="row mb-2">
-                <div class="col-lg-2 col-md-3">
-                    <label class="form-label-custom">Fecha:</label>
-                    <input type="date" name="FechaCont" id="FechaSapTicket" class="form-control form-control-custom"
-                           value="@(Model.FechaCont.HasValue ? Model.FechaCont.Value.ToString("yyyy-MM-dd") : "")" />
-                </div>
-                <div class="col-lg-4 col-md-4">
-                    <label class="form-label-custom">Almacén Destino:</label>
-                    <input type="hidden" id="AlmDestinoCod" name="AlmDestinoCod" value="@Model.AlmDestinoCod" />
-                    <input type="hidden" id="AlmDestinoDesc2" name="AlmDestinoDesc2" value="@Model.AlmDestinoDesc2" />
-                    <select name="AlmDestinoDesc" id="AlmDestinoDesc" class="form-control form-control-custom bg-green-custom border-0">
-                        <option value="DOMICILIOS" almdestinocod="08" almdestinodesc2="" @if (Model.AlmDestinoDesc == "DOMICILIOS") { Write("selected"); }>DOMICILIOS</option>
-                        @foreach (var l in lstOriDest.Where(x => x.WhsCode == "09" || x.WhsCode == "01"))
+        <div class="row mb-2">
+            <div class="col-lg-2 col-md-3">
+                <label class="form-label-custom">Fecha:</label>
+                <input type="date" name="FechaCont" id="FechaSapTicket" class="form-control form-control-custom"
+                       value="@(Model.FechaCont.HasValue ? Model.FechaCont.Value.ToString("yyyy-MM-dd") : "")" />
+            </div>
+            <div class="col-lg-4 col-md-4">
+                <label class="form-label-custom">Almacén Destino:</label>
+                <input type="hidden" id="AlmDestinoCod" name="AlmDestinoCod" value="@Model.AlmDestinoCod" />
+                <input type="hidden" id="AlmDestinoDesc2" name="AlmDestinoDesc2" value="@Model.AlmDestinoDesc2" />
+                <select name="AlmDestinoDesc" id="AlmDestinoDesc" class="form-control form-control-custom bg-green-custom border-0">
+                    <option value="DOMICILIOS" almdestinocod="08" almdestinodesc2="" @if (Model.AlmDestinoDesc == "DOMICILIOS") { Write("selected"); }>DOMICILIOS</option>
+                    @foreach (var l in lstOriDest.Where(x => x.WhsCode == "09" || x.WhsCode == "01"))
                         {
-                            <option value="@l.WhsName" almdestinocod="@l.WhsCode" almdestinodesc2="@(l.Street+" "+l.StreetNo+" "+l.Building+" "+l.Block+" "+l.City+" "+l.County)" @if (Model.AlmDestinoDesc == l.WhsName) { Write("selected"); }>@l.WhsName</option>
+                    <option value="@l.WhsName" almdestinocod="@l.WhsCode" almdestinodesc2="@(l.Street+" "+l.StreetNo+" "+l.Building+" "+l.Block+" "+l.City+" "+l.County)" @if (Model.AlmDestinoDesc == l.WhsName) { Write("selected"); }>@l.WhsName</option>
                         }
-                        @foreach (var l in lstOriDest.Where(x => x.WhsCode == "16" || x.WhsCode == "ALM07" || x.WhsCode == "03"))
+                    @foreach (var l in lstOriDest.Where(x => x.WhsCode == "16" || x.WhsCode == "ALM07" || x.WhsCode == "03"))
                         {
-                            <option value="@l.WhsName" almdestinocod="@l.WhsCode" almdestinodesc2="@(l.Street+" "+l.StreetNo+" "+l.Building+" "+l.Block+" "+l.City+" "+l.County)" @if (Model.AlmDestinoDesc == l.WhsName) { Write("selected"); }>@l.WhsName</option>
+                    <option value="@l.WhsName" almdestinocod="@l.WhsCode" almdestinodesc2="@(l.Street+" "+l.StreetNo+" "+l.Building+" "+l.Block+" "+l.City+" "+l.County)" @if (Model.AlmDestinoDesc == l.WhsName) { Write("selected"); }>@l.WhsName</option>
                         }
-                    </select>
-                </div>
-                <div class="col-lg-2 col-md-2">
-                    <label class="form-label-custom">Placa:</label>
-                    <select name="Placa" id="Placa" class="form-control form-control-custom bg-green-custom border-0">
-                        <option value="">Seleccione</option>
-                        @foreach (var t in Vehiculos)
+                </select>
+            </div>
+            <div class="col-lg-2 col-md-2">
+                <label class="form-label-custom">Placa:</label>
+                <select name="Placa" id="Placa" class="form-control form-control-custom bg-green-custom border-0">
+                    <option value="">Seleccione</option>
+                    @foreach (var t in Vehiculos)
                         {
-                            <option value="@t.U_SYP_VEPL" data-code="@t.Code" data-marca="@t.U_SYP_VEMA" data-modelo="@t.U_SYP_VEMO" @if (Model.Placa == t.U_SYP_VEPL) { Write("selected"); }>@t.U_SYP_VEPL</option>
+                    <option value="@t.U_SYP_VEPL" data-code="@t.Code" data-marca="@t.U_SYP_VEMA" data-modelo="@t.U_SYP_VEMO" @if (Model.Placa == t.U_SYP_VEPL) { Write("selected"); }>@t.U_SYP_VEPL</option>
                         }
-                    </select>
-                    <input type="hidden" id="VehiculoCod" name="VehiculoCod" value="@Model.VehiculoCod" />
-                    <input type="hidden" id="Marca" name="Marca" value="@Model.Marca" />
-                    <input type="hidden" id="Modelo" name="Modelo" value="@Model.Modelo" />
-                </div>
-                <div class="col-lg-4 col-md-3">
-                    <label class="form-label-custom">Conductor:</label>
-                    <select name="TransDesc" id="TransDesc" class="form-control form-control-custom bg-green-custom border-0">
-                        <option value="">Seleccione</option>
-                        @foreach (var x in Conductores)
+                </select>
+                <input type="hidden" id="VehiculoCod" name="VehiculoCod" value="@Model.VehiculoCod" />
+                <input type="hidden" id="Marca" name="Marca" value="@Model.Marca" />
+                <input type="hidden" id="Modelo" name="Modelo" value="@Model.Modelo" />
+            </div>
+            <div class="col-lg-4 col-md-3">
+                <label class="form-label-custom">Conductor:</label>
+                <select name="TransDesc" id="TransDesc" class="form-control form-control-custom bg-green-custom border-0">
+                    <option value="">Seleccione</option>
+                    @foreach (var x in Conductores)
                         {
-                            <option value="@x" @if (Model.TransDesc == x) { Write("selected"); }>@x</option>
-}
-                    </select>
-                </div>
+                    <option value="@x" @if (Model.TransDesc == x) { Write("selected"); }>@x</option>
+                        }
+                </select>
+            </div>
+        </div>
+
+        <div class="row mb-3">
+            <div class="col-lg-2 col-md-3">
+                <label class="form-label-custom">Tiempo Pactado:</label>
+                <input type="datetime-local" class="form-control form-control-custom text-center" name="TiempoPac" id="TiempoPac"
+                       value="@(Model.TiempoPac.HasValue ? Convert.ToDateTime(Model.TiempoPac).ToString("yyyy-MM-ddTHH:mm:ss") : "")" />
             </div>
 
-            <div class="row mb-3">
-                <div class="col-lg-2 col-md-3">
-                    <label class="form-label-custom">Tiempo Pactado:</label>
-                    <input type="datetime-local" class="form-control form-control-custom text-center" name="TiempoPac" id="TiempoPac"
-                           value="@(Model.TiempoPac.HasValue ? Convert.ToDateTime(Model.TiempoPac).ToString("yyyy-MM-ddTHH:mm:ss") : "")" />
-                </div>
-
-                <div class="col-lg-2 col-md-3">
-                    <label class="form-label-custom">Copiloto 1:</label>
-                    @Html.EditorFor(model => model.CopilDesc, new { htmlAttributes = new { @class = "form-control form-control-custom", @list = "ListaCopilotos" } })
-                    <datalist id="ListaCopilotos">
-                        @foreach (var x in Copilotos)
+            <div class="col-lg-2 col-md-3">
+                <label class="form-label-custom">Copiloto 1:</label>
+                @Html.EditorFor(model => model.CopilDesc, new { htmlAttributes = new { @class = "form-control form-control-custom", @list = "ListaCopilotos" } })
+                <datalist id="ListaCopilotos">
+                    @foreach (var x in Copilotos)
                         {
-                            <option value="@x.ToUpper()"></option>
-}
-                    </datalist>
-                </div>
-
-                <div class="col-lg-2 col-md-3">
-                    <label class="form-label-custom">Copiloto 2:</label>
-                    @Html.EditorFor(model => model.Copil2Desc, new { htmlAttributes = new { @class = "form-control form-control-custom", @list = "ListaCopilotos" } })
-                </div>
-
-                <div class="col-lg-1 col-md-2">
-                    <label class="form-label-custom"># Bultos:</label>
-                    <input id="TotalBultos" type="text" class="form-control form-control-custom text-center bg-light" readonly value="@Model.TotCajas()" />
-                    <input id="TotalCajas" type="hidden" />
-                </div>
-
-                <div class="col-lg-5 col-md-4">
-                    <label class="form-label-custom">Observaciones:</label>
-                    @Html.EditorFor(model => model.Observaciones, new { htmlAttributes = new { @class = "form-control form-control-custom", @autocomplete = "off" } })
-                </div>
+                    <option value="@x.ToUpper()"></option>
+                        }
+                </datalist>
             </div>
 
-            <div class="d-flex justify-content-between align-items-center mb-2">
-                <div>
-                    <input type="checkbox" id="chk_verifTodos" class="cls-chkVerif mr-1" />
-                    <label for="chk_verifTodos" class="text-primary cursor-pointer mb-0 font-weight-bold">Seleccionar Todos</label>
-                </div>
-                <div>
-                    <button type="button" class="btn btn-warning btn-sm px-4" onclick="cargarOrdenesDevolucion()">
-                        <i class="icon icon-search"></i> Buscar Pendientes
-                    </button>
-                    <button type="button" class="btn btn-info btn-sm px-4 ml-2" id="btn-Agregar">
-                        <i class="icon icon-plus"></i> Agregar
-                    </button>
-                    <button type="button" class="btn btn-cobefar-2 btn-sm px-4 ml-2" onclick="validarEnviarFormulario()">
-                        <i class="icon icon-checkmark2"></i> Guardar Cambios
-                    </button>
-                </div>
+            <div class="col-lg-2 col-md-3">
+                <label class="form-label-custom">Copiloto 2:</label>
+                @Html.EditorFor(model => model.Copil2Desc, new { htmlAttributes = new { @class = "form-control form-control-custom", @list = "ListaCopilotos" } })
             </div>
 
-            <div class="table-responsive-custom mb-4">
-                <table id="detalleRuta" class="table table-bordered table-sm table-hover table-auto">
-                    <thead class="bg-green-custom text-white">
+            <div class="col-lg-1 col-md-2">
+                <label class="form-label-custom"># Bultos:</label>
+                <input id="TotalBultos" type="text" class="form-control form-control-custom text-center bg-light" readonly value="@Model.TotCajas()" />
+                <input id="TotalCajas" type="hidden" />
+            </div>
+
+            <div class="col-lg-5 col-md-4">
+                <label class="form-label-custom">Observaciones:</label>
+                @Html.EditorFor(model => model.Observaciones, new { htmlAttributes = new { @class = "form-control form-control-custom", @autocomplete = "off" } })
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-between align-items-center mb-2">
+            <div>
+                <input type="checkbox" id="chk_verifTodos" class="cls-chkVerif mr-1" />
+                <label for="chk_verifTodos" class="text-primary cursor-pointer mb-0 font-weight-bold">Seleccionar Todos</label>
+            </div>
+            <div>
+                <button type="button" class="btn btn-warning btn-sm px-4" onclick="cargarOrdenesDevolucion()">
+                    <i class="icon icon-search"></i> Buscar Pendientes
+                </button>
+                <button type="button" class="btn btn-info btn-sm px-4 ml-2" id="btn-Agregar">
+                    <i class="icon icon-plus"></i> Agregar
+                </button>
+                <button type="button" class="btn btn-cobefar-2 btn-sm px-4 ml-2" onclick="validarEnviarFormulario()">
+                    <i class="icon icon-checkmark2"></i> Guardar Cambios
+                </button>
+            </div>
+        </div>
+
+        <div class="table-responsive-custom mb-4">
+            <table id="detalleRuta" class="table table-bordered table-sm table-hover table-auto">
+                <thead class="bg-green-custom text-white">
+                    <tr>
+                        <th class="text-center" style="width:30px">✓</th>
+                        <th class="text-center" style="width:30px">#</th>
+                        <th class="text-center">DocNumSap</th>
+                        <th>Socio</th>
+                        <th>Guías</th>
+                        <th>Conductor/Placa</th>
+                        <th class="text-center">Bultos</th>
+                        <th>Almacen</th>
+                        <th class="text-center">Monto</th>
+                        <th hidden>DocEntry</th>
+                        <th hidden>CodSocio</th>
+                        <th hidden>Obs</th>
+                        <th hidden>Direcciones</th>
+                        <th hidden>Envio</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+
+        <h5 class="text-cobefar font-weight-bold border-bottom pb-2">DETALLE DE DEVOLUCIONES REGISTRADAS</h5>
+
+        <div id="divDetalleRuta">
+            <div class="table-responsive-custom">
+                <table id="Detalles" class="table table-bordered table-sm table-hover table-fixed">
+                    <thead class="bg-secondary text-white">
                         <tr>
-                            <th class="text-center" style="width:30px">✓</th>
-                            <th class="text-center" style="width:30px">#</th>
-                            <th class="text-center">DocNumSap</th>
-                            <th>Socio</th>
-                            <th>Guías</th>
-                            <th>Conductor/Placa</th>
-                            <th class="text-center">Bultos</th>
-                            <th>Almacen</th>
-                            <th class="text-center">Monto</th>
-                            <th hidden>DocEntry</th>
-                            <th hidden>CodSocio</th>
-                            <th hidden>Obs</th>
+                            <th class="text-center" style="width:35px">#</th>
+                            <th class="text-center" style="width:90px">DocNumSap</th>
+                            <th style="width:22%">Socio</th>
+                            <th style="width:15%">Guías</th>
+                            <th style="width:20%">Conductor/Placa</th>
+                            <th class="text-center" style="width:60px">Bultos</th>
+                            <th style="width:18%">Obs</th>
+                            <th class="text-center" style="width:80px">Monto</th>
+                            <th class="text-center" style="width:90px">Liberar</th>
+                            <th hidden>DocEntryT</th>
                             <th hidden>Direcciones</th>
-                            <th hidden>Envio</th>
                         </tr>
                     </thead>
-                    <tbody></tbody>
-                </table>
-            </div>
-
-            <h5 class="text-cobefar font-weight-bold border-bottom pb-2">DETALLE DE DEVOLUCIONES REGISTRADAS</h5>
-
-            <div id="divDetalleRuta">
-                <div class="table-responsive-custom">
-                    <table id="Detalles" class="table table-bordered table-sm table-hover table-fixed">
-                        <thead class="bg-secondary text-white">
-                            <tr>
-                                <th class="text-center" style="width:35px">#</th>
-                                <th class="text-center" style="width:90px">DocNumSap</th>
-                                <th style="width:22%">Socio</th>
-                                <th style="width:15%">Guías</th>
-                                <th style="width:20%">Conductor/Placa</th>
-                                <th class="text-center" style="width:60px">Bultos</th>
-                                <th style="width:18%">Obs</th>
-                                <th class="text-center" style="width:80px">Monto</th>
-                                <th class="text-center" style="width:40px">Ver</th>
-                                <th class="text-center" style="width:40px">Del</th>
-                                <th hidden>DocEntryT</th>
-                                <th hidden>Direcciones</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @if (Model.DetRRU0 != null && Model.DetRRU0.Count > 0)
+                    <tbody>
+                        @if (Model.DetRRU0 != null && Model.DetRRU0.Count > 0)
                             {
                                 int i = 0;
                                 foreach (var det in Model.DetRRU0)
                                 {
-                                    <tr id="reg@(i)">
-                                        <td class="text-center">
-                                            <input name="DetRRU0[@i].Linea" type="hidden" value="@(i + 1)" />@(i + 1)
-                                        </td>
-                                        <td>
-                                            <input name="DetRRU0[@i].DocNumTicket" type="hidden" value="@det.DocNumTicket" />
-                                            @det.DocNumTicket
-                                        </td>
-                                        <td>
-                                            <input name="DetRRU0[@i].Socio" type="hidden" value="@det.Socio" />
-                                            @det.Socio
-                                        </td>
-                                        <td>
-                                            <input name="DetRRU0[@i].Guias" type="hidden" value="@det.Guias" />
-                                            @det.Guias
-                                        </td>
-                                        <td>
-                                            <input name="DetRRU0[@i].ConducYPlaca" type="hidden" value="@det.ConducYPlaca" />
-                                            @det.ConducYPlaca
-                                        </td>
-                                        <td class="text-center">
-                                            <input name="DetRRU0[@i].Cajas" class="input-readonly-table" readonly value="@det.Cajas" />
-                                        </td>
-                                        <td>
-                                            <input name="DetRRU0[@i].Observaciones" type="hidden" value="@det.Observaciones" />
-                                            <textarea class="textarea-readonly-table" readonly>@det.Observaciones</textarea>
-                                        </td>
-                                        <td class="text-right">
-                                            <input name="DetRRU0[@i].MontoFinal" type="hidden" value="@det.MontoFinal" />@det.MontoFinal
-                                        </td>
-                                        <td class="text-center">
-                                            <a href="SeguimientoDeTicket?DocEntry=@det.DocEntryTicket" target="_blank" class="text-primary"><i class="icon-truck"></i></a>
-                                        </td>
-                                        <td class="text-center">
-                                            <button type="button" class="btn btn-sm text-danger p-0" onclick="borrarLineaTabla(this)"><i class="icon icon-bin"></i></button>
-                                        </td>
-                                        <td hidden><input name="DetRRU0[@i].DocEntryTicket" class="DocEntryClass" type="hidden" value="@det.DocEntryTicket" /></td>
-                                        <td hidden><input name="DetRRU0[@i].Direcciones" type="hidden" value="@det.Direcciones" /></td>
-                                    </tr>
+                        <tr id="reg@(i)">
+                            <td class="text-center">
+                                <input name="DetRRU0[@i].Linea" type="hidden" value="@(i + 1)" />@(i + 1)
+                            </td>
+                            <td>
+                                <input name="DetRRU0[@i].DocNumTicket" type="hidden" value="@det.DocNumTicket" />
+                                @det.DocNumTicket
+                            </td>
+                            <td>
+                                <input name="DetRRU0[@i].Socio" type="hidden" value="@det.Socio" />
+                                @det.Socio
+                            </td>
+                            <td>
+                                <input name="DetRRU0[@i].Guias" type="hidden" value="@det.Guias" />
+                                @det.Guias
+                            </td>
+                            <td>
+                                <input name="DetRRU0[@i].ConducYPlaca" type="hidden" value="@det.ConducYPlaca" />
+                                @det.ConducYPlaca
+                            </td>
+                            <td class="text-center">
+                                <input name="DetRRU0[@i].Cajas" class="input-readonly-table" readonly value="@det.Cajas" />
+                            </td>
+                            <td>
+                                <input name="DetRRU0[@i].Observaciones" type="hidden" value="@det.Observaciones" />
+                                <textarea class="textarea-readonly-table" readonly>@det.Observaciones</textarea>
+                            </td>
+                            <td class="text-right">
+                                <input name="DetRRU0[@i].MontoFinal" type="hidden" value="@det.MontoFinal" />@det.MontoFinal
+                            </td>
+                            <td class="text-center">
+                                <button type="button" class="btn btn-sm btn-outline-danger font-weight-bold" onclick="borrarLineaTabla(this)">
+                                    <i class="icon icon-lock"></i> Liberar
+                                </button>
+                            </td>
+                            <td hidden><input name="DetRRU0[@i].DocEntryTicket" class="DocEntryClass" type="hidden" value="@det.DocEntryTicket" /></td>
+                            <td hidden><input name="DetRRU0[@i].Direcciones" type="hidden" value="@det.Direcciones" /></td>
+                        </tr>
                                     i++;
                                 }
                             }
-                        </tbody>
-                    </table>
-                </div>
+                    </tbody>
+                </table>
             </div>
+        </div>
         }
     </div>
 </div>
 
 @if (!string.IsNullOrWhiteSpace(ViewBag.Mensaje))
 {
-    <script>
-        var mensaje = '@Html.Raw(ViewBag.Mensaje)';
-        Swal.fire({ text: mensaje, showConfirmButton: false, timer: 2000 });
-    </script>
+<script>
+        $(document).ready(function() {
+            var mensaje = '@Html.Raw(ViewBag.Mensaje)';
+            Swal.fire({
+                title: 'Atención',
+                text: mensaje,
+                icon: 'error',       // Ícono rojo de error
+                confirmButtonText: 'Entendido',
+                confirmButtonColor: '#d33',
+                timer: null          // Se elimina el timer para que NO se cierre solo
+            });
+        });
+</script>
 }
-
 <script>
     var contDet = @(Model.DetRRU0 != null ? Model.DetRRU0.Count : 0);
     var tablaDetalleRuta;
@@ -382,7 +389,6 @@
         calcularTotalBultos();
 
         // --- LÓGICA DE RECUPERACIÓN DE CÓDIGO CLIENTE ---
-        // Si tenemos Nombre pero no Código, lo buscamos automáticamente
         var nombreSocio = $("#CardName").val();
         var codigoSocio = $("#CardCode").val();
         var fecha = $("#FechaSapTicket").val();
@@ -393,7 +399,6 @@
     });
 
     function configurarEventos() {
-        // Eventos de UI
         $("#Placa").on('change', function () {
             var selected = $(this).find('option:selected');
             $("#VehiculoCod").val(selected.attr('data-code'));
@@ -403,7 +408,6 @@
 
         $("#FechaSapTicket").on('change', function () {
             if(tablaDetalleRuta) tablaDetalleRuta.clear().draw();
-            // Si cambian la fecha, podríamos necesitar re-verificar el código del cliente si no es fijo
         });
 
         $("#btn-Agregar").on('click', function () {
@@ -418,7 +422,7 @@
 
     // --- BUSCAR CÓDIGO AUTOMÁTICO ---
     function buscarCodigoAutomatico(nombre, fecha) {
-        $("#loadingCode").removeClass("d-none"); // Mostrar spinner
+        $("#loadingCode").removeClass("d-none");
         $.ajax({
             url: '@Url.Action("ListarClientesPorFechaHana", "Rutas")',
             data: { "Fecha": fecha },
@@ -426,12 +430,9 @@
             success: function (response) {
                 $("#loadingCode").addClass("d-none");
                 if (response.success && response.data) {
-                    // Buscamos en la lista el cliente que coincida con el nombre
                     var clienteEncontrado = response.data.find(c => c.CardName === nombre);
                     if (clienteEncontrado) {
                         $("#CardCode").val(clienteEncontrado.CardCode);
-                        // Opcional: Cargar órdenes automáticamente si se encuentra
-                        // cargarOrdenesDevolucion();
                     }
                 }
             },
@@ -462,7 +463,6 @@
         });
     }
 
-    // --- TABLAS Y LOGICA DE AGREGADO (Igual que antes) ---
     function inicializarTablaOrdenes(data) {
         if ($.fn.DataTable.isDataTable('#detalleRuta')) {
             tablaDetalleRuta = $('#detalleRuta').DataTable();
@@ -520,8 +520,13 @@
             "<td><input name='DetRRU0[" + contDet + "].Observaciones' type='hidden' value='" + obs + "'/><textarea class='textarea-readonly-table' readonly>" + (obs || '') + "</textarea></td>" +
 
             "<td class='text-right'><input name='DetRRU0[" + contDet + "].MontoFinal' type='hidden' value='" + docTotal + "'/>" + docTotal + "</td>" +
-            "<td class='text-center'><a href='SeguimientoDeTicket?DocEntry=" + docEntry + "' target='_blank' class='text-primary'><i class='icon-truck'></i></a></td>" +
-            "<td class='text-center'><button type='button' class='btn btn-sm text-danger p-0' onclick='borrarLineaTabla(this)'><i class='icon icon-bin'></i></button></td>" +
+
+            "<td class='text-center'>" +
+                "<button type='button' class='btn btn-sm btn-outline-danger font-weight-bold' onclick='borrarLineaTabla(this)'>" +
+                    "<i class='icon icon-lock'></i> Liberar" +
+                "</button>" +
+            "</td>" +
+
             "<td hidden><input name='DetRRU0[" + contDet + "].DocEntryTicket' class='DocEntryClass' type='hidden' value='" + docEntry + "' /></td>" +
             "<td hidden><input name='DetRRU0[" + contDet + "].Direcciones' type='hidden' value='" + direcciones + "'/></td>" +
             "</tr>";
@@ -533,7 +538,13 @@
     }
 
     function borrarLineaTabla(btn) {
-        Swal.fire({ title: '¿Eliminar?', text: "Se quitará de la lista.", icon: 'warning', showCancelButton: true, confirmButtonText: 'Sí' }).then((res) => {
+        Swal.fire({
+            title: '¿Liberar ítem?',
+            text: "El ítem será removido de esta lista y quedará disponible.",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Sí, liberar'
+        }).then((res) => {
             if (res.isConfirmed) { $(btn).closest('tr').remove(); calcularTotalBultos(); }
         });
     }
@@ -548,11 +559,6 @@
         var t = 0;
         $('input[name$=".Cajas"]').each(function() { t += (parseInt($(this).val()) || 0); });
         $("#TotalBultos").val(t); $("#TotalCajas").val(t);
-    }
-
-    function enviarValSelect(origenId, destinoId, attr) {
-        var val = $("#" + origenId + " option:selected").attr(attr);
-        $("#" + destinoId).val(val);
     }
 
     function validarEnviarFormulario() {

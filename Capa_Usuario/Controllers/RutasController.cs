@@ -230,16 +230,36 @@ namespace Capa_Usuario.Controllers
                 {
                     Usuario_E user = (Usuario_E)Session["UsuarioId"];
                     o.Propietario = $"{user.Nombres} {user.Apellidos}";
+
+                    // Intenta guardar
                     int DocNum = orruN.EditarHojaDeReparto(o);
+
                     return TipoRep == "Re"
                         ? RedirectToAction("ListadoRepartos", new { DocNum })
                         : RedirectToAction("ListadoRutas", new { DocNum });
                 }
-                catch (Exception e)
+                catch (Exception e) // SI FALLA LA VALIDACIÓN ENTRA AQUÍ
                 {
                     CapturarViewBag(TipoRep, mensaje: e.Message);
                     ViewBag.Agencias = new COUR_N().Listar();
-                    return View(orruN.obtenerOrdenDeRuta(o.DocEntry));
+
+                    // 1. Recuperamos los datos reales de la BD para saber qué tipo es
+                    var datosRecuperados = orruN.obtenerOrdenDeRuta(o.DocEntry);
+
+                    // 2. Lógica para decidir qué vista cargar (IGUAL QUE EN EL GET)
+                    string nombreVista = "EditarHojaDeReparto"; // Por defecto
+
+                    if (datosRecuperados.TipoRuta == "TA")
+                    {
+                        nombreVista = "EditarTransferenciaEntreAlmacenes";
+                    }
+                    else if (datosRecuperados.TipoRuta == "DE") // <--- ESTO ES LO QUE FALTABA
+                    {
+                        nombreVista = "EditarHojaDeRepartoDE";
+                    }
+
+                    // 3. Retornamos la vista correcta explícitamente
+                    return View(nombreVista, datosRecuperados);
                 }
             }
             else
