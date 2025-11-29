@@ -3097,12 +3097,12 @@ AND YEAR(T0.FechaSapTicket) = 2025 AND ((SELECT  Estado FROM vt.BusquedaProducto
                 dr.Read();
                 t.DocEntry = dr.GetInt32(0);
                 t.DocNum = dr.GetInt32(1);
-                if (!dr.IsDBNull(2)) { t.DirDestino = dr.GetString(2); }
-                if (!dr.IsDBNull(3)) { t.Referencia = dr.GetString(3); }
-                if (!dr.IsDBNull(4)) { t.Cajas = dr.GetInt32(4); }
-                if (!dr.IsDBNull(5)) { t.EnvioAgencia = dr.GetString(5); }
-                if (!dr.IsDBNull(6)) { t.Estado = dr.GetString(6); }
-                if (!dr.IsDBNull(7)) { t.Estado = dr.GetString(7); }
+                t.DirDestino = dr.IsDBNull(2) ? string.Empty : dr.GetString(2);
+                t.Referencia = dr.IsDBNull(3) ? string.Empty : dr.GetString(3);
+                t.Cajas = dr.IsDBNull(4) ? 0 : dr.GetInt32(4);
+                t.EnvioAgencia = dr.IsDBNull(5) ? string.Empty : dr.GetString(5);
+                t.Estado = dr.IsDBNull(6) ? string.Empty : dr.GetString(6);
+                t.CardName = dr.IsDBNull(7) ? string.Empty : dr.GetString(7); 
                 dr.Close();
                 cn.Close();
                 t.Det1 = obtenerDet1Ticket(DocEntry); if (t.Det1.Count == 0) { t.Det1 = null; }       //Persona de recojo
