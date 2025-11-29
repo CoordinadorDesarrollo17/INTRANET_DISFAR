@@ -57,7 +57,7 @@
                 <td colspan=10><font size="@ViewBag.Letra">CONDICIÓN ALMACENAMIENTO : T° 15°C-25°C</font></td>
             </tr>
             <tr>
-                <td><font size="@ViewBag.Letra"><strong>ALM-DESTINO: </strong></font></td>
+                <td><font size="@ViewBag.Letra"><strong>ALM: LLEGADA: </strong></font></td>
                 <td colspan="6">
                     <font size="@ViewBag.Letra">
                         <strong style="margin-right:30px">
@@ -73,9 +73,10 @@
             <tr>
                 <th width=2%><font size="@ViewBag.Letra">#</font></th>
                 <th align=center width=10%><font size="@ViewBag.Letra">RAZÓN SOCIAL-RUC</font></th>
-                <th align=center width=12%><font size="@ViewBag.Letra">DIRECCIÓN</font></th>
+                <th align=center width=12%><font size="@ViewBag.Letra">DIRECCIÓN PARTIDA</font></th>
                 <th align=center width=10%><font size="@ViewBag.Letra">NRO. DE GUIAS</font></th>
                 <th align=center width=5%><font size="@ViewBag.Letra"># BULTO</font></th>
+                <th align=center width=5%><font size="@ViewBag.Letra">HORA</font></th>
                 <th align=center width=18%><font size="@ViewBag.Letra">FIRMA Y/O SELLO DEL CLIENTE</font></th>
             </tr>
             @foreach (var det in Model2.DetRRU0.Where(x => x.Estado != "LIBERADO").OrderBy(x => x.Linea).ToList())
@@ -84,10 +85,8 @@
                     <td><font size="@ViewBag.Letra">@det.Linea</font></td>
                     <td style='text-align: justify; word-wrap: break-word;'>
                         <font size="@ViewBag.Letra">
-                            @* Preferir el valor que se guarda al crear la solicitud (DetRRU0.Socio). Si no existe, usar el ticket cargado *@
                             @( !string.IsNullOrWhiteSpace(det.Socio) ? det.Socio : (det.Ticket?.CardName ?? "") )
                             <br>
-                            @* RUC: mostrar si está disponible en el ticket *@
                             @if (!string.IsNullOrWhiteSpace(det.Ticket?.CardCode))
                             {
                                 <text>RUC: @det.Ticket.CardCode</text>
@@ -96,30 +95,31 @@
                     </td>
                     <td style='text-align: justify; word-wrap: break-word;'>
                         <font size="@ViewBag.Letra">
-                            @* Preferir la dirección guardada en la línea (DetRRU0.Direcciones) y si no existe usar DirDestino del ticket *@
                             @( !string.IsNullOrWhiteSpace(det.Direcciones) ? det.Direcciones : (det.Ticket?.DirDestino ?? "") )
                             <br>
                         </font>
                     </td>
                     <td><font size="@ViewBag.Letra">@det.Guias</font></td>
                     <td style='text-align: center;'><font size="@ViewBag.Letra">@det.Cajas</font></td>
-                    <td style='text-align: justify; word-wrap: break-word;'><font size="@ViewBag.Letra">_________________</font></td>
+                    <td style='text-align: center;'><font size="@ViewBag.Letra">:</font></td>
+                    <td style='text-align: justify; word-wrap: break-word;'><font size="@ViewBag.Letra">_</font></td>
                 </tr>
             }
         </table>
+
         <table border=0>
             <tr>
                 <td height=50px></td>
                 <td></td>
                 <td></td>
-                <td align=center><font size="@ViewBag.Letra">TOTAL CAJAS : @Model.DetRRU0.Where(x => x.Estado != "LIBERADO").Sum(x => x.Cajas)</font></td>
+                <td align=center><font size="@ViewBag.Letra"></font></td>
             </tr>
             <tr>
                 <td width=100px><font size="@ViewBag.Letra"></font></td>
-                <td><font size="@ViewBag.Letra">__________________</font></td>
+                <td><font size="@ViewBag.Letra"></font></td>
                 <td><font size="@ViewBag.Letra"></font></td>
                 <td width=600px><font size="@ViewBag.Letra"></font></td>
-                <td><font size="@ViewBag.Letra">__________________</font></td>
+                <td><font size="@ViewBag.Letra"></font></td>
                 <td><font size="@ViewBag.Letra"></font></td>
             </tr>
             <tr>
@@ -144,7 +144,7 @@
             </tr>
         </table>
     </div>
-    
+
     @if (lstDom2.Count > 0)
     {
         <div style='page-break-after:always;'>
