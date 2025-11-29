@@ -144,7 +144,7 @@ namespace Capa_Negocio.Rutas_NEG.TablasSql
             {
                 if (o.Ticket.Det5[0].RegEstado != "Entregado") { throw new Exception("Debe entregar regalo"); }
             }
-            if (orruE.TipoRuta != "VG" && orruE.TipoRuta != "AC")
+            if (orruE.TipoRuta != "VG" && orruE.TipoRuta != "AC" && orruE.TipoRuta != "DE")
             {
                 if (!(o.TempF1 >= 15 && o.TempF1 <= 25)) { throw new Exception("Temp1 final no cumple con el rango valido (mayor o igual a 15 y menor o igual a 25)"); }
                 if (!(o.TempF2 >= 15 && o.TempF2 <= 25)) { throw new Exception("Temp2 final no cumple con el rango valido (mayor o igual a 15 y menor o igual a 25)"); }

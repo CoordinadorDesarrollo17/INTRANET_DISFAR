@@ -472,8 +472,8 @@
                             <label for="AlmProcedencia" class="text-dark form-label font-weight-bold font-18">Alm. de procedencia:</label>
                             <select name="AlmProcedencia" class="form-control bg-cobefar text-white">
                                 <option value="">Seleccione</option>
-                                <option value="ALM07" @if (Model.AlmProcedencia == "ALM07") { Write("selected"); }>Almacén Nro 6</option>
-                                <option value="16" @if (Model.AlmProcedencia == "16") { Write("selected"); }>Almacén Nro 8</option>
+                                <option value="ALM07" @if (Model.AlmProcedencia == "ALM07") { Write("selected"); }>Almacén Nro 3</option>
+                                <option value="16" @if (Model.AlmProcedencia == "16") { Write("selected"); }>Almacén Nro 5</option>
                             </select>
                         </div>
 
@@ -500,7 +500,7 @@
                     </div>
 
                     <div id="CamposAgDom">
-                        <div class="row mt-4" id="CamposAgencia">
+                        @*<div class="row mt-4" id="CamposAgencia">
                             <div class="col-lg-3">
                                 <label class="text-dark form-label font-weight-bold font-18">Modo de envío:</label>
                                 <select name="EnvioAgencia" id="EnvioAgencia" class="form-control bg-cobefar text-white" onchange="mostrarOficinas();">
@@ -522,7 +522,7 @@
 
                             </div>
 
-                        </div>
+                        </div>*@
 
                         <div class="row mt-4">
                             <div class="col-lg-9">
