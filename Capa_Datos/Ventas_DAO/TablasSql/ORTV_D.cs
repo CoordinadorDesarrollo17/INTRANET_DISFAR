@@ -2479,12 +2479,12 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                                         "(Select top 1 Operario from vt.CC_ORTV where DocEntry=T0.DocEntry and Operacion='CANCELAR' order by FechaOperacion,HoraOperacion desc ) AS 'OP CANCELADO', " +
                                         "CONVERT(varchar, T0.TiempoEntrega , 103) AS 'FECHA ESTIMADA ENTREGA', CONVERT(varchar, T0.TiempoEntrega , 8) AS 'HORA ESTIMADA ENTREGA', T1.LugarDeEntrega AS 'LUGAR ENTREGA', T0.NroMesa AS 'NRO MESA', " +
                                         "(SELECT STUFF((SELECT ', ' + cast(t1.AlmacenSalida as varchar(max)) FROM vt.RTV2 t1 INNER JOIN  vt.ORTV x ON x.DocEntry = t1.DocEntry WHERE t1.DocEntry = t0.DocEntry FOR XML PATH('')), 1,2, '')) AS 'ALMACEN SALIDA',T0.Comentario," +
-                                        "(SELECT TOP 1 C.Comentario FROM vt.ComentarioFac C WHERE C.DocEntry = T0.DocEntry ORDER BY C.DocEntry DESC) AS 'COMENTARIO FAC', "+
+                                        "(SELECT TOP 1 C.Comentario FROM vt.ComentarioFac C WHERE C.DocEntry = T0.DocEntry ORDER BY C.DocEntry DESC) AS 'COMENTARIO FAC', " +
                                         "T0.Zona, T0.DirDestino,RTV3.Calle,RTV3.Distrito,RTV3.Provincia,RTV3.Departamento, PesadoPedido.PesoTotal, CONVERT (varchar, T0.FechaPago, 103) AS 'FechaPagoVenta', CONVERT (varchar, T0.HoraPago, 108) AS 'HoraPagoVenta', T0.TipoVenta " +
                                         "FROM VT.ORTV T0 INNER JOIN VT.RTV2 T1 ON T0.DocEntry=T1.DocEntry  " +
                                         "OUTER APPLY ( " + "" +
-                                            "SELECT TOP 1 T3.Calle, T3.Distrito, T3.Departamento,T3.Provincia FROM VT.RTV3 T3 "+  
-                                            "WHERE T3.DocEntry = T0.DocEntry AND T3.IdDireccion = 2"+
+                                            "SELECT TOP 1 T3.Calle, T3.Distrito, T3.Departamento,T3.Provincia FROM VT.RTV3 T3 " +
+                                            "WHERE T3.DocEntry = T0.DocEntry AND T3.IdDireccion = 2" +
                                             ") RTV3 " +
                                         "OUTER APPLY ( " +
                                             "SELECT TOP 1 SUM(peso) AS 'PesoTotal' FROM VT.RTV6  " +
@@ -2632,7 +2632,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                     if (!dr.IsDBNull(17)) o.TiempoEntrega = dr.GetDateTime(17);
                     if (!dr.IsDBNull(18)) { o.Vinculados = dr.GetString(18); }
                     if (o.LugarDestino == "Domicilio" || o.LugarDestino == "Agencia")
-                    { 
+                    {
                         o.Guias = GuiasTicket(o.DocEntry);
                         o.ConducYPlaca = ConducyPlacaTicket(o.DocEntry); // Conductor y placa
                     }
@@ -3097,12 +3097,12 @@ AND YEAR(T0.FechaSapTicket) = 2025 AND ((SELECT  Estado FROM vt.BusquedaProducto
                 dr.Read();
                 t.DocEntry = dr.GetInt32(0);
                 t.DocNum = dr.GetInt32(1);
-                if (!dr.IsDBNull(2)) { t.DirDestino = dr.GetString(2); }
-                if (!dr.IsDBNull(3)) { t.Referencia = dr.GetString(3); }
-                if (!dr.IsDBNull(4)) { t.Cajas = dr.GetInt32(4); }
-                if (!dr.IsDBNull(5)) { t.EnvioAgencia = dr.GetString(5); }
-                if (!dr.IsDBNull(6)) { t.Estado = dr.GetString(6); }
-                if (!dr.IsDBNull(7)) { t.Estado = dr.GetString(7); }
+                t.DirDestino = dr.IsDBNull(2) ? string.Empty : dr.GetString(2);
+                t.Referencia = dr.IsDBNull(3) ? string.Empty : dr.GetString(3);
+                t.Cajas = dr.IsDBNull(4) ? 0 : dr.GetInt32(4);
+                t.EnvioAgencia = dr.IsDBNull(5) ? string.Empty : dr.GetString(5);
+                t.Estado = dr.IsDBNull(6) ? string.Empty : dr.GetString(6);
+                t.CardName = dr.IsDBNull(7) ? string.Empty : dr.GetString(7);
                 dr.Close();
                 cn.Close();
                 t.Det1 = obtenerDet1Ticket(DocEntry); if (t.Det1.Count == 0) { t.Det1 = null; }       //Persona de recojo
