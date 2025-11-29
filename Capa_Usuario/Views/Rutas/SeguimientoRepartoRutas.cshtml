@@ -3,6 +3,13 @@
 @{
     ViewBag.Title = "SeguimientoRepartoRutas";
     Layout = "~/Views/Shared/_Layout.cshtml";
+
+    // --- LÓGICA DE ADAPTACIÓN ---
+    bool esDevolucion = Model.TipoRuta == "DE";
+    string tituloVista = esDevolucion ? "DEVOLUCIÓN" : ViewBag.Vista;
+    string labelCajas = esDevolucion ? "Total Bultos:" : "Total Cajas:";
+    string thCajas = esDevolucion ? "Bultos" : "Cajas";
+    string thTicket = esDevolucion ? "DocNumSAP" : "Ticket";
 }
 
 <style>
@@ -10,18 +17,22 @@
         font-size: 12px;
     }
 </style>
+
 <div class="pt-4">
     <nav>
         <ol class="cd-breadcrumb bg-cobefar-degradado-1">
             <li><a href="@Url.Action("Sesion", "Index")">Inicio</a></li>
             <li><a href="@Url.Action("ListadoRepartos", "Rutas")">Listado de repartos</a></li>
-            <li class="current"><em>Seguimiento de @ViewBag.Vista.ToLower()</em></li>
+            <li class="current"><em>Seguimiento de @tituloVista.ToLower()</em></li>
         </ol>
     </nav>
 </div>
 
 <div class="border-cabecera-seccion bg-cobefar-degradado-1 pb-2">
-    <div class="px-3 pt-3"><h3 class="titulo-seccion">SEGUIMIENTO DE @ViewBag.Vista</h3></div>
+    <div class="d-flex justify-content-between align-items-center px-3 pt-3">
+        <h3 class="titulo-seccion">SEGUIMIENTO DE @tituloVista</h3>
+        @* Botón Reporte eliminado según solicitud *@
+    </div>
 </div>
 
 <div class="bg-form-pestanas-cobefar">
@@ -50,22 +61,24 @@
             </div>
 
             <div class="row mt-4">
-                <div class="col-lg-2">
-                    <label class="text-dark form-label font-weight-bold font-18">Serie T1:</label>
-                    @Html.EditorFor(model => model.SerieT1, new { htmlAttributes = new { @class = "form-control text-center border-success", @readonly = "true" } })
-                </div>
+                @* OCULTAR SERIES SI ES DEVOLUCION *@
+                @if (!esDevolucion)
+                {
+                    <div class="col-lg-2">
+                        <label class="text-dark form-label font-weight-bold font-18">Serie T1:</label>
+                        @Html.EditorFor(model => model.SerieT1, new { htmlAttributes = new { @class = "form-control text-center border-success", @readonly = "true" } })
+                    </div>
+
+                    <div class="col-lg-2">
+                        <label class="text-dark form-label font-weight-bold font-18">Serie T2:</label>
+                        @Html.EditorFor(model => model.SerieT2, new { htmlAttributes = new { @class = "form-control text-center border-success", @readonly = "true" } })
+                    </div>
+                }
 
                 <div class="col-lg-2">
-                    <label class="text-dark form-label font-weight-bold font-18">Serie T2:</label>
-                    @Html.EditorFor(model => model.SerieT2, new { htmlAttributes = new { @class = "form-control text-center border-success", @readonly = "true" } })
-                </div>
-
-                <div class="col-lg-2">
-                    <label class="text-dark form-label font-weight-bold font-18">Total Cajas:</label>
+                    <label class="text-dark form-label font-weight-bold font-18">@labelCajas</label>
                     <input type="text" value="@Model.TotCajas()" class="form-control text-center border-success" readonly />
                 </div>
-
-
 
                 <div class="col-lg-2">
                     <label class="text-dark form-label font-weight-bold font-18">Vehículo:</label>
@@ -77,17 +90,19 @@
                     @Html.EditorFor(model => model.Placa, new { htmlAttributes = new { @class = "form-control text-center border-success", @readonly = "true" } })
                 </div>
             </div>
-            <div class="row mt-4">
-                    <div class="col-lg-3">
-                        <label class="text-dark form-label font-weight-bold font-18">Copiloto1:</label>
-                        @Html.EditorFor(model => model.CopilDesc, new { htmlAttributes = new { @class = "form-control text-center border-success", @readonly = "true" } })
-                    </div>
 
-                    <div class="col-lg-3">
-                        <label class="text-dark form-label font-weight-bold font-18">Copiloto2:</label>
-                        @Html.EditorFor(model => model.Copil2Desc, new { htmlAttributes = new { @class = "form-control text-center border-success", @readonly = "true" } })
-                    </div>
+            <div class="row mt-4">
+                <div class="col-lg-3">
+                    <label class="text-dark form-label font-weight-bold font-18">Copiloto1:</label>
+                    @Html.EditorFor(model => model.CopilDesc, new { htmlAttributes = new { @class = "form-control text-center border-success", @readonly = "true" } })
+                </div>
+
+                <div class="col-lg-3">
+                    <label class="text-dark form-label font-weight-bold font-18">Copiloto2:</label>
+                    @Html.EditorFor(model => model.Copil2Desc, new { htmlAttributes = new { @class = "form-control text-center border-success", @readonly = "true" } })
+                </div>
             </div>
+
             <div class="row mt-4">
                 <div class="col-lg-2">
                     <label class="text-dark form-label font-weight-bold font-18">Fecha Cont:</label>
@@ -99,10 +114,14 @@
                     <input type="text" id="FechaDoc" name="FechaDoc" class="form-control text-center border-success" value="@String.Format("{0:dd/MM/yyyy}", Model.FechaDoc)" readonly />
                 </div>
 
-                <div class="col-lg-2">
-                    <label class="text-dark form-label font-weight-bold font-18">Almacén Origen:</label>
-                    @Html.EditorFor(model => model.AlmOrigenDesc, new { htmlAttributes = new { @class = "form-control text-center border-success", @readonly = "true" } })
-                </div>
+                @* OCULTAR ALMACEN ORIGEN SI ES DEVOLUCION *@
+                @if (!esDevolucion)
+                {
+                    <div class="col-lg-2">
+                        <label class="text-dark form-label font-weight-bold font-18">Almacén Origen:</label>
+                        @Html.EditorFor(model => model.AlmOrigenDesc, new { htmlAttributes = new { @class = "form-control text-center border-success", @readonly = "true" } })
+                    </div>
+                }
 
                 <div class="col-lg-2">
                     <label class="text-dark form-label font-weight-bold font-18">Almacén Destino:</label>
@@ -117,7 +136,7 @@
 
             <div class="row mt-4">
                 <div class="col-lg-3">
-                    <label class="text-dark form-label font-weight-bold font-18">TiempoPac:</label>
+                    <label class="text-dark form-label font-weight-bold font-18">Tiempo entrega/recojo:</label>
                     @Html.EditorFor(model => model.TiempoPac, new { htmlAttributes = new { @class = "form-control text-center border-success", @readonly = "true" } })
                 </div>
 
@@ -154,9 +173,9 @@
                         <tr>
                             <th class="text-center">#</th>
                             <th class="text-center">Socio</th>
-                            <th class="text-center">Ticket</th>
+                            <th class="text-center">@thTicket</th>
                             <th class="text-center">Guias</th>
-                            <th class="text-center">Cajas</th>
+                            <th class="text-center">@thCajas</th>
                             <th class="text-center">Obs</th>
                             <th class="text-center">Direccion</th>
                             <th class="text-center">MontoFinal</th>
@@ -218,7 +237,16 @@
                                     <tr class="@styleLiberado">
                                         <td class="text-center">@Html.DisplayFor(model => dt.Linea)</td>
                                         <td>@Html.DisplayFor(model => dt.Socio)</td>
-                                        <td class="text-center">@Html.DisplayFor(model => dt.DocEntryTicket)</td>
+                                        <td class="text-center">
+                                            @if (esDevolucion)
+                                            {
+                                                @Html.DisplayFor(model => dt.DocNumTicket)
+                                            }
+                                            else
+                                            {
+                                                @Html.DisplayFor(model => dt.DocEntryTicket)
+                                            }
+                                        </td>
                                         <td class="text-center">@Html.DisplayFor(model => dt.Guias)</td>
                                         <td class="text-center">@Html.DisplayFor(model => dt.Cajas)</td>
                                         <td class="text-center">@Html.DisplayFor(model => dt.Observaciones)</td>
@@ -254,5 +282,4 @@
             </div>
         </form>
     </div>
-
 </div>
