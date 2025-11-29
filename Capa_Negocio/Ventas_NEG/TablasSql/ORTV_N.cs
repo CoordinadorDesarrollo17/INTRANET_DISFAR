@@ -198,11 +198,11 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
             //if (string.IsNullOrWhiteSpace(ticket.Agencia)) throw new Exception("Debe llenar la agencia.");
             if (string.IsNullOrWhiteSpace(ticket.DirDestino)) throw new Exception("Debe llenar la dirección de destino.");
             ValidarPersona(ticket);
-            ValidarLugarDeEntrega(ticket, new List<string> { "ALMACÉN N°8", "ALMACÉN FALTANTES", "ALMACÉN N°6 (Ureta)", "ALMACÉN N°3" });
+            ValidarLugarDeEntrega(ticket, new List<string> { "ALMACÉN N°5", "ALMACÉN FALTANTES", "  ", "ALMACÉN N°1" });
         }
         private void ValidarArriola(ORTV_E ticket)
         {
-            ValidarLugarDeEntrega(ticket, new List<string> { "ALMACÉN N°5 (Arriola)", "ALMACÉN FALTANTES", "ALMACÉN N°6 (Ureta)", "ALMACÉN N°3" });
+            ValidarLugarDeEntrega(ticket, new List<string> { "ALMACÉN N°5 (Arriola)", "ALMACÉN FALTANTES", "ALMACÉN Nº3", "ALMACÉN N°1" });
         }
         private void ValidarDomicilio(ORTV_E ticket)
         {
@@ -210,11 +210,11 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
             if (string.IsNullOrWhiteSpace(ticket.DirDestino)) throw new Exception("Debe llenar la dirección de destino.");
             if (ticket.Det3 != null && ticket.Det3.Count >= 2 && !string.IsNullOrWhiteSpace(ticket.Det3[1].Calle) && ticket.Det3[1].Calle.Length > 200) throw new Exception("La dirección de destino excede el límite de 200 caracteres.");
             ValidarPersona(ticket);
-            ValidarLugarDeEntrega(ticket, new List<string> { "ALMACÉN N°8", "ALMACÉN FALTANTES", "ALMACÉN N°6 (Ureta)", "ALMACÉN N°3" });
+            ValidarLugarDeEntrega(ticket, new List<string> { "ALMACÉN N°5", "ALMACÉN FALTANTES", "ALMACÉN Nº3", "ALMACÉN N°1" });
         }
         private void ValidarCentro(ORTV_E ticket)
         {
-            ValidarLugarDeEntrega(ticket, new List<string> { "ALMACÉN N°1", "ALMACÉN FALTANTES", "ALMACÉN N°6 (Ureta)", "ALMACÉN N°3" });
+            ValidarLugarDeEntrega(ticket, new List<string> { "ALMACÉN N°1", "ALMACÉN FALTANTES", "ALMACÉN Nº3", "ALMACÉN N°1" });
         }
         private void ValidarLugarDeEntrega(ORTV_E ticket, List<string> lugaresValidos)
         {
