@@ -19,8 +19,7 @@ namespace Capa_Entidad.Rutas_ENT.TablasSql
 		public int DocNumTicket { get; set; }
 		public string Socio { get; set; }
 		public string Guias { get; set; }
-        public string ConducYPlaca { get; set; } // ✅ AGREGAR ESTA PROPIEDAD
-
+        public string ConducYPlaca { get; set; } 
         public string Verificado { get; set; }
 		public int Cajas { get; set; }
 		public string Observaciones { get; set; }
@@ -106,10 +105,32 @@ namespace Capa_Entidad.Rutas_ENT.TablasSql
 
             foreach (RRU0_E reg in listaFinalDetalles(dt))
 			{
-				tb.Rows.Add(reg.DocEntry, reg.Linea, reg.DocEntryTicket, reg.DocNumTicket, reg.Socio, reg.Guias, reg.Verificado,
-					reg.Cajas, reg.Observaciones, reg.MontoFinal, reg.Envio, reg.Direcciones, reg.Estado, reg.TempI1, reg.HumedI1,
-					reg.TempI2, reg.HumedI2, reg.TempF1, reg.HumedF1, reg.TempF2, reg.HumedF2, reg.OpEntrega, reg.FechaEntrega,
-					reg.HoraEntrega, reg.ConducYPlaca);
+				tb.Rows.Add(
+					reg.DocEntry, 
+					reg.Linea, 
+					reg.DocEntryTicket, 
+					reg.DocNumTicket, 
+					reg.Socio, 
+					reg.Guias, 
+					reg.Verificado,
+					reg.Cajas, 
+					reg.Observaciones, 
+					reg.MontoFinal, 
+					reg.Envio, 
+					reg.Direcciones, 
+					reg.Estado, 
+					reg.TempI1, 
+					reg.HumedI1,
+					reg.TempI2, 
+					reg.HumedI2, 
+					reg.TempF1, 
+					reg.HumedF1, 
+					reg.TempF2, 
+					reg.HumedF2, 
+					reg.OpEntrega, 
+					reg.FechaEntrega,
+					reg.HoraEntrega, 
+					reg.ConducYPlaca);
 			}
 			return tb;
 		}
