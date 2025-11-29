@@ -1,127 +1,11 @@
-﻿﻿@model IEnumerable<Capa_Entidad.AtencionCliente_ENT.TablasSql.OSAT_E>
+﻿@model IEnumerable<Capa_Entidad.AtencionCliente_ENT.TablasSql.OSAT_E>
 @using Capa_Entidad.AtencionCliente_ENT.TablasSql
 @{
-    ViewBag.Title = "GestionSolicitud";
-    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.Title = "MÓDULO GESTIÓN DE SOLICITUDES";
+    Layout = "~/Views/Shared/_DefaultLayout.cshtml";
     OSAT_E f = (OSAT_E)ViewBag.Osat;
 }
-<script>
-    function filtrar() {
-        var object = $("#frm").serialize();
-        $(location).attr('href', "/AtencionCliente/GestionSolicitud?" + object);
-    }
-    function excel() {
-        var object = $("#frm").serialize();
-        $(location).attr('href', "/AtencionCliente/ExportarExcel?" + object);
-    }
-    function anular(id) {
-        Swal.fire({
-            title: '¿Esta seguro de anular?',
-            text: "Luego no puede modificar los datos!",
-            type: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
-            confirmButtonText: '¡Si, anular!'
 
-        }).then(result => {
-            if (result.value) {
-                var parametros = { "DocEntry": id };
-                $.ajax('/AtencionCliente/AnularSolicitud',
-                    {
-                        data: parametros,
-                        dataType: 'json',
-                        cache: false,
-                        type: 'post'
-                    })
-                $(location).attr('href', "/AtencionCliente/GestionSolicitud");
-
-            }
-        });
-    }
-
-    function cargarNotificacionesPendientes() {
-        var $tbody = $('#tablaNotificaciones tbody');
-        $tbody.html('<tr><td colspan="3">Cargando...</td></tr>');
-        $.ajax({
-            url: '@Url.Action("ObtenerNotificadoCliente", "AtencionCliente")',
-            type: 'GET',
-            dataType: 'json',
-            success: function (data) {
-                $tbody.empty();
-                if (data && data.length > 0) {
-                    for (var i = 0; i < data.length; i++) {
-                        $tbody.append(
-                            '<tr>' +
-                                '<td>' + data[i].CardName + '</td>' +
-                                '<td class="text-center">' + data[i].TicketsAbiertos + '</td>' +
-                                '<td class="text-center">' +
-                            '<button type="button" class="btn btn-info btn-sm" onclick="verMasNotificacion(\'' + data[i].CardCode.replace(/'/g, "\\'") + '\')">Ver Más</button>' +
-                                '</td>' +
-                            '</tr>'
-                        );
-                    }
-                } else {
-                    $tbody.html('<tr><td colspan="3">No hay notificaciones pendientes.</td></tr>');
-                }
-            },
-            error: function (xhr, status, error) {
-                $tbody.html('<tr><td colspan="3">Error al cargar los datos.</td></tr>');
-            }
-        });
-    }
-
-    $(function () {
-        $('#modalDerecha').on('show.bs.modal', function () {
-            cargarNotificacionesPendientes();
-        });
-    });
-
-    function verMasNotificacion(CardCode) {
-    var $tbody = $('#tablaDetalleNotificaciones tbody');
-    $tbody.html('<tr><td colspan="4">Cargando...</td></tr>');
-    $('#modalDetalleNotificacion').modal('show');
-    $.ajax({
-        url: '@Url.Action("ObtenerNotificadoClienteDetalle", "AtencionCliente")',
-        type: 'GET',
-        data: { CardCode: CardCode },
-        dataType: 'json',
-        success: function (data) {
-            $tbody.empty();
-            if (data && data.length > 0) {
-                for (var i = 0; i < data.length; i++) {
-
-                    $tbody.append(
-                        '<tr>' +
-                            '<td>' + data[i].FechaSapTicket + '</td>' +
-                            '<td>' + data[i].DocNumVt + '</td>' +
-                            '<td>' + data[i].EstadoVt + '</td>' +
-                            '<td>' + data[i].Vendedor + '</td>' +
-                        '</tr>'
-                    );
-                }
-            } else {
-                $tbody.html('<tr><td colspan="4">No hay tickets abiertos para este cliente.</td></tr>');
-            }
-        },
-        error: function () {
-            $tbody.html('<tr><td colspan="4">Error al cargar los datos.</td></tr>');
-        }
-    });
-    @{
-    // Pintar de rojo mayor a 2 dias
-    string estadoFiltro = f.Estado;
-
-    var estadosValidos = new[] { "Registrado", "Proceso", "Atendido" };
-
-    int contadorRojo = Model.Count(x =>
-        estadosValidos.Contains(string.IsNullOrEmpty(estadoFiltro) ? x.Estado : estadoFiltro)
-        && x.DiasRetraso > 2
-    );
-    }
-}
-
-</script>
 <style>
     .input_cls-estandar {
         height: 30px;
@@ -147,15 +31,7 @@
         pointer-events: none;
     }
 
-    #tablaNotificaciones thead th {
-        background: #e9ecef !important;
-        color: #212529 !important;
-        font-weight: bold !important;
-        border: 1px solid #dee2e6 !important;
-        visibility: visible !important;
-        display: table-cell !important;
-    }
-
+    #tablaNotificaciones thead th,
     #tablaDetalleNotificaciones thead th {
         background: #e9ecef !important;
         color: #212529 !important;
@@ -211,323 +87,286 @@
             text-align: center !important;
             vertical-align: middle !important;
         }
+
+    .btn-group-inline {
+        display: flex;
+        flex-direction: row;
+        gap: 4px;
+        flex-wrap: nowrap;
+        align-items: center;
+    }
 </style>
 
-<div class="pt-3">
+<div class="pt-4">
     <nav>
         <ol class="cd-breadcrumb bg-cobefar-degradado-1">
             <li><a href="@Url.Action("Sesion", "Index")">Inicio</a></li>
-            <li class="current"><em>Módulo gestión de solicitudes</em></li>
+            <li class="current">
+                <a href="@Url.Action("GestionSolicitud", "AtencionCliente")">
+                    Módulo gestión de solicitudes
+                </a>
+            </li>
         </ol>
     </nav>
 </div>
 
-
 <div class="border-cabecera-seccion bg-cobefar-degradado-1 pb-2">
-    <div class="px-3 pt-3"><h3 class="titulo-seccion">MÓDULO GESTIÓN DE SOLICITUDES</h3></div>
-    <div class="mx-2">
-        <a id="accion" style="float:left; margin-right:10px;" href="@Url.Action("NuevaSolicitud", "AtencionCliente")" class="btn btn-success">
-            <i class="icon icon-plus"></i> Nueva Solicitud
-        </a>
-
-        <button id="accion" onclick="excel();" class="btn btn-warning">
-            <i class="icon icon-file-excel"></i> Exportar a Excel
-        </button>
-
-        <button class="btn btn-primary" data-toggle="modal" data-target="#modalDerecha">
-            <i class="icon icon-info"></i> Notificaciones Pendientes
-        </button>
+    <div class="row px-3 pt-3 mb-2">
+        <h3 class="titulo-seccion">@ViewBag.Title.ToUpper()</h3>
     </div>
-</div>
-
-<div class="bg-white d-flex pl-2 w-100 py-3">
-
-
-
-    <div class="ml-auto" style="display:inline-block; min-width:120px; min-height:60px; background:#fff3cd; border:2px solid #ffeeba; border-radius:8px; margin:0 15px 10px 0; padding:10px; text-align:center;">
-        <span style="font-size:16px; color:#b94a48; font-weight:bold;">
-            Críticos: <span id="contadorRojo">@ViewBag.ContadorCriticos</span>
-        </span>
-        <div style="font-size:12px; color:#856404;">
-            Registros con más de 2 días de retraso
+    <div class="mx-2 mb-2 d-flex align-items-center justify-content-between">
+        <div class="d-flex">
+            <a href="@Url.Action("NuevaSolicitud", "AtencionCliente")" class="btn btn-warning d-flex align-items-center ms-2">
+                <i class="bi bi-plus-lg mr-2"></i> Nueva Solicitud
+            </a>
+            <button type="button" class="btn btn-outline-success d-flex justify-content-center align-items-center ms-2" onclick="excel();">
+                <i class="bi bi-file-earmark-excel mr-2"></i> Exportar a Excel
+            </button>
+        </div>
+        <div class="ml-auto" style="display:inline-block; min-width:120px; min-height:60px; background:#fff3cd; border:2px solid #ffeeba; border-radius:8px; margin:0 15px 10px 0; padding:10px; text-align:center;">
+            <span style="font-size:16px; color:#b94a48; font-weight:bold;">
+                Críticos: <span id="contadorRojo">@ViewBag.ContadorCriticos</span>
+            </span>
+            <div style="font-size:12px; color:#856404;">
+                Registros con más de 2 días de retraso
+            </div>
         </div>
     </div>
-
-
 </div>
 
-<div class="bg-white">
-    <form name="frm" id="frm">
+<div class="bg-white px-3 py-3 align-items-center">
+    <div class="table-responsive">
+        <form name="frm" id="frm">
+            <table id="tbl_ListadoSolicitudes" class="dt-container dt-empty-footer table table-sm table-hover font-14">
+                <thead class="thead-cobefar">
+                    <tr>
+                        <th class="text-center border-end">
+                            @Html.DisplayNameFor(model => model.DocNum)<br />
+                            <input type="text" name="DocNum" class="form-control-sm border w-100" onchange="filtrar();" value="@ViewBag.Osat.DocNum" />
+                        </th>
+                        <th class="text-center border-end">
+                            TiempoRegistro<br />
+                            <input type="date" name="FechaRegistro" class="form-control-sm border" onchange="filtrar();" value="@f.FechaRegistro" />
+                        </th>
+                        <th class="text-center border-end">
+                            N° Ticket<br />
+                            <input type="text" name="DocNumTicket" class="form-control-sm border w-100" onchange="filtrar();" value="@(ViewBag.Osat.DocNumTicket >= 1 ? ViewBag.Osat.DocNumTicket : "")" />
+                        </th>
+                        <th class="text-center border-end">
+                            Cliente<br />
+                            <input type="text" name='DetORTV[CardName]' class="form-control-sm border w-100" onchange="filtrar();" value="@(f.DetORTV != null ? f.DetORTV["CardName"] : "")" />
+                        </th>
+                        <th class="text-center border-end">
+                            LugarDestino<br />
+                            <select name='DetORTV[LugarDestino]' class="form-control-sm border" onchange="filtrar();">
+                                <option value="">Seleccione</option>
+                                <option value="Arriola" @(f.DetORTV != null && f.DetORTV["LugarDestino"] == "Arriola" ? "selected" : "")>Arriola</option>
+                                <option value="Domicilio" @(f.DetORTV != null && f.DetORTV["LugarDestino"] == "Domicilio" ? "selected" : "")>Domicilio</option>
+                                <option value="Centro" @(f.DetORTV != null && f.DetORTV["LugarDestino"] == "Centro" ? "selected" : "")>Centro</option>
+                                <option value="Agencia" @(f.DetORTV != null && f.DetORTV["LugarDestino"] == "Agencia" ? "selected" : "")>Agencia</option>
+                                <option value="Agencia Courier" @(f.DetORTV != null && f.DetORTV["LugarDestino"] == "Agencia Courier" ? "selected" : "")>Agencia Courier</option>
+                            </select>
+                        </th>
+                        <th class="text-center border-end">
+                            @Html.DisplayNameFor(model => model.Estado)<br />
+                            <select name="Estado" class="form-control-sm border" onchange="filtrar();">
+                                <option value="">Seleccione</option>
+                                <option value="Registrado" @(f.Estado == "Registrado" ? "selected" : "")>Registrado</option>
+                                <option value="Proceso" @(f.Estado == "Proceso" ? "selected" : "")>Proceso</option>
+                                <option value="Atendido" @(f.Estado == "Atendido" ? "selected" : "")>Atendido</option>
+                                <option value="Culminado" @(f.Estado == "Culminado" ? "selected" : "")>Culminado</option>
+                                <option value="Anulado" @(f.Estado == "Anulado" ? "selected" : "")>Anulado</option>
+                            </select>
+                        </th>
+                        <th class="text-center border-end">Resultado</th>
+                        <th class="text-center border-end">Dias Retraso</th>
+                        <th class="text-center border-end">
+                            @Html.DisplayNameFor(model => model.Tipo)<br />
+                            <select name="Tipo" class="form-control-sm border" onchange="filtrar();">
+                                <option value="">Seleccione</option>
+                                <option value="Devolucion" @(ViewBag.Osat.Tipo == "Devolucion" ? "selected" : "")>Devolucion</option>
+                                <option value="Reclamo" @(ViewBag.Osat.Tipo == "Reclamo" ? "selected" : "")>Reclamo</option>
+                                <option value="SolicitudInterna" @(ViewBag.Osat.Tipo == "SolicitudInterna" ? "selected" : "")>Solicitud Interna</option>
+                            </select>
+                        </th>
+                        <th class="text-center border-end">
+                            @Html.DisplayNameFor(model => model.Factor)<br />
+                            <select name="Factor" class="form-control-sm border" onchange="filtrar();">
+                                <option value="">Seleccione</option>
+                                <option value="Interno" @(ViewBag.Osat.Factor == "Interno" ? "selected" : "")>Interno</option>
+                                <option value="Externo" @(ViewBag.Osat.Factor == "Externo" ? "selected" : "")>Externo</option>
+                                <option value="Interno-Externo" @(ViewBag.Osat.Factor == "Interno-Externo" ? "selected" : "")>Interno-Externo</option>
+                            </select>
+                        </th>
 
-        <table id="tbl_ListadoSolicitudes" class="table table-light table-sm table-hover" cellspacing="0" width="100%">
-            <thead class="bg-cobefar-6">
-                <tr>
-                    <th class="text-center">
-                        @Html.DisplayNameFor(model => model.DocNum)<br />
-                        <input type="text" name="DocNum" class="form-control-sm border w-100" onchange="filtrar();" value="@ViewBag.Osat.DocNum" />
-                    </th>
-                    <th class="text-center">
-                        TiempoRegistro
-                        <input type="date" name="FechaRegistro" class="form-control-sm border" onchange="filtrar();" value="@f.FechaRegistro" />
-                    </th>
-                    <th>
-                        N° Ticket<br />
-                        <input type="text" name="DocNumTicket" class="form-control-sm border w-100" onchange="filtrar();" value="@if (ViewBag.Osat.DocNumTicket >= 1) { Write(ViewBag.Osat.DocNumTicket); }" />
-                    </th>
-                    <th>
-                        Cliente<br />
-                        <input type="text" name='DetORTV[CardName]' class="form-control-sm border w-100" onchange="filtrar();" value="@if (f.DetORTV != null) { Write(f.DetORTV["CardName"]); }" />
-                    </th>
-                    <th>
-                        LugarDestino<br />
-                        <select type="text" name='DetORTV[LugarDestino]' class="form-control-sm border" onchange="filtrar();">
-                            <option value="">Seleccione</option>
-                            <option value="Arriola" @if (f.DetORTV != null) { if (f.DetORTV["LugarDestino"] == "Arriola") { Write("selected"); } }>Arriola</option>
-                            <option value="Domicilio" @if (f.DetORTV != null) { if (f.DetORTV["LugarDestino"] == "Domicilio") { Write("selected"); } }>Domicilio</option>
-                            <option value="Centro" @if (f.DetORTV != null) { if (f.DetORTV["LugarDestino"] == "Centro") { Write("selected"); } }>Centro</option>
-                            <option value="Agencia" @if (f.DetORTV != null) { if (f.DetORTV["LugarDestino"] == "Agencia") { Write("selected"); } }>Agencia</option>
-                            <option value="Agencia Courier" @if (f.DetORTV != null) { if (f.DetORTV["LugarDestino"] == "Agencia Courier") { Write("selected"); } }>Agencia Courier</option>
-                        </select>
-                    </th>
-                    <th>
-                        @Html.DisplayNameFor(model => model.Estado)
-                        <select name="Estado" class="form-control-sm border" onchange="filtrar();">
-                            <option value="">Seleccione</option>
-                            <option value="Registrado" @if (f.Estado == "Registrado") { Write("selected"); }>Registrado</option>
-                            <option value="Proceso" @if (f.Estado == "Proceso") { Write("selected"); }>Proceso</option>
-                            <option value="Atendido" @if (f.Estado == "Atendido") { Write("selected"); }>Atendido</option>
-                            <option value="Culminado" @if (f.Estado == "Culminado") { Write("selected"); }>Culminado</option>
-                            <option value="Anulado" @if (f.Estado == "Anulado") { Write("selected"); }>Anulado</option>
-                        </select>
-                    </th>
-                    <th class="text-center">
-                        @Html.DisplayNameFor(model => model.Resultado)
-                        <input type="text" name="Resultado" class="form-control-sm border" onchange="filtrar();" value="@ViewBag.Osat.Resultado" />
-                    </th>
-                    <th>
-                        Dias Retraso
-                    </th>
-                    <th>
-                        @Html.DisplayNameFor(model => model.Tipo)
-                        <select type="text" name="Tipo" class="form-control-sm border" onchange="filtrar();">
-                            <option value="">Seleccione</option>
-                            <option value="Devolucion" @if (ViewBag.Osat.Tipo == "Devolucion") { Write("selected"); }>Devolucion</option>
-                            <option value="Reclamo" @if (ViewBag.Osat.Tipo == "Reclamo") { Write("selected"); }>Reclamo</option>
-                            <option value="SolicitudInterna" @if (ViewBag.Osat.Tipo == "SolicitudInterna") { Write("selected"); }>Solicitud Interna</option>
-                        </select>
-                    </th>
-                    <th>
-                        @Html.DisplayNameFor(model => model.Factor)
-                        <select type="text" name="Factor" class="form-control-sm border" onchange="filtrar();">
-                            <option value="">Seleccione</option>
-                            <option value="Interno" @if (ViewBag.Osat.Factor == "Interno") { Write("selected"); }>Interno</option>
-                            <option value="Externo" @if (ViewBag.Osat.Factor == "Externo") { Write("selected"); }>Externo</option>
-                            <option value="Interno-Externo" @if (ViewBag.Osat.Factor == "Interno-Externo") { Write("selected"); }>Interno-Externo</option>
-                        </select>
-                    </th>
-                    <th>
-                        DocFact<br />
-                        <input type="text" name="DocFact" id="doc_fact" style="width: 150px;" class="form-control-sm border input_cls-estandar" onchange="filtrar();" value="@f.DocFact" />
-                    </th>
-                    <th style="width: 100px"></th>
-                </tr>
-            </thead>
-
-            <tbody>
-                @foreach (var item in Model)
-                {
-                    <tr class="fila-principal" data-docentry="@item.DocEntry" data-detalle="@Json.Encode(item.Det)">
-                        <td class="text-center">
-                            @Html.DisplayFor(modelItem => item.DocNum)
-                        </td>
-                        <td class="text-center">
-                            @item.FechaRegistro
-                        </td>
-                        <td class="text-center">
-                            @Html.DisplayFor(modelItem => item.DocNumTicket)
-                        </td>
-                        <td><span class="pl-2">@item.DetORTV["CardName"]</span></td>
-                        <td class="text-center">
-                            @item.DetORTV["LugarDestino"]
-                        </td>
-                        <td class="text-center">
-                            @Html.DisplayFor(modelItem => item.Estado)
-                        </td>
-                        <td class="text-center">
-                            @Html.DisplayFor(modelItem => item.Resultado)
-                        </td>
-                        <td class="text-center @((
-                            (item.Estado == "Registrado" || item.Estado == "Proceso" || item.Estado == "Atendido") && item.DiasRetraso > 2
-                            ) ? "text-rojo" : "")">
-                            @item.DiasRetraso
-                        </td>
-                        <td class="text-center">
-                            @Html.DisplayFor(modelItem => item.Tipo)
-                        </td>
-                        <td class="text-center">
-                            @Html.DisplayFor(modelItem => item.Factor)
-                        </td>
-                        <td class="text-center">
-                            @item.enlistarDetSolicitudes()
-                        </td>
-                        <td style="width: 20px">
-                            <a href="@Url.Action( "DetallesSolicitud", "AtencionCliente", new { id = item.DocEntry })" class="btn btn-sm btn-light" data-toggle="tooltip" data-placement="top" title="Detalles Solicitud"><i class="icon-search text-primary"></i></a>
-
-                            @if (item.Estado.Equals("Registrado"))
-                            {
-                                <a href="@Url.Action( "EditarSolicitud", "AtencionCliente", new { id = item.DocEntry } )" class="btn btn-sm btn-light" data-toggle="tooltip" data-placement="top" title="Editar Solicitud"><i class="text-purple icon-pencil"></i></a>
-                                <a href="@Url.Action( "ProcesarSolicitud", "AtencionCliente",new { id = item.DocEntry } )" class="btn btn-sm btn-light" data-toggle="tooltip" data-placement="top" title="Procesar Solicitud"><i class="icon-history"></i></a>
-                                <button style="border: none; background:none;" type="button" onclick="anular(@item.DocEntry);" class="btn btn-sm btn-light" data-toggle="tooltip" data-placement="top" title="Anular Solicitud"><i class="icon-bin2 text-danger"></i></button>
-                            }
-                            else if (item.Estado.Equals("Proceso"))
-                            {
-                                <a href="@Url.Action( "ProcesarSolicitud", "AtencionCliente",new { id = item.DocEntry } )" class="btn btn-sm btn-light" data-toggle="tooltip" data-placement="top" title="Procesar Solicitud"><i class="icon-history"></i></a>
-                                <a href="@Url.Action( "AtenderSolicitud", "AtencionCliente", new { id = item.DocEntry } )" class="btn btn-sm btn-light" data-toggle="tooltip" data-placement="top" title="Atender Solicitud"><i class="icon-clipboard"></i></a>
-                            }
-                            else if (item.Estado.Equals("Atendido"))
-                            {
-                                <a href="@Url.Action( "AtenderSolicitud", "AtencionCliente", new { id = item.DocEntry } )" class="btn btn-sm btn-light" data-toggle="tooltip" data-placement="top" title="Atender Solicitud"><i class="icon-clipboard"></i></a>
-                                <a href="@Url.Action( "CulminarSolicitud", "AtencionCliente",new { id = item.DocEntry } )" class="btn btn-sm btn-light" data-toggle="tooltip" data-placement="top" title="Culminar Solicitud"><i class="icon-pushpin"></i></a>
-                            }
-                            else if (item.Estado.Equals("Culminado"))
-                            {
-                                <a href="@Url.Action( "CulminarSolicitud", "AtencionCliente",new { id = item.DocEntry } )" class="btn btn-sm btn-light" data-toggle="tooltip" data-placement="top" title="Culminar Solicitud"><i class="icon-pushpin"></i></a>
-                            }
-                        </td>
+                        <th></th>
                     </tr>
-                    @*<tr class="fila-detalle" id="detalle-@item.DocEntry" style="display:none;">
-                            @if (item.Det != null && item.Det.Count > 0)
-                            {
-                                    <td></td>
-                                    <td colspan="10">
-                                        <table class="tabla-detalle-solicitud">
-                                            <thead>
-                                                <tr>
-                                                    <th>Codigo</th>
-                                                    <th>Descripcion</th>
-                                                    <th>Lote</th>
-                                                    <th>Fec. Ven</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                @foreach (var obj in item.Det)
-                                                {
-                                                    <tr>
-                                                        <td>@obj.ItemCode</td>
-                                                        <td>@obj.Dscription</td>
-                                                        <td>@obj.BatchNum</td>
-                                                        <td>@obj.ExpDate</td>
-                                                    </tr>
-                                                }
-                                            </tbody>
-                                        </table>
-                                    </td>
-
-                                    <td></td>
-                                }
-                        </tr>*@
-                }
-            </tbody>
-        </table>
-
-    </form>
-    <script>
-        $(document).ready(function () {
-            // Evita que el clic en botones/links dentro de la fila principal dispare el evento de la fila
-            $(document).on('click', '.fila-principal a, .fila-principal button', function (e) {
-                e.stopPropagation();
-            });
-
-            // Maneja el clic en la fila principal
-            $(document).on('click', '.fila-principal', function () {
-                var docEntry = $(this).data('docentry');
-                var $detalle = $('#detalle-' + docEntry);
-
-                // Oculta todos los detalles excepto el seleccionado
-                $('.fila-detalle').not($detalle).hide();
-
-                // Alterna el detalle seleccionado
-                $detalle.toggle();
-            });
-        });
-    </script>
-    <!-- Modal para notificaciones pendientes -->
-    <div class="modal fade" id="modalDerecha" tabindex="-1" role="dialog" aria-labelledby="modalDerechaLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
-            <div class="modal-content">
-                <div class="modal-header bg-info text-white">
-                    <h5 class="modal-title" id="modalDerechaLabel">Notificaciones Pendientes</h5>
-                    <button type="button" class="close text-white" data-dismiss="modal" aria-label="Cerrar">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <table class="table table-bordered table-sm" id="tablaNotificaciones">
-                        <thead>
-                            <tr>
-                                <th>Cliente</th>
-                                <th>Tickets Abiertos</th>
-                                <th>Detalle</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <!-- Aquí se llenarán los datos -->
-                        </tbody>
-                    </table>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="modal fade" id="modalDetalleNotificacion" tabindex="-1" role="dialog" aria-labelledby="modalDetalleNotificacionLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
-            <div class="modal-content">
-                <div class="modal-header bg-primary text-white">
-                    <h5 class="modal-title" id="modalDetalleNotificacionLabel">Detalle de Tickets Abiertos</h5>
-                    <button type="button" class="close text-white" data-dismiss="modal" aria-label="Cerrar">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <table class="table table-bordered table-sm" id="tablaDetalleNotificaciones">
-                        <thead>
-                            <tr>
-                                <th>Fecha Ticket</th>
-                                <th>N° Ticket</th>
-                                <th>Estado</th>
-                                <th>Vendedor</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <!-- Aquí se llenarán los datos -->
-                        </tbody>
-                    </table>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
-                </div>
-            </div>
-        </div>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr class="fila-principal" data-docentry="@item.DocEntry" data-detalle="@Json.Encode(item.Det)">
+                            <td class="text-center">@Html.DisplayFor(modelItem => item.DocNum)</td>
+                            <td class="text-center">@item.FechaRegistro</td>
+                            <td class="text-center">@Html.DisplayFor(modelItem => item.DocNumTicket)</td>
+                            <td class="text-center">@(item.DetORTV != null ? item.DetORTV["CardName"] : "")</td>
+                            <td class="text-center">@(item.DetORTV != null ? item.DetORTV["LugarDestino"] : "")</td>
+                            <td class="text-center">@Html.DisplayFor(modelItem => item.Estado)</td>
+                            <td class="text-center">@Html.DisplayFor(modelItem => item.Resultado)</td>
+                            <td class="text-center @(((item.Estado == "Registrado" || item.Estado == "Proceso" || item.Estado == "Atendido") && item.DiasRetraso > 2) ? "text-rojo" : "")">@item.DiasRetraso</td>
+                            <td class="text-center">@Html.DisplayFor(modelItem => item.Tipo)</td>
+                            <td class="text-center">@Html.DisplayFor(modelItem => item.Factor)</td>
+                            @*<td class="text-center">@item.enlistarDetSolicitudes()</td>*@
+                            <td style="width: 20px">
+                                <div class="btn-group-inline">
+                                    <a href="@Url.Action("DetallesSolicitud", "AtencionCliente", new { id = item.DocEntry })" class="btn btn-sm btn-light" data-toggle="tooltip" data-placement="top" title="Detalles Solicitud">
+                                        <i class="bi bi-search text-primary"></i>
+                                    </a>
+                                    @if (item.Estado.Equals("Registrado"))
+                                    {
+                                        <a href="@Url.Action("EditarSolicitud", "AtencionCliente", new { id = item.DocEntry })" class="btn btn-sm btn-light" data-toggle="tooltip" data-placement="top" title="Editar Solicitud">
+                                            <i class="bi bi-pencil text-purple"></i>
+                                        </a>
+                                        <a href="@Url.Action("ProcesarSolicitud", "AtencionCliente", new { id = item.DocEntry })" class="btn btn-sm btn-light" data-toggle="tooltip" data-placement="top" title="Procesar Solicitud">
+                                            <i class="bi bi-clock-history"></i>
+                                        </a>
+                                        <button style="border: none; background:none;" type="button" onclick="anular(@item.DocEntry);" class="btn btn-sm btn-light" data-toggle="tooltip" data-placement="top" title="Anular Solicitud">
+                                            <i class="bi bi-trash text-danger"></i>
+                                        </button>
+                                    }
+                                    else if (item.Estado.Equals("Proceso"))
+                                    {
+                                        <a href="@Url.Action("ProcesarSolicitud", "AtencionCliente", new { id = item.DocEntry })" class="btn btn-sm btn-light" data-toggle="tooltip" data-placement="top" title="Procesar Solicitud">
+                                            <i class="bi bi-clock-history"></i>
+                                        </a>
+                                        <a href="@Url.Action("AtenderSolicitud", "AtencionCliente", new { id = item.DocEntry })" class="btn btn-sm btn-light" data-toggle="tooltip" data-placement="top" title="Atender Solicitud">
+                                            <i class="bi bi-clipboard"></i>
+                                        </a>
+                                    }
+                                    else if (item.Estado.Equals("Atendido"))
+                                    {
+                                        <a href="@Url.Action("AtenderSolicitud", "AtencionCliente", new { id = item.DocEntry })" class="btn btn-sm btn-light" data-toggle="tooltip" data-placement="top" title="Atender Solicitud">
+                                            <i class="bi bi-clipboard"></i>
+                                        </a>
+                                        <a href="@Url.Action("CulminarSolicitud", "AtencionCliente", new { id = item.DocEntry })" class="btn btn-sm btn-light" data-toggle="tooltip" data-placement="top" title="Culminar Solicitud">
+                                            <i class="bi bi-pin"></i>
+                                        </a>
+                                    }
+                                    else if (item.Estado.Equals("Culminado"))
+                                    {
+                                        <a href="@Url.Action("CulminarSolicitud", "AtencionCliente", new { id = item.DocEntry })" class="btn btn-sm btn-light" data-toggle="tooltip" data-placement="top" title="Culminar Solicitud">
+                                            <i class="bi bi-pin"></i>
+                                        </a>
+                                    }
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </form>
     </div>
 </div>
-
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
+    function filtrar() {
+        var object = $("#frm").serialize();
+        $(location).attr('href', "/AtencionCliente/GestionSolicitud?" + object);
+    }
+    function excel() {
+        var object = $("#frm").serialize();
+        $(location).attr('href', "/AtencionCliente/ExportarExcel?" + object);
+    }
+    function anular(id) {
+        Swal.fire({
+            title: '¿Esta seguro de anular?',
+            text: "Luego no puede modificar los datos!",
+            type: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: '¡Si, anular!'
+        }).then(result => {
+            if (result.value) {
+                var parametros = { "DocEntry": id };
+                $.ajax('/AtencionCliente/AnularSolicitud', {
+                    data: parametros,
+                    dataType: 'json',
+                    cache: false,
+                    type: 'post'
+                })
+                $(location).attr('href', "/AtencionCliente/GestionSolicitud");
+            }
+        });
+    }
+    function verMasNotificacion(CardCode) {
+        var $tbody = $('#tablaDetalleNotificaciones tbody');
+        $tbody.html('<tr><td colspan="4">Cargando...</td></tr>');
+        $('#modalDetalleNotificacion').modal('show');
+        $.ajax({
+            url: '@Url.Action("ObtenerNotificadoClienteDetalle", "AtencionCliente")',
+            type: 'GET',
+            data: { CardCode: CardCode },
+            dataType: 'json',
+            success: function (data) {
+                $tbody.empty();
+                if (data && data.length > 0) {
+                    for (var i = 0; i < data.length; i++) {
+                        $tbody.append(
+                            '<tr>' +
+                                '<td>' + data[i].FechaSapTicket + '</td>' +
+                                '<td>' + data[i].DocNumVt + '</td>' +
+                                '<td>' + data[i].EstadoVt + '</td>' +
+                                '<td>' + data[i].Vendedor + '</td>' +
+                            '</tr>'
+                        );
+                    }
+                } else {
+                    $tbody.html('<tr><td colspan="4">No hay tickets abiertos para este cliente.</td></tr>');
+                }
+            },
+            error: function () {
+                $tbody.html('<tr><td colspan="4">Error al cargar los datos.</td></tr>');
+            }
+        });
+        @{
+            // Pintar de rojo mayor a 2 dias
+            string estadoFiltro = f.Estado;
+            var estadosValidos = new[] { "Registrado", "Proceso", "Atendido" };
+            int contadorRojo = Model.Count(x =>
+                estadosValidos.Contains(string.IsNullOrEmpty(estadoFiltro) ? x.Estado : estadoFiltro)
+                && x.DiasRetraso > 2
+            );
+        }
+    }
+
+    $(document).ready(function () {
+        // Evita que el clic en botones/links dentro de la fila principal dispare el evento de la fila
+        $(document).on('click', '.fila-principal a, .fila-principal button', function (e) {
+            e.stopPropagation();
+        });
+        // Maneja el clic en la fila principal
+        $(document).on('click', '.fila-principal', function () {
+            var docEntry = $(this).data('docentry');
+            var $detalle = $('#detalle-' + docEntry);
+            // Oculta todos los detalles excepto el seleccionado
+            $('.fila-detalle').not($detalle).hide();
+            // Alterna el detalle seleccionado
+            $detalle.toggle();
+        });
+    });
+
     document.addEventListener('DOMContentLoaded', function () {
-        var table = inicializarDataTable('tbl_ListadoSolicitudes', 20, false, false);
+        var table = inicializarDataTable('tbl_ListadoSolicitudes', 20, true, false);
         $('#tbl_ListadoSolicitudes tbody').on('click', 'tr.fila-principal', function () {
             var tr = $(this);
             var row = table.row(tr);
-
             if (row.child.isShown()) {
                 row.child.hide();
                 tr.removeClass('shown');
             } else {
                 // Obtiene los detalles desde el atributo data-detalle
                 var detalles = JSON.parse(JSON.stringify(tr.data('detalle')));
-                //console.log(detalles)
                 var html = '<table class="tabla-detalle-solicitud"><thead><tr><th>Código</th><th>Descripción</th><th>Lote</th><th>Fec. Ven</th></tr></thead><tbody>';
                 for (var i = 0; i < detalles.length; i++) {
                     html += `<tr>
@@ -538,7 +377,6 @@
                        </tr>`;
                 }
                 html += '</tbody></table>';
-
                 row.child(html).show();
                 tr.addClass('shown');
             }

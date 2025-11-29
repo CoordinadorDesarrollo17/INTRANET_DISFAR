@@ -197,15 +197,16 @@ namespace Capa_Datos.Rutas_DAO.TablasSql
                 if (!dr.IsDBNull(23)) { o.HoraEntrega = dr.GetTimeSpan(23).ToString(); }
                 if (!dr.IsDBNull(24)) { o.Ticket.PagoEnv = dr.GetDecimal(24); }
                 if (!dr.IsDBNull(25)) { o.Ticket.ClaveEnv = dr.GetString(25); }
+                if (!dr.IsDBNull(26)) { o.ComentarioLiberado = dr.GetString(26); }
                 //regalo
-                if (!dr.IsDBNull(26))
+                if (!dr.IsDBNull(27))
                 {
-                    RTV5_E Regalo = new RTV5_E(); Regalo.RegCant = dr.GetDecimal(26);
-                    if (!dr.IsDBNull(27)) { Regalo.RegCate = dr.GetString(27); }
-                    if (!dr.IsDBNull(28)) { Regalo.RegEstado = dr.GetString(28); }
+                    RTV5_E Regalo = new RTV5_E(); Regalo.RegCant = dr.GetDecimal(27);
+                    if (!dr.IsDBNull(28)) { Regalo.RegCate = dr.GetString(28); }
+                    if (!dr.IsDBNull(29)) { Regalo.RegEstado = dr.GetString(29); }
                     o.Ticket.Det5 = new List<RTV5_E> { Regalo };
                 }
-                if (!dr.IsDBNull(29)) { o.Ticket.LugarDestino = dr.GetString(29); }
+                if (!dr.IsDBNull(30)) { o.Ticket.LugarDestino = dr.GetString(30); }
                 dr.Close();
                 cn.Close();
             }

@@ -112,7 +112,7 @@
 
 @using (Html.BeginForm(null, null, FormMethod.Post, new { id = "form" }))
 {
-    <input name="TipoRep" type="hidden" value="VDE" readonly />
+    <input name="TipoRep" type="hidden" value="DE" readonly />
     <div class="bg-form-pestanas-cobefar bg-section-form p-3 bg-form-cobefar">
         @Html.ValidationSummary(true, "", new { @class = "text-danger" })
 
@@ -121,7 +121,7 @@
             <div class="col-lg-2 col-md-3 col-sm-6">
                 <label for="TipoRuta" class="text-dark form-label-custom font-weight-bold">Tipo de ruta:</label>
                 <select name="TipoRuta" id="TipoRuta" class="form-control bg-cobefar text-white form-control-sm">
-                    <option value="VDE">Devolución</option>
+                    <option value="DE">Devolución</option>
                 </select>
             </div>
             <div id="infoListaClientes" class="col-lg-6 col-md-5 col-sm-12">
@@ -274,7 +274,7 @@
                     <tr>
                         <th class="text-center">#</th>
                         <th hidden>DocEntryT</th>
-                        <th class="text-center">NroTicket</th>
+                        <th class="text-center">DocNumSap</th>
                         <th class="text-center">Socio</th>
                         <th class="text-center">Guías</th>
                         <th class="text-center">Conductor/Placa</th>
@@ -338,13 +338,11 @@
                 cargarOrdenesDevolucion();
             }
         });
-
         // Evento: Cambio de almacén destino
         $("#AlmDestinoDesc").on('change', function () {
             enviarValSelect('AlmDestinoDesc', 'AlmDestinoCod', 'almdestinocod');
             enviarValSelect('AlmDestinoDesc', 'AlmDestinoDesc2', 'almdestinodesc2');
         });
-
         // Evento: Cambio de placa
         $("#Placa").on('change', function () {
             var selectedOption = $(this).find('option:selected');
@@ -352,12 +350,10 @@
             $("#Marca").val(selectedOption.attr('data-marca') || '');
             $("#Modelo").val(selectedOption.attr('data-modelo') || '');
         });
-
         // Evento: Seleccionar todos los checkboxes
         $("#chk_verifTodos").on('click', function () {
             seleccionarVerif();
         });
-
         // Evento: Botón agregar
         $("#btn-Agregar").on('click', function () {
             agregarTicketsDetalle();
@@ -483,7 +479,6 @@
             Swal.fire({ icon: 'error', title: 'Error', text: 'Error: ' + error });
         });
     }
-
     // INICIALIZAR TABLA DE ÓRDENES
     function inicializarTablaOrdenes(data) {
         if ($.fn.DataTable.isDataTable('#detalleRuta')) {
@@ -498,7 +493,6 @@
                 "columnDefs": [{ "visible": false, "targets": [2, 4, 11, 12, 13] }]
             });
         }
-
         var primerConductor = '', primerPlaca = '';
 
         $.each(data, function (index, item) {
@@ -506,10 +500,8 @@
                 primerConductor = item.Conductor || '';
                 primerPlaca = item.Placa || '';
             }
-
             var conductorPlaca = (item.Conductor || '') + ' / ' + (item.Placa || '');
             var checkbox = '<input type="checkbox" class="cls-chkVerif" data-conductor="' + (item.Conductor || '') + '" data-placa="' + (item.Placa || '') + '" />';
-
             tablaDetalleRuta.row.add([
                 checkbox,
                 (index + 1),
@@ -527,7 +519,6 @@
                 '0'
             ]);
         });
-
         tablaDetalleRuta.draw();
 
         // Establecer primer conductor y placa
@@ -554,25 +545,21 @@
             showConfirmButton: false
         });
     }
-
     // AGREGAR TICKETS AL DETALLE
     function agregarTicketsDetalle() {
         if (!tablaDetalleRuta) {
             Swal.fire('Error', 'No hay órdenes cargadas', 'warning');
             return;
         }
-
         var checkboxesSeleccionados = tablaDetalleRuta.rows({ page: 'all' }).nodes().to$().find('.cls-chkVerif:checked');
 
         if (checkboxesSeleccionados.length === 0) {
             Swal.fire('Sin órdenes seleccionadas', 'Por favor, selecciona al menos una orden de devolución.', 'warning');
             return;
         }
-
         checkboxesSeleccionados.each(function () {
             var row = tablaDetalleRuta.row($(this).closest('tr'));
             var rowData = row.data();
-
             var docEntry = rowData[2];
             var docNum = rowData[3];
             var cardName = rowData[5];
@@ -583,9 +570,8 @@
             var obs = rowData[11];
             var direcciones = rowData[12];
 
-            agregarItem(docEntry, docNum, cardName, guias, conducyPlaca, bultos, obs, direcciones, docTotal);  // ✅ CORREGIDO: Pasa "docTotal"
+            agregarItem(docEntry, docNum, cardName, guias, conducyPlaca, bultos, obs, direcciones, docTotal);  
         });
-
         // Desmarcar checkboxes
         checkboxesSeleccionados.prop('checked', false);
         $("#chk_verifTodos").prop('checked', false);
@@ -595,23 +581,19 @@
             scrollTop: $('#divDetalleRuta').offset().top
         }, 1000);
     }
-
     // AGREGAR ITEM AL DETALLE
-    function agregarItem(docEntry, docNum, cardName, guias, conducyPlaca, bultos, obs, direcciones, docTotal) {  // ✅ CORREGIDO: Cambio de "Doctotal" a "docTotal"
+    function agregarItem(docEntry, docNum, cardName, guias, conducyPlaca, bultos, obs, direcciones, docTotal) { 
         // Validar duplicado
         if (!validarUnicoCampoTabla(docEntry)) {
             Swal.fire('Orden duplicada', 'Esta orden ya fue agregada al detalle.', 'warning');
             return false;
         }
-
         if (!docEntry || docEntry === "") {
             return false;
         }
-
         // Formatear datos
         var guiasFormateadas = guias ? guias.replace(/,/g, '\n').trim() : '';
         var conducyPlacaFormateada = conducyPlaca ? conducyPlaca.replace(/,/g, '\n').trim() : '';
-
         // Construir fila
         var fila = "<tr>" +
             "<td><input name='DetRRU0[" + contDet + "].Linea' type='text' value='" + (contDet + 1) + "' style='width:40px' class='form-control form-control-sm' readonly/></td>" +
@@ -620,10 +602,10 @@
             "<td><input name='DetRRU0[" + contDet + "].Socio' type='text' value='" + cardName + "' style='width:200px' class='form-control form-control-sm' readonly/></td>" +
             "<td><textarea name='DetRRU0[" + contDet + "].Guias' class='form-control form-control-sm' readonly rows='2'>" + guiasFormateadas + "</textarea></td>" +
             "<td><textarea name='DetRRU0[" + contDet + "].ConducYPlaca' class='form-control form-control-sm' readonly rows='2'>" + conducyPlacaFormateada + "</textarea></td>" +
-            "<td><input name='DetRRU0[" + contDet + "].Cajas' type='text' value='" + bultos + "' style='width:60px' class='form-control form-control-sm text-center' readonly/></td>" +  // ✅ CAMBIADO A .Cajas
+            "<td><input name='DetRRU0[" + contDet + "].Cajas' type='text' value='" + bultos + "' style='width:60px' class='form-control form-control-sm text-center' readonly/></td>" + 
             "<td><input name='DetRRU0[" + contDet + "].Observaciones' type='text' value='" + obs + "' class='form-control form-control-sm' readonly/></td>" +
             "<td><textarea name='DetRRU0[" + contDet + "].Direcciones' class='form-control form-control-sm' readonly rows='2'>" + direcciones + "</textarea></td>" +
-            "<td><input name='DetRRU0[" + contDet + "].MontoFinal' type='text' value='" + parseFloat(docTotal).toFixed(2) + "' class='form-control form-control-sm text-right' readonly/></td>" +  // ✅ CORREGIDO: Usa "docTotal"
+            "<td><input name='DetRRU0[" + contDet + "].MontoFinal' type='text' value='" + parseFloat(docTotal).toFixed(2) + "' class='form-control form-control-sm text-right' readonly/></td>" +  
             "<td class='text-center'><a href='SeguimientoDeTicket?DocEntry=" + docEntry + "' target='_blank' class='btn btn-outline-primary btn-sm' onclick='window.open(this.href,this.target,\"width=500,height=350,top=120,left=100,toolbar=no,location=no,status=no,menubar=no\"); return false;'><i class='icon-truck'></i></a></td>" +
             "<td class='text-center'><button type='button' class='btn btn-outline-danger btn-sm' onclick='borrarLineaTabla(this)'><i class='icon icon-bin'></i></button></td>" +
             "</tr>";
@@ -633,7 +615,6 @@
         contDet++;
         return true;
     }
-
     // BORRAR LÍNEA DE LA TABLA
     function borrarLineaTabla(dom) {
         Swal.fire({
@@ -672,7 +653,6 @@
             i++;
         });
     }
-
     //  VALIDAR CAMPO ÚNICO
     function validarUnicoCampoTabla(docEntry) {
         var existe = false;
@@ -685,7 +665,6 @@
         });
         return !existe;
     }
-
     // CALCULAR TOTAL DE BULTOS
     function calcularTotalBultos() {
         var totalBultos = 0;
@@ -695,7 +674,6 @@
         });
         $("#TotalBultos").val(totalBultos);
     }
-
     // SELECCIONAR TODOS LOS CHECKBOXES
     function seleccionarVerif() {
         var checkTodos = $("#chk_verifTodos").is(':checked');
@@ -703,7 +681,6 @@
             tablaDetalleRuta.rows({ page: 'all' }).nodes().to$().find('.cls-chkVerif').prop('checked', checkTodos);
         }
     }
-
     // VALIDAR Y ENVIAR FORMULARIO
     function validarEnviarFormulario() {
         // Validar que existan detalles
@@ -711,35 +688,28 @@
             Swal.fire('Sin detalles', 'Debe agregar al menos una orden al detalle antes de guardar.', 'warning');
             return false;
         }
-
         // Validar campos obligatorios
         var fecha = $("#FechaSapTicket").val();
         var placa = $("#Placa").val();
         var conductor = $("#TransDesc").val();
         var almacenDestino = $("#AlmDestinoDesc").val();
-
         var errores = [];
-
         if (!fecha) {
             $("#FechaSapTicket").addClass('bg-danger text-white');
             errores.push('Fecha');
         }
-
         if (!placa) {
             $("#Placa").addClass('bg-danger text-white');
             errores.push('Placa');
         }
-
         if (!conductor) {
             $("#TransDesc").addClass('bg-danger text-white');
             errores.push('Conductor');
         }
-
         if (!almacenDestino) {
             $("#AlmDestinoDesc").addClass('bg-danger text-white');
             errores.push('Almacén Destino');
         }
-
         if (errores.length > 0) {
             Swal.fire('Campos requeridos', 'Complete los siguientes campos: ' + errores.join(', '), 'error');
             return false;

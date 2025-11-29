@@ -8,6 +8,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
+using Capa_Negocio.Ventas_NEG.Tablas;
+using Capa_Entidad.Ventas_ENT.Tablas;
 
 namespace Capa_Negocio.Rutas_NEG.TablasSql
 {
@@ -58,7 +60,7 @@ namespace Capa_Negocio.Rutas_NEG.TablasSql
             if (o.FechaCont == null) { throw new Exception("No eligió FechaContabilizacion"); }
 
             //validaciones para tipos de ruta distinto a courier y agencia
-            if (o.TipoRuta != "VG" && o.TipoRuta != "AC" && o.TipoRuta != "VDE" && (string.IsNullOrWhiteSpace(o.AlmOrigenCod) || string.IsNullOrWhiteSpace(o.AlmOrigenDesc)))
+            if (o.TipoRuta != "VG" && o.TipoRuta != "AC" && o.TipoRuta != "DE" && (string.IsNullOrWhiteSpace(o.AlmOrigenCod) || string.IsNullOrWhiteSpace(o.AlmOrigenDesc)))
             {
                 throw new Exception("No eligió almacén origen");
             }
@@ -66,10 +68,10 @@ namespace Capa_Negocio.Rutas_NEG.TablasSql
             {
                 throw new Exception("No eligió almacén destino");
             }
-            if (o.TipoRuta != "VDE" && o.TiempoPac == null) { throw new Exception("Debe haber tiempo pactado"); }
+            if (o.TipoRuta != "DE" && o.TiempoPac == null) { throw new Exception("Debe haber tiempo pactado"); }
 
-            // VALIDACIONES ESPECÍFICAS PARA SOLICITUD DE DEVOLUCIÓN (VDE)
-            if (o.TipoRuta == "VDE")
+            // VALIDACIONES ESPECÍFICAS PARA SOLICITUD DE DEVOLUCIÓN (DE)
+            if (o.TipoRuta == "DE")
             {
                 // Validar que exista al menos un detalle (órdenes de devolución)
                 if (o.DetRRU0 == null || o.DetRRU0.Count <= 0)
@@ -117,7 +119,7 @@ namespace Capa_Negocio.Rutas_NEG.TablasSql
             }
 
             //Validaciones para todo tipo de ruta menos TA Transferencia entre almacenes
-            if (!o.TipoRuta.Equals("TA") && !o.TipoRuta.Equals("VDE"))
+            if (!o.TipoRuta.Equals("TA") && !o.TipoRuta.Equals("DE"))
             {
                 if (o.DetRRU0.Count <= 0) { throw new Exception("Debe haber detalles de documento"); }
                 foreach (RRU0_E d in o.DetRRU0)
@@ -208,33 +210,40 @@ namespace Capa_Negocio.Rutas_NEG.TablasSql
         }
         public void validarDatosEncabezadoRuta(ORRU_E o)
         {
-            //Solo edita los datos de encabezado de la hoja de ruta
+            // Solo edita los datos de encabezado de la hoja de ruta
             ORRU_E orruE = obtenerOrdenDeRuta(o.DocEntry);
             if (orruE.Estado != "CREADO") { throw new Exception("Solo puede editar un documento creado"); }
             if (string.IsNullOrWhiteSpace(o.TipoRuta)) { throw new Exception("No lleno tipo de ruta encabezado"); }
 
             if (o.FechaCont == null) { throw new Exception("No eligió fecha de contabilizacion"); }
 
-            //validaciones para tipos de ruta distinto a agencia
-            if (o.TipoRuta != "VG" && (string.IsNullOrWhiteSpace(o.AlmOrigenCod) || string.IsNullOrWhiteSpace(o.AlmOrigenDesc)))
+            // Validaciones para tipos de ruta distinto a agencia ("VG")
+            // CAMBIO 1: Excluir "DE" de la validación de Almacén Origen
+            if (o.TipoRuta != "VG" && o.TipoRuta != "DE" && (string.IsNullOrWhiteSpace(o.AlmOrigenCod) || string.IsNullOrWhiteSpace(o.AlmOrigenDesc)))
             {
                 throw new Exception("No eligió almacén origen");
             }
+
+            // El almacén destino se mantiene obligatorio (a donde se devuelve la mercadería)
             if (o.TipoRuta != "VG" && (string.IsNullOrWhiteSpace(o.AlmDestinoCod) || string.IsNullOrWhiteSpace(o.AlmDestinoDesc)))
             {
                 throw new Exception("No eligió almacén destino");
             }
 
-            if (o.TiempoPac == null) { throw new Exception("Debe haber tiempo pactado"); }
+            // CAMBIO 2: Tiempo pactado obligatorio SOLO si NO es "DE"
+            if (o.TipoRuta != "DE" && o.TiempoPac == null)
+            {
+                throw new Exception("Debe haber tiempo pactado");
+            }
+
             if (o.TipoRuta != "TA")
             {
                 if (string.IsNullOrWhiteSpace(o.Placa)) { throw new Exception("El documento debe tener placa"); }
-                //Todos los casos distintos, donde se escoge los valores de un desplegable
+                // Todos los casos distintos, donde se escoge los valores de un desplegable
                 if (string.IsNullOrWhiteSpace(o.TransDesc)) { throw new Exception("Debe elegir un conductor"); }
                 if (string.IsNullOrWhiteSpace(o.VehiculoCod)) { throw new Exception("Debe elegir un vehiculo"); }
                 if (string.IsNullOrWhiteSpace(o.CopilDesc)) { throw new Exception("El documento debe tener copiloto 1"); }
             }
-
         }
         public ORRU_E obtenerOrdenDeRutaTicket(int DocEntryTicket)
         {
@@ -269,25 +278,53 @@ namespace Capa_Negocio.Rutas_NEG.TablasSql
         }
         public void TerminarReparto(ORRU_E o)
         {
-            //En este punto ya no valida el rango de temperaturas o humed para ninguno de los dos tipos de rutas.
-            //El rango se valida en RRU0 Y RRU1
-
-            if (o.Estado != "ENVIADO") { throw new Exception("El documento no esta enviado"); }
-            if (o.DetRRU0 != null)
+            // 1. VALIDACIÓN DE ESTADO SEGÚN TIPO DE RUTA
+            if (o.TipoRuta == "DE")
             {
-                foreach (RRU0_E a in o.DetRRU0.Where(x => x.Estado != "LIBERADO" && x.Estado != "ANULADO"))
+                // Para Devoluciones, el estado previo debe ser "DEVUELTO" (luego del botón recibir)
+                if (o.Estado != "DEVUELTO")
                 {
-                    if (a.Estado != "ENTREGADO") { throw new Exception("El ticket " + a.DocNumTicket + " no esta ENTREGADO"); }
+                    throw new Exception("La devolución debe estar recibida (Estado DEVUELTO) antes de terminar.");
                 }
             }
-            if (o.DetRRU1 != null)
+            else
             {
-                foreach (RRU1_E a in o.DetRRU1.Where(x => x.Estado != "LIBERADO"))
+                // Para Rutas Normales (VC, VD, etc), el estado debe ser "ENVIADO"
+                if (o.Estado != "ENVIADO")
                 {
-                    if (a.Estado != "ENTREGADO") { throw new Exception("Todos los tickets no estan como ENTREGADO"); }
+                    throw new Exception("El documento no está en estado ENVIADO.");
                 }
             }
 
+            // 2. VALIDACIÓN DE TICKETS (SOLO PARA RUTAS NORMALES)
+            // Si es DE, nos saltamos todo este bloque if
+            if (o.TipoRuta != "DE")
+            {
+                if (o.DetRRU0 != null)
+                {
+                    foreach (RRU0_E a in o.DetRRU0.Where(x => x.Estado != "LIBERADO" && x.Estado != "ANULADO"))
+                    {
+                        if (a.Estado != "ENTREGADO")
+                        {
+                            throw new Exception("El ticket " + a.DocNumTicket + " no esta ENTREGADO");
+                        }
+                    }
+                }
+
+                if (o.DetRRU1 != null)
+                {
+                    foreach (RRU1_E a in o.DetRRU1.Where(x => x.Estado != "LIBERADO"))
+                    {
+                        if (a.Estado != "ENTREGADO")
+                        {
+                            throw new Exception("Todos los tickets no estan como ENTREGADO");
+                        }
+                    }
+                }
+            }
+
+            // 3. EJECUTAR EL CIERRE EN LA BASE DE DATOS
+            // (Llama al SP con 'UTR' que pone el estado TERMINADO)
             orruD.TerminarReparto(o);
         }
         public string infoListaProductosOWTQ(string guia, int linea, string Origen)
@@ -319,14 +356,78 @@ namespace Capa_Negocio.Rutas_NEG.TablasSql
             if (nuevaHora.Length == 5) nuevaHora += ":00"; // normalizar
             return orruD.ActualizarHoraLlegada(docEntry, docNum, nuevaHora);
         }
-        public List<dynamic> ListarOrdenesDevolucionDesdeHana(string cardCode, string fecha)
+        public List<ORRU_E.OrdenDevolucionHana> ListarOrdenesDevolucionDesdeHana(string cardCode, string fecha)
         {
-            return new ORRU_D().ListarOrdenesDevolucionDesdeHana(cardCode, fecha);
+            return orruD.ListarOrdenesDevolucionDesdeHana(cardCode, fecha);
         }
 
         public List<dynamic> ListarClientesPorFechaDesdeHana(string fecha)
         {
             return new ORRU_D().ListarClientesPorFechaDesdeHana(fecha);
+        }
+
+        public void RecibirDevolucion(int DocEntry, string opRegistro)
+        {
+            orruD.RecibirDevolucion(DocEntry, opRegistro);
+        }
+        public List<ORRU_E.RptRutasExcel> ObtenerRptRutasExcel(int docEntry)
+        {
+            var ReporteExcel = orruD.ObtenerRptRutasExcel(docEntry);
+
+            var ordrN = new Capa_Negocio.Ventas_NEG.Tablas.ORDR_N();
+            var negtik = new Capa_Negocio.Ventas_NEG.TablasSql.ORTV_N();
+            var oinvNeg = new OINV_N();
+
+            foreach (var item in ReporteExcel)
+            {
+                var obj = negtik.ObtenerDatosCompletosTicket(item.DocEntry);
+                List<string> FB = new List<string>();
+
+                if (obj?.Det2 != null)
+                {
+                    foreach (var orden in obj.Det2)
+                    {
+                        var Ordenes = ordrN.listadoOrdenesDeVenta(
+                            new Capa_Entidad.Ventas_ENT.Tablas.ORDR_E { DocNum = orden.NroSap }, true);
+
+                        if (Ordenes.Count > 0)
+                        {
+                            foreach (var x in Ordenes[0].ComprobantesVinculados)
+                            {
+                                FB.Add(x.NumAtCard);
+                            }
+                        }
+                    }
+                }
+
+                List<OINV_E> lista = new List<OINV_E>();
+                foreach (var o in FB)
+                {
+                    if (!string.IsNullOrWhiteSpace(o) && o.Contains("F"))
+                    {
+                        var factura = oinvNeg.listadoFacturasDeVenta(
+                            new OINV_E { NumAtCard = o }).FirstOrDefault();
+                        if (factura != null) lista.Add(factura);
+                    }
+                    else if (!string.IsNullOrWhiteSpace(o) && o.Contains("B"))
+                    {
+                        var boleta = oinvNeg.listadoBoletasDeVenta(
+                            new OINV_E { NumAtCard = o }).FirstOrDefault();
+                        if (boleta != null) lista.Add(boleta);
+                    }
+                }
+
+                // Agrupa y asigna los números de factura/boleta al campo Factura
+                var facturas = lista
+                    .Where(x => x != null && !string.IsNullOrWhiteSpace(x.NumAtCard))
+                    .GroupBy(x => x.NumAtCard)
+                    .Select(g => g.First().NumAtCard)
+                    .ToList();
+
+                item.Factura = string.Join(", ", facturas);
+            }
+
+            return ReporteExcel;
         }
     }
 }

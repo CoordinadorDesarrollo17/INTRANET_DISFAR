@@ -2556,11 +2556,11 @@ namespace Capa_Usuario.Controllers
                     {
                         if (analisisTickets.Count >= 1)
                         {
-                            for (var col = 1; col <= 66; col++)
+                            for (var col = 1; col <= 71; col++)
                             {
                                 worksheet.Column(col).AutoFit();
                             }
-                            var tabla = worksheet.Tables.Add(new ExcelAddressBase(fromRow: 1, fromCol: 1, toRow: analisisTickets.Count + 1, toColumn: 66), "RptAnalisisTickets");
+                            var tabla = worksheet.Tables.Add(new ExcelAddressBase(fromRow: 1, fromCol: 1, toRow: analisisTickets.Count + 1, toColumn: 71), "RptAnalisisTickets");
                             tabla.ShowHeader = true;
                             tabla.TableStyle = OfficeOpenXml.Table.TableStyles.Medium2;
                         }
@@ -4088,6 +4088,36 @@ namespace Capa_Usuario.Controllers
             catch (Exception ex)
             {
                 return Json(new { success = false, comentario = "", message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        [HttpPost]
+        public JsonResult quitarRegalo(int docEntry)
+        {
+            try
+            {
+                var ticket = _ticketN.ObtenerDatosCompletosTicket(docEntry);
+                Usuario_E usu = (Usuario_E)Session["UsuarioId"];
+                var operario = $"{usu.Nombres} {usu.Apellidos}";
+                if (ticket == null)
+                    return Json(new { success = false, mensaje = "Ticket no encontrado" });
+                ticket.Operario = operario;
+                if (ticket.Det5 != null && ticket.Det5.Count > 0)
+                {
+                    // Reset regalo
+                    ticket.Det5[0].IdReg = 0;
+                    ticket.Det5[0].RegCant = 0;
+                    ticket.Det5[0].RegCate = null;
+                    ticket.Det5[0].RegTipo = null;
+                }
+
+                _ticketN.EditarRegalo(docEntry, ticket);
+
+                return Json(new { success = true, mensaje = "Regalo retirado del ticket" });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, mensaje = ex.Message });
             }
         }
 
