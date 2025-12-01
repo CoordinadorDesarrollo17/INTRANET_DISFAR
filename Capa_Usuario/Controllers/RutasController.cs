@@ -1786,7 +1786,7 @@ namespace Capa_Usuario.Controllers
             var listaSinDocEntry = lista.Select(x => new
             {
                 x.Guias,x.Factura,x.OrdenCompra,x.Ruc,x.Direccion,x.Departamento,
-                x.Cajas,x.Peso
+                x.PersonaRecojo,x.Documento,x.Telefono,x.Cajas,x.Peso
 
             }).ToList();
 

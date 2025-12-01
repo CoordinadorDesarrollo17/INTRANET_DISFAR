@@ -229,7 +229,7 @@
                                     <a href="@Url.Action("ManifiestoCourier", "Rutas", new { DocEntry = item.DocEntry, Estado = item.Estado})" class="btn btn-danger d-none d-sm-none d-md-none d-lg-block d-xl-block mx-1"><i title="Manifiesto" class="icon-file-pdf"></i></a>
                                     <a href="@Url.Action("AnularHojaCargo", "Rutas", new { DocEntry = item.DocEntry,TipoRep="Re", Estado = item.Estado } )" class="btn btn-orange d-none d-sm-none d-md-none d-lg-block d-xl-block mx-1"><i title="Anular Hoja Cargo" class="icon-blocked"></i></a>
                                 }
-                                @if (item.TipoRuta == "VG" || item.TipoRuta == "VD")
+                                @if (item.TipoRuta == "VG")
                                 {
                                     <a href="@Url.Action("DescargarRptRutasExcel", "Rutas", new { docEntry = item.DocEntry })"
                                        class="btn btn-success d-none d-sm-none d-md-none d-lg-block d-xl-block mx-1"

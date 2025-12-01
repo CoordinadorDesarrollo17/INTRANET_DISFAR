@@ -227,6 +227,9 @@ namespace Capa_Entidad.Rutas_ENT.TablasSql
             public decimal Peso { get; set; }
             public int DocEntry { get; set; }
             public int Cajas { get; set; }
+            public string PersonaRecojo { get; set; }
+            public string Documento { get; set; }
+            public string Telefono { get; set; }
         }
     }
 }

@@ -1492,11 +1492,15 @@ namespace Capa_Datos.Rutas_DAO.TablasSql
             CONCAT(T4.Departamento, ', ', T4.Provincia, ', ', T4.Distrito) AS Departamento,
             SUM(T3.Peso) AS Peso,
             T0.DocEntryTicket,
-            T0.Cajas
+            T0.Cajas,
+	        T1.NombrePer,
+	        T1.DocPer,
+	        T1.TelfPer
         FROM al.RRU0 T0
         LEFT OUTER JOIN vt.RTV6 T3 ON T3.DocEntry = T0.DocEntryTicket
         LEFT OUTER JOIN vt.RTV3 T4 ON T4.DocEntry = T0.DocEntryTicket
         LEFT OUTER JOIN vt.ORTV T5 ON T5.DocEntry = T0.DocEntryTicket
+        LEFT OUTER JOIN vt.RTV1 T1 ON T1.DocEntry = T0.DocEntryTicket
         WHERE T0.DocEntry = @DocEntry
         GROUP BY 
             T0.Guias,
@@ -1507,7 +1511,10 @@ namespace Capa_Datos.Rutas_DAO.TablasSql
             T4.Provincia,
             T4.Distrito,
             T0.DocEntryTicket,
-            T0.Cajas
+            T0.Cajas,
+	        T1.NombrePer,
+	        T1.DocPer,
+	        T1.TelfPer
         ";
 
             try
@@ -1530,6 +1537,9 @@ namespace Capa_Datos.Rutas_DAO.TablasSql
                             if (!dr.IsDBNull(5)) item.Peso = dr.GetDecimal(5);
                             if (!dr.IsDBNull(6)) item.DocEntry = dr.GetInt32(6);
                             if (!dr.IsDBNull(7)) item.Cajas = dr.GetInt32(7);
+                            if (!dr.IsDBNull(8)) item.PersonaRecojo = dr.GetString(8);
+                            if (!dr.IsDBNull(9)) item.Documento = dr.GetString(9);
+                            if (!dr.IsDBNull(10)) item.Telefono = dr.GetString(10);
                             lista.Add(item);
                         }
                     }
