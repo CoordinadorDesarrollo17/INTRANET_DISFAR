@@ -132,6 +132,7 @@
                             <option value="TA" @if (o != null && o.TipoRuta == "TA") { Write("selected"); }>TRASLADOS</option>
                             <option value="VA" @if (o != null && o.TipoRuta == "VA") { Write("selected"); }>ARRIOLA</option>
                             <option value="VG" @if (o != null && o.TipoRuta == "VG") { Write("selected"); }>AGENCIA</option>
+                            @* ELIMINADA OPCION DEVOLUCION DE AQUI *@
                         </select>
                     </th>
                     <th class="text-center">
@@ -168,19 +169,28 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach (var item in Model)
+                @* AQUÍ FILTRAMOS PARA QUE NO MUESTRE LOS DE TIPO 'DE' *@
+                @foreach (var item in Model.Where(x => x.TipoRuta != "DE"))
                 {
                     <tr>
                         <td class="text-center @if (ViewBag.DocNum == item.DocNum) { Write("bg-success"); } ">
                             @Html.DisplayFor(modelItem => item.DocNum)
                         </td>
-                        <td class="text-center">@Html.DisplayFor(modelItem => item.TipoRuta)</td>
-                        <td class="text-center">@Html.DisplayFor(modelItem => item.TransDesc)</td>
+                        <td class="text-center">
+                            @Html.DisplayFor(modelItem => item.TipoRuta)
+                        </td>
+                        <td class="text-center">
+                            @Html.DisplayFor(modelItem => item.TransDesc)
+                        </td>
                         <td class="text-center">
                             @Convert.ToDateTime(item.TiempoPac).ToString("dd/MM/yyyy") <br class="d-md-none" />@Convert.ToDateTime(item.TiempoPac).ToString("HH:mm")
                         </td>
-                        <td class="text-center">@Html.DisplayFor(modelItem => item.Estado)</td>
-                        <td class="text-center">@Html.DisplayFor(modelItem => item.TotalCajas)</td>
+                        <td class="text-center">
+                            @Html.DisplayFor(modelItem => item.Estado)
+                        </td>
+                        <td class="text-center">
+                            @Html.DisplayFor(modelItem => item.TotalCajas)
+                        </td>
                         <td class="text-center">
                             <div class="d-flex">
                                 @if (item.Estado.Equals("CREADO"))
@@ -219,7 +229,7 @@
                                     <a href="@Url.Action("ManifiestoCourier", "Rutas", new { DocEntry = item.DocEntry, Estado = item.Estado})" class="btn btn-danger d-none d-sm-none d-md-none d-lg-block d-xl-block mx-1"><i title="Manifiesto" class="icon-file-pdf"></i></a>
                                     <a href="@Url.Action("AnularHojaCargo", "Rutas", new { DocEntry = item.DocEntry,TipoRep="Re", Estado = item.Estado } )" class="btn btn-orange d-none d-sm-none d-md-none d-lg-block d-xl-block mx-1"><i title="Anular Hoja Cargo" class="icon-blocked"></i></a>
                                 }
-                                @if (item.TipoRuta == "VG" || item.TipoRuta == "VD")
+                                @if (item.TipoRuta == "VG")
                                 {
                                     <a href="@Url.Action("DescargarRptRutasExcel", "Rutas", new { docEntry = item.DocEntry })"
                                        class="btn btn-success d-none d-sm-none d-md-none d-lg-block d-xl-block mx-1"
@@ -235,13 +245,6 @@
         </table>
     </div>
 </form>
-
-@* ======= MODAL INICIAR REPARTO COMENTADO TEMPORALMENTE ======= *@
-@*
-    <div class="modal" id="M1" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        ... (contenido original del modal omitido por decisión temporal) ...
-    </div>
-*@
 
 <div class="modal" id="M2" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" role="document">

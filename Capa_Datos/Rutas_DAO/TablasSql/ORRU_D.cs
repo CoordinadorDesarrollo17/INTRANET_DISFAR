@@ -10,6 +10,7 @@ using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
+using static Capa_Entidad.Rutas_ENT.TablasSql.ORRU_E;
 
 namespace Capa_Datos.Rutas_DAO.TablasSql
 {
@@ -284,6 +285,39 @@ namespace Capa_Datos.Rutas_DAO.TablasSql
                     ORTV_D ortv = new ORTV_D();
                     d.Ticket = ortv.ObtenerDatosCompletosTicket(d.DocEntryTicket);
 
+                    // --- INICIO DEL CAMBIO ---
+                    // Si hay un "Socio" escrito manualmente en RRU0, buscamos su RUC y reemplazamos el del ticket
+                    if (!string.IsNullOrWhiteSpace(d.Socio))
+                    {
+                        try
+                        {
+                            // NOTA: Asegúrate de usar una nueva conexión o verificar si 'cn' permite MultipleActiveResultSets. 
+                            // Para mayor seguridad, aquí abro una conexión rápida auxiliar solo para este dato.
+                            using (SqlConnection cnAux = new SqlConnection(uti.cadSql))
+                            {
+                                cnAux.Open();
+                                // Buscamos el CardCode en ORTV usando el nombre del Socio
+                                string sqlRuc = "SELECT TOP 1 CardCode FROM vt.ORTV WHERE CardName = @SocioName";
+                                SqlCommand cmdRuc = new SqlCommand(sqlRuc, cnAux);
+                                cmdRuc.Parameters.AddWithValue("@SocioName", d.Socio); // Importante: que sea idéntico
+
+                                object resultado = cmdRuc.ExecuteScalar();
+
+                                if (resultado != null)
+                                {
+                                    // ¡AQUÍ ESTÁ EL TRUCO! 
+                                    // Engañamos a la vista poniendo el RUC del socio dentro del objeto Ticket
+                                    d.Ticket.CardCode = resultado.ToString();
+                                }
+                                cnAux.Close();
+                            }
+                        }
+                        catch
+                        {
+                            // Si falla la búsqueda, no hacemos nada y se queda el RUC original del ticket
+                        }
+                    }
+                    // --- FIN DEL CAMBIO ---
                     o.DetRRU0.Add(d);
                 }
                 dr2.Close();
@@ -456,6 +490,45 @@ namespace Capa_Datos.Rutas_DAO.TablasSql
                     SqlTransaction tran = cn.BeginTransaction();
                     try
                     {
+                        // Bloque de depuración temporal para registrar los valores de los parámetros
+                        var debugInfo = new StringBuilder();
+                        debugInfo.AppendLine("--- DEBUG: Parámetros para al.MANT_ORRU ---");
+                        Action<string, object> addDebugInfo = (name, val) => {
+                            string valStr = (val == null || val == DBNull.Value) ? "NULL" : val.ToString();
+                            debugInfo.AppendLine($"{name} (len: {valStr.Length}): {valStr}");
+                        };
+
+                        addDebugInfo("@TipoRuta", o.TipoRuta);
+                        addDebugInfo("@TransCod", o.TransCod);
+                        addDebugInfo("@TransDesc", o.TransDesc);
+                        addDebugInfo("@VehiculoCod", o.VehiculoCod);
+                        addDebugInfo("@Placa", o.Placa);
+                        addDebugInfo("@Marca", o.Marca);
+                        addDebugInfo("@Modelo", o.Modelo);
+                        addDebugInfo("@CopilDesc", o.CopilDesc);
+                        addDebugInfo("@Copil2Desc", o.Copil2Desc);
+                        addDebugInfo("@Copil3Desc", o.Copil3Desc);
+                        addDebugInfo("@Copil4Desc", o.Copil4Desc);
+                        addDebugInfo("@AlmOrigenCod", o.AlmOrigenCod);
+                        addDebugInfo("@AlmOrigenDesc", o.AlmOrigenDesc);
+                        addDebugInfo("@AlmOrigenDesc2", o.AlmOrigenDesc2);
+                        addDebugInfo("@AlmDestinoCod", o.AlmDestinoCod);
+                        addDebugInfo("@AlmDestinoDesc", o.AlmDestinoDesc);
+                        addDebugInfo("@AlmDestinoDesc2", o.AlmDestinoDesc2);
+                        addDebugInfo("@Propietario", o.Propietario);
+                        addDebugInfo("@Observaciones", o.Observaciones);
+                        if (o.TipoRuta == "AC")
+                        {
+                            addDebugInfo("@Agencia", o.Agencia);
+                            addDebugInfo("@RucAgencia", o.RucAgencia);
+                        }
+                        addDebugInfo("@Operario", o.Propietario);
+                        addDebugInfo("@Origen", o.Origen);
+
+                        // Escribir en la ventana de salida de depuración
+                        System.Diagnostics.Debug.WriteLine(debugInfo.ToString());
+
+
                         SqlCommand cmd = new SqlCommand("al.MANT_ORRU", cn, tran)
                         {
                             CommandType = CommandType.StoredProcedure
@@ -1257,6 +1330,156 @@ namespace Capa_Datos.Rutas_DAO.TablasSql
             return filas > 0;
         }
 
+        public List<OrdenDevolucionHana> ListarOrdenesDevolucionDesdeHana(string cardCode, string fecha)
+        {
+            var lista = new List<OrdenDevolucionHana>();
+
+            if (string.IsNullOrWhiteSpace(cardCode) || string.IsNullOrWhiteSpace(fecha))
+                return lista;
+
+            if (!DateTime.TryParse(fecha, out DateTime fechaParsed))
+                throw new Exception("Fecha inválida: " + fecha);
+
+            string fechaFormato = fechaParsed.ToString("yyyy-MM-dd");
+
+            // Sanitizar cardCode simple (si no puedes parametrizar en HANA). Mejor: usar parámetros en tu DBHelper.
+            cardCode = cardCode.Replace("'", "''").Trim();
+
+            string query = @"
+                SELECT 
+                    T0.""DocEntry"",
+                    T0.""DocNum"",
+                    T0.""CardCode"",
+                    T0.""CardName"",
+                    T0.""Address"",
+                    T0.""Comments"",
+                    T0.""JrnlMemo"",
+                    IFNULL(T0.""U_SYP_MDTD"", '') || '-' || IFNULL(T0.""U_SYP_MDSD"", '') || '-' || IFNULL(T0.""U_SYP_MDCD"", '') AS ""NumGuia"",
+                    T0.""U_SYP_MDMT"",
+                    T0.""U_COB_LUGAREN"",
+                    T0.""U_BPP_NUDOCCOND"",
+                    T0.""U_SYP_MDFN"",
+                    T0.""U_SYP_MDVC"",
+                    IFNULL(T0.""U_BPP_NUMBUL"", 0) AS ""Bultos"",
+                    IFNULL(T0.""DocTotal"", 0) AS ""DocTotal""
+                FROM " + uti.schemaHana + @"ORRR T0
+                WHERE T0.""CardCode"" = '" + cardCode + @"'
+                  AND T0.""DocDate"" = '" + fechaFormato + @"'
+                   AND T0.""CANCELED"" = 'N'
+                ORDER BY T0.""DocNum"" DESC";
+
+            try
+            {
+                using (var hdr = db.HanaExecuteReaderNoSp(query))
+                {
+                    while (hdr.Read())
+                    {
+                        var o = new OrdenDevolucionHana
+                        {
+                            DocEntry = !hdr.IsDBNull(0) ? hdr.GetInt32(0) : 0,
+                            DocNum = !hdr.IsDBNull(1) ? hdr.GetInt32(1) : 0,
+                            CardCode = !hdr.IsDBNull(2) ? hdr.GetString(2) : "",
+                            CardName = Trunc(!hdr.IsDBNull(3) ? hdr.GetString(3) : "", 200),
+                            Address = Trunc(!hdr.IsDBNull(4) ? hdr.GetString(4) : "", 200),
+                            Comments = Trunc(!hdr.IsDBNull(5) ? hdr.GetString(5) : "", 400),
+                            JrnlMemo = Trunc(!hdr.IsDBNull(6) ? hdr.GetString(6) : "", 100),
+                            NumAtCard = Trunc(!hdr.IsDBNull(7) ? hdr.GetString(7) : "", 50),
+                            TipoMotivo = Trunc(!hdr.IsDBNull(8) ? hdr.GetString(8) : "", 50),
+                            Agencia = Trunc(!hdr.IsDBNull(9) ? hdr.GetString(9) : "", 100),
+                            NumDocConductor = Trunc(!hdr.IsDBNull(10) ? hdr.GetString(10) : "", 20),
+                            Conductor = Trunc(!hdr.IsDBNull(11) ? hdr.GetString(11) : "", 100),
+                            Placa = Trunc(!hdr.IsDBNull(12) ? hdr.GetString(12) : "", 30),
+                            Bultos = !hdr.IsDBNull(13) ? hdr.GetInt32(13) : 0,
+                            DocTotal = !hdr.IsDBNull(14) ? hdr.GetDecimal(14) : 0m
+                        };
+
+                        lista.Add(o);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error al listar devoluciones (HANA ORRR): " + ex.Message, ex);
+            }
+
+            return lista;
+
+            string Trunc(string val, int max)
+            {
+                if (string.IsNullOrEmpty(val)) return "";
+                return val.Length <= max ? val : val.Substring(0, max);
+            }
+        }
+        public List<dynamic> ListarClientesPorFechaDesdeHana(string fecha)
+        {
+            var lista = new List<dynamic>();
+
+            try
+            {
+                // Convertir fecha a formato YYYY-MM-DD para comparar con DocDate
+                string fechaFormato = DateTime.Parse(fecha).ToString("yyyy-MM-dd");
+
+                // Consulta a ORRR usando DocDate (campo correcto para la fecha)
+                string query = @"
+                SELECT DISTINCT
+                    T0.""CardCode"",
+                    T0.""CardName""
+                FROM " + uti.schemaHana + @"ORRR T0
+                WHERE T0.""DocDate"" = '" + fechaFormato + @"'
+                ORDER BY T0.""CardName"" ASC";
+
+                HanaDataReader hdr = db.HanaExecuteReaderNoSp(query);
+
+                while (hdr.Read())
+                {
+                    var cliente = new
+                    {
+                        CardCode = !hdr.IsDBNull(0) ? hdr.GetString(0) : "",
+                        CardName = !hdr.IsDBNull(1) ? hdr.GetString(1) : ""
+                    };
+
+                    lista.Add(cliente);
+                }
+
+                hdr.Close();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error al listar clientes desde HANA (tabla ORRR): " + ex.Message);
+            }
+
+            return lista;
+        }
+
+        public void RecibirDevolucion(int DocEntry, string opRegistro)
+        {
+            using (SqlConnection cn = new SqlConnection(uti.cadSql))
+            {
+                try
+                {
+                    cn.Open();
+                    SqlCommand cmd = new SqlCommand("al.MANT_ORRU", cn);
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.Parameters.AddWithValue("@TipoMantenimiento", "URD");
+                    cmd.Parameters.AddWithValue("@DocEntry", DocEntry);
+                    cmd.Parameters.AddWithValue("@Operario", opRegistro);
+
+                    // Parámetros no utilizados pero requeridos por el SP, enviar NULL
+                    cmd.Parameters.AddWithValue("@DocNum", 0).Direction = ParameterDirection.Output;
+                    cmd.Parameters.AddWithValue("@Det", null);
+                    cmd.Parameters.AddWithValue("@Det1", null);
+                    cmd.Parameters.AddWithValue("@DetDoc", null);
+                    cmd.Parameters.AddWithValue("@DetProd", null);
+
+                    cmd.ExecuteNonQuery();
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception("Error en RecibirDevolucion: " + ex.Message);
+                }
+            }
+        }
+
         public List<ORRU_E.RptRutasExcel> ObtenerRptRutasExcel(int docEntry)
         {
             var lista = new List<ORRU_E.RptRutasExcel>();
@@ -1269,11 +1492,15 @@ namespace Capa_Datos.Rutas_DAO.TablasSql
             CONCAT(T4.Departamento, ', ', T4.Provincia, ', ', T4.Distrito) AS Departamento,
             SUM(T3.Peso) AS Peso,
             T0.DocEntryTicket,
-            T0.Cajas
+            T0.Cajas,
+	        T1.NombrePer,
+	        T1.DocPer,
+	        T1.TelfPer
         FROM al.RRU0 T0
         LEFT OUTER JOIN vt.RTV6 T3 ON T3.DocEntry = T0.DocEntryTicket
         LEFT OUTER JOIN vt.RTV3 T4 ON T4.DocEntry = T0.DocEntryTicket
         LEFT OUTER JOIN vt.ORTV T5 ON T5.DocEntry = T0.DocEntryTicket
+        LEFT OUTER JOIN vt.RTV1 T1 ON T1.DocEntry = T0.DocEntryTicket
         WHERE T0.DocEntry = @DocEntry
         GROUP BY 
             T0.Guias,
@@ -1284,7 +1511,10 @@ namespace Capa_Datos.Rutas_DAO.TablasSql
             T4.Provincia,
             T4.Distrito,
             T0.DocEntryTicket,
-            T0.Cajas
+            T0.Cajas,
+	        T1.NombrePer,
+	        T1.DocPer,
+	        T1.TelfPer
         ";
 
             try
@@ -1307,6 +1537,9 @@ namespace Capa_Datos.Rutas_DAO.TablasSql
                             if (!dr.IsDBNull(5)) item.Peso = dr.GetDecimal(5);
                             if (!dr.IsDBNull(6)) item.DocEntry = dr.GetInt32(6);
                             if (!dr.IsDBNull(7)) item.Cajas = dr.GetInt32(7);
+                            if (!dr.IsDBNull(8)) item.PersonaRecojo = dr.GetString(8);
+                            if (!dr.IsDBNull(9)) item.Documento = dr.GetString(9);
+                            if (!dr.IsDBNull(10)) item.Telefono = dr.GetString(10);
                             lista.Add(item);
                         }
                     }

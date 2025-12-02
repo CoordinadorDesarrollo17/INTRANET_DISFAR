@@ -70,10 +70,12 @@ namespace Capa_Entidad.Rutas_ENT.TablasSql
         public string FecConIni { get; set; }
         public string FecConFin { get; set; }
         public string FechaRegistroDesde { get; set; }
-        public string FechaRegistroHasta{ get; set; }
+        public string FechaRegistroHasta { get; set; }
         public decimal MontoTotalIni { get; set; }
         public decimal MontoTotalFin { get; set; }
         public string CardCode { get; set; }
+        public string CardName { get; set; }
+
         public string Factura { get; set; }
         public class RptRutas
         {
@@ -196,6 +198,24 @@ namespace Capa_Entidad.Rutas_ENT.TablasSql
             public string UniMed { get; set; }
             public decimal PrecioEnv { get; set; }
         }
+        public class OrdenDevolucionHana
+        {
+            public int DocEntry { get; set; }
+            public int DocNum { get; set; }
+            public string CardCode { get; set; }
+            public string CardName { get; set; }
+            public string Address { get; set; }
+            public string Comments { get; set; }
+            public string JrnlMemo { get; set; }
+            public string NumAtCard { get; set; }      // Guía concatenada
+            public string TipoMotivo { get; set; }     // U_SYP_MDMT
+            public string Agencia { get; set; }        // U_COB_LUGAREN
+            public string NumDocConductor { get; set; }// U_BPP_NUDOCCOND
+            public string Conductor { get; set; }      // U_SYP_MDFN
+            public string Placa { get; set; }          // U_SYP_MDVC
+            public int Bultos { get; set; }
+            public decimal DocTotal { get; set; }   
+        }
         public class RptRutasExcel
         {
             public string Guias { get; set; }
@@ -207,6 +227,9 @@ namespace Capa_Entidad.Rutas_ENT.TablasSql
             public decimal Peso { get; set; }
             public int DocEntry { get; set; }
             public int Cajas { get; set; }
+            public string PersonaRecojo { get; set; }
+            public string Documento { get; set; }
+            public string Telefono { get; set; }
         }
     }
 }

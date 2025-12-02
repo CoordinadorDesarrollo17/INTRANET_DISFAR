@@ -1049,6 +1049,9 @@
     <Content Include="Views\Shared\AbastecimientoInterno\_ListadoDetalleRequerimiento.cshtml" />
     <Content Include="Views\Shared\AbastecimientoInterno\_ListadoRequerimientos.cshtml" />
     <Content Include="Views\Rutas\InfoHojasRutaT.cshtml" />
+    <Content Include="Views\Rutas\SolicitudDevolucion.cshtml" />
+    <Content Include="Views\Rutas\DocumentoRutasDevolucion.cshtml" />
+    <Content Include="Views\Rutas\EditarHojaDeRepartoDE.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

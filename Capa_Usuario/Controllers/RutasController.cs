@@ -1,4 +1,5 @@
-﻿using Capa_Entidad.General_ENT.TablasSql;
+﻿using Capa_Datos;
+using Capa_Entidad.General_ENT.TablasSql;
 using Capa_Entidad.Rutas_ENT.ReportesSql;
 using Capa_Entidad.Rutas_ENT.TablasSql;
 using Capa_Entidad.Seguridad_ENT;
@@ -16,7 +17,9 @@ using OfficeOpenXml.Table;
 using Rotativa;
 using System;
 using System.Collections.Generic;
+using System.Data.SqlClient;
 using System.Linq;
+using System.util;
 using System.Web.Mvc;
 
 namespace Capa_Usuario.Controllers
@@ -92,6 +95,7 @@ namespace Capa_Usuario.Controllers
                 return resultadoAcceso;
             }
         }
+
         private void CapturarViewBag(string tipoRep, string tipoRuta = "", string[] filtrosAlm = null, string mensaje = "", int filas = 30)
         {
             ViewBag.Mensaje = mensaje;
@@ -203,6 +207,10 @@ namespace Capa_Usuario.Controllers
                 {
                     nombreVista = "EditarTransferenciaEntreAlmacenes";
                 }
+                else if (datosOrdenRuta?.TipoRuta == "DE") // <--- NUEVA CONDICIÓN AGREGADA
+                {
+                    nombreVista = "EditarHojaDeRepartoDE"; 
+                }
                 CapturarViewBag(TipoRep, null, mensaje: string.Empty);
                 ViewBag.UsuarioSesion = $"{user.Nombres} {user.Apellidos}";
                 return View(nombreVista, datosOrdenRuta);
@@ -222,16 +230,36 @@ namespace Capa_Usuario.Controllers
                 {
                     Usuario_E user = (Usuario_E)Session["UsuarioId"];
                     o.Propietario = $"{user.Nombres} {user.Apellidos}";
+
+                    // Intenta guardar
                     int DocNum = orruN.EditarHojaDeReparto(o);
+
                     return TipoRep == "Re"
                         ? RedirectToAction("ListadoRepartos", new { DocNum })
                         : RedirectToAction("ListadoRutas", new { DocNum });
                 }
-                catch (Exception e)
+                catch (Exception e) // SI FALLA LA VALIDACIÓN ENTRA AQUÍ
                 {
                     CapturarViewBag(TipoRep, mensaje: e.Message);
                     ViewBag.Agencias = new COUR_N().Listar();
-                    return View(orruN.obtenerOrdenDeRuta(o.DocEntry));
+
+                    // 1. Recuperamos los datos reales de la BD para saber qué tipo es
+                    var datosRecuperados = orruN.obtenerOrdenDeRuta(o.DocEntry);
+
+                    // 2. Lógica para decidir qué vista cargar (IGUAL QUE EN EL GET)
+                    string nombreVista = "EditarHojaDeReparto"; // Por defecto
+
+                    if (datosRecuperados.TipoRuta == "TA")
+                    {
+                        nombreVista = "EditarTransferenciaEntreAlmacenes";
+                    }
+                    else if (datosRecuperados.TipoRuta == "DE") // <--- ESTO ES LO QUE FALTABA
+                    {
+                        nombreVista = "EditarHojaDeRepartoDE";
+                    }
+
+                    // 3. Retornamos la vista correcta explícitamente
+                    return View(nombreVista, datosRecuperados);
                 }
             }
             else
@@ -802,6 +830,10 @@ namespace Capa_Usuario.Controllers
                 {
                     return RedirectToAction("DocumentoRepartoAg", new { DocEntry = DocEntry });
                 }
+                else if (TipoRuta.Equals("DE"))
+                {
+                    return RedirectToAction("DocumentoRutasDevolucion", new { DocEntry = DocEntry });
+                }
                 else
                 { return View(); }
             }
@@ -1349,6 +1381,65 @@ namespace Capa_Usuario.Controllers
             ViewBag.Letra = 2;
             return View(o);
         }
+
+        public ActionResult DocumentoRutasDevolucion(int DocEntry)
+        {
+            // verificacionAccesos(0);
+            ORRU_E o = new ORRU_E();
+            ORTV_N ortvN = new ORTV_N();
+            Utilitarios uti = new Utilitarios();
+
+            try
+            {
+                o = orruN.obtenerOrdenDeRuta(DocEntry);
+
+                if (o.DetRRU0 != null)
+                {
+                    // Usamos la cadena de conexión. Asegúrate que 'uti' es accesible aquí.
+                    // Si 'uti' no funciona aquí, usa la misma variable que usas en tu capa de datos (ej. ConfigurationManager...)
+                    using (SqlConnection cnAux = new SqlConnection(uti.cadSql))
+                    {
+                        cnAux.Open();
+
+                        foreach (RRU0_E r0 in o.DetRRU0)
+                        {
+                            // 1. Cargamos los datos completos del ticket (esto trae el RUC original)
+                            r0.Ticket = ortvN.ObtenerDatosCompletosTicket(r0.DocEntryTicket);
+
+                            // 2. APLICAMOS EL PARCHE AQUÍ: 
+                            // Si existe un Socio manual, buscamos su RUC y lo forzamos en el ticket
+                            if (!string.IsNullOrWhiteSpace(r0.Socio))
+                            {
+                                try
+                                {
+                                    string sqlRuc = "SELECT TOP 1 CardCode FROM vt.ORTV WHERE CardName COLLATE DATABASE_DEFAULT = @SocioName COLLATE DATABASE_DEFAULT";
+                                    using (SqlCommand cmdRuc = new SqlCommand(sqlRuc, cnAux))
+                                    {
+                                        cmdRuc.Parameters.AddWithValue("@SocioName", r0.Socio);
+                                        object resultado = cmdRuc.ExecuteScalar();
+
+                                        if (resultado != null && resultado != DBNull.Value)
+                                        {
+                                            // Sobrescribimos el RUC del ticket original con el del Socio encontrado
+                                            r0.Ticket.CardCode = resultado.ToString();
+                                        }
+                                    }
+                                }
+                                catch
+                                {
+                                    // Si falla, se queda el RUC original del ticket
+                                }
+                            }
+                        }
+                        cnAux.Close();
+                    }
+                }
+            }
+            catch { }
+
+            ViewBag.Letra = 2;
+            return View(o);
+        }
         public ActionResult ManifiestoCourier(int DocEntry)
         {
             //verificacionAccesos(0);
@@ -1488,6 +1579,88 @@ namespace Capa_Usuario.Controllers
             return Json(orruN.listarGuiasTraslado(Origen));
         }
 
+
+        public ActionResult SolicitudDevolucion(string TipoRep, int idOperation = 235)
+        {
+            var resultadoAcceso = VerificarPermiso(idOperation);
+            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
+            {
+                // Cargar ViewBag base
+                CapturarViewBag(TipoRep, "DE");
+
+                // AGREGAR: Cargar vehículos y conductores explícitamente
+                ViewBag.ListaVehiculos = new Capa_Negocio.Repartos_NEG.TablasHana.SYP_VEHICU_N().listar();
+                ViewBag.Conductores = new Capa_Negocio.Repartos_NEG.TablasHana.SYP_CONDUC_N().listar();
+
+                // Cargar clientes para el datalist
+                OCRD_N ocrdN = new OCRD_N();
+                ViewBag.Clientes = ocrdN.listarSociosDeNegocios(new OCRD_E { CardType = "C" });
+
+                return View(new ORRU_E());
+            }
+            else
+            {
+                return resultadoAcceso;
+            }
+        }
+
+        [HttpPost]
+        public ActionResult SolicitudDevolucion(ORRU_E o, string TipoRep, int idOperation = 235)
+        {
+            var resultadoAcceso = VerificarPermiso(idOperation);
+            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
+            {
+                try
+                {
+                    Usuario_E user = (Usuario_E)Session["UsuarioId"];
+                    o.Propietario = $"{user.Nombres} {user.Apellidos}";
+                    o.TipoRuta = "DE";
+
+                    // Asignar TiempoPac por defecto si es null
+                    if (o.TiempoPac == null)
+                    {
+                        o.TiempoPac = o.FechaCont ?? DateTime.Now;
+                    }
+
+                    // TRUNCAR Observaciones a 400 caracteres
+                    if (!string.IsNullOrEmpty(o.Observaciones) && o.Observaciones.Length > 400)
+                    {
+                        o.Observaciones = o.Observaciones.Substring(0, 397) + "...";
+                    }
+
+                    // TRUNCAR AlmOrigenDesc2 y AlmDestinoDesc2 a 300 caracteres
+                    if (!string.IsNullOrEmpty(o.AlmOrigenDesc2) && o.AlmOrigenDesc2.Length > 300)
+                    {
+                        o.AlmOrigenDesc2 = o.AlmOrigenDesc2.Substring(0, 297) + "...";
+                    }
+
+                    if (!string.IsNullOrEmpty(o.AlmDestinoDesc2) && o.AlmDestinoDesc2.Length > 300)
+                    {
+                        o.AlmDestinoDesc2 = o.AlmDestinoDesc2.Substring(0, 297) + "...";
+                    }
+
+                    int DocNum = orruN.NuevaHojaDeReparto(o);
+
+                    return TipoRep == "Re"
+                        ? RedirectToAction("ListadoRepartos", new { DocNum })
+                        : RedirectToAction("ListadoRutas", new { DocNum });
+                }
+                catch (Exception e)
+                {
+                    CapturarViewBag(TipoRep, "DE", mensaje: e.Message);
+                    ViewBag.ListaVehiculos = new Capa_Negocio.Repartos_NEG.TablasHana.SYP_VEHICU_N().listar();
+                    ViewBag.Conductores = new Capa_Negocio.Repartos_NEG.TablasHana.SYP_CONDUC_N().listar();
+                    OCRD_N ocrdN = new OCRD_N();
+                    ViewBag.Clientes = ocrdN.listarSociosDeNegocios(new OCRD_E { CardType = "C" });
+                    return View(o);
+                }
+            }
+            else
+            {
+                return resultadoAcceso;
+            }
+        }
+
         [HttpPost]
         public ActionResult ActualizarHoraLlegada(int DocEntry, int DocNum, string NuevaHora)
         {
@@ -1508,6 +1681,95 @@ namespace Capa_Usuario.Controllers
                 return Json(new { ok = false, msg = ex.Message });
             }
         }
+        [HttpPost]
+        public JsonResult ListarOrdenesDevolucionHana(string CardCode, string Fecha)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(CardCode) || string.IsNullOrWhiteSpace(Fecha))
+                {
+                    return Json(new
+                    {
+                        success = false,
+                        message = "Debe proporcionar código de cliente y fecha"
+                    });
+                }
+
+                var ordenesDevolucion = orruN.ListarOrdenesDevolucionDesdeHana(CardCode, Fecha);
+
+                return Json(new
+                {
+                    success = true,
+                    data = ordenesDevolucion,
+                    message = ordenesDevolucion.Count > 0 ? "Órdenes encontradas en ORRR" : "No se encontraron órdenes"
+                });
+            }
+            catch (Exception ex)
+            {
+                return Json(new
+                {
+                    success = false,
+                    message = "Error al consultar tabla ORRR en HANA: " + ex.Message
+                });
+            }
+        }
+        [HttpPost]
+        public JsonResult ListarClientesPorFechaHana(string Fecha)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(Fecha))
+                {
+                    return Json(new
+                    {
+                        success = false,
+                        message = "Debe proporcionar una fecha"
+                    });
+                }
+
+                var clientes = orruN.ListarClientesPorFechaDesdeHana(Fecha);
+
+                return Json(new
+                {
+                    success = true,
+                    data = clientes,
+                    message = clientes.Count > 0 ? "Clientes encontrados" : "No hay clientes para esta fecha"
+                });
+            }
+            catch (Exception ex)
+            {
+                return Json(new
+                {
+                    success = false,
+                    message = "Error al consultar clientes: " + ex.Message
+                });
+            }
+        }
+
+        public ActionResult RecibirDevolucion(int DocEntry, int idOperation = 236)
+        {
+            var resultadoAcceso = VerificarPermiso(idOperation);
+            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
+            {
+                try
+                {
+                    Usuario_E user = (Usuario_E)Session["UsuarioId"];
+                    string opRegistro = $"{user.Nombres} {user.Apellidos}";
+                    orruN.RecibirDevolucion(DocEntry, opRegistro);
+                    TempData["Mensaje"] = "Devolución recibida y ruta terminada.";
+                    return RedirectToAction("ListadoRutas");
+                }
+                catch (Exception e)
+                {
+                    TempData["Mensaje"] = "Error al recibir la devolución: " + e.Message;
+                    return RedirectToAction("ListadoRutas");
+                }
+            }
+            else
+            {
+                return resultadoAcceso;
+            }
+        }
 
         public ActionResult DescargarRptRutasExcel(int docEntry)
         {
@@ -1524,7 +1786,7 @@ namespace Capa_Usuario.Controllers
             var listaSinDocEntry = lista.Select(x => new
             {
                 x.Guias,x.Factura,x.OrdenCompra,x.Ruc,x.Direccion,x.Departamento,
-                x.Cajas,x.Peso
+                x.PersonaRecojo,x.Documento,x.Telefono,x.Cajas,x.Peso
 
             }).ToList();
 
