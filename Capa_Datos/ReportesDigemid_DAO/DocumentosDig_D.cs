@@ -322,6 +322,7 @@ namespace Capa_Datos.ReportesDigemid_DAO
         public List<ComprobanteDePago_E> ConsultarComprobanteDePago(int DocEntry)
         {
             List<ComprobanteDePago_E> lista = new List<ComprobanteDePago_E>();
+            System.Globalization.CultureInfo culturaES = new System.Globalization.CultureInfo("es-PE");
             string query = "CALL " + uti.schemaHana + "DIEGO_LYT_FV(" + DocEntry + ")";
             try
             {
@@ -347,7 +348,8 @@ namespace Capa_Datos.ReportesDigemid_DAO
                         if (!hdr.IsDBNull(13)) { c.NombreSocio = hdr.GetString(13); }
                         if (!hdr.IsDBNull(14)) { c.DirPagar = hdr.GetString(14); }
                         if (!hdr.IsDBNull(15)) { c.Ruc = hdr.GetString(15); }
-                        if (!hdr.IsDBNull(16)) { c.Fecha = hdr.GetDateTime(16).ToString("dd/MM/yyyy"); }
+                        if (!hdr.IsDBNull(16)) { c.Fecha = hdr.GetDateTime(16).ToString("dd/MM/yyyy", culturaES); }
+                        //if (!hdr.IsDBNull(16)) { c.Fecha = hdr.GetDateTime(16).ToString("dd/MM/yyyy"); }
                         if (!hdr.IsDBNull(17)) { c.FechaVencimiento = hdr.GetDateTime(17).ToLongDateString(); }
                         if (!hdr.IsDBNull(18)) { c.MonedaLetras = hdr.GetString(18); }
                         if (!hdr.IsDBNull(19)) { c.ItemCode = hdr.GetString(19); }
