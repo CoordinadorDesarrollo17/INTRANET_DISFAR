@@ -1,10 +1,13 @@
 ﻿@model Capa_Entidad.Rutas_ENT.TablasSql.ORRU_E
 @using Capa_Entidad.General_ENT.TablasSql
+@using Capa_Entidad.Rutas_ENT.TablasSql
 @{
     ViewBag.Title = "Editar Hoja de Reparto";
     Layout = "~/Views/Shared/_Layout.cshtml";
     string tituloHoja = string.Empty, tituloListado = string.Empty, urlActionBreadcrumb = string.Empty;
 
+    List<ProvedorTrans> Provedor = new List<ProvedorTrans>(ViewBag.Provedor);
+    List<UBIG_E> Ubigeos = ViewBag.Ubigeos as List<UBIG_E> ?? new List<UBIG_E>();
     List<OWHS_E> lstOriDest = (List<OWHS_E>)ViewBag.ListaOrigenesDestinos;
     List<Capa_Entidad.Repartos_ENT.TablasHana.SYP_VEHICU_E> Vehiculos = (List<Capa_Entidad.Repartos_ENT.TablasHana.SYP_VEHICU_E>)ViewBag.ListaVehiculos;
     List<string> Conductores = new List<string>(ViewBag.Conductores);
@@ -22,7 +25,7 @@
         tituloListado = "Listado de rutas";
         urlActionBreadcrumb = Url.Action("ListadoRutas", "Rutas");
     }
-    
+
 }
 <style>
     #Detalles textarea {
@@ -35,8 +38,8 @@
     });
     var contDet = 0;
 </script>
- 
-   
+
+
 <script src="~/Scripts/Rutas/HojaDeReparto.js?v=@DateTime.Now.Ticks>" defer></script>
 
 <div class="pt-4">
@@ -105,77 +108,126 @@
                     <label for="Zona" class="text-dark form-label font-weight-bold font-18">Zona:</label>
                     <input id="Zona" class="form-control text-center border-success" value="@if (Model.DetRRU0 != null && Model.DetRRU0.Count() >= 1) { Write(Model.DetRRU0[0].Ticket.Zona);}" readonly />
                 </div>
-                <div class="col-lg-2" id="div_almacen-origen">
-                    <label class="text-dark form-label font-weight-bold font-18">Almacén de Origen:</label>
-                    <select name="AlmOrigenDesc" id="AlmOrigenDesc" class="form-control bg-cobefar text-white">
-                        <option value="">Seleccione</option>
-                        @foreach (var l in lstOriDest.Where(x => x.WhsCode == "16" || x.WhsCode == "ALM07" || x.WhsCode == "03"))
-                        {
-                            <option value="@l.WhsName" AlmOrigenCod="@l.WhsCode"
-                                    AlmOrigenDesc2="@(l.Street+" "+l.StreetNo+" "+l.Building+" "+l.Block+" "+l.City+" "+l.County)" @if (Model.AlmOrigenCod == l.WhsCode) { Write("selected"); }>
-                                @l.WhsName
-                            </option>
-                        }
-                    </select>
-                    @Html.EditorFor(model => model.AlmOrigenCod, new { htmlAttributes = new { @type = "hidden", @readonly = "true" } })
-                    @Html.EditorFor(model => model.AlmOrigenDesc2, new { htmlAttributes = new { @type = "hidden", @readonly = "true" } })
-                </div>
+                @if (Model.TipoRuta == "VG")
+                {
+                    <div class="col-lg-2" id="DepartamentoDiv">
+                        <label for="Departamento" class="text-dark form-label font-weight-bold font-18">Departamento:</label>
+                        <select id="Departamento" name="Departamento" class="form-control bg-cobefar text-white border-success" onchange="listarTickets('');">
+                            <option value="">Seleccione</option>
+                            @foreach (var dep in Ubigeos.Select(u => u.Departamento).Distinct().OrderBy(u => u))
+                            {
+                                <option value="@dep">@dep</option>
+                            }
+                        </select>
+                    </div>
 
-                <div class="col-lg-2" id="div_almacen-destino">
-                    <label class="text-dark form-label font-weight-bold font-18">Almacén de Destino:</label>
-                    <input type="text" class="form-control text-center border-success" name="AlmDestinoDesc" value="@Model.AlmDestinoDesc" readonly />
-                    @Html.EditorFor(model => model.AlmDestinoCod, new { htmlAttributes = new { @type = "hidden", @readonly = "true" } })
-                    @Html.EditorFor(model => model.AlmDestinoDesc2, new { htmlAttributes = new { @type = "hidden", @readonly = "true" } })
-                </div>
-                <div class="col-lg-2">
-                    <label for="VehiculoCod" class="text-dark form-label font-weight-bold font-18">Placa:</label>
-                    <select name="VehiculoCod" id="VehiculoCod" class="form-control bg-cobefar text-white"
-                            onchange="enviarValSelect('VehiculoCod', 'Placa', 'U_SYP_VEPL'); enviarValSelect('VehiculoCod', 'Marca', 'U_SYP_VEMA'); enviarValSelect('VehiculoCod', 'Modelo', 'U_SYP_VEMO');">
-                        <option value="">Seleccione</option>
-                        @foreach (var t in Vehiculos)
-                        {
-                            <option value="@t.Code" U_SYP_VEPL="@t.U_SYP_VEPL" U_SYP_VEMA="@t.U_SYP_VEMA" U_SYP_VEMO="@t.U_SYP_VEMO" @if (Model.VehiculoCod == t.Code) { Write("selected"); }>@t.U_SYP_VEPL</option>
-                        }
-                    </select>
-                </div>
-                <div>
-                    @Html.EditorFor(model => model.Placa, new { htmlAttributes = new { @type = "hidden", @readonly = "true" } })
-                    @Html.EditorFor(model => model.Marca, new { htmlAttributes = new { @type = "hidden", @readonly = "true" } })
-                    @Html.EditorFor(model => model.Modelo, new { htmlAttributes = new { @type = "hidden", @readonly = "true" } })
-                </div>
-                <div class="col-lg-2">
-                    <label for="TransDesc" class="text-dark form-label font-weight-bold font-18">Conductor:</label>
-                    <select name="TransDesc" id="TransDesc" class="form-control bg-cobefar text-white">
-                        @foreach (var x in Conductores)
-                        {
-                            <option value="@x" @if (Model.TransDesc == x) { Write("selected"); }>@x</option>
-                        }
-                    </select>
-                </div>
+                    <div class="col-lg-2" id="ProvinciaDiv">
+                        <label for="Provincia" class="text-dark form-label font-weight-bold font-18">Provincia:</label>
+                        <select id="Provincia" name="Provincia" class="form-control bg-cobefar text-white border-success" onchange="listarTickets('');">
+                            <option value="">Seleccione</option>
+                        </select>
+                    </div>
+
+                    <div class="col-lg-2" id="DistritoDiv">
+                        <label for="Distrito" class="text-dark form-label font-weight-bold font-18">Distrito:</label>
+                        <select id="Distrito" name="Distrito" class="form-control bg-cobefar text-white border-success" onchange="listarTickets('');">
+                            <option value="">Seleccione</option>
+                        </select>
+                    </div>
+
+                    <div class="col-lg-2" id="ProvedorDiv">
+                        <label class="text-dark form-label font-weight-bold font-18">Proveedor Transporte:</label>
+                        <select id="ProveedorTrans" name="ProvDesc" class="form-control bg-cobefar text-white border-success">
+                            <option value="">Seleccione</option>
+                            @foreach (var x in Provedor)
+                            {
+                                @*<option value="@x.Nombre" data-ruc="@x.RUC">@x.Nombre</option>*@
+                                <option value="@x.Nombre" @if (Model.TransDesc.Equals(x.Nombre)) { Write("selected"); }>@x.Nombre</option>
+
+                            }
+                        </select>
+                    </div>
+                }
+                @if (Model.TipoRuta != "VG")
+                {
+                    <div class="col-lg-2" id="div_almacen-origen">
+                        <label class="text-dark form-label font-weight-bold font-18">Almacén de Origen:</label>
+                        <select name="AlmOrigenDesc" id="AlmOrigenDesc" class="form-control bg-cobefar text-white">
+                            <option value="">Seleccione</option>
+                            @foreach (var l in lstOriDest.Where(x => x.WhsCode == "16" || x.WhsCode == "ALM07" || x.WhsCode == "03"))
+                            {
+                                <option value="@l.WhsName" AlmOrigenCod="@l.WhsCode"
+                                        AlmOrigenDesc2="@(l.Street + " " + l.StreetNo + " " + l.Building + " " + l.Block + " " + l.City + " " + l.County)" @if (Model.AlmOrigenCod == l.WhsCode) { Write("selected"); }>
+                                    @l.WhsName
+                                </option>
+                            }
+                        </select>
+                        @Html.EditorFor(model => model.AlmOrigenCod, new { htmlAttributes = new { @type = "hidden", @readonly = "true" } })
+                        @Html.EditorFor(model => model.AlmOrigenDesc2, new { htmlAttributes = new { @type = "hidden", @readonly = "true" } })
+                    </div>
+                    <div class="col-lg-2" id="div_almacen-destino">
+                        <label class="text-dark form-label font-weight-bold font-18">Almacén de Destino:</label>
+                        <input type="text" class="form-control text-center border-success" name="AlmDestinoDesc" value="@Model.AlmDestinoDesc" readonly />
+                        @Html.EditorFor(model => model.AlmDestinoCod, new { htmlAttributes = new { @type = "hidden", @readonly = "true" } })
+                        @Html.EditorFor(model => model.AlmDestinoDesc2, new { htmlAttributes = new { @type = "hidden", @readonly = "true" } })
+                    </div>
+                    <div class="col-lg-2">
+                        <label for="VehiculoCod" class="text-dark form-label font-weight-bold font-18">Placa:</label>
+                        <select name="VehiculoCod" id="VehiculoCod" class="form-control bg-cobefar text-white"
+                                onchange="enviarValSelect('VehiculoCod', 'Placa', 'U_SYP_VEPL'); enviarValSelect('VehiculoCod', 'Marca', 'U_SYP_VEMA'); enviarValSelect('VehiculoCod', 'Modelo', 'U_SYP_VEMO');">
+                            <option value="">Seleccione</option>
+                            @foreach (var t in Vehiculos)
+                            {
+                                <option value="@t.Code" U_SYP_VEPL="@t.U_SYP_VEPL" U_SYP_VEMA="@t.U_SYP_VEMA" U_SYP_VEMO="@t.U_SYP_VEMO" @if (Model.VehiculoCod == t.Code) { Write("selected"); }>@t.U_SYP_VEPL</option>
+                            }
+                        </select>
+                    </div>
+                    <div>
+                        @Html.EditorFor(model => model.Placa, new { htmlAttributes = new { @type = "hidden", @readonly = "true" } })
+                        @Html.EditorFor(model => model.Marca, new { htmlAttributes = new { @type = "hidden", @readonly = "true" } })
+                        @Html.EditorFor(model => model.Modelo, new { htmlAttributes = new { @type = "hidden", @readonly = "true" } })
+                    </div>
+                    <div class="col-lg-2">
+                        <label for="TransDesc" class="text-dark form-label font-weight-bold font-18">Conductor:</label>
+                        <select name="TransDesc" id="TransDesc" class="form-control bg-cobefar text-white">
+                            @foreach (var x in Conductores)
+                            {
+                                <option value="@x" @if (Model.TransDesc == x) { Write("selected"); }>@x</option>
+                            }
+                        </select>
+                    </div>
+                }
+
             </div>
             <div class="row mt-lg-4">
-                <div class="col-lg-2">
-                    <label for="CopilDesc" class="text-dark form-label font-weight-bold font-18">Copiloto 1:</label>
-                    <select name="CopilDesc" id="CopilDesc" class="form-control bg-cobefar text-white border-success">
-                        <option value="">Seleccione</option>
-                        @foreach (var x in Copilotos)
-                        {
-                            <option value="@x.ToUpper()" @if (Model.CopilDesc == x.ToUpper()) { <text> selected</text> }>@x.ToUpper()</option>
+                @if (Model.TipoRuta != "VG")
+                {
+                    <div class="col-lg-2">
+                        <label for="CopilDesc" class="text-dark form-label font-weight-bold font-18">Copiloto 1:</label>
+                        <select name="CopilDesc" id="CopilDesc" class="form-control bg-cobefar text-white border-success">
+                            <option value="">Seleccione</option>
+                            @foreach (var x in Copilotos)
+                            {
+                                <option value="@x.ToUpper()" @if (Model.CopilDesc == x.ToUpper()) { <text> selected</text> }>
+                                    @x.ToUpper()
+                            </option>
                         }
-                    </select>
-                </div>
+                        </select>
+                    </div>
 
-                <div class="col-lg-2">
-                    <label for="Copil2Desc" class="text-dark form-label font-weight-bold font-18">Copiloto 2:</label>
-                    <select name="Copil2Desc" id="Copil2Desc" class="form-control bg-cobefar text-white border-success">
-                        <option value="">Seleccione</option>
-                        @foreach (var x in Copilotos)
-                        {
-                            <option value="@x.ToUpper()" @if (Model.Copil2Desc == x.ToUpper()) { <text> selected</text> }>@x.ToUpper()</option>
+                    <div class="col-lg-2">
+                        <label for="Copil2Desc" class="text-dark form-label font-weight-bold font-18">Copiloto 2:</label>
+                        <select name="Copil2Desc" id="Copil2Desc" class="form-control bg-cobefar text-white border-success">
+                            <option value="">Seleccione</option>
+                            @foreach (var x in Copilotos)
+                            {
+                                <option value="@x.ToUpper()" @if (Model.Copil2Desc == x.ToUpper()) { <text> selected</text> }>
+                                    @x.ToUpper()
+                            </option>
                         }
-                    </select>
-                </div>
-
+                        </select>
+                    </div>
+                }
                 <div class="col-lg-2">
                     <label class="text-dark form-label font-weight-bold font-18">Tiempo de entrega pactado: </label>
                     <input type="datetime-local" class="text-center form-control border-success" name="TiempoPac" id="TiempoPac" value="@Convert.ToDateTime(Model.TiempoPac).ToString("yyyy-MM-ddTHH:mm:ss")" />
@@ -193,15 +245,15 @@
             </div>
             <!--Boton de editar datos de cabecera-->
             <div class="row align-content-between py-lg-4">
-                    <div class="col-lg-10 align-bottom">
-                        <input type="checkbox" id="chk_verifTodos" onclick="seleccionarVerif()" /> <label for="chk_verifTodos" class="text-primary">Seleccionar Todos</label>
-                    </div>
-                    <div class="ml-auto mr-3 align-content-end">
-                        <button type="button" class="btn btn-cobefar-2 ml-2" id="btn-Agregar" onclick="agregarTicketsDetalle(true)"><i class="icon icon-plus">   </i> Agregar </button>
-                        <button type="button" class="btn btn-info" onclick="validarEnviarFormulario('@Model.Estado');">
-                            <i class="icon icon-pencil2"> </i> Editar
-                        </button>
-                    </div>
+                <div class="col-lg-10 align-bottom">
+                    <input type="checkbox" id="chk_verifTodos" onclick="seleccionarVerif()" /> <label for="chk_verifTodos" class="text-primary">Seleccionar Todos</label>
+                </div>
+                <div class="ml-auto mr-3 align-content-end">
+                    <button type="button" class="btn btn-cobefar-2 ml-2" id="btn-Agregar" onclick="agregarTicketsDetalle(true)"><i class="icon icon-plus">   </i> Agregar </button>
+                    <button type="button" class="btn btn-info" onclick="validarEnviarFormulario('@Model.Estado');">
+                        <i class="icon icon-pencil2"> </i> Editar
+                    </button>
+                </div>
             </div>
 
 
@@ -269,7 +321,8 @@
                                         <td><input name='DetRRU0[@(det.Linea - 1)].DocNumTicket' id="DocNumTDet@(det.Linea)" type='hidden' class="form-control border-success" value='@det.DocNumTicket' readonly />@det.DocNumTicket</td>
                                         <td><input name='DetRRU0[@(det.Linea - 1)].Socio' type='hidden' class="form-control border-success" value='@det.Socio' style='width:100px;' readonly />@det.Socio</td>
                                         <td><input name='DetRRU0[@(det.Linea - 1)].Guias' type='hidden' class="form-control border-success" value='@det.Guias' style='width:100px;' readonly />@det.Guias</td>
-                                        <td><input name='DetRRU0[@(det.Linea - 1)].ConducYPlaca' type='hidden' class="form-control border-success" value='@det.ConducYPlaca' style='width:100px;' readonly />@det.ConducYPlaca</td>                                        <td class="text-center"><input name='DetRRU0[@(det.Linea - 1)].Cajas' type='hidden' class="form-control border-success" value='@det.Cajas' readonly />@det.Cajas</td>
+                                        <td><input name='DetRRU0[@(det.Linea - 1)].ConducYPlaca' type='hidden' class="form-control border-success" value='@det.ConducYPlaca' style='width:100px;' readonly />@det.ConducYPlaca</td>
+                                        <td class="text-center"><input name='DetRRU0[@(det.Linea - 1)].Cajas' type='hidden' class="form-control border-success" value='@det.Cajas' readonly />@det.Cajas</td>
                                         <td><input name='DetRRU0[@(det.Linea - 1)].Observaciones' type='hidden' class="form-control border-success" value='@det.Observaciones' style='width:100px;' readonly />@det.Observaciones</td>
                                         <td><textarea name='DetRRU0[@(det.Linea - 1)].Direcciones' class="form-control border-success" readonly>@det.Direcciones</textarea></td>
                                         <td class="text-center"><input name='DetRRU0[@(det.Linea - 1)].MontoFinal' type='hidden' class="form-control border-success" value='@det.MontoFinal' style='width:90px;' readonly />@det.MontoFinal</td>
@@ -284,7 +337,7 @@
                 </div>
 
             }
-           
+
             <script>
                 contDet=@Model.DetRRU0.Count
             </script>

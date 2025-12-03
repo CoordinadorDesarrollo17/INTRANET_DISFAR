@@ -111,9 +111,17 @@ namespace Capa_Usuario.Controllers
             {
                 ViewBag.ListaCopilotos = ousrN.listaCopilotos();
             }
+            ViewBag.Provedor = new Capa_Negocio.Repartos_NEG.TablaSql.ProvedoresTransporte().listarProvedores();
             ViewBag.Conductores = new Capa_Negocio.Repartos_NEG.TablasHana.SYP_CONDUC_N().listar();
             ViewBag.ListaOrigenesDestinos = owhsN.listarAlmacenes(filtrosAlm ?? Array.Empty<string>());
             ViewBag.ListaVehiculos = new Capa_Negocio.Repartos_NEG.TablasHana.SYP_VEHICU_N().listar();
+            // Cargar ubigeos para vistas que requieran filtros de Departamento/Provincia/Distrito
+            try
+            {
+                UBIG_N ubigN = new UBIG_N();
+                ViewBag.Ubigeos = ubigN.Listar(null);
+            }
+            catch { ViewBag.Ubigeos = new List<UBIG_E>(); }
             ViewBag.Filas = filas;
         }
         public ActionResult NuevaTransferenciaEntreAlmacenes(string TipoRep, int idOperation = 205)
@@ -211,6 +219,10 @@ namespace Capa_Usuario.Controllers
                 {
                     nombreVista = "EditarHojaDeRepartoDE"; 
                 }
+                UBIG_N ubigN = new UBIG_N();
+                ViewBag.Ubigeos = ubigN.Listar(null);
+                ViewBag.Provedor = new Capa_Negocio.Repartos_NEG.TablaSql.ProvedoresTransporte().listarProvedores();
+
                 CapturarViewBag(TipoRep, null, mensaje: string.Empty);
                 ViewBag.UsuarioSesion = $"{user.Nombres} {user.Apellidos}";
                 return View(nombreVista, datosOrdenRuta);
@@ -1140,11 +1152,15 @@ namespace Capa_Usuario.Controllers
             catch (Exception e) { return Content(e.Message); }
             return Content("ok");
         }
-        public JsonResult infoTicketsReparto(string FechaSapTicket, string TipoRuta, string Zona, string AlmOrigenCod)
+        public JsonResult infoTicketsReparto(string FechaSapTicket, string TipoRuta, string Zona, string AlmOrigenCod, string Departamento = null, string Provincia = null, string Distrito = null, string TipoEnvio = null)
         {
             string[] estados = { "EMPACADO", "PESADO" };
             ORTV_N ortvN = new ORTV_N();
             ORTV_E ortvE = new ORTV_E { FechaSapTicket = FechaSapTicket, EstadoFacturacion = "FACTURADO", Zona = Zona };
+            string departamento = Departamento;
+            string provincia = Provincia;
+            string distrito = Distrito;
+            string tipoEnvio = TipoEnvio;
             if (TipoRuta == "VD")
             {
                 ortvE.LugarDestino = "Domicilio";
@@ -1168,7 +1184,7 @@ namespace Capa_Usuario.Controllers
                 ortvE.LugEntrega = AlmOrigenCod;
             }
             int cantidadTicketsNoEnviados;
-            var resultado = ortvN.listarTicketsParaRepartos(ortvE, estados, out cantidadTicketsNoEnviados);
+            var resultado = ortvN.listarTicketsParaRepartos(ortvE, estados, out cantidadTicketsNoEnviados,departamento,provincia,distrito, tipoEnvio);
             var response = new
             {
                 Resultado = resultado,
@@ -1557,7 +1573,7 @@ namespace Capa_Usuario.Controllers
                                 worksheet.Column(col).AutoFit();
                             }
                             var tabla = worksheet.Tables.Add(new ExcelAddressBase(fromRow: 1, fromCol: 1, toRow: analisisPesaje.Count + 1, toColumn: 47), "AnalisisPesaje"); tabla.ShowHeader = true;
-                            tabla.TableStyle = TableStyles.Medium2;
+                            tabla.TableStyle = OfficeOpenXml.Table.TableStyles.Medium2;
                         }
                     }
                     return File(libro.GetAsByteArray(), excelContentType, "ReportePesaje.xlsx");
@@ -1807,6 +1823,89 @@ namespace Capa_Usuario.Controllers
                 }
 
                 return File(package.GetAsByteArray(), excelContentType, "RutasExcel.xlsx");
+            }
+        }
+
+        public ActionResult DescargarRptRutasExcelGuiaProveedor(int docEntry)
+        {
+            string excelContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+            var datos = orruN.ObtenerRptRutasExcelGuiaProveedor(docEntry);
+
+            var plano = datos.Select(x => new
+            {
+                DocNumTicket = (int)x.GetType().GetProperty("DocNumTicket").GetValue(x, null),
+                Guia = (string)x.GetType().GetProperty("Guia").GetValue(x, null),
+                TransDesc = (string)x.GetType().GetProperty("TransDesc").GetValue(x, null),
+                RUC = (string)x.GetType().GetProperty("RUC").GetValue(x, null)
+            }).ToList();
+
+            using (var package = new OfficeOpenXml.ExcelPackage())
+            {
+                var ws = package.Workbook.Worksheets.Add("GuiasProveedor");
+                ws.Cells["A1"].LoadFromCollection(plano, PrintHeaders: true);
+                if (plano.Count > 0)
+                {
+                    for (int col = 1; col <= ws.Dimension.End.Column; col++)
+                        ws.Column(col).AutoFit();
+
+                    var tabla = ws.Tables.Add(ws.Cells[1, 1, plano.Count + 1, ws.Dimension.End.Column], "GuiasProveedor");
+                    tabla.ShowHeader = true;
+                    tabla.TableStyle = OfficeOpenXml.Table.TableStyles.Medium2;
+                }
+                return File(package.GetAsByteArray(), excelContentType, "GuiasProveedor.xlsx");
+            }
+        }
+
+        // --- Endpoints JSON para cascada de Ubigeo ---
+        [HttpPost]
+        public JsonResult ListarProvinciasPorDepartamento(string departamento)
+        {
+            try
+            {
+                var ubigeos = ViewBag.Ubigeos as List<UBIG_E>;
+                // Si el ViewBag no está disponible (por invocación directa), consultamos la capa de negocio
+                if (ubigeos == null || ubigeos.Count == 0)
+                {
+                    UBIG_N ubigN = new UBIG_N();
+                    ubigeos = ubigN.Listar(null);
+                }
+                var provincias = ubigeos
+                    .Where(x => !string.IsNullOrWhiteSpace(departamento) && x.Departamento == departamento)
+                    .Select(x => x.Provincia)
+                    .Distinct()
+                    .OrderBy(x => x)
+                    .ToList();
+                return Json(new { success = true, data = provincias });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
+        }
+
+        [HttpPost]
+        public JsonResult ListarDistritosPorProvDep(string departamento, string provincia)
+        {
+            try
+            {
+                var ubigeos = ViewBag.Ubigeos as List<UBIG_E>;
+                if (ubigeos == null || ubigeos.Count == 0)
+                {
+                    UBIG_N ubigN = new UBIG_N();
+                    ubigeos = ubigN.Listar(null);
+                }
+                var distritos = ubigeos
+                    .Where(x => !string.IsNullOrWhiteSpace(departamento) && !string.IsNullOrWhiteSpace(provincia)
+                             && x.Departamento == departamento && x.Provincia == provincia)
+                    .Select(x => x.Distrito)
+                    .Distinct()
+                    .OrderBy(x => x)
+                    .ToList();
+                return Json(new { success = true, data = distritos });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
             }
         }
     }

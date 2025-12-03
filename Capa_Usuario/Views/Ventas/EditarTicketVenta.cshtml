@@ -76,12 +76,12 @@
         var te = $("#TiempoEntrega").val();
         var coordinaciones = $("#Observaciones").val();
         var agencia = $("#Agencia").val();
-        var envioagencia = $("#EnvioAgencia").val();
+        var tipoenvio = $("#EnvioAgencia").val();
         var referencia = $("#Referencia").val();
         var mensaje = '<div class="my-swal-text">Tipo de Venta: <strong>' + tipoVenta + '</strong><br>Lugar de Destino: <strong>' + lugarDestino + '</strong><br>Coordinaciones: <strong>' + coordinaciones + '</strong><br>T.E: <strong>' + te + '</strong></div>';
         if (lugarDestino === 'Agencia') {
 
-            mensaje = '<div class="my-swal-text">Tipo de Venta: <strong>' + tipoVenta + '</strong><br>Lugar de Destino: <strong>' + lugarDestino + '</strong><br>Coordinaciones: <strong>' + coordinaciones + '</strong><br>T.E: <strong>' + te + '</strong><br>Agencia: <strong>' + agencia + '</strong><br>Modo de envio: <strong>' + envioagencia + '</strong><br>Referencia: <strong>' + referencia + '</strong></div>';
+            mensaje = '<div class="my-swal-text">Tipo de Venta: <strong>' + tipoVenta + '</strong><br>Lugar de Destino: <strong>' + lugarDestino + '</strong><br>Coordinaciones: <strong>' + coordinaciones + '</strong><br>T.E: <strong>' + te +  '</strong><br>Modo de envio: <strong>' + tipoenvio + '</strong><br>Referencia: <strong>' + referencia + '</strong></div>';
         }
         var solicitudesReclamo = $("#SolicitudesReclamoSeleccionadas").val();
         if (window.hayReclamos && (!solicitudesReclamo || solicitudesReclamo.trim() === "")) {
@@ -329,29 +329,17 @@
                     </div>
 
                     <div id="CamposAgDom">
-                        @*<div class="row mt-4" id="CamposAgencia">
+                        <div class="row mt-4" id="CamposAgencia">
                             <div class="col-lg-3">
                                 <label class="text-dark form-label font-weight-bold font-18">Modo de envío:</label>
-                                <select name="EnvioAgencia" id="EnvioAgencia" class="form-control bg-cobefar text-white" onchange="mostrarOficinas();">
-                                    <option value="">Seleccione</option>
-                                    <option value="Oficina de agencia" @{ if (Model.EnvioAgencia == "Oficina de agencia") { Write("selected"); } }>Oficina de agencia</option>
-                                    <option value="Domicilio de cliente" @{ if (Model.EnvioAgencia == "Domicilio de cliente") { Write("selected"); } }>Domicilio de cliente</option>
-                                </select>
+                                @*<select name="EnvioAgencia" id="EnvioAgencia" class="form-control bg-cobefar text-white" onchange="mostrarOficinas();">*@
+                                    <select name="EnvioAgencia" id="EnvioAgencia" class="form-control bg-cobefar text-white">
+                                        <option value="">Seleccione</option>
+                                        <option value="Terrestre" selected @{ if (Model.EnvioAgencia == "Terrestre") { Write("selected"); } }>Envío Terrestre</option>
+                                        <option value="Aereo" @{ if (Model.EnvioAgencia == "Aereo") { Write("selected"); } }>Envío Aéreo</option>
+                                    </select>
                             </div>
-
-                            <div class="col-lg-3">
-                                <label class="text-dark form-label font-weight-bold font-18">Agencia:</label>
-                                <input type="text" name="Agencia" id="Agencia" value="@Model.Agencia" class="form-control border-success" list="ListAgencias" autocomplete="off" />
-                                <datalist id="ListAgencias">
-                                    @foreach (var i in Agencias)
-                                    {
-                                        <option value="@i.Nombre" />
-                                    }
-                                </datalist>
-
-                            </div>
-
-                        </div>*@
+                        </div>
 
                         <div class="row mt-4">
                             <div class="col-lg-9">

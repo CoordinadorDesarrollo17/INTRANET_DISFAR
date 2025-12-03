@@ -524,6 +524,7 @@ namespace Capa_Datos.Rutas_DAO.TablasSql
                         }
                         addDebugInfo("@Operario", o.Propietario);
                         addDebugInfo("@Origen", o.Origen);
+                        addDebugInfo("@ProvDesc", o.ProvDesc);
 
                         // Escribir en la ventana de salida de depuración
                         System.Diagnostics.Debug.WriteLine(debugInfo.ToString());
@@ -555,6 +556,7 @@ namespace Capa_Datos.Rutas_DAO.TablasSql
                         cmd.Parameters.AddWithValue("@AlmDestinoDesc", o.AlmDestinoDesc);
                         cmd.Parameters.AddWithValue("@AlmDestinoDesc2", o.AlmDestinoDesc2);
                         cmd.Parameters.AddWithValue("@Propietario", o.Propietario);
+                        cmd.Parameters.AddWithValue("@ProvDesc", o.ProvDesc);
                         DateTime newTiempoPac = Convert.ToDateTime(o.TiempoPac);
                         DateTime tiempoPacFormatted = new DateTime(newTiempoPac.Year, newTiempoPac.Month, newTiempoPac.Day, newTiempoPac.Hour, 0, 0);
 
@@ -662,6 +664,7 @@ namespace Capa_Datos.Rutas_DAO.TablasSql
                 cmd.Parameters.AddWithValue("@DocNum", o.DocNum).Direction = ParameterDirection.Output;
                 cmd.Parameters.AddWithValue("@TransCod", o.TransCod);
                 cmd.Parameters.AddWithValue("@TransDesc", o.TransDesc);
+                cmd.Parameters.AddWithValue("@ProvDesc", o.ProvDesc);
                 cmd.Parameters.AddWithValue("@VehiculoCod", o.VehiculoCod);
                 cmd.Parameters.AddWithValue("@Placa", o.Placa);
                 cmd.Parameters.AddWithValue("@Marca", o.Marca);
@@ -1555,6 +1558,62 @@ namespace Capa_Datos.Rutas_DAO.TablasSql
             return lista;
         }
 
+        public List<ProvedorTrans> listarProvedores()
+        {
+            var lista = new List<ProvedorTrans>();
+            SqlConnection cn = new SqlConnection(uti.cadSql);
+            try
+            {
+                cn.Open();
+                string query = "SELECT IdProvedor, Nombre, RUC FROM al.ProvTrans ORDER BY Nombre";
+                SqlCommand cmd = new SqlCommand(query, cn);
+                cmd.CommandType = CommandType.Text;
+
+                SqlDataReader dr = cmd.ExecuteReader();
+                while (dr.Read())
+                {
+                    var p = new ProvedorTrans();
+                    if (!dr.IsDBNull(0)) p.IdProvedor = dr.GetInt32(0);
+                    if (!dr.IsDBNull(1)) p.Nombre = dr.GetString(1);
+                    if (!dr.IsDBNull(2)) p.RUC = dr.GetString(2);
+                    lista.Add(p);
+                }
+                dr.Close();
+                cn.Close();
+            }
+            catch
+            {
+                cn.Close();
+            }
+            return lista;
+        }
+
+        public List<dynamic> ObtenerRptRutasExcelGuiaProveedor(int docEntry)
+        {
+            var lista = new List<dynamic>(); string query = @" SELECT
+            T0.DocNumTicket, sp.val AS Guia, T2.TransDesc, PO.RUC FROM al.RRU0 T0 CROSS APPLY dbo.Split(REPLACE(REPLACE(T0.Guias, CHAR(13)+CHAR(10), ','), CHAR(10), ','), ',') AS sp INNER JOIN al.ORRU T2 ON T0.DocEntry = T2.DocEntry LEFT JOIN al.ProvTrans PO ON T2.TransDesc = PO.Nombre WHERE T0.DocEntry = @DocEntry GROUP BY sp.val, T0.DocNumTicket, T2.TransDesc, PO.RUC";
+            using (var cn = new SqlConnection(uti.cadSql))
+            using (var cmd = new SqlCommand(query, cn))
+            {
+                cmd.Parameters.AddWithValue("@DocEntry", docEntry);
+                cn.Open();
+                using (var dr = cmd.ExecuteReader())
+                {
+                    while (dr.Read())
+                    {
+                        var item = new
+                        {
+                            DocNumTicket = !dr.IsDBNull(0) ? dr.GetInt32(0) : 0,
+                            Guia = !dr.IsDBNull(1) ? dr.GetString(1) : "",
+                            TransDesc = !dr.IsDBNull(2) ? dr.GetString(2) : "",
+                            RUC = !dr.IsDBNull(3) ? dr.GetString(3) : ""
+                        };
+                        lista.Add(item);
+                    }
+                }
+            }
+            return lista;
+        }
 
     }
 }

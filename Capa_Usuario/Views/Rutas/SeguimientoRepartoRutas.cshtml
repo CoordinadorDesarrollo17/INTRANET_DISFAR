@@ -55,9 +55,11 @@
                 </div>
 
                 <div class="col-lg-4">
-                    <label class="text-dark form-label font-weight-bold font-18">Chofer:</label>
-                    @Html.EditorFor(model => model.TransDesc, new { htmlAttributes = new { @class = "form-control text-center border-success", @readonly = "true" } })
-                </div>
+                    @if (Model.TipoRuta != "VG")
+                    {<label class="text-dark form-label font-weight-bold font-18">Chofer:</label>} 
+                    else {<label class="text-dark form-label font-weight-bold font-18">Provedor transporte:</label> }
+                        @Html.EditorFor(model => model.TransDesc, new { htmlAttributes = new { @class = "form-control text-center border-success", @readonly = "true" } })
+                    </div>
             </div>
 
             <div class="row mt-4">
@@ -79,18 +81,21 @@
                     <label class="text-dark form-label font-weight-bold font-18">@labelCajas</label>
                     <input type="text" value="@Model.TotCajas()" class="form-control text-center border-success" readonly />
                 </div>
+                @if (Model.TipoRuta != "VG")
+                {
+                    <div class="col-lg-2">
+                        <label class="text-dark form-label font-weight-bold font-18">Vehículo:</label>
+                        @Html.EditorFor(model => model.VehiculoCod, new { htmlAttributes = new { @class = "form-control text-center border-success", @readonly = "true" } })
+                    </div>
 
-                <div class="col-lg-2">
-                    <label class="text-dark form-label font-weight-bold font-18">Vehículo:</label>
-                    @Html.EditorFor(model => model.VehiculoCod, new { htmlAttributes = new { @class = "form-control text-center border-success", @readonly = "true" } })
+                    <div class="col-lg-2">
+                        <label class="text-dark form-label font-weight-bold font-18">Placa:</label>
+                        @Html.EditorFor(model => model.Placa, new { htmlAttributes = new { @class = "form-control text-center border-success", @readonly = "true" } })
+                    </div>
+                }
                 </div>
 
-                <div class="col-lg-2">
-                    <label class="text-dark form-label font-weight-bold font-18">Placa:</label>
-                    @Html.EditorFor(model => model.Placa, new { htmlAttributes = new { @class = "form-control text-center border-success", @readonly = "true" } })
-                </div>
-            </div>
-
+            @if(Model.TipoRuta != "VG") { 
             <div class="row mt-4">
                 <div class="col-lg-3">
                     <label class="text-dark form-label font-weight-bold font-18">Copiloto1:</label>
@@ -101,7 +106,7 @@
                     <label class="text-dark form-label font-weight-bold font-18">Copiloto2:</label>
                     @Html.EditorFor(model => model.Copil2Desc, new { htmlAttributes = new { @class = "form-control text-center border-success", @readonly = "true" } })
                 </div>
-            </div>
+            </div>}
 
             <div class="row mt-4">
                 <div class="col-lg-2">

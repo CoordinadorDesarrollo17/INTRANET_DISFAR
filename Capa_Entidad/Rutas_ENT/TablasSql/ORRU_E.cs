@@ -12,6 +12,7 @@ namespace Capa_Entidad.Rutas_ENT.TablasSql
         public string TipoRuta { get; set; }
         public string TransCod { get; set; }
         public string TransDesc { get; set; }
+        public string ProvDesc { get; set; }
         public string VehiculoCod { get; set; }
         public string Placa { get; set; }
         public string Marca { get; set; }
@@ -44,6 +45,10 @@ namespace Capa_Entidad.Rutas_ENT.TablasSql
         [DisplayName("Ruc de Agencia")]
         public string RucAgencia { get; set; }
         public string Origen { get; set; }
+        public string Departamento { get; set; }
+        public string Provincia { get; set; }
+        public string Distrito { get; set; }
+        public string TipoEnvio { get; set; }
         public List<RRU0_E> DetRRU0 { get; set; }
         public List<RRU01_E> DetRRU01 { get; set; }
         public List<RRU1_E> DetRRU1 { get; set; }
@@ -136,6 +141,10 @@ namespace Capa_Entidad.Rutas_ENT.TablasSql
             public string FechaPreenvio { get; set; }
             public string FechaEnviado { get; set; }
             public string NombreRecoge { get; set; }
+            public string Departamento { get; set; }
+            public string Provincia { get; set; }
+            public string Distrito { get; set; }
+
         }
         public class RptRutasT
         {

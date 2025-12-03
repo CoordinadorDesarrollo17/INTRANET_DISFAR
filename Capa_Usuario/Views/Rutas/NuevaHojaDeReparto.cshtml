@@ -1,12 +1,15 @@
 ﻿@model Capa_Entidad.Rutas_ENT.TablasSql.ORRU_E
 @using Capa_Entidad.General_ENT.TablasSql
+@using Capa_Entidad.Rutas_ENT.TablasSql
 @{
     ViewBag.Title = "Nueva Hoja De Reparto";
     Layout = "~/Views/Shared/_Layout.cshtml";
     List<OWHS_E> lstOriDest = (List<OWHS_E>)ViewBag.ListaOrigenesDestinos;
     List<Capa_Entidad.Repartos_ENT.TablasHana.SYP_VEHICU_E> Vehiculos = (List<Capa_Entidad.Repartos_ENT.TablasHana.SYP_VEHICU_E>)ViewBag.ListaVehiculos;
     List<string> Conductores = new List<string>(ViewBag.Conductores);
+    List<ProvedorTrans> Provedor = new List<ProvedorTrans>(ViewBag.Provedor);
     List<string> Copilotos = new List<string>(ViewBag.ListaCopilotos);
+    List<UBIG_E> Ubigeos = ViewBag.Ubigeos as List<UBIG_E> ?? new List<UBIG_E>();
 
     string urlAction = Url.Action("ListadoRutas", "Rutas"), tituloListado = "Listado de rutas", tituloTipoRep = "";
     if (ViewBag.TipoRep == "Re")
@@ -104,7 +107,7 @@
 
 @using (Html.BeginForm(null, null, FormMethod.Post, new { id = "form" }))
 {
-     
+
     <input name="TipoRep" type="hidden" value="@ViewBag.TipoRep" readonly />
     <div class="bg-form-pestanas-cobefar bg-section-form p-3 bg-form-cobefar">
         @Html.ValidationSummary(true, "", new { @class = "text-danger" })
@@ -122,12 +125,14 @@
                     }
                 </select>
             </div>
-        </div>
-        <div class="row mt-4">
+
             <div class="col-lg-2">
                 <label for="FechaCont" class="text-dark form-label font-weight-bold font-18">Fecha:</label>
                 <input type="date" name="FechaCont" id="FechaSapTicket" class="form-control border-success" onchange="listarTickets('');" />
             </div>
+        </div>
+        <div class="row mt-4">
+
             <div class="col-lg-2">
                 <label for="Zona" class="text-dark form-label font-weight-bold font-18">Zona:</label>
                 <select id="Zona" class="form-control bg-cobefar text-white" onchange="listarTickets(''); buscarConductorYPlaca(this.value);">
@@ -176,7 +181,44 @@
                     }
                 </select>
             </div>
-            <div class="col-lg-2">
+
+            <div class="col-lg-2" id="DepartamentoDiv">
+                <label for="Departamento" class="text-dark form-label font-weight-bold font-18">Departamento:</label>
+                <select id="Departamento" name="Departamento" class="form-control bg-cobefar text-white border-success" onchange="listarTickets('');">
+                    <option value="">Seleccione</option>
+                    @foreach (var dep in Ubigeos.Select(u => u.Departamento).Distinct().OrderBy(u => u))
+                    {
+                        <option value="@dep">@dep</option>
+                    }
+                </select>
+            </div>
+
+            <div class="col-lg-2" id="ProvinciaDiv">
+                <label for="Provincia" class="text-dark form-label font-weight-bold font-18">Provincia:</label>
+                <select id="Provincia" name="Provincia" class="form-control bg-cobefar text-white border-success" onchange="listarTickets('');">
+                    <option value="">Seleccione</option>
+                </select>
+            </div>
+
+            <div class="col-lg-2" id="DistritoDiv">
+                <label for="Distrito" class="text-dark form-label font-weight-bold font-18">Distrito:</label>
+                <select id="Distrito" name="Distrito" class="form-control bg-cobefar text-white border-success" onchange="listarTickets('');">
+                    <option value="">Seleccione</option>
+                </select>
+            </div>
+
+            <div class="col-lg-2" id="ProvedorDiv">
+                <label class="text-dark form-label font-weight-bold font-18">Proveedor Transporte:</label>
+                <select id="ProveedorTrans" name="ProvDesc" class="form-control bg-cobefar text-white border-success">
+                    <option value="">Seleccione</option>
+                    @foreach (var x in Provedor)
+                    {
+                        <option value="@x.Nombre" data-ruc="@x.RUC">@x.Nombre</option>
+                    }
+                </select>
+            </div>
+
+            <div class="col-lg-2" id="Placa">
                 <label for="Placa" class="text-dark form-label font-weight-bold font-18">Placa:</label>
                 <select name="Placa" id="Placa" class="form-control bg-cobefar text-white border-success"
                         onchange="enviarValSelect('Placa', 'VehiculoCod', 'Code');
@@ -192,7 +234,7 @@
                 @Html.EditorFor(model => model.Modelo, new { htmlAttributes = new { @type = "hidden", @readonly = "true" } })
                 @Html.EditorFor(model => model.VehiculoCod, new { htmlAttributes = new { @type = "hidden", @readonly = "true" } })
             </div>
-            <div class="col-lg-2">
+            <div class="col-lg-2" id="Conductor">
                 <label for="TransDesc" class="text-dark form-label font-weight-bold font-18">Conductor:</label>
                 <select name="TransDesc" id="TransDesc" class="form-control bg-cobefar text-white border-success">
                     <option value="">Seleccione</option>
@@ -204,7 +246,16 @@
             </div>
         </div>
         <div class="row mt-lg-4">
-            <div class="col-lg-2">
+
+            <div class="col-lg-2" id="TipoEnvioDiv">
+                <label for="TipoEnvio" class="text-dark form-label font-weight-bold font-18">Tipo Envío:</label>
+                <select name="TipoEnvio" id="TipoEnvio" class="form-control bg-cobefar text-white" onchange="listarTickets('');">
+                    <option value="">Seleccione</option>
+                    <option value="Terrestre">Envío Terrestre</option>
+                    <option value="Aereo">Envío Aéreo</option>
+                </select>
+            </div>
+            <div class="col-lg-2" id="Copiloto1">
                 <label for="CopilDesc" class="text-dark form-label font-weight-bold font-18">Copiloto 1:</label>
                 <select name="CopilDesc" id="CopilDesc" class="form-control bg-cobefar text-white border-success">
                     <option value="">Seleccione</option>
@@ -214,7 +265,7 @@
                     }
                 </select>
             </div>
-            <div class="col-lg-2">
+            <div class="col-lg-2" id="Copiloto2">
                 <label for="Copil2Desc" class="text-dark form-label font-weight-bold font-18">Copiloto 2:</label>
                 <select name="Copil2Desc" id="Copil2Desc" class="form-control bg-cobefar text-white border-success">
                     <option value="">Seleccione</option>
@@ -230,7 +281,7 @@
             </div>
 
             <div class="col-lg-1">
-                <label for="TotalCajas" class="text-dark form-label font-weight-bold font-18"># Cajas:</label>
+                <label for="TotalCajas" class="text-dark form-label font-weight-bold font-18">#Cajas:</label>
                 <input id="TotalCajas" type="text" class="form-control border-success" readonly />
             </div>
 
@@ -287,13 +338,13 @@
 
     <!--Tabla principal que detalla los tickets agregados a la orden de reparto-->
     <h3 class="text-cobefar font-weight-bold mt-2">
-     DETALLE DE RUTA<br />
+        DETALLE DE RUTA<br />
     </h3>
     <div id="divDetalleRuta">
         <div class="mt-2">
             <table id="Detalles" class="table table-light table-sm table-hover" cellspacing="0" width="100%">
                 <thead class="bg-success">
-                    <tr>      
+                    <tr>
                         <th class="text-center">#</th>
                         <th hidden>DocEntryT</th>
                         <th class="text-center">NroTicket</th>
@@ -380,5 +431,91 @@
         tipoRutaSelect.addEventListener('change', actualizarOpcionesZona);
         // Ejecutar al cargar por si hay valor inicial
         actualizarOpcionesZona();
+    });
+</script>
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const tipoRuta = document.getElementById('TipoRuta');
+        const ProvedorDiv = document.getElementById('ProvedorDiv');
+        const DepartamentoDiv = document.getElementById('DepartamentoDiv');
+        const ProvinciaDiv = document.getElementById('ProvinciaDiv');
+        const DistritoDiv = document.getElementById('DistritoDiv');
+        const TipoEnvio = document.getElementById('TipoEnvioDiv')
+
+        function toggleConductor() {
+            // Mostrar solo si es VG (Agencia)
+            const mostrar = tipoRuta.value === 'VG';
+            ProvedorDiv.style.display = mostrar ? 'block' : 'none';
+            DepartamentoDiv.style.display = mostrar ? 'block' : 'none';
+            ProvinciaDiv.style.display = mostrar ? 'block' : 'none';
+            DistritoDiv.style.display = mostrar ? 'block' : 'none';
+            TipoEnvio.style.display = mostrar ? 'block' : 'none';
+        }
+
+        tipoRuta.addEventListener('change', toggleConductor);
+        // Ejecutar al cargar para estado inicial
+        toggleConductor();
+    });
+</script>
+<script>
+    // Script para manejar los cambios en los selects de departamento, provincia y distrito
+    document.addEventListener('DOMContentLoaded', function () {
+        const depto = document.getElementById('Departamento');
+        const prov = document.getElementById('Provincia');
+        const dist = document.getElementById('Distrito');
+
+        function clearSelect(sel, placeholder) {
+            sel.innerHTML = '';
+            const opt = document.createElement('option');
+            opt.value = '';
+            opt.textContent = placeholder || 'Seleccione';
+            sel.appendChild(opt);
+        }
+
+        depto.addEventListener('change', function () {
+            clearSelect(prov, 'Seleccione');
+            clearSelect(dist, 'Seleccione');
+            const departamento = depto.value;
+            if (!departamento) return;
+            $.ajax({
+                url: '@Url.Action("ListarProvinciasPorDepartamento", "Rutas")',
+                type: 'POST',
+                dataType: 'json',
+                data: { departamento: departamento }
+            }).done(function (res) {
+                if (res && res.success) {
+                    res.data.forEach(function (p) {
+                        const opt = document.createElement('option');
+                        opt.value = p;
+                        opt.textContent = p;
+                        prov.appendChild(opt);
+                    });
+                }
+            });
+        });
+
+        prov.addEventListener('change', function () {
+            clearSelect(dist, 'Seleccione');
+            const departamento = depto.value;
+            const provincia = prov.value;
+            if (!departamento || !provincia) return;
+            $.ajax({
+                url: '@Url.Action("ListarDistritosPorProvDep", "Rutas")',
+                type: 'POST',
+                dataType: 'json',
+                data: { departamento: departamento, provincia: provincia }
+            }).done(function (res) {
+                if (res && res.success) {
+                    res.data.forEach(function (d) {
+                        const opt = document.createElement('option');
+                        opt.value = d;
+                        opt.textContent = d;
+                        dist.appendChild(opt);
+                    });
+                }
+            });
+        });
     });
 </script>
