@@ -50,11 +50,15 @@ namespace Capa_Negocio.Rutas_NEG.TablasSql
         {
             if (string.IsNullOrWhiteSpace(o.TipoRuta)) { throw new Exception("No lleno tipo de ruta encabezado"); }
             //Validacion solo para agencia courier
-            if (o.TipoRuta != "TA")
+            if (o.TipoRuta != "TA" && o.TipoRuta != "VG")
             {
                 if (string.IsNullOrWhiteSpace(o.TransDesc)) { throw new Exception("Debe elegir un conductor"); }
                 if (string.IsNullOrWhiteSpace(o.VehiculoCod)) { throw new Exception("Debe elegir un vehiculo"); }
                 if (string.IsNullOrWhiteSpace(o.CopilDesc)) { throw new Exception("El documento debe tener copiloto 1"); }
+            }
+            if (o.TipoRuta == "VG")
+            {
+                if (string.IsNullOrWhiteSpace(o.TransDesc)) { throw new Exception("Debe elegir un conductor o provedor de envío"); }
             }
             //Validaciones para cualquier tipo de ruta
             if (o.FechaCont == null) { throw new Exception("No eligió FechaContabilizacion"); }
@@ -236,7 +240,7 @@ namespace Capa_Negocio.Rutas_NEG.TablasSql
                 throw new Exception("Debe haber tiempo pactado");
             }
 
-            if (o.TipoRuta != "TA")
+            if (o.TipoRuta != "TA" && o.TipoRuta != "VG")
             {
                 if (string.IsNullOrWhiteSpace(o.Placa)) { throw new Exception("El documento debe tener placa"); }
                 // Todos los casos distintos, donde se escoge los valores de un desplegable
@@ -429,5 +433,7 @@ namespace Capa_Negocio.Rutas_NEG.TablasSql
 
             return ReporteExcel;
         }
+
+        public List<dynamic> ObtenerRptRutasExcelGuiaProveedor(int docEntry) { return new ORRU_D().ObtenerRptRutasExcelGuiaProveedor(docEntry); }
     }
 }

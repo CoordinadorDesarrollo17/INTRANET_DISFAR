@@ -2587,7 +2587,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
             }
             return lista;
         }
-        public List<ORTV_E> ListarTicketsParaRepartos(ORTV_E filtro, string[] estados, out int cantidadTicketsNoEnviados)
+        public List<ORTV_E> ListarTicketsParaRepartos(ORTV_E filtro, string[] estados, out int cantidadTicketsNoEnviados, string departamento = null, string provincia = null, string distrito = null, string tipoEnvio = null)
         {
             List<ORTV_E> lista = new List<ORTV_E>(); cantidadTicketsNoEnviados = 0;
             int cantidadElementos = estados.Count();
@@ -2607,6 +2607,10 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                 cmd.Parameters.AddWithValue("@Fecha", filtro.FechaSapTicket);
                 cmd.Parameters.AddWithValue("@LugEntrega", filtro.LugEntrega);
                 cmd.Parameters.AddWithValue("@Zona", filtro.Zona);
+                cmd.Parameters.AddWithValue("@Departamento", departamento);
+                cmd.Parameters.AddWithValue("@Provincia", provincia);
+                cmd.Parameters.AddWithValue("@Distrito", distrito);
+                cmd.Parameters.AddWithValue("@TipoEnvio", tipoEnvio);
                 SqlDataReader dr = cmd.ExecuteReader();
                 while (dr.Read())
                 {
