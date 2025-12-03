@@ -573,10 +573,10 @@
                             <label for="LugarDestino" class="text-dark form-label font-weight-bold font-18">Lugar Destino:</label>
                             <input type="text" class="form-control text-center bg-warning" id="LugarDestino" name="LugarDestino" value="@if (Model.LugarDestino != null) { Write(Model.LugarDestino); }" readonly>
                         </div>
-                        <div class="col-lg-3">
+                        @*<div class="col-lg-3">
                             <label for="Agencia" class="text-dark form-label font-weight-bold font-18">Agencia:</label>
                             <input type="text" class="form-control text-center border-success" id="Agencia" name="Agencia" value="@if (Model.Agencia != null) { Write(Model.Agencia); }" readonly>
-                        </div>
+                        </div>*@
                         <div class="col-lg-3">
                             <label for="Zona" class="text-dark form-label font-weight-bold font-18">Zona:</label>
                             <input type="text" class="form-control text-center border-success" id="Zona" name="Zona" value="@if (Model.Zona != null) { Write(Model.Zona); }" readonly>
@@ -599,7 +599,7 @@
 
                     <div class="row mt-4">
                         <div class="col-lg-4">
-                            <label for="EnvioAgencia" class="text-dark form-label font-weight-bold font-18">Envío Agencia:</label>
+                            <label for="EnvioAgencia" class="text-dark form-label font-weight-bold font-18">Modo de envío:</label>
                             <input type="text" id="EnvioAgencia" name="EnvioAgencia" value="@if (Model.EnvioAgencia != null) { Write(Model.EnvioAgencia); }" class="form-control text-center border-success" readonly />
                         </div>
 
