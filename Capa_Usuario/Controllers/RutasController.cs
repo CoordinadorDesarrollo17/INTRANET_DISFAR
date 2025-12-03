@@ -1152,7 +1152,7 @@ namespace Capa_Usuario.Controllers
             catch (Exception e) { return Content(e.Message); }
             return Content("ok");
         }
-        public JsonResult infoTicketsReparto(string FechaSapTicket, string TipoRuta, string Zona, string AlmOrigenCod, string Departamento = null, string Provincia = null, string Distrito = null, string TipoEnvio = null)
+        public JsonResult infoTicketsReparto(string FechaSapTicket, string TipoRuta, string Zona, string AlmOrigenCod, string Departamento = null, string Provincia = null, string Distrito = null, string TipoEnvio = null, string ProvedorTransporte = null)
         {
             string[] estados = { "EMPACADO", "PESADO" };
             ORTV_N ortvN = new ORTV_N();
@@ -1161,6 +1161,8 @@ namespace Capa_Usuario.Controllers
             string provincia = Provincia;
             string distrito = Distrito;
             string tipoEnvio = TipoEnvio;
+            string provedor = ProvedorTransporte;
+
             if (TipoRuta == "VD")
             {
                 ortvE.LugarDestino = "Domicilio";
@@ -1184,7 +1186,7 @@ namespace Capa_Usuario.Controllers
                 ortvE.LugEntrega = AlmOrigenCod;
             }
             int cantidadTicketsNoEnviados;
-            var resultado = ortvN.listarTicketsParaRepartos(ortvE, estados, out cantidadTicketsNoEnviados,departamento,provincia,distrito, tipoEnvio);
+            var resultado = ortvN.listarTicketsParaRepartos(ortvE, estados, out cantidadTicketsNoEnviados,departamento,provincia,distrito, tipoEnvio, provedor);
             var response = new
             {
                 Resultado = resultado,

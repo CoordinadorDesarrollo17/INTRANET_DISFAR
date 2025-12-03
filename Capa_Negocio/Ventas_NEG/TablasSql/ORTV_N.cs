@@ -698,9 +698,19 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
         }
         /**********************************************************************/
         /******************** METODOS PRINCIPALES EN MODULOS ******************/
-        public List<ORTV_E> listarTicketsParaRepartos(ORTV_E filtro, string[] estados, out int cantidadTicketsNoEnviados, string departamento = null, string provincia= null, string distrito= null, string tipoEnvio = null)
+        public List<ORTV_E> listarTicketsParaRepartos(ORTV_E filtro, string[] estados, out int cantidadTicketsNoEnviados, string departamento = null, string provincia = null, string distrito = null, string tipoEnvio = null, string ProvedorTransporte = null)
         {
-            return tkD.ListarTicketsParaRepartos(filtro, estados, out cantidadTicketsNoEnviados,departamento,provincia,distrito, tipoEnvio);
+            var lista = tkD.ListarTicketsParaRepartos(filtro, estados, out cantidadTicketsNoEnviados, departamento, provincia, distrito, tipoEnvio);
+
+            if (!string.IsNullOrWhiteSpace(ProvedorTransporte))
+            {
+                lista = lista
+                .Where(x => !string.IsNullOrWhiteSpace(x.ConducYPlaca) &&
+                    x.ConducYPlaca.IndexOf(ProvedorTransporte, StringComparison.OrdinalIgnoreCase) >= 0)
+                .ToList();
+            }
+
+            return lista;
         }
         public List<ORTV_E> listarTicketsRepartosNoEnviados(ORTV_E filtro, string[] estados)
         {
