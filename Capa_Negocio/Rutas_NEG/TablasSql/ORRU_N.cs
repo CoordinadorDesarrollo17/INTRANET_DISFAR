@@ -58,7 +58,7 @@ namespace Capa_Negocio.Rutas_NEG.TablasSql
             }
             if (o.TipoRuta == "VG")
             {
-                if (string.IsNullOrWhiteSpace(o.TransDesc)) { throw new Exception("Debe elegir un conductor o provedor de envío"); }
+                if (string.IsNullOrWhiteSpace(o.ProvDesc)) { throw new Exception("Debe elegir un conductor o provedor de envío"); }
             }
             //Validaciones para cualquier tipo de ruta
             if (o.FechaCont == null) { throw new Exception("No eligió FechaContabilizacion"); }
@@ -262,11 +262,6 @@ namespace Capa_Negocio.Rutas_NEG.TablasSql
                 {
                     if (a.Ticket?.EstadoFacturacion != "FACTURADO") { throw new Exception($"El ticket {a.DocNumTicket} no se encuentra FACTURADO"); }
                     if (a.Estado != "PREENVIO") { throw new Exception("El ticket " + a.DocNumTicket + " no esta en PREENVIO"); }
-                    //if (o.TipoRuta != "VG" && o.TipoRuta != "AC")
-                    //{
-                    //    if (!(a.TempI1 >= 15 && a.TempI1 <= 25)) { throw new Exception("Temp1 Inicial no cumple con el rango valido (mayor o igual a 15 y menor o igual a 25)"); }
-                    //    if (!(a.TempI2 >= 15 && a.TempI2 <= 25)) { throw new Exception("Temp2 Inicial no cumple con el rango valido (mayor o igual a 15 y menor o igual a 25)"); }
-                    //}
                 }
             }
             if (o.DetRRU1 != null && o.DetRRU1.Count > 0)

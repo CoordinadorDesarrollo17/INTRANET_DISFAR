@@ -524,6 +524,7 @@ namespace Capa_Datos.Rutas_DAO.TablasSql
                         }
                         addDebugInfo("@Operario", o.Propietario);
                         addDebugInfo("@Origen", o.Origen);
+                        addDebugInfo("@ProvDesc", o.ProvDesc);
 
                         // Escribir en la ventana de salida de depuración
                         System.Diagnostics.Debug.WriteLine(debugInfo.ToString());
@@ -555,6 +556,7 @@ namespace Capa_Datos.Rutas_DAO.TablasSql
                         cmd.Parameters.AddWithValue("@AlmDestinoDesc", o.AlmDestinoDesc);
                         cmd.Parameters.AddWithValue("@AlmDestinoDesc2", o.AlmDestinoDesc2);
                         cmd.Parameters.AddWithValue("@Propietario", o.Propietario);
+                        cmd.Parameters.AddWithValue("@ProvDesc", o.ProvDesc);
                         DateTime newTiempoPac = Convert.ToDateTime(o.TiempoPac);
                         DateTime tiempoPacFormatted = new DateTime(newTiempoPac.Year, newTiempoPac.Month, newTiempoPac.Day, newTiempoPac.Hour, 0, 0);
 
@@ -662,6 +664,7 @@ namespace Capa_Datos.Rutas_DAO.TablasSql
                 cmd.Parameters.AddWithValue("@DocNum", o.DocNum).Direction = ParameterDirection.Output;
                 cmd.Parameters.AddWithValue("@TransCod", o.TransCod);
                 cmd.Parameters.AddWithValue("@TransDesc", o.TransDesc);
+                cmd.Parameters.AddWithValue("@ProvDesc", o.ProvDesc);
                 cmd.Parameters.AddWithValue("@VehiculoCod", o.VehiculoCod);
                 cmd.Parameters.AddWithValue("@Placa", o.Placa);
                 cmd.Parameters.AddWithValue("@Marca", o.Marca);
