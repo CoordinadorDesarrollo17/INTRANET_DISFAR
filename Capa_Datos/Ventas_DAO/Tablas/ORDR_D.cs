@@ -119,7 +119,7 @@ namespace Capa_Datos.Ventas_DAO.Tablas
                 conducyPlacaConEnt += oinvD.buscarConducyPlacaConEnt(o.DocEntry);
             }
 
-            // ✅ Misma lógica que usas en guiasTraslado
+            // Misma lógica que usas en guiasTraslado
             if (!string.IsNullOrWhiteSpace(conducyPlacaRem))
             {
                 ConducYPlaca = conducyPlacaRem;
@@ -131,6 +131,33 @@ namespace Capa_Datos.Ventas_DAO.Tablas
 
             return ConducYPlaca;
         }
+
+        public string conducProvedor(int DocNum)
+        {
+            string ConducYPlaca = "";
+            int DocEntry = 0;
+
+            string query = "select \"DocEntry\" from " + uti.schemaHana + "ordr where \"DocNum\"=" + DocNum + " and \"CANCELED\"='N'";
+            HanaConnection cn = new HanaConnection(uti.cadHana);
+            try
+            {
+                cn.Open();
+                HanaCommand cmd = new HanaCommand(query, cn);
+                cmd.CommandType = System.Data.CommandType.Text;
+                HanaDataReader dr = cmd.ExecuteReader();
+                dr.Read();
+                if (!dr.IsDBNull(0)) { DocEntry = dr.GetInt32(0); }
+                dr.Close();
+                cn.Close();
+            }
+            catch { cn.Close(); return ConducYPlaca; }
+
+            ConducYPlaca = odlnD.buscarConducProvedor(DocEntry);
+
+            return ConducYPlaca;
+        }
+
+
         public int buscarDocEntry(int DocNum)
         {
             int DocEntry = 0;

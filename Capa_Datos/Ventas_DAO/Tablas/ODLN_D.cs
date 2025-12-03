@@ -123,6 +123,34 @@ namespace Capa_Datos.Ventas_DAO.Tablas
             return result;
         }
 
+        public string buscarConducProvedor(int DocEntryVenta)
+        {
+            string result = "";
+            string query = "select t0.\"U_SYP_MDNT\" as \"Provedor\" from " + uti.schemaHana + "odln t0 " +
+                "inner join " + uti.schemaHana + "dln1 t1 on t1.\"DocEntry\"=t0.\"DocEntry\" " +
+                "inner join " + uti.schemaHana + "rdr1 t2 on t2.\"DocEntry\"=t1.\"BaseEntry\" and t2.\"ObjType\"=t1.\"BaseType\" and t2.\"ItemCode\"=t1.\"ItemCode\" " +
+                "where t0.\"CANCELED\"='N' and t2.\"DocEntry\"=" + DocEntryVenta +
+                " group by t0.\"U_SYP_MDNT\"";
+            HanaConnection cn = new HanaConnection(uti.cadHana);
+            try
+            {
+                cn.Open();
+                HanaCommand cmd = new HanaCommand(query, cn);
+                cmd.CommandType = System.Data.CommandType.Text;
+                HanaDataReader dr = cmd.ExecuteReader();
+                while (dr.Read())
+                {
+                    if (!dr.IsDBNull(0)) { result += dr.GetString(0) + ","; }
+                }
+                dr.Close();
+                cn.Close();
+            }
+            catch { cn.Close(); }
+            return result;
+        }
+
+
+
         public List<Guia_Remision_E> buscarGuiaRemisionSap(string NumAtCard)
         {
             List<Guia_Remision_E> lista = new List<Guia_Remision_E>();
