@@ -12,6 +12,7 @@ namespace Capa_Entidad.Rutas_ENT.TablasSql
         public string TipoRuta { get; set; }
         public string TransCod { get; set; }
         public string TransDesc { get; set; }
+        public string ProvDesc { get; set; }
         public string VehiculoCod { get; set; }
         public string Placa { get; set; }
         public string Marca { get; set; }
