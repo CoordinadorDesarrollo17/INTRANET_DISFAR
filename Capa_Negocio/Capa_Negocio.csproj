@@ -150,6 +150,7 @@
     <Compile Include="RecursosHumanos_NEG\TablasSQL\SEDE_N.cs" />
     <Compile Include="Repartos_NEG\TablasHana\SYP_CONDUC_N.cs" />
     <Compile Include="Repartos_NEG\TablasHana\SYP_VEHICU_N.cs" />
+    <Compile Include="Repartos_NEG\TablaSql\ProvedoresTransporte.cs" />
     <Compile Include="ReportesDigemid_NEG\DocumentosDig_N.cs" />
     <Compile Include="Rutas_NEG\TablasSql\ORRU_N.cs" />
     <Compile Include="Rutas_NEG\TablasSql\RRU01_N.cs" />
@@ -208,5 +209,6 @@
       <Name>Capa_Entidad</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

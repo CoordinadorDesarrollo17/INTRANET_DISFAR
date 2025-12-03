@@ -233,8 +233,13 @@
                                 {
                                     <a href="@Url.Action("DescargarRptRutasExcel", "Rutas", new { docEntry = item.DocEntry })"
                                        class="btn btn-success d-none d-sm-none d-md-none d-lg-block d-xl-block mx-1"
-                                       data-toggle="tooltip" data-placement="top" title="Excel">
-                                        <i class="icon-file-excel"></i>
+                                       data-toggle="tooltip" data-placement="top" title="Excel Rutas">
+                                        <i class="bi bi-file-earmark-excel"></i>
+                                    </a>
+                                    <a href="@Url.Action("DescargarRptRutasExcelGuiaProveedor", "Rutas", new { docEntry = item.DocEntry })"
+                                       class="btn btn-info d-none d-sm-none d-md-none d-lg-block d-xl-block mx-1"
+                                       data-toggle="tooltip" data-placement="top" title="Excel Guía/Proveedor">
+                                        <i class="bi bi-file-spreadsheet-fill"></i>
                                     </a>
                                 }
                             </div>
