@@ -1588,7 +1588,7 @@ namespace Capa_Datos.Rutas_DAO.TablasSql
         public List<dynamic> ObtenerRptRutasExcelGuiaProveedor(int docEntry)
         {
             var lista = new List<dynamic>(); string query = @" SELECT
-            T0.DocNumTicket, sp.val AS Guia, T2.TransDesc, PO.RUC FROM al.RRU0 T0 CROSS APPLY dbo.Split(REPLACE(REPLACE(T0.Guias, CHAR(13)+CHAR(10), ','), CHAR(10), ','), ',') AS sp INNER JOIN al.ORRU T2 ON T0.DocEntry = T2.DocEntry INNER JOIN al.ProvTrans PO ON T2.TransDesc = PO.Nombre WHERE T0.DocEntry = @DocEntry GROUP BY sp.val, T0.DocNumTicket, T2.TransDesc, PO.RUC";
+            T0.DocNumTicket, sp.val AS Guia, T2.TransDesc, PO.RUC FROM al.RRU0 T0 CROSS APPLY dbo.Split(REPLACE(REPLACE(T0.Guias, CHAR(13)+CHAR(10), ','), CHAR(10), ','), ',') AS sp INNER JOIN al.ORRU T2 ON T0.DocEntry = T2.DocEntry LEFT JOIN al.ProvTrans PO ON T2.TransDesc = PO.Nombre WHERE T0.DocEntry = @DocEntry GROUP BY sp.val, T0.DocNumTicket, T2.TransDesc, PO.RUC";
             using (var cn = new SqlConnection(uti.cadSql))
             using (var cmd = new SqlCommand(query, cn))
             {
