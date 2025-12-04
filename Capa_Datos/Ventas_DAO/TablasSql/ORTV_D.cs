@@ -2667,7 +2667,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                         o.Guias = GuiasTicket(o.DocEntry);
                         o.ConducYPlaca = ConducyPlacaTicket(o.DocEntry); // Conductor y placa
                     }
-                    if (o.LugarDestino == "Agencia")
+                    else if  (o.LugarDestino == "Agencia")
                     {
                         o.Guias = GuiasTicket(o.DocEntry);
                         o.ConducYPlaca = ConducProvedor(o.DocEntry); 
