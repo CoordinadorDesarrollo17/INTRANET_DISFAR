@@ -58,7 +58,7 @@ namespace Capa_Negocio.Rutas_NEG.TablasSql
             }
             if (o.TipoRuta == "VG")
             {
-                if (string.IsNullOrWhiteSpace(o.ProvDesc)) { throw new Exception("Debe elegir un conductor o provedor de envío"); }
+                if (string.IsNullOrWhiteSpace(o.ProvDesc)) { throw new Exception("Debe elegir un conductor o proveedor de envío"); }
             }
             //Validaciones para cualquier tipo de ruta
             if (o.FechaCont == null) { throw new Exception("No eligió FechaContabilizacion"); }
