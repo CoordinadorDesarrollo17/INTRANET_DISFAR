@@ -599,7 +599,7 @@ function validarTipoRuta(tipo, estado) {
         $('#Copiloto1').hide();
         $('#Copiloto2').hide();
         $('#Conductor').hide();
-        $('#Placa').hide();
+        $('#PlacaDiv').hide();
 
         //limpiar valores de almacen destino
 
@@ -738,6 +738,7 @@ function listarTickets(estado) {
     var provincia = $('#Provincia').val();
     var distrito = $('#Distrito').val();
     var tipoEnvio = $('#TipoEnvio').val();
+    var proveedorTrans = $('#ProveedorTrans').val();
 
     if (TipoRuta !== '' && TipoRuta == 'VG') {
 
@@ -767,7 +768,7 @@ function listarTickets(estado) {
 
             });
 
-            var parametros = { "FechaSapTicket": FechaSapTicket, "TipoRuta": TipoRuta, "Zona": Zona, "AlmOrigenCod": AlmOrigenCod, "Departamento": departamento, "Provincia": provincia, "Distrito": distrito, "TipoEnvio": tipoEnvio }
+            var parametros = { "FechaSapTicket": FechaSapTicket, "TipoRuta": TipoRuta, "Zona": Zona, "AlmOrigenCod": AlmOrigenCod, "Departamento": departamento, "Provincia": provincia, "Distrito": distrito, "TipoEnvio": tipoEnvio, "ProvedorTransporte": proveedorTrans }
 
             if (estado === 'CREADO') {
 
