@@ -1989,6 +1989,33 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
             return ConducYPlaca;
         }
 
+        public string ConducProvedor(int DocEntry)
+        {
+            string ConducYPlaca = string.Empty;
+            Tablas.ORDR_D ordrD = new Tablas.ORDR_D();
+            SqlConnection cn = new SqlConnection(uti.cadSql);
+            try
+            {
+                cn.Open();
+                SqlCommand cmd = new SqlCommand("select NroSap from vt.rtv2 where DocEntry=" + DocEntry, cn);
+                SqlDataReader dr = cmd.ExecuteReader();
+                string conducyPlacaTicket = string.Empty;
+                while (dr.Read())
+                {
+                    if (!dr.IsDBNull(0))
+                    {
+                        var cp = ordrD.conducProvedor(dr.GetInt32(0));
+                        if (!string.IsNullOrWhiteSpace(cp)) { conducyPlacaTicket += cp; }
+                    }
+                }
+                ConducYPlaca = conducyPlacaTicket;
+                dr.Close();
+                cn.Close();
+            }
+            catch { cn.Close(); }
+            return ConducYPlaca;
+        }
+
         //Metodos desde Hojas de Reparto
         public void Preenviar(int DocEntry, string Operario, SqlTransaction tran, SqlConnection cn)
         {
@@ -2635,10 +2662,15 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                     if (!dr.IsDBNull(16)) o.HoraPago = dr.GetString(16);
                     if (!dr.IsDBNull(17)) o.TiempoEntrega = dr.GetDateTime(17);
                     if (!dr.IsDBNull(18)) { o.Vinculados = dr.GetString(18); }
-                    if (o.LugarDestino == "Domicilio" || o.LugarDestino == "Agencia")
+                    if (o.LugarDestino == "Domicilio")
                     {
                         o.Guias = GuiasTicket(o.DocEntry);
                         o.ConducYPlaca = ConducyPlacaTicket(o.DocEntry); // Conductor y placa
+                    }
+                    else if  (o.LugarDestino == "Agencia")
+                    {
+                        o.Guias = GuiasTicket(o.DocEntry);
+                        o.ConducYPlaca = ConducProvedor(o.DocEntry); 
                     }
                     else
                     {

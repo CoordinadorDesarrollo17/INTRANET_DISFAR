@@ -77,7 +77,7 @@
         //mostrar el llenado de tickets vinculados si la eleccion es SI
         if (valor == "SI" && (LugarDestino === "Domicilio" || LugarDestino === "Agencia")) { $("#divVinculados").show(); }
         else { $("#selectVinculado").val('NO'); $("#divVinculados").hide(); $("#DetallesVinculados  tbody").html(''); contUser = 0; }
-    } 
+    }
     function buscarTicketAVincular(DocNum) {
         var DocNumPrincipal = $("#DocNum").val();
         if (DocNum == DocNumPrincipal) { swal.fire("No puede vincular el mismo número de ticket, hace redundancia."); } else {
@@ -419,7 +419,7 @@
 
     @using (Html.BeginForm(null, null, FormMethod.Post, new { id = "EditaTicketVentaSup" }))
     {
-        
+
         <div class="tab-content" id="nav-tabContent">
             <div class="tab-pane fade show active" id="nav-datos-pedidos" role="tabpanel" aria-labelledby="nav-datos-pedidos-tab">
                 <div class="bg-section-form p-4 bg-form-cobefar">
@@ -496,33 +496,20 @@
                             <input type="text" id="CardCode" name="CardCode" class="form-control text-center border-success" readonly value="@Model.CardCode">
                         </div>
 
-                       
+
                     </div>
 
                     <div id="CamposAgDom">
-                        @*<div class="row mt-4" id="CamposAgencia">
+                        <div class="row mt-4" id="CamposAgencia">
                             <div class="col-lg-3">
                                 <label class="text-dark form-label font-weight-bold font-18">Modo de envío:</label>
-                                <select name="EnvioAgencia" id="EnvioAgencia" class="form-control bg-cobefar text-white" onchange="mostrarOficinas();">
+                                <select name="EnvioAgencia" id="EnvioAgencia" class="form-control bg-cobefar text-white">
                                     <option value="">Seleccione</option>
-                                    <option value="Oficina de agencia" @{ if (Model.EnvioAgencia == "Oficina de agencia") { Write("selected"); } }>Oficina de agencia</option>
-                                    <option value="Domicilio de cliente" @{ if (Model.EnvioAgencia == "Domicilio de cliente") { Write("selected"); } }>Domicilio de cliente</option>
+                                    <option value="Terrestre" selected @{ if (Model.EnvioAgencia == "Terrestre") { Write("selected"); } }>Envío Terrestre</option>
+                                    <option value="Aereo" @{ if (Model.EnvioAgencia == "Aereo") { Write("selected"); } }>Envío Aéreo</option>
                                 </select>
                             </div>
-
-                            <div class="col-lg-3">
-                                <label class="text-dark form-label font-weight-bold font-18">Agencia:</label>
-                                <input type="text" name="Agencia" id="Agencia" value="@Model.Agencia" class="form-control border-success" list="ListAgencias" autocomplete="off" />
-                                <datalist id="ListAgencias">
-                                    @foreach (var i in Agencias)
-                                    {
-                                        <option value="@i.Nombre" />
-                                    }
-                                </datalist>
-
-                            </div>
-
-                        </div>*@
+                        </div>
 
                         <div class="row mt-4">
                             <div class="col-lg-9">
@@ -1010,13 +997,13 @@
                         <tbody>
                             @foreach (var o in Ubigeos)
                             {
-                            <tr>
-                                <td>@o.Ubigeo</td>
-                                <td>@o.Distrito</td>
-                                <td>@o.Provincia</td>
-                                <td>@o.Departamento</td>
-                                <td><button class="btn btn-primary btn-sm" data-dismiss="modal" onclick="agregarDatos('@o.Ubigeo','@o.Distrito','@o.Provincia','@o.Departamento','@o.Zona')">Seleccionar</button></td>
-                            </tr>
+                                <tr>
+                                    <td>@o.Ubigeo</td>
+                                    <td>@o.Distrito</td>
+                                    <td>@o.Provincia</td>
+                                    <td>@o.Departamento</td>
+                                    <td><button class="btn btn-primary btn-sm" data-dismiss="modal" onclick="agregarDatos('@o.Ubigeo','@o.Distrito','@o.Provincia','@o.Departamento','@o.Zona')">Seleccionar</button></td>
+                                </tr>
                             }
                         </tbody>
                     }
