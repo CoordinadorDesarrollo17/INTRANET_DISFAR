@@ -301,6 +301,7 @@ namespace Capa_Datos.DireccionTecnica_DAO.Reportes
                     if (!hdr.IsDBNull(9)) { lib.Proveedor = hdr.GetString(9); }
                     if (!hdr.IsDBNull(15)) { lib.NroFacturaNcredito = hdr.GetString(15); }
                     if (!hdr.IsDBNull(16)) { lib.Fecha = hdr.GetDateTime(16).ToString("dd/MM/yyyy"); }
+                    if (!hdr.IsDBNull(7)) { lib.Lote = hdr.GetString(7); }
                     if (f.TipoControlado == "S") { lib.TipoControlado = "PSICOTROPICOS"; }
                     else if (f.TipoControlado == "P") { lib.TipoControlado = "PRECURSORES"; }
                     else if (f.TipoControlado == "E") { lib.TipoControlado = "ESTUPEFACIENTES"; }
@@ -331,6 +332,7 @@ namespace Capa_Datos.DireccionTecnica_DAO.Reportes
                     if (!hdr.IsDBNull(15)) { lib.NroFacturaNcredito = hdr.GetString(15); }
                     if (!hdr.IsDBNull(16)) { lib.Fecha = hdr.GetDateTime(16).ToString("dd/MM/yyyy"); }
                     if (f.TipoControlado == "S") { lib.TipoControlado = "PSICOTROPICOS"; }
+                    if (!hdr.IsDBNull(7)) { lib.Lote = hdr.GetString(7); }
                     else if (f.TipoControlado == "P") { lib.TipoControlado = "PRECURSORES"; }
                     else if (f.TipoControlado == "E") { lib.TipoControlado = "ESTUPEFACIENTES"; }
 

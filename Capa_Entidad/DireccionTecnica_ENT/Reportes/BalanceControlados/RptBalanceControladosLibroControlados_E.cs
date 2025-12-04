@@ -17,5 +17,6 @@ namespace Capa_Entidad.DireccionTecnica_ENT.Reportes.BalanceControlados
 		public string NroFacturaNcredito { get; set; }
 		public string Fecha { get; set; }
 		public string TipoControlado { get; set; }
-	}
+        public string Lote { get; set; }
+    }
 }
