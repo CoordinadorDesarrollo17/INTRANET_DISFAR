@@ -116,12 +116,10 @@
                 <label for="TipoRuta" class="text-dark form-label font-weight-bold font-18">Tipo de ruta:</label>
                 <select name="TipoRuta" id="TipoRuta" class="form-control bg-cobefar text-white" onchange="validarTipoRuta(this.value,'');listarTickets('');">
                     <option value="">Seleccione</option>
-                    <option value="VC">Centro</option>
-                    <option value="VA">Arriola</option>
                     <option value="VD">Domicilio</option>
                     @if (ViewBag.TipoRep == "Re")
                     {
-                        <option value="VG">Agencia</option>
+                        <option value="VG">Provincia</option>
                     }
                 </select>
             </div>
@@ -144,7 +142,7 @@
                     <option value="CONO ESTE2">CONO ESTE2</option>
                     <option value="CONO NORTE1">CONO NORTE1</option>
                     <option value="CONO NORTE2">CONO NORTE2</option>
-                    <option value="AGENCIA">AGENCIA</option>
+                    <option value="AGENCIA">Provincia</option>
                     <option value="PREVENTA">PREVENTA</option>
                     <option value="ARRIOLA">ARRIOLA</option>
                     <option value="CONO ARRIOLA"> CONO ARRIOLA</option>
