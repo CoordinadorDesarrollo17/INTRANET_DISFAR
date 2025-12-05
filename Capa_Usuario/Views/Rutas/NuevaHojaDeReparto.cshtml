@@ -3,7 +3,7 @@
 @using Capa_Entidad.Rutas_ENT.TablasSql
 @{
     ViewBag.Title = "Nueva Hoja De Reparto";
-    Layout = "~/Views/Shared/_Layout.cshtml";
+    Layout = "~/Views/Shared/_DefaultLayout.cshtml";
     List<OWHS_E> lstOriDest = (List<OWHS_E>)ViewBag.ListaOrigenesDestinos;
     List<Capa_Entidad.Repartos_ENT.TablasHana.SYP_VEHICU_E> Vehiculos = (List<Capa_Entidad.Repartos_ENT.TablasHana.SYP_VEHICU_E>)ViewBag.ListaVehiculos;
     List<string> Conductores = new List<string>(ViewBag.Conductores);
@@ -27,7 +27,7 @@
 <style>
     #Detalles textarea {
         font-size: 12px;
-        white-space: pre-line; /* ✅ ESTO HACE QUE SE RESPETEN LOS SALTOS DE LÍNEA */
+        white-space: pre-line;
         overflow-wrap: break-word;
         resize: none; /* Evita que el usuario cambie el tamaño */
     }
@@ -309,7 +309,7 @@
 
         <!--Tabla con los tickets a enviar disponibles segun parametros-->
         <div class="col-lg-12">
-            <table id="detalleRuta" class="table table-light table-sm table-hover cls-dataTable" cellspacing="0" width="100%">
+            <table id="detalleRuta" class="table table-light table-sm table-hover cls-dataTable no-auto-dt" cellspacing="0" width="100%">
                 <thead class="bg-cobefar-6 text-white">
                     <tr>
                         <th class="text-center"></th>

@@ -155,20 +155,43 @@
 		statusBD();
 
 		if (document.getElementsByClassName("cls-dataTable").length > 0) {
-			$('.cls-dataTable').DataTable({
-				"ordering": false,
-				"scrollX": true
-			});
+            $('.cls-dataTable').each(function(){
+                if($(this).hasClass('no-auto-dt')) return; // skip manual tables
+                $(this).DataTable({
+                    "ordering": false,
+                    "scrollX": true,
+                    "language": {
+                        "info": "Mostrando _START_ a _END_ de _TOTAL_ registros",
+                        "infoEmpty": "No hay registros disponibles",
+                        "infoFiltered": "(filtrado de _MAX_ registros totales)",
+                        "lengthMenu": "Mostrar _MENU_ registros por página",
+                        "search": "Buscar:",
+                        "loadingRecords": "Cargando...",
+                        "processing": "Procesando...",
+                        "zeroRecords": "No se encontraron registros"
+                    }
+                });
+            });
 		}
 
 		if (document.getElementsByClassName("cls-dataTable50").length > 0) {
-			$('.cls-dataTable50').DataTable({
-				"searching": true,
-				"ordering": false,
-				"scrollX": true,
-				pageLength: 50, /*---- PARA INICIALIZAR LA PAGINACI�N */
-				lengthMenu: [50, 100, 150], /* RANGO PAGINACI�N */
-			});
+            $('.cls-dataTable50').DataTable({
+                "searching": true,
+                "ordering": false,
+                "scrollX": true,
+                pageLength: 50,
+                lengthMenu: [50, 100, 150],
+                "language": {
+                    "info": "Mostrando _START_ a _END_ de _TOTAL_ registros",
+                    "infoEmpty": "No hay registros disponibles",
+                    "infoFiltered": "(filtrado de _MAX_ registros totales)",
+                    "lengthMenu": "Mostrar _MENU_ registros por página",
+                    "search": "Buscar:",
+                    "loadingRecords": "Cargando...",
+                    "processing": "Procesando...",
+                    "zeroRecords": "No se encontraron registros"
+                }
+            });
 		}
 
 		if (document.getElementsByClassName("cls-dataTable20").length > 0) {
@@ -789,7 +812,7 @@
             }
 
 			let table = $(`#${idTable}`).DataTable({
-                "searching": conBuscador,  
+                "searching": conBuscador,
                 "order": [],  // Desactiva ordenamiento automatico.
                 "ordering": conOrden, // Iconos para ordenar todas las columnas de la tabla.
                 "pageLength": items,
@@ -807,7 +830,7 @@
             });
 
 			table.columns.adjust().draw();
-            return table; 
+            return table;
 		}
 
         function soloNumerosPorClase(nombreClase) {
