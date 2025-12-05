@@ -275,7 +275,7 @@ function agregarItem(docEntry, docNum, cardName, guias, conducyPlaca, cajas, obs
 
             "<td><input name='DetRRU0[" + contDet + "].Envio' type='text' value='" + envio + "' class='form-control' readonly/></td>" +
 
-            "<td><a href='SeguimientoDeTicket?DocEntry=" + docEntry + "' target='_blank' style='cursor:pointer' class='btn btn-outline-primary' onclick=window.open(this.href,this.target,'width=500,height=350,top=120,left=100,toolbar=no,location=no,status=no,menubar=no');><i class='icon-truck'></i></a></td>";
+            "<td><a href='SeguimientoDeTicket?DocEntry=" + docEntry + "' target='_blank' style='cursor:pointer' class='btn btn-outline-primary' onclick=window.open(this.href,this.target,'width=500,height=350,top=120,left=100,toolbar=no,location=no,status=no,menubar=no');><i class='bi bi-truck'></i></a></td>";
 
 
         // Agregar botones según si es para grabar o no
@@ -294,15 +294,15 @@ function agregarItem(docEntry, docNum, cardName, guias, conducyPlaca, cajas, obs
 
             fila += "<td colspan='2' class='d-flex justify-content-center' id='acc" + (contDet + 1) + "'>" +
 
-                "<button type='button' class='btn btn-outline-success mr-2' onclick='grabarLineaTabla(" + docEntryOrru + "," + (contDet + 1) + "," + docEntry + ")'><i class='icon icon-lock'></i> Grabar</button>" +
+                "<button type='button' class='btn btn-outline-success mr-2' onclick='grabarLineaTabla(" + docEntryOrru + "," + (contDet + 1) + "," + docEntry + ")'><i class='bi bi-lock'></i> Grabar</button>" +
 
-                "<button type='button' class='btn btn-outline-danger' onclick='borrarLineaTabla(this)'><i class='icon icon-bin'></i></button>" +
+                "<button type='button' class='btn btn-outline-danger' onclick='borrarLineaTabla(this)'><i class='bi bi-trash'></i></button>" +
 
                 "</td>";
 
         } else {
 
-            fila += "<td><button type='button' class='btn btn-outline-danger' onclick='borrarLineaTabla(this)'><i class='icon icon-bin'></i></button></td>";
+            fila += "<td><button type='button' class='btn btn-outline-danger' onclick='borrarLineaTabla(this)'><i class='bi bi-trash'></i></button></td>";
 
         }
 
@@ -614,6 +614,10 @@ function validarTipoRuta(tipo, estado) {
         $('#div_almacen-destino').show();
 
         $('#div_almacen-origen').show();
+        $('#Copiloto1').show();
+        $('#Copiloto2').show();
+        $('#Conductor').show();
+        $('#PlacaDiv').show();
 
         //enviar como parametro default el valor de combobox a almacen destino
 
@@ -786,23 +790,22 @@ function listarTickets(estado) {
                         var guiasFormateadas = item.Guias ? item.Guias.replace(/,/g, '<br>') : '';
                         var conducyPlacaFormateada = item.ConducYPlaca ? item.ConducYPlaca.replace(/,/g, '<br>') : '';
 
-                        fila.append('<td class="text-center"><input type="checkbox" class="cls-chkVerif ml-3" id="check' + index + '" autocomplete="off"></td>');
-                        fila.append('<td class="text-center"><input id="Linea' + index + '" type="text" value="' + (index + 1) + '" readonly hidden/>' + (index + 1) + '</td>');
+                        fila.append('<td class="text-center border-start"><input type="checkbox" class="cls-chkVerif ml-3" id="check' + index + '" autocomplete="off"></td>');
+                        fila.append('<td class="text-center border-end"><input id="Linea' + index + '" type="text" value="' + (index + 1) + '" readonly hidden/>' + (index + 1) + '</td>');
                         fila.append('<td hidden><input id="DocEntry' + index + '" type="text" value="' + item.DocEntry + '" readonly hidden/></td>');
-                        fila.append('<td class="text-center"><input id="DocNum' + index + '" type="text" value="' + item.DocNum + '" hidden/>' + item.DocNum + '</td>');
+                        fila.append('<td class="text-center border-end"><input id="DocNum' + index + '" type="text" value="' + item.DocNum + '" hidden/>' + item.DocNum + '</td>');
                         fila.append('<td hidden><input id="CardCode' + index + '" type="text" value="' + item.CardCode + '" hidden/></td>');
-                        fila.append('<td class="text-center" style="width:250px"><input id="CardName' + index + '" type="text" value="' + item.CardName + '" hidden/>' + item.CardName + '</td>');
-                        fila.append('<td class="text-center" style="width:450px"><input id="Guías' + index + '" type="text" value="' + item.Guias + '" readonly hidden/>' + guiasFormateadas + '</td>');
-                        fila.append('<td class="text-center" style="width:350px"><input id="ConducYPlaca' + index + '" type="text" value="' + (item.ConducYPlaca != null ? item.ConducYPlaca : '') + '" readonly hidden/><span>' + (conducyPlacaFormateada || '') + '</span></td>');
-                        fila.append('<td class="text-center"><input id="Cajas' + index + '" type="text" value="' + item.Cajas + '" readonly hidden/>' + item.Cajas + '</td>');
+                        fila.append('<td class="text-center border-end" style="width:250px"><input id="CardName' + index + '" type="text" value="' + item.CardName + '" hidden/>' + item.CardName + '</td>');
+                        fila.append('<td class="text-center border-end" style="width:450px"><input id="Guías' + index + '" type="text" value="' + item.Guias + '" readonly hidden/>' + guiasFormateadas + '</td>');
+                        fila.append('<td class="text-center border-end" style="width:350px"><input id="ConducYPlaca' + index + '" type="text" value="' + (item.ConducYPlaca != null ? item.ConducYPlaca : '') + '" readonly hidden/><span>' + (conducyPlacaFormateada || '') + '</span></td>');
+                        fila.append('<td class="text-center border-end"><input id="Cajas' + index + '" type="text" value="' + item.Cajas + '" readonly hidden/>' + item.Cajas + '</td>');
                         fila.append('<td hidden><input id="Obs' + index + '" type="text" value="' + (item.Observaciones != null ? item.Observaciones : '') + '" readonly hidden/>' + (item.Observaciones != null ? item.Observaciones : '') + '</td>');
                         fila.append('<td hidden><input id="Direcciones' + index + '" type="text" value="' + (item.DirDestino != null ? item.DirDestino : '') + '" readonly hidden/>' + (item.DirDestino != null ? item.DirDestino : '') + '</td>');
-                        fila.append('<td class="text-center" style="width:70px"><input type="text" value="' + item.Agencia + '" readonly hidden/>' + (item.Agencia != null ? item.Agencia : '') + '</td>');
-                        fila.append('<td class="text-center"><input id="MontoFinal' + index + '" type="text" value="' + item.MontoFinal.toFixed(2) + '" readonly hidden/>' + item.MontoFinal.toFixed(2) + '</td>');
+                        fila.append('<td class="text-center border-end"><input id="MontoFinal' + index + '" type="text" value="' + item.MontoFinal.toFixed(2) + '" readonly hidden/>' + item.MontoFinal.toFixed(2) + '</td>');
                         fila.append('<td hidden><input id="Envio' + index + '" type="text" value="' + item.GastoEnvio.toFixed(2) + '" readonly hidden/>' + item.GastoEnvio.toFixed(2) + '</td>');
-                        fila.append('<td class="text-center"><input id="TipoVenta' + index + '" type="text" value="' + item.TipoVenta + '" readonly hidden/>' + item.TipoVenta + '</td>');
-                        fila.append('<td class="text-center">' + formatearFechaHora(item.TiempoEntrega) + '</td>');
-                        fila.append('<td class="text-center">' + (item.FechaPago != null ? item.FechaPago + '<br>' + item.HoraPago : 'PENDIENTE') + '</td>');
+                        fila.append('<td class="text-center border-end"><input id="TipoVenta' + index + '" type="text" value="' + item.TipoVenta + '" readonly hidden/>' + item.TipoVenta + '</td>');
+                        fila.append('<td class="text-center border-end">' + formatearFechaHora(item.TiempoEntrega) + '</td>');
+                        fila.append('<td class="text-center border-end">' + (item.FechaPago != null ? item.FechaPago + '<br>' + item.HoraPago : 'PENDIENTE') + '</td>');
                         fila.append('<td hidden><input id="Vinculados' + index + '" type="text" value="' + (item.Vinculados != null ? item.Vinculados : '') + '" readonly hidden/></td>');
 
                         tabla.row.add(fila);
@@ -874,23 +877,22 @@ function listarTickets(estado) {
                         var guiasFormateadas = item.Guias ? item.Guias.replace(/,/g, '<br>') : '';
                         var conducyPlacaFormateada = item.ConducYPlaca ? item.ConducYPlaca.replace(/,/g, '<br>') : '';
 
-                        fila.append('<td class="text-center"><input type="checkbox" class="cls-chkVerif ml-3" id="check' + index + '" autocomplete="off"></td>');
-                        fila.append('<td class="text-center"><input id="Linea' + index + '" type="text" value="' + (index + 1) + '" readonly hidden/>' + (index + 1) + '</td>');
+                        fila.append('<td class="text-center border-start"><input type="checkbox" class="cls-chkVerif ml-3" id="check' + index + '" autocomplete="off"></td>');
+                        fila.append('<td class="text-center border-end"><input id="Linea' + index + '" type="text" value="' + (index + 1) + '" readonly hidden/>' + (index + 1) + '</td>');
                         fila.append('<td hidden><input id="DocEntry' + index + '" type="text" value="' + item.DocEntry + '" readonly hidden/></td>');
-                        fila.append('<td class="text-center"><input id="DocNum' + index + '" type="text" value="' + item.DocNum + '" hidden/>' + item.DocNum + '</td>');
+                        fila.append('<td class="text-center border-end"><input id="DocNum' + index + '" type="text" value="' + item.DocNum + '" hidden/>' + item.DocNum + '</td>');
                         fila.append('<td hidden><input id="CardCode' + index + '" type="text" value="' + item.CardCode + '" hidden/></td>');
-                        fila.append('<td class="text-center" style="width:250px"><input id="CardName' + index + '" type="text" value="' + item.CardName + '" hidden/>' + item.CardName + '</td>');
-                        fila.append('<td class="text-center" style="width:450px"><input id="Guías' + index + '" type="text" value="' + item.Guias + '" readonly hidden/>' + guiasFormateadas + '</td>');
-                        fila.append('<td class="text-center" style="width:350px"><input id="ConducYPlaca' + index + '" type="text" value="' + (item.ConducYPlaca != null ? item.ConducYPlaca : '') + '" readonly hidden/><span>' + (conducyPlacaFormateada || '') + '</span></td>');
-                        fila.append('<td class="text-center"><input id="Cajas' + index + '" type="text" value="' + item.Cajas + '" readonly hidden/>' + item.Cajas + '</td>');
+                        fila.append('<td class="text-center border-end" style="width:250px"><input id="CardName' + index + '" type="text" value="' + item.CardName + '" hidden/>' + item.CardName + '</td>');
+                        fila.append('<td class="text-center border-end" style="width:450px"><input id="Guías' + index + '" type="text" value="' + item.Guias + '" readonly hidden/>' + guiasFormateadas + '</td>');
+                        fila.append('<td class="text-center border-end" style="width:350px"><input id="ConducYPlaca' + index + '" type="text" value="' + (item.ConducYPlaca != null ? item.ConducYPlaca : '') + '" readonly hidden/><span>' + (conducyPlacaFormateada || '') + '</span></td>');
+                        fila.append('<td class="text-center border-end"><input id="Cajas' + index + '" type="text" value="' + item.Cajas + '" readonly hidden/>' + item.Cajas + '</td>');
                         fila.append('<td hidden><input id="Obs' + index + '" type="text" value="' + (item.Observaciones != null ? item.Observaciones : '') + '" readonly hidden/>' + (item.Observaciones != null ? item.Observaciones : '') + '</td>');
                         fila.append('<td hidden><input id="Direcciones' + index + '" type="text" value="' + (item.DirDestino != null ? item.DirDestino : '') + '" readonly hidden/>' + (item.DirDestino != null ? item.DirDestino : '') + '</td>');
-                        fila.append('<td class="text-center" style="width:70px"><input type="text" value="' + item.Agencia + '" readonly hidden/>' + (item.Agencia != null ? item.Agencia : '') + '</td>');
-                        fila.append('<td class="text-center"><input id="MontoFinal' + index + '" type="text" value="' + item.MontoFinal.toFixed(2) + '" readonly hidden/>' + item.MontoFinal.toFixed(2) + '</td>');
+                        fila.append('<td class="text-center border-end"><input id="MontoFinal' + index + '" type="text" value="' + item.MontoFinal.toFixed(2) + '" readonly hidden/>' + item.MontoFinal.toFixed(2) + '</td>');
                         fila.append('<td hidden><input id="Envio' + index + '" type="text" value="' + item.GastoEnvio.toFixed(2) + '" readonly hidden/>' + item.GastoEnvio.toFixed(2) + '</td>');
-                        fila.append('<td class="text-center"><input id="TipoVenta' + index + '" type="text" value="' + item.TipoVenta + '" readonly hidden/>' + item.TipoVenta + '</td>');
-                        fila.append('<td class="text-center">' + formatearFechaHora(item.TiempoEntrega) + '</td>');
-                        fila.append('<td class="text-center">' + (item.FechaPago != null ? item.FechaPago + '<br>' + item.HoraPago : 'PENDIENTE') + '</td>');
+                        fila.append('<td class="text-center border-end"><input id="TipoVenta' + index + '" type="text" value="' + item.TipoVenta + '" readonly hidden/>' + item.TipoVenta + '</td>');
+                        fila.append('<td class="text-center border-end">' + formatearFechaHora(item.TiempoEntrega) + '</td>');
+                        fila.append('<td class="text-center border-end">' + (item.FechaPago != null ? item.FechaPago + '<br>' + item.HoraPago : 'PENDIENTE') + '</td>');
                         fila.append('<td hidden><input id="Vinculados' + index + '" type="text" value="' + (item.Vinculados != null ? item.Vinculados : '') + '" readonly hidden/></td>');
 
                         tabla.row.add(fila);

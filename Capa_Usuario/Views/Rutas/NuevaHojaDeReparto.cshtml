@@ -24,6 +24,7 @@
     }
 
 }
+
 <style>
     #Detalles textarea {
         font-size: 12px;
@@ -107,243 +108,255 @@
 
 @using (Html.BeginForm(null, null, FormMethod.Post, new { id = "form" }))
 {
+    <div class="bg-white px-3 py-3 align-items-center">
+        <input name="TipoRep" type="hidden" value="@ViewBag.TipoRep" readonly />
+        <h4 class="mt-0 mb-2 d-inline-block py-1 position-relative"
+            style="color: #009688; font-weight: bold; letter-spacing: 1px;">
+            <i class="bi bi-card-list" style="margin-right:8px;"></i> Datos Generales
+            <span style="display:block; height:3px; background: linear-gradient(90deg, #009688 0%, #26a69a 100%); border-radius:2px; margin-top:3px;"></span>
+        </h4>
+        <div class="bg-white bg-section-form p-3 bg-form-cobefar">
+            @Html.ValidationSummary(true, "", new { @class = "text-danger" })
 
-    <input name="TipoRep" type="hidden" value="@ViewBag.TipoRep" readonly />
-    <div class="bg-form-pestanas-cobefar bg-section-form p-3 bg-form-cobefar">
-        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
-        <div class="row mt-4">
-            <div class="col-lg-2">
-                <label for="TipoRuta" class="text-dark form-label font-weight-bold font-18">Tipo de ruta:</label>
-                <select name="TipoRuta" id="TipoRuta" class="form-control bg-cobefar text-white" onchange="validarTipoRuta(this.value,'');listarTickets('');">
-                    <option value="">Seleccione</option>
-                    <option value="VC">Centro</option>
-                    <option value="VA">Arriola</option>
-                    <option value="VD">Domicilio</option>
-                    @if (ViewBag.TipoRep == "Re")
-                    {
-                        <option value="VG">Agencia</option>
-                    }
-                </select>
-            </div>
+            <div class="row mt-2">
+                <div class="col-lg-2">
+                    <label for="TipoRuta" class="text-dark form-label font-weight-bold font-18">Tipo de ruta:</label>
+                    <select name="TipoRuta" id="TipoRuta" class="form-control bg-cobefar text-white" onchange="validarTipoRuta(this.value,'');listarTickets('');">
+                        <option value="">Seleccione</option>
+                        <option value="VD">Domicilio</option>
+                        @if (ViewBag.TipoRep == "Re")
+                        {
+                            <option value="VG">Provincia</option>
+                        }
+                    </select>
+                </div>
 
-            <div class="col-lg-2">
-                <label for="FechaCont" class="text-dark form-label font-weight-bold font-18">Fecha:</label>
-                <input type="date" name="FechaCont" id="FechaSapTicket" class="form-control border-success" onchange="listarTickets('');" />
-            </div>
-        </div>
-        <div class="row mt-4">
-
-            <div class="col-lg-2">
-                <label for="Zona" class="text-dark form-label font-weight-bold font-18">Zona:</label>
-                <select id="Zona" class="form-control bg-cobefar text-white" onchange="listarTickets(''); buscarConductorYPlaca(this.value);">
-                    <option value="">Seleccione</option>
-                    <option value="CALLAO">CALLAO</option>
-                    <option value="CONO CENTRO">CONO CENTRO</option>
-                    <option value="CONO SUR">CONO SUR</option>
-                    <option value="CONO ESTE1">CONO ESTE1</option>
-                    <option value="CONO ESTE2">CONO ESTE2</option>
-                    <option value="CONO NORTE1">CONO NORTE1</option>
-                    <option value="CONO NORTE2">CONO NORTE2</option>
-                    <option value="AGENCIA">AGENCIA</option>
-                    <option value="PREVENTA">PREVENTA</option>
-                    <option value="ARRIOLA">ARRIOLA</option>
-                    <option value="CONO ARRIOLA"> CONO ARRIOLA</option>
-                    <option value="CONO AGENCIA">CONO AGENCIA</option>
-                </select>
-            </div>
-            <div id="div_almacen-origen" class="col-lg-2">
-                <label for="AlmOrigenDesc" class="text-dark form-label font-weight-bold font-18">Almacén de Origen:</label>
-                <input type="hidden" id="AlmOrigenCod" name="AlmOrigenCod" value="" />
-                <input type="hidden" id="AlmOrigenDesc2" name="AlmOrigenDesc2" value="" />
-                <select name="AlmOrigenDesc" id="AlmOrigenDesc" class="form-control bg-cobefar text-white" onchange="enviarValSelect('AlmOrigenDesc', 'AlmOrigenCod', 'almorigencod'); enviarValSelect('AlmOrigenDesc', 'AlmOrigenDesc2', 'almorigendesc2'); listarTickets('')">
-                    <option value="">Seleccione</option>
-                    @foreach (var l in lstOriDest.Where(x => x.WhsCode == "16" || x.WhsCode == "ALM07" || x.WhsCode == "03"))
-                    {
-                        <option value="@l.WhsName" almorigencod="@l.WhsCode" almorigendesc2="@(l.Street+" "+l.StreetNo+" "+l.Building+" "+l.Block+" "+l.City+" "+l.County)" selected>
-                            @l.WhsName
-                        </option>
-                    }
-                </select>
-            </div>
-            <div id="div_almacen-destino" class="col-lg-2">
-                <label for="AlmDestinoDesc" class="text-dark form-label font-weight-bold font-18">Almacén de Destino:</label>
-                <input type="hidden" id="AlmDestinoCod" name="AlmDestinoCod" value="" />
-                <input type="hidden" id="AlmDestinoDesc2" name="AlmDestinoDesc2" value="" />
-                <select name="AlmDestinoDesc" id="AlmDestinoDesc" class="form-control bg-cobefar text-white"
-                        onchange="enviarValSelect('AlmDestinoDesc', 'AlmDestinoCod','almdestinocod');enviarValSelect('AlmDestinoDesc', 'AlmDestinoDesc2','almdestinodesc2');">
-                    <option value="">Seleccione</option>
-                    <option value="DOMICILIOS" almdestinocod="08" almdestinodesc2="">DOMICILIOS</option>
-                    @foreach (var l in lstOriDest.Where(x => x.WhsCode == "09" || x.WhsCode == "01"))
-                    {
-                        <option value="@l.WhsName" almdestinocod="@l.WhsCode" almdestinodesc2="@(l.Street+" "+l.StreetNo+" "+l.Building+" "+l.Block+" "+l.City+" "+l.County)">
-                            @l.WhsName
-                        </option>
-                    }
-                </select>
-            </div>
-
-            <div class="col-lg-2" id="DepartamentoDiv">
-                <label for="Departamento" class="text-dark form-label font-weight-bold font-18">Departamento:</label>
-                <select id="Departamento" name="Departamento" class="form-control bg-cobefar text-white border-success" onchange="listarTickets('');">
-                    <option value="">Seleccione</option>
-                    @foreach (var dep in Ubigeos.Select(u => u.Departamento).Distinct().OrderBy(u => u))
-                    {
-                        <option value="@dep">@dep</option>
-                    }
-                </select>
-            </div>
-
-            <div class="col-lg-2" id="ProvinciaDiv">
-                <label for="Provincia" class="text-dark form-label font-weight-bold font-18">Provincia:</label>
-                <select id="Provincia" name="Provincia" class="form-control bg-cobefar text-white border-success" onchange="listarTickets('');">
-                    <option value="">Seleccione</option>
-                </select>
-            </div>
-
-            <div class="col-lg-2" id="DistritoDiv">
-                <label for="Distrito" class="text-dark form-label font-weight-bold font-18">Distrito:</label>
-                <select id="Distrito" name="Distrito" class="form-control bg-cobefar text-white border-success" onchange="listarTickets('');">
-                    <option value="">Seleccione</option>
-                </select>
-            </div>
-
-            <div class="col-lg-2" id="ProvedorDiv">
-                <label class="text-dark form-label font-weight-bold font-18">Proveedor Transporte:</label>
-                <select id="ProveedorTrans" name="ProvDesc" class="form-control bg-cobefar text-white border-success" onchange="listarTickets('');">
-                    <option value="">Seleccione</option>
-                    @foreach (var x in Provedor)
-                    {
-                        <option value="@x.Nombre" data-ruc="@x.RUC">@x.Nombre</option>
-                    }
-                </select>
-            </div>
-
-            <div class="col-lg-2" id="PlacaDiv">
-                <label for="Placa" class="text-dark form-label font-weight-bold font-18">Placa:</label>
-                <select name="Placa" id="Placa" class="form-control bg-cobefar text-white border-success"
-                        onchange="enviarValSelect('Placa', 'VehiculoCod', 'Code');
-                                        enviarValSelect('Placa', 'Marca', 'U_SYP_VEMA');
-                                        enviarValSelect('Placa', 'Modelo', 'U_SYP_VEMO');">
-                    <option value="">Seleccione</option>
-                    @foreach (var t in Vehiculos)
-                    {
-                        <option value="@t.U_SYP_VEPL" Code="@t.Code" U_SYP_VEMA="@t.U_SYP_VEMA" U_SYP_VEMO="@t.U_SYP_VEMO">@t.U_SYP_VEPL</option>
-                    }
-                </select>
-                @Html.EditorFor(model => model.Marca, new { htmlAttributes = new { @type = "hidden", @readonly = "true" } })
-                @Html.EditorFor(model => model.Modelo, new { htmlAttributes = new { @type = "hidden", @readonly = "true" } })
-                @Html.EditorFor(model => model.VehiculoCod, new { htmlAttributes = new { @type = "hidden", @readonly = "true" } })
-            </div>
-            <div class="col-lg-2" id="Conductor">
-                <label for="TransDesc" class="text-dark form-label font-weight-bold font-18">Conductor:</label>
-                <select name="TransDesc" id="TransDesc" class="form-control bg-cobefar text-white border-success">
-                    <option value="">Seleccione</option>
-                    @foreach (var x in Conductores)
-                    {
-                        <option value="@x">@x</option>
-                    }
-                </select>
-            </div>
-        </div>
-        <div class="row mt-lg-4">
-
-            <div class="col-lg-2" id="TipoEnvioDiv">
-                <label for="TipoEnvio" class="text-dark form-label font-weight-bold font-18">Tipo Envío:</label>
-                <select name="TipoEnvio" id="TipoEnvio" class="form-control bg-cobefar text-white" onchange="listarTickets('');">
-                    <option value="">Seleccione</option>
-                    <option value="Terrestre">Envío Terrestre</option>
-                    <option value="Aereo">Envío Aéreo</option>
-                </select>
-            </div>
-            <div class="col-lg-2" id="Copiloto1">
-                <label for="CopilDesc" class="text-dark form-label font-weight-bold font-18">Copiloto 1:</label>
-                <select name="CopilDesc" id="CopilDesc" class="form-control bg-cobefar text-white border-success">
-                    <option value="">Seleccione</option>
-                    @foreach (var x in Copilotos)
-                    {
-                        <option value="@x.ToUpper()">@x.ToUpper()</option>
-                    }
-                </select>
-            </div>
-            <div class="col-lg-2" id="Copiloto2">
-                <label for="Copil2Desc" class="text-dark form-label font-weight-bold font-18">Copiloto 2:</label>
-                <select name="Copil2Desc" id="Copil2Desc" class="form-control bg-cobefar text-white border-success">
-                    <option value="">Seleccione</option>
-                    @foreach (var x in Copilotos)
-                    {
-                        <option value="@x.ToUpper()">@x.ToUpper()</option>
-                    }
-                </select>
-            </div>
-            <div class="col-lg-2">
-                <label for="TiempoPac" class="text-dark form-label font-weight-bold font-18">Tiempo de entrega pactado: </label>
-                <input type="datetime-local" class="form-control border-success" name="TiempoPac" />
-            </div>
-
-            <div class="col-lg-1">
-                <label for="TotalCajas" class="text-dark form-label font-weight-bold font-18">#Cajas:</label>
-                <input id="TotalCajas" type="text" class="form-control border-success" readonly />
-            </div>
-
-            <div class="col-lg-5">
-                <label for="Observaciones" class="text-dark form-label font-weight-bold font-18">Observaciones:</label>
-                @Html.EditorFor(model => model.Observaciones, new { htmlAttributes = new { @class = "form-control border-success", @autocomplete = "off" } })
-            </div>
-        </div>
-
-        <!--Botones-->
-        <div class="row align-content-between py-lg-4">
-            <div class="col-lg-10 align-bottom">
-                <input type="checkbox" id="chk_verifTodos" onclick="seleccionarVerif()" /> <label for="chk_verifTodos" class="text-primary">Seleccionar Todos</label>
-            </div>
-            <div>
-                <div class="ml-auto mr-3">
-                    <button type="button" class="btn btn-cobefar-2 ml-2" id="btn-Agregar" onclick="agregarTicketsDetalle()"><i class="icon icon-plus">   </i> Agregar </button>
-                    <button type="button" class="btn btn-info ml-2" onclick="validarEnviarFormulario('');">
-                        <i class="icon icon-checkmark2"> </i> Guardar datos
-                    </button>
+                <div class="col-lg-2">
+                    <label for="FechaCont" class="text-dark form-label font-weight-bold font-18">Fecha:</label>
+                    <input type="date" name="FechaCont" id="FechaSapTicket" class="form-control border-success" onchange="listarTickets('');" />
                 </div>
             </div>
+            <div class="row mt-4">
+
+                <div class="col-lg-2">
+                    <label for="Zona" class="text-dark form-label font-weight-bold font-18">Zona:</label>
+                    <select id="Zona" class="form-control bg-cobefar text-white" onchange="listarTickets(''); buscarConductorYPlaca(this.value);">
+                        <option value="">Seleccione</option>
+                        <option value="CALLAO">CALLAO</option>
+                        <option value="CONO CENTRO">CONO CENTRO</option>
+                        <option value="CONO SUR">CONO SUR</option>
+                        <option value="CONO ESTE1">CONO ESTE1</option>
+                        <option value="CONO ESTE2">CONO ESTE2</option>
+                        <option value="CONO NORTE1">CONO NORTE1</option>
+                        <option value="CONO NORTE2">CONO NORTE2</option>
+                        <option value="AGENCIA">Provincia</option>
+                        <option value="PREVENTA">PREVENTA</option>
+                        <option value="ARRIOLA">ARRIOLA</option>
+                        <option value="CONO ARRIOLA"> CONO ARRIOLA</option>
+                        <option value="CONO AGENCIA">CONO AGENCIA</option>
+                    </select>
+                </div>
+                <div id="div_almacen-origen" class="col-lg-2">
+                    <label for="AlmOrigenDesc" class="text-dark form-label font-weight-bold font-18">Almacén de Origen:</label>
+                    <input type="hidden" id="AlmOrigenCod" name="AlmOrigenCod" value="" />
+                    <input type="hidden" id="AlmOrigenDesc2" name="AlmOrigenDesc2" value="" />
+                    <select name="AlmOrigenDesc" id="AlmOrigenDesc" class="form-control bg-cobefar text-white" onchange="enviarValSelect('AlmOrigenDesc', 'AlmOrigenCod', 'almorigencod'); enviarValSelect('AlmOrigenDesc', 'AlmOrigenDesc2', 'almorigendesc2'); listarTickets('')">
+                        <option value="">Seleccione</option>
+                        @foreach (var l in lstOriDest.Where(x => x.WhsCode == "16" || x.WhsCode == "ALM07" || x.WhsCode == "03"))
+                        {
+                            <option value="@l.WhsName" almorigencod="@l.WhsCode" almorigendesc2="@(l.Street+" "+l.StreetNo+" "+l.Building+" "+l.Block+" "+l.City+" "+l.County)" selected>
+                                @l.WhsName
+                            </option>
+                        }
+                    </select>
+                </div>
+                <div id="div_almacen-destino" class="col-lg-2">
+                    <label for="AlmDestinoDesc" class="text-dark form-label font-weight-bold font-18">Almacén de Destino:</label>
+                    <input type="hidden" id="AlmDestinoCod" name="AlmDestinoCod" value="" />
+                    <input type="hidden" id="AlmDestinoDesc2" name="AlmDestinoDesc2" value="" />
+                    <select name="AlmDestinoDesc" id="AlmDestinoDesc" class="form-control bg-cobefar text-white"
+                            onchange="enviarValSelect('AlmDestinoDesc', 'AlmDestinoCod','almdestinocod');enviarValSelect('AlmDestinoDesc', 'AlmDestinoDesc2','almdestinodesc2');">
+                        <option value="">Seleccione</option>
+                        <option value="DOMICILIOS" almdestinocod="08" almdestinodesc2="">DOMICILIOS</option>
+                        @foreach (var l in lstOriDest.Where(x => x.WhsCode == "09" || x.WhsCode == "01"))
+                        {
+                            <option value="@l.WhsName" almdestinocod="@l.WhsCode" almdestinodesc2="@(l.Street+" "+l.StreetNo+" "+l.Building+" "+l.Block+" "+l.City+" "+l.County)">
+                                @l.WhsName
+                            </option>
+                        }
+                    </select>
+                </div>
+
+                <div class="col-lg-2" id="DepartamentoDiv">
+                    <label for="Departamento" class="text-dark form-label font-weight-bold font-18">Departamento:</label>
+                    <select id="Departamento" name="Departamento" class="form-control bg-cobefar text-white border-success" onchange="listarTickets('');">
+                        <option value="">Seleccione</option>
+                        @foreach (var dep in Ubigeos.Select(u => u.Departamento).Distinct().OrderBy(u => u))
+                        {
+                            <option value="@dep">@dep</option>
+                        }
+                    </select>
+                </div>
+
+                <div class="col-lg-2" id="ProvinciaDiv">
+                    <label for="Provincia" class="text-dark form-label font-weight-bold font-18">Provincia:</label>
+                    <select id="Provincia" name="Provincia" class="form-control bg-cobefar text-white border-success" onchange="listarTickets('');">
+                        <option value="">Seleccione</option>
+                    </select>
+                </div>
+
+                <div class="col-lg-2" id="DistritoDiv">
+                    <label for="Distrito" class="text-dark form-label font-weight-bold font-18">Distrito:</label>
+                    <select id="Distrito" name="Distrito" class="form-control bg-cobefar text-white border-success" onchange="listarTickets('');">
+                        <option value="">Seleccione</option>
+                    </select>
+                </div>
+
+                <div class="col-lg-2" id="ProvedorDiv">
+                    <label class="text-dark form-label font-weight-bold font-18">Proveedor Transporte:</label>
+                    <select id="ProveedorTrans" name="ProvDesc" class="form-control bg-cobefar text-white border-success" onchange="listarTickets('');">
+                        <option value="">Seleccione</option>
+                        @foreach (var x in Provedor)
+                        {
+                            <option value="@x.Nombre" data-ruc="@x.RUC">@x.Nombre</option>
+                        }
+                    </select>
+                </div>
+
+                <div class="col-lg-2" id="PlacaDiv">
+                    <label for="Placa" class="text-dark form-label font-weight-bold font-18">Placa:</label>
+                    <select name="Placa" id="Placa" class="form-control bg-cobefar text-white border-success"
+                            onchange="enviarValSelect('Placa', 'VehiculoCod', 'Code');
+                                        enviarValSelect('Placa', 'Marca', 'U_SYP_VEMA');
+                                        enviarValSelect('Placa', 'Modelo', 'U_SYP_VEMO');">
+                        <option value="">Seleccione</option>
+                        @foreach (var t in Vehiculos)
+                        {
+                            <option value="@t.U_SYP_VEPL" Code="@t.Code" U_SYP_VEMA="@t.U_SYP_VEMA" U_SYP_VEMO="@t.U_SYP_VEMO">@t.U_SYP_VEPL</option>
+                        }
+                    </select>
+                    @Html.EditorFor(model => model.Marca, new { htmlAttributes = new { @type = "hidden", @readonly = "true" } })
+                    @Html.EditorFor(model => model.Modelo, new { htmlAttributes = new { @type = "hidden", @readonly = "true" } })
+                    @Html.EditorFor(model => model.VehiculoCod, new { htmlAttributes = new { @type = "hidden", @readonly = "true" } })
+                </div>
+                <div class="col-lg-2" id="Conductor">
+                    <label for="TransDesc" class="text-dark form-label font-weight-bold font-18">Conductor:</label>
+                    <select name="TransDesc" id="TransDesc" class="form-control bg-cobefar text-white border-success">
+                        <option value="">Seleccione</option>
+                        @foreach (var x in Conductores)
+                        {
+                            <option value="@x">@x</option>
+                        }
+                    </select>
+                </div>
+            </div>
+            <div class="row mt-lg-4">
+
+                <div class="col-lg-2" id="TipoEnvioDiv">
+                    <label for="TipoEnvio" class="text-dark form-label font-weight-bold font-18">Tipo Envío:</label>
+                    <select name="TipoEnvio" id="TipoEnvio" class="form-control bg-cobefar text-white" onchange="listarTickets('');">
+                        <option value="">Seleccione</option>
+                        <option value="Terrestre">Envío Terrestre</option>
+                        <option value="Aereo">Envío Aéreo</option>
+                    </select>
+                </div>
+                <div class="col-lg-2" id="Copiloto1">
+                    <label for="CopilDesc" class="text-dark form-label font-weight-bold font-18">Copiloto 1:</label>
+                    <select name="CopilDesc" id="CopilDesc" class="form-control bg-cobefar text-white border-success">
+                        <option value="">Seleccione</option>
+                        @foreach (var x in Copilotos)
+                        {
+                            <option value="@x.ToUpper()">@x.ToUpper()</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-lg-2" id="Copiloto2">
+                    <label for="Copil2Desc" class="text-dark form-label font-weight-bold font-18">Copiloto 2:</label>
+                    <select name="Copil2Desc" id="Copil2Desc" class="form-control bg-cobefar text-white border-success">
+                        <option value="">Seleccione</option>
+                        @foreach (var x in Copilotos)
+                        {
+                            <option value="@x.ToUpper()">@x.ToUpper()</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-lg-2">
+                    <label for="TiempoPac" class="text-dark form-label font-weight-bold font-18">Tiempo pactado: </label>
+                    <input type="datetime-local" class="form-control border-success" name="TiempoPac" />
+                </div>
+
+                <div class="col-lg-1">
+                    <label for="TotalCajas" class="text-dark form-label font-weight-bold font-18">#Cajas:</label>
+                    <input id="TotalCajas" type="text" class="form-control border-success" readonly />
+                </div>
+
+                <div class="col-lg-5">
+                    <label for="Observaciones" class="text-dark form-label font-weight-bold font-18">Observaciones:</label>
+                    @Html.EditorFor(model => model.Observaciones, new { htmlAttributes = new { @class = "form-control border-success", @autocomplete = "off" } })
+                </div>
+            </div>
+
+            <!--Botones-->
+            <div class="row py-lg-4">
+                <div class="d-flex justify-content-between align-items-center">
+                    <!-- Izquierda: checkbox -->
+                    <div class="form-check d-inline-flex align-items-center">
+                        <input class="form-check-input me-2" type="checkbox" id="chk_verifTodos" onclick="seleccionarVerif()">
+                        <label class="form-check-label text-primary" for="chk_verifTodos">Seleccionar Todos</label>
+                    </div>
+
+                    <!-- Derecha: botones -->
+                    <div class="d-flex gap-2">
+                        <button type="button" class="btn btn-primary btn-sm" id="btn-Agregar" onclick="agregarTicketsDetalle()">
+                            <i class="bi bi-plus-lg"></i> Agregar
+                        </button>
+                        <button type="button" class="btn btn-success btn-sm" onclick="validarEnviarFormulario('');">
+                            <i class="bi bi-check-lg"></i> Guardar datos
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+
+            <!--Tabla con los tickets a enviar disponibles segun parametros-->
+            <div class="col-lg-12">
+                <table id="detalleRuta" class="table table-sm table-hover cls-dataTable no-auto-dt" cellspacing="0" width="100%">
+                    <thead class="thead-cobefar bg-cobefar-6 text-white">
+                        <tr>
+                            <th class="text-center border-start"></th>
+                            <th class="text-center border-end">#</th>
+                            <th hidden>DocEntryTicket</th>
+                            <th class="text-center border-end">NroTicket</th>
+                            <th hidden>CodSocio</th>
+                            <th class="text-center border-end">Socio</th>
+                            <th class="text-center border-end">Guías</th>
+                            <th class="text-center border-end">Conductor/Placa</th>
+                            <th class="text-center border-end">Cajas</th>
+                            <th hidden>Obs.</th>
+                            <th hidden>Direcciones</th>
+                            <th class="text-center border-end">Monto final</th>
+                            <th hidden>Envio</th>
+                            <th class="text-center border-end">Tipo de venta</th>
+                            <th class="text-center border-end">Tiempo de entrega</th>
+                            <th class="text-center border-end">Tiempo de pago</th>
+                            <th hidden>Vinculados</th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
         </div>
 
 
-        <!--Tabla con los tickets a enviar disponibles segun parametros-->
-        <div class="col-lg-12">
-            <table id="detalleRuta" class="table table-light table-sm table-hover cls-dataTable no-auto-dt" cellspacing="0" width="100%">
-                <thead class="bg-cobefar-6 text-white">
-                    <tr>
-                        <th class="text-center"></th>
-                        <th class="text-center">#</th>
-                        <th hidden>DocEntryTicket</th>
-                        <th class="text-center">NroTicket</th>
-                        <th hidden>CodSocio</th>
-                        <th class="text-center" style="width:250px">Socio</th>
-                        <th class="text-center" style="width:200px">Guías</th>
-                        <th class="text-center" style="width:350px">Conductor/Placa</th>
-                        <th class="text-center">Cajas</th>
-                        <th hidden>Obs.</th>
-                        <th hidden>Direcciones</th>
-                        <th class="text-center" style="width:70px">Agencia</th>
-                        <th class="text-center">Monto final</th>
-                        <th hidden>Envio</th>
-                        <th class="text-center">Tipo de venta</th>
-                        <th class="text-center">Tiempo de pago</th>
-                        <th hidden>Vinculados</th>
-                    </tr>
-                </thead>
-            </table>
-        </div>
-    </div>
+        <!--Tabla principal que detalla los tickets agregados a la orden de reparto-->
+        <h4 class="mt-3 mb-2 d-inline-block py-1 position-relative"
+            style="color: #009688; font-weight: bold; letter-spacing: 1px;">
+            <i class="bi bi-card-list" style="margin-right:8px;"></i> Detalle de Ruta
+            <span style="display:block; height:4px; background: linear-gradient(90deg, #009688 0%, #26a69a 100%); border-radius:2px; margin-top:4px;"></span>
+        </h4>
 
-
-    <!--Tabla principal que detalla los tickets agregados a la orden de reparto-->
-    <h3 class="text-cobefar font-weight-bold mt-2">
-        DETALLE DE RUTA<br />
-    </h3>
-    <div id="divDetalleRuta">
-        <div class="mt-2">
-            <table id="Detalles" class="table table-light table-sm table-hover" cellspacing="0" width="100%">
-                <thead class="bg-success">
+        <div id="divDetalleRuta" class="table-responsive">
+            <table id="Detalles" class="table table-sm table-hover table-striped table-bordered align-middle" cellspacing="0" width="100%">
+                <thead class="thead-cobefar bg-cobefar-6 text-white">
                     <tr>
                         <th class="text-center">#</th>
                         <th hidden>DocEntryT</th>
@@ -356,110 +369,110 @@
                         <th class="text-center">Direcciones</th>
                         <th class="text-center">Monto final</th>
                         <th class="text-center">Envio</th>
-                        <th class="text-center"></th><!--Boton seguimiento-->
-                        <th class="text-center"></th> <!--Boton borrar-->
+                        <th class="text-center"></th><!-- Botón seguimiento -->
+                        <th class="text-center"></th><!-- Botón borrar -->
                     </tr>
                 </thead>
                 <tbody></tbody>
             </table>
         </div>
-    </div>
 
-    <!-- Modal para ver tickets no enviados-->
-    <div class="modal" id="ModalTicketsNE" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-xl modal-dialog-centered" role="document">
-            <div class="modal-content">
-                <div class="modal-header bg-cobefar text-light">
-                    <h5 class="modal-title" id="exampleModalLabel">Relación de tickets</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <div class="mt-2">
-                        <table id="tableModalNE" class="table table-bordered table-sm table-hover" cellspacing="0" width="100%">
-                            <thead class="bg-dark">
-                                <tr>
-                                    <th class="text-center">DocNum</th>
-                                    <th class="text-center">Fecha</th>
-                                    <th class="text-center">Cliente</th>
-                                    <th class="text-center">Monto Final</th>
-                                </tr>
-                            </thead>
-                            <tbody></tbody>
-                        </table>
+        <!-- Modal para ver tickets no enviados-->
+        <div class="modal" id="ModalTicketsNE" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-xl modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header bg-cobefar text-light">
+                        <h5 class="modal-title" id="exampleModalLabel">Relación de tickets</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mt-2">
+                            <table id="tableModalNE" class="table table-bordered table-sm table-hover" cellspacing="0" width="100%">
+                                <thead class="bg-dark">
+                                    <tr>
+                                        <th class="text-center">DocNum</th>
+                                        <th class="text-center">Fecha</th>
+                                        <th class="text-center">Cliente</th>
+                                        <th class="text-center">Monto Final</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-}
-@if (!string.IsNullOrWhiteSpace(ViewBag.Mensaje))
-{
-    <script>
+        }
+        @if (!string.IsNullOrWhiteSpace(ViewBag.Mensaje))
+        {
+            <script>
      var mensaje = '@Html.Raw(ViewBag.Mensaje)';
         Swal.fire({
             text: mensaje,
             showConfirmButton: false,
             timer: 2000
         });
-    </script>
-}
+            </script>
+        }
 
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const tipoRutaSelect = document.getElementById('TipoRuta');
-        const zonaSelect = document.getElementById('Zona');
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                const tipoRutaSelect = document.getElementById('TipoRuta');
+                const zonaSelect = document.getElementById('Zona');
 
-        function actualizarOpcionesZona() {
-            // Mostrar todas las opciones primero
-            Array.from(zonaSelect.options).forEach(opt => {
-                opt.hidden = false;
-            });
+                function actualizarOpcionesZona() {
+                    // Mostrar todas las opciones primero
+                    Array.from(zonaSelect.options).forEach(opt => {
+                        opt.hidden = false;
+                    });
 
-            // Si es Domicilio, ocultar AGENCIA y ARRIOLA
-            if (tipoRutaSelect.value === 'VD') {
-                Array.from(zonaSelect.options).forEach(opt => {
-                    if (opt.value === 'AGENCIA' || opt.value === 'ARRIOLA') {
-                        opt.hidden = true;
-                        // Si está seleccionada, resetea el select
-                        if (zonaSelect.value === opt.value) zonaSelect.value = '';
+                    // Si es Domicilio, ocultar AGENCIA y ARRIOLA
+                    if (tipoRutaSelect.value === 'VD') {
+                        Array.from(zonaSelect.options).forEach(opt => {
+                            if (opt.value === 'AGENCIA' || opt.value === 'ARRIOLA') {
+                                opt.hidden = true;
+                                // Si está seleccionada, resetea el select
+                                if (zonaSelect.value === opt.value) zonaSelect.value = '';
+                            }
+                        });
                     }
-                });
-            }
-        }
-        tipoRutaSelect.addEventListener('change', actualizarOpcionesZona);
-        // Ejecutar al cargar por si hay valor inicial
-        actualizarOpcionesZona();
-    });
-</script>
+                }
+                tipoRutaSelect.addEventListener('change', actualizarOpcionesZona);
+                // Ejecutar al cargar por si hay valor inicial
+                actualizarOpcionesZona();
+            });
+        </script>
 
 
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const tipoRuta = document.getElementById('TipoRuta');
-        const ProvedorDiv = document.getElementById('ProvedorDiv');
-        const DepartamentoDiv = document.getElementById('DepartamentoDiv');
-        const ProvinciaDiv = document.getElementById('ProvinciaDiv');
-        const DistritoDiv = document.getElementById('DistritoDiv');
-        const TipoEnvio = document.getElementById('TipoEnvioDiv')
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                const tipoRuta = document.getElementById('TipoRuta');
+                const ProvedorDiv = document.getElementById('ProvedorDiv');
+                const DepartamentoDiv = document.getElementById('DepartamentoDiv');
+                const ProvinciaDiv = document.getElementById('ProvinciaDiv');
+                const DistritoDiv = document.getElementById('DistritoDiv');
+                const TipoEnvio = document.getElementById('TipoEnvioDiv')
 
-        function toggleConductor() {
-            // Mostrar solo si es VG (Agencia)
-            const mostrar = tipoRuta.value === 'VG';
-            ProvedorDiv.style.display = mostrar ? 'block' : 'none';
-            DepartamentoDiv.style.display = mostrar ? 'block' : 'none';
-            ProvinciaDiv.style.display = mostrar ? 'block' : 'none';
-            DistritoDiv.style.display = mostrar ? 'block' : 'none';
-            TipoEnvio.style.display = mostrar ? 'block' : 'none';
-        }
+                function toggleConductor() {
+                    // Mostrar solo si es VG (Agencia)
+                    const mostrar = tipoRuta.value === 'VG';
+                    ProvedorDiv.style.display = mostrar ? 'block' : 'none';
+                    DepartamentoDiv.style.display = mostrar ? 'block' : 'none';
+                    ProvinciaDiv.style.display = mostrar ? 'block' : 'none';
+                    DistritoDiv.style.display = mostrar ? 'block' : 'none';
+                    TipoEnvio.style.display = mostrar ? 'block' : 'none';
+                }
 
-        tipoRuta.addEventListener('change', toggleConductor);
-        // Ejecutar al cargar para estado inicial
-        toggleConductor();
-    });
-</script>
-<script>
+                tipoRuta.addEventListener('change', toggleConductor);
+                // Ejecutar al cargar para estado inicial
+                toggleConductor();
+            });
+        </script>
+        <script>
     // Script para manejar los cambios en los selects de departamento, provincia y distrito
     document.addEventListener('DOMContentLoaded', function () {
         const depto = document.getElementById('Departamento');
@@ -518,4 +531,4 @@
             });
         });
     });
-</script>
+        </script>

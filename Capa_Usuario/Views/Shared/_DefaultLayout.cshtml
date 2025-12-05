@@ -157,7 +157,8 @@
 		if (document.getElementsByClassName("cls-dataTable").length > 0) {
             $('.cls-dataTable').each(function(){
                 if($(this).hasClass('no-auto-dt')) return; // skip manual tables
-                $(this).DataTable({
+				$(this).DataTable({
+                    "searching": true,
                     "ordering": false,
                     "scrollX": true,
                     "language": {
