@@ -108,24 +108,28 @@
 
 @using (Html.BeginForm(null, null, FormMethod.Post, new { id = "form" }))
 {
+    <div class="bg-white px-3 py-3 align-items-center">
+        <input name="TipoRep" type="hidden" value="@ViewBag.TipoRep" readonly />
+        <h4 class="mt-0 mb-2 d-inline-block py-1 position-relative"
+            style="color: #009688; font-weight: bold; letter-spacing: 1px;">
+            <i class="bi bi-card-list" style="margin-right:8px;"></i> Datos Generales
+            <span style="display:block; height:3px; background: linear-gradient(90deg, #009688 0%, #26a69a 100%); border-radius:2px; margin-top:3px;"></span>
+        </h4>
+        <div class="bg-white bg-section-form p-3 bg-form-cobefar">
+            @Html.ValidationSummary(true, "", new { @class = "text-danger" })
 
-    <input name="TipoRep" type="hidden" value="@ViewBag.TipoRep" readonly />
-    <div class="bg-form-pestanas-cobefar bg-section-form p-3 bg-form-cobefar">
-        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
-        <div class="row mt-4">
-            <div class="col-lg-2">
-                <label for="TipoRuta" class="text-dark form-label font-weight-bold font-18">Tipo de ruta:</label>
-                <select name="TipoRuta" id="TipoRuta" class="form-control bg-cobefar text-white" onchange="validarTipoRuta(this.value,'');listarTickets('');">
-                    <option value="">Seleccione</option>
-                    <option value="VC">Centro</option>
-                    <option value="VA">Arriola</option>
-                    <option value="VD">Domicilio</option>
-                    @if (ViewBag.TipoRep == "Re")
-                    {
-                        <option value="VG">Agencia</option>
-                    }
-                </select>
-            </div>
+            <div class="row mt-2">
+                <div class="col-lg-2">
+                    <label for="TipoRuta" class="text-dark form-label font-weight-bold font-18">Tipo de ruta:</label>
+                    <select name="TipoRuta" id="TipoRuta" class="form-control form-select border-success" onchange="validarTipoRuta(this.value,'');listarTickets('');">
+                        <option value="">Seleccione</option>
+                        <option value="VD">Domicilio</option>
+                        @if (ViewBag.TipoRep == "Re")
+                        {
+                            <option value="VG">Provincia</option>
+                        }
+                    </select>
+                </div>
 
                 <div class="col-lg-2">
                     <label for="FechaCont" class="text-dark form-label font-weight-bold font-18">Fecha:</label>
@@ -400,73 +404,73 @@
             </div>
         </div>
     </div>
-        }
-        @if (!string.IsNullOrWhiteSpace(ViewBag.Mensaje))
-        {
-            <script>
+}
+@if (!string.IsNullOrWhiteSpace(ViewBag.Mensaje))
+{
+    <script>
      var mensaje = '@Html.Raw(ViewBag.Mensaje)';
         Swal.fire({
             text: mensaje,
             showConfirmButton: false,
             timer: 2000
         });
-            </script>
+    </script>
+}
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const tipoRutaSelect = document.getElementById('TipoRuta');
+        const zonaSelect = document.getElementById('Zona');
+
+        function actualizarOpcionesZona() {
+            // Mostrar todas las opciones primero
+            Array.from(zonaSelect.options).forEach(opt => {
+                opt.hidden = false;
+            });
+
+            // Si es Domicilio, ocultar AGENCIA y ARRIOLA
+            if (tipoRutaSelect.value === 'VD') {
+                Array.from(zonaSelect.options).forEach(opt => {
+                    if (opt.value === 'AGENCIA' || opt.value === 'ARRIOLA') {
+                        opt.hidden = true;
+                        // Si está seleccionada, resetea el select
+                        if (zonaSelect.value === opt.value) zonaSelect.value = '';
+                    }
+                });
+            }
+        }
+        tipoRutaSelect.addEventListener('change', actualizarOpcionesZona);
+        // Ejecutar al cargar por si hay valor inicial
+        actualizarOpcionesZona();
+    });
+</script>
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const tipoRuta = document.getElementById('TipoRuta');
+        const ProvedorDiv = document.getElementById('ProvedorDiv');
+        const DepartamentoDiv = document.getElementById('DepartamentoDiv');
+        const ProvinciaDiv = document.getElementById('ProvinciaDiv');
+        const DistritoDiv = document.getElementById('DistritoDiv');
+        const TipoEnvio = document.getElementById('TipoEnvioDiv')
+
+        function toggleConductor() {
+            // Mostrar solo si es VG (Agencia)
+            const mostrar = tipoRuta.value === 'VG';
+            ProvedorDiv.style.display = mostrar ? 'block' : 'none';
+            DepartamentoDiv.style.display = mostrar ? 'block' : 'none';
+            ProvinciaDiv.style.display = mostrar ? 'block' : 'none';
+            DistritoDiv.style.display = mostrar ? 'block' : 'none';
+            TipoEnvio.style.display = mostrar ? 'block' : 'none';
         }
 
-        <script>
-            document.addEventListener('DOMContentLoaded', function () {
-                const tipoRutaSelect = document.getElementById('TipoRuta');
-                const zonaSelect = document.getElementById('Zona');
-
-                function actualizarOpcionesZona() {
-                    // Mostrar todas las opciones primero
-                    Array.from(zonaSelect.options).forEach(opt => {
-                        opt.hidden = false;
-                    });
-
-                    // Si es Domicilio, ocultar AGENCIA y ARRIOLA
-                    if (tipoRutaSelect.value === 'VD') {
-                        Array.from(zonaSelect.options).forEach(opt => {
-                            if (opt.value === 'AGENCIA' || opt.value === 'ARRIOLA') {
-                                opt.hidden = true;
-                                // Si está seleccionada, resetea el select
-                                if (zonaSelect.value === opt.value) zonaSelect.value = '';
-                            }
-                        });
-                    }
-                }
-                tipoRutaSelect.addEventListener('change', actualizarOpcionesZona);
-                // Ejecutar al cargar por si hay valor inicial
-                actualizarOpcionesZona();
-            });
-        </script>
-
-
-        <script>
-            document.addEventListener('DOMContentLoaded', function () {
-                const tipoRuta = document.getElementById('TipoRuta');
-                const ProvedorDiv = document.getElementById('ProvedorDiv');
-                const DepartamentoDiv = document.getElementById('DepartamentoDiv');
-                const ProvinciaDiv = document.getElementById('ProvinciaDiv');
-                const DistritoDiv = document.getElementById('DistritoDiv');
-                const TipoEnvio = document.getElementById('TipoEnvioDiv')
-
-                function toggleConductor() {
-                    // Mostrar solo si es VG (Agencia)
-                    const mostrar = tipoRuta.value === 'VG';
-                    ProvedorDiv.style.display = mostrar ? 'block' : 'none';
-                    DepartamentoDiv.style.display = mostrar ? 'block' : 'none';
-                    ProvinciaDiv.style.display = mostrar ? 'block' : 'none';
-                    DistritoDiv.style.display = mostrar ? 'block' : 'none';
-                    TipoEnvio.style.display = mostrar ? 'block' : 'none';
-                }
-
-                tipoRuta.addEventListener('change', toggleConductor);
-                // Ejecutar al cargar para estado inicial
-                toggleConductor();
-            });
-        </script>
-        <script>
+        tipoRuta.addEventListener('change', toggleConductor);
+        // Ejecutar al cargar para estado inicial
+        toggleConductor();
+    });
+</script>
+<script>
     // Script para manejar los cambios en los selects de departamento, provincia y distrito
     document.addEventListener('DOMContentLoaded', function () {
         const depto = document.getElementById('Departamento');
@@ -525,4 +529,4 @@
             });
         });
     });
-        </script>
+</script>
