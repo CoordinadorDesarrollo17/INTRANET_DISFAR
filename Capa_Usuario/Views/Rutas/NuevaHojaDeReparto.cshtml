@@ -121,7 +121,7 @@
             <div class="row mt-2">
                 <div class="col-lg-2">
                     <label for="TipoRuta" class="text-dark form-label font-weight-bold font-18">Tipo de ruta:</label>
-                    <select name="TipoRuta" id="TipoRuta" class="form-control bg-cobefar text-white" onchange="validarTipoRuta(this.value,'');listarTickets('');">
+                    <select name="TipoRuta" id="TipoRuta" class="form-control form-select border-success" onchange="validarTipoRuta(this.value,'');listarTickets('');">
                         <option value="">Seleccione</option>
                         <option value="VD">Domicilio</option>
                         @if (ViewBag.TipoRep == "Re")
@@ -140,7 +140,7 @@
 
                 <div class="col-lg-2">
                     <label for="Zona" class="text-dark form-label font-weight-bold font-18">Zona:</label>
-                    <select id="Zona" class="form-control bg-cobefar text-white" onchange="listarTickets(''); buscarConductorYPlaca(this.value);">
+                    <select id="Zona" class="form-control form-select border-success" onchange="listarTickets(''); buscarConductorYPlaca(this.value);">
                         <option value="">Seleccione</option>
                         <option value="CALLAO">CALLAO</option>
                         <option value="CONO CENTRO">CONO CENTRO</option>
@@ -160,7 +160,7 @@
                     <label for="AlmOrigenDesc" class="text-dark form-label font-weight-bold font-18">Almacén de Origen:</label>
                     <input type="hidden" id="AlmOrigenCod" name="AlmOrigenCod" value="" />
                     <input type="hidden" id="AlmOrigenDesc2" name="AlmOrigenDesc2" value="" />
-                    <select name="AlmOrigenDesc" id="AlmOrigenDesc" class="form-control bg-cobefar text-white" onchange="enviarValSelect('AlmOrigenDesc', 'AlmOrigenCod', 'almorigencod'); enviarValSelect('AlmOrigenDesc', 'AlmOrigenDesc2', 'almorigendesc2'); listarTickets('')">
+                    <select name="AlmOrigenDesc" id="AlmOrigenDesc" class="form-control form-select border-success" onchange="enviarValSelect('AlmOrigenDesc', 'AlmOrigenCod', 'almorigencod'); enviarValSelect('AlmOrigenDesc', 'AlmOrigenDesc2', 'almorigendesc2'); listarTickets('')">
                         <option value="">Seleccione</option>
                         @foreach (var l in lstOriDest.Where(x => x.WhsCode == "16" || x.WhsCode == "ALM07" || x.WhsCode == "03"))
                         {
@@ -174,7 +174,7 @@
                     <label for="AlmDestinoDesc" class="text-dark form-label font-weight-bold font-18">Almacén de Destino:</label>
                     <input type="hidden" id="AlmDestinoCod" name="AlmDestinoCod" value="" />
                     <input type="hidden" id="AlmDestinoDesc2" name="AlmDestinoDesc2" value="" />
-                    <select name="AlmDestinoDesc" id="AlmDestinoDesc" class="form-control bg-cobefar text-white"
+                    <select name="AlmDestinoDesc" id="AlmDestinoDesc" class="form-control form-select border-success"
                             onchange="enviarValSelect('AlmDestinoDesc', 'AlmDestinoCod','almdestinocod');enviarValSelect('AlmDestinoDesc', 'AlmDestinoDesc2','almdestinodesc2');">
                         <option value="">Seleccione</option>
                         <option value="DOMICILIOS" almdestinocod="08" almdestinodesc2="">DOMICILIOS</option>
@@ -189,7 +189,7 @@
 
                 <div class="col-lg-2" id="DepartamentoDiv">
                     <label for="Departamento" class="text-dark form-label font-weight-bold font-18">Departamento:</label>
-                    <select id="Departamento" name="Departamento" class="form-control bg-cobefar text-white border-success" onchange="listarTickets('');">
+                    <select id="Departamento" name="Departamento" class="form-control form-select border-success" onchange="listarTickets('');">
                         <option value="">Seleccione</option>
                         @foreach (var dep in Ubigeos.Select(u => u.Departamento).Distinct().OrderBy(u => u))
                         {
@@ -200,21 +200,21 @@
 
                 <div class="col-lg-2" id="ProvinciaDiv">
                     <label for="Provincia" class="text-dark form-label font-weight-bold font-18">Provincia:</label>
-                    <select id="Provincia" name="Provincia" class="form-control bg-cobefar text-white border-success" onchange="listarTickets('');">
+                    <select id="Provincia" name="Provincia" class="form-control form-select border-success" onchange="listarTickets('');">
                         <option value="">Seleccione</option>
                     </select>
                 </div>
 
                 <div class="col-lg-2" id="DistritoDiv">
                     <label for="Distrito" class="text-dark form-label font-weight-bold font-18">Distrito:</label>
-                    <select id="Distrito" name="Distrito" class="form-control bg-cobefar text-white border-success" onchange="listarTickets('');">
+                    <select id="Distrito" name="Distrito" class="form-control form-select border-success" onchange="listarTickets('');">
                         <option value="">Seleccione</option>
                     </select>
                 </div>
 
                 <div class="col-lg-2" id="ProvedorDiv">
                     <label class="text-dark form-label font-weight-bold font-18">Proveedor Transporte:</label>
-                    <select id="ProveedorTrans" name="ProvDesc" class="form-control bg-cobefar text-white border-success" onchange="listarTickets('');">
+                    <select id="ProveedorTrans" name="ProvDesc" class="form-control form-select border-success" onchange="listarTickets('');">
                         <option value="">Seleccione</option>
                         @foreach (var x in Provedor)
                         {
@@ -225,7 +225,7 @@
 
                 <div class="col-lg-2" id="PlacaDiv">
                     <label for="Placa" class="text-dark form-label font-weight-bold font-18">Placa:</label>
-                    <select name="Placa" id="Placa" class="form-control bg-cobefar text-white border-success"
+                    <select name="Placa" id="Placa" class="form-control form-select border-success"
                             onchange="enviarValSelect('Placa', 'VehiculoCod', 'Code');
                                         enviarValSelect('Placa', 'Marca', 'U_SYP_VEMA');
                                         enviarValSelect('Placa', 'Modelo', 'U_SYP_VEMO');">
@@ -241,7 +241,7 @@
                 </div>
                 <div class="col-lg-2" id="Conductor">
                     <label for="TransDesc" class="text-dark form-label font-weight-bold font-18">Conductor:</label>
-                    <select name="TransDesc" id="TransDesc" class="form-control bg-cobefar text-white border-success">
+                    <select name="TransDesc" id="TransDesc" class="form-control form-select border-success">
                         <option value="">Seleccione</option>
                         @foreach (var x in Conductores)
                         {
@@ -254,7 +254,7 @@
 
                 <div class="col-lg-2" id="TipoEnvioDiv">
                     <label for="TipoEnvio" class="text-dark form-label font-weight-bold font-18">Tipo Envío:</label>
-                    <select name="TipoEnvio" id="TipoEnvio" class="form-control bg-cobefar text-white" onchange="listarTickets('');">
+                    <select name="TipoEnvio" id="TipoEnvio" class="form-control form-select border-success" onchange="listarTickets('');">
                         <option value="">Seleccione</option>
                         <option value="Terrestre">Envío Terrestre</option>
                         <option value="Aereo">Envío Aéreo</option>
@@ -262,7 +262,7 @@
                 </div>
                 <div class="col-lg-2" id="Copiloto1">
                     <label for="CopilDesc" class="text-dark form-label font-weight-bold font-18">Copiloto 1:</label>
-                    <select name="CopilDesc" id="CopilDesc" class="form-control bg-cobefar text-white border-success">
+                    <select name="CopilDesc" id="CopilDesc" class="form-control form-select border-success">
                         <option value="">Seleccione</option>
                         @foreach (var x in Copilotos)
                         {
@@ -272,7 +272,7 @@
                 </div>
                 <div class="col-lg-2" id="Copiloto2">
                     <label for="Copil2Desc" class="text-dark form-label font-weight-bold font-18">Copiloto 2:</label>
-                    <select name="Copil2Desc" id="Copil2Desc" class="form-control bg-cobefar text-white border-success">
+                    <select name="Copil2Desc" id="Copil2Desc" class="form-control form-select border-success">
                         <option value="">Seleccione</option>
                         @foreach (var x in Copilotos)
                         {
@@ -319,8 +319,8 @@
 
 
             <!--Tabla con los tickets a enviar disponibles segun parametros-->
-            <div class="col-lg-12">
-                <table id="detalleRuta" class="table table-sm table-hover cls-dataTable no-auto-dt" cellspacing="0" width="100%">
+            <div class="col-lg-12 table-responsive">
+                <table id="detalleRuta" class="table table-sm table-hover cls-dataTable no-auto-dt table-striped" cellspacing="0" width="100%">
                     <thead class="thead-cobefar bg-cobefar-6 text-white">
                         <tr>
                             <th class="text-center border-start"></th>
@@ -378,14 +378,12 @@
         </div>
 
         <!-- Modal para ver tickets no enviados-->
-        <div class="modal" id="ModalTicketsNE" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-            <div class="modal-dialog modal-xl modal-dialog-centered" role="document">
+        <div class="modal fade" id="ModalTicketsNE" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-xl modal-dialog-centered">
                 <div class="modal-content">
                     <div class="modal-header bg-cobefar text-light">
                         <h5 class="modal-title" id="exampleModalLabel">Relación de tickets</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
                         <div class="mt-2">
