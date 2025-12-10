@@ -218,11 +218,8 @@
                                 </a>
                                 @if (item.Estado.Equals("ENVIADO") && item.TotalCajas > 0)
                                 {
-                                    <button type="button" class="btn btn-secondary d-block d-sm-block d-md-block d-lg-none d-xl-none mx-1"
-                                            data-bs-toggle="modal" data-bs-target="#M2"
-                                            onclick="llenarModal2(@item.DocEntry, @item.DocNum);">
-                                        Ter
-                                    </button>}
+                                    <button type="button" class="btn btn-secondary d-block d-sm-block d-md-block d-lg-none d-xl-none mx-1" data-bs-toggle="modal" data-bs-target="#M2" onclick="llenarModal2(@item.DocEntry, @item.DocNum);">Ter</button>}
+                                
                                 <a href="@Url.Action("SeguimientoRepartoRutas", "Rutas", new { DocEntry = item.DocEntry, Vista="REPARTOS" })"
                                    class="btn btn-light d-none d-sm-none d-md-none d-lg-block d-xl-block mx-1"
                                    data-toggle="tooltip" data-placement="top" title="Seguimiento">
@@ -280,7 +277,7 @@
                         <input class="form-control" name="DocEntry" id="M2DocEntry" type="hidden" readonly>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-success" onclick="terminarReparto();"><i class="icon-checkmark"></i> SI</button>
+                        <button type="button" class="btn btn-success" onclick="mostrarCargandoTerminar();"><i class="bi bi-check-lg"></i> SI</button>
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><i class="icon-cross"></i> NO</button>
                     </div>
                 </form>
@@ -294,5 +291,17 @@
             icon: '',
             text: `@ViewBag.Mensaje`
         })
+    }
+
+    function mostrarCargandoTerminar() {
+        Swal.fire({
+            title: 'Terminando ruta...',
+            text: 'Por favor espere',
+            allowOutsideClick: false,
+            didOpen: () => {
+                Swal.showLoading();
+            }
+        });
+        terminarReparto();
     }
 </script>
