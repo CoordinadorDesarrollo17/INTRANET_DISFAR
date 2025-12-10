@@ -733,32 +733,7 @@ namespace Capa_Usuario.Controllers
                 return resultadoAcceso;
             }
         }
-        //public ActionResult TerminarReparto(RRU0_E o, int idOperation = 218)
-        //{
-        //    var resultadoAcceso = VerificarPermiso(idOperation);
-        //    if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
-        //    {
-        //        ORRU_E obj = orruN.obtenerOrdenDeRuta(o.DocEntry);
-        //        try
-        //        {
-        //            Usuario_E user = (Usuario_E)Session["UsuarioId"];
-        //            obj.Operario = $"{user.Nombres} {user.Apellidos}";
-        //            orruN.TerminarReparto(obj);
-        //            return RedirectToAction("ListadoRepartos", new { DocNum = obj.DocNum, msj = "Ruta terminada exitosamente" });
-        //        }
-        //        catch (Exception e)
-        //        {
-        //            return RedirectToAction("ListadoRepartos", new { DocNum = obj.DocNum, msj = e.Message });
-        //        }
-        //    }
-        //    else
-        //    {
-        //        return resultadoAcceso;
-        //    }
-        //}
-
-        [HttpPost]
-        public JsonResult TerminarReparto(RRU0_E o, int idOperation = 218)
+        public ActionResult TerminarReparto(RRU0_E o, int idOperation = 218)
         {
             var resultadoAcceso = VerificarPermiso(idOperation);
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
@@ -769,31 +744,19 @@ namespace Capa_Usuario.Controllers
                     Usuario_E user = (Usuario_E)Session["UsuarioId"];
                     obj.Operario = $"{user.Nombres} {user.Apellidos}";
                     orruN.TerminarReparto(obj);
-                    return Json(new
-                    {
-                        success = true,
-                        mensaje = "Ruta terminada exitosamente",
-                        docNum = obj.DocNum
-                    });
+                    return RedirectToAction("ListadoRepartos", new { DocNum = obj.DocNum, msj = "Ruta terminada exitosamente" });
                 }
                 catch (Exception e)
                 {
-                    return Json(new
-                    {
-                        success = false,
-                        mensaje = e.Message
-                    });
+                    return RedirectToAction("ListadoRepartos", new { DocNum = obj.DocNum, msj = e.Message });
                 }
             }
             else
             {
-                return Json(new
-                {
-                    success = false,
-                    mensaje = "Acceso denegado"
-                });
+                return resultadoAcceso;
             }
         }
+
         public ActionResult RptControlTemperaturaHumedad(Rpt_TempHumed_E datos, string FechaTerEn, int idOperation = 219)
         {
             var resultadoAcceso = VerificarPermiso(idOperation);
