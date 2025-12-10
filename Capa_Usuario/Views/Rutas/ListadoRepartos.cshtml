@@ -33,10 +33,56 @@
         window.location.href = "/Rutas/IniciarReparto?" + o;
     }
 
-    function terminarReparto() {
+    function mostrarCargandoTerminar() {
+        Swal.fire({
+            title: 'Terminando ruta...',
+            text: 'Por favor espere',
+            allowOutsideClick: false,
+            didOpen: () => {
+                Swal.showLoading();
+            }
+        });
+
         var form = document.getElementById("formTer");
         var o = serializeForm(form);
-        window.location.href = "/Rutas/TerminarReparto?" + o;
+
+        $.ajax({
+            url: '/Rutas/TerminarReparto',
+            type: 'POST',
+            data: o,
+            success: function (response) {
+                Swal.close();
+                if (response.success) {
+                    // Cerrar el modal Bootstrap 5
+                    var modal = bootstrap.Modal.getInstance(document.getElementById('M2'));
+                    if (modal) modal.hide();
+
+                    Swal.fire({
+                        icon: 'success',
+                        title: '¡Ruta terminada!',
+                        text: 'Ruta terminada exitosamente. N° ' + response.docNum,
+                        timer: 1800,
+                        showConfirmButton: false
+                    }).then(function () {
+                        location.reload();
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: response.mensaje
+                    });
+                }
+            },
+            error: function () {
+                Swal.close();
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Ocurrió un error al terminar la ruta.'
+                });
+            }
+        });
     }
 
     function llenarModal1(DocEntry, DocNum, Cajas, Tickets) {
@@ -291,17 +337,5 @@
             icon: '',
             text: `@ViewBag.Mensaje`
         })
-    }
-
-    function mostrarCargandoTerminar() {
-        Swal.fire({
-            title: 'Terminando ruta...',
-            text: 'Por favor espere',
-            allowOutsideClick: false,
-            didOpen: () => {
-                Swal.showLoading();
-            }
-        });
-        terminarReparto();
     }
 </script>
