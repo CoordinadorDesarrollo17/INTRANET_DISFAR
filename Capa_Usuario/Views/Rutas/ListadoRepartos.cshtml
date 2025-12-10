@@ -2,99 +2,39 @@
 @using Capa_Entidad.Rutas_ENT.TablasSql;
 @using Capa_Entidad.General_ENT.TablasSql
 @{
-    ViewBag.Title = "Listado Repartos";
-    Layout = "~/Views/Shared/_DefaultLayout.cshtml";
+    ViewBag.Title = "ListadoRepartos";
+    Layout = "~/Views/Shared/_Layout.cshtml";
     ORRU_E o = (ORRU_E)ViewBag.Orru;
     List<string> Conductores = (List<string>)ViewBag.Conductores;
 }
 <script>
-    document.addEventListener("DOMContentLoaded", function () {
-        new SlimSelect({ select: '#TipoRuta', settings: { showSearch: false }, events: { afterChange: filtrar } });
-        new SlimSelect({ select: '#TransDesc', settings: { showSearch: true }, events: { afterChange: filtrar } });
-        new SlimSelect({ select: '#Estado', settings: { showSearch: false }, events: { afterChange: filtrar } });
+    $(document).ready(function () {
+
     });
 
-    function serializeForm(form) {
-        const formData = new FormData(form);
-        return Array.from(formData.entries())
-            .map(([key, value]) => encodeURIComponent(key) + '=' + encodeURIComponent(value))
-            .join('&');
-    }
-
     function filtrar() {
-        var form = document.getElementById("filterForm");
-        var object = serializeForm(form);
-        window.location.href = "/Rutas/ListadoRepartos?" + object;
+        var object = $("#filterForm").serialize();
+        $(location).attr('href', "/Rutas/ListadoRepartos?" + object);
     }
 
     function iniciarReparto() {
-        var form = document.getElementById("formIni");
-        var o = serializeForm(form);
-        window.location.href = "/Rutas/IniciarReparto?" + o;
+        var o = $("#formIni").serialize();
+        $(location).attr('href', "/Rutas/IniciarReparto?" + o);
     }
 
-    function mostrarCargandoTerminar() {
-        Swal.fire({
-            title: 'Terminando ruta...',
-            text: 'Por favor espere',
-            allowOutsideClick: false,
-            didOpen: () => {
-                Swal.showLoading();
-            }
-        });
-
-        var form = document.getElementById("formTer");
-        var o = serializeForm(form);
-
-        $.ajax({
-            url: '/Rutas/TerminarReparto',
-            type: 'POST',
-            data: o,
-            success: function (response) {
-                Swal.close();
-                if (response.success) {
-                    // Cerrar el modal Bootstrap 5
-                    var modal = bootstrap.Modal.getInstance(document.getElementById('M2'));
-                    if (modal) modal.hide();
-
-                    Swal.fire({
-                        icon: 'success',
-                        title: '¡Ruta terminada!',
-                        text: 'Ruta terminada exitosamente. N° ' + response.docNum,
-                        timer: 1800,
-                        showConfirmButton: false
-                    }).then(function () {
-                        location.reload();
-                    });
-                } else {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error',
-                        text: response.mensaje
-                    });
-                }
-            },
-            error: function () {
-                Swal.close();
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: 'Ocurrió un error al terminar la ruta.'
-                });
-            }
-        });
+    function terminarReparto() {
+        var o = $("#formTer").serialize();
+        $(location).attr('href', "/Rutas/TerminarReparto?" + o);
     }
 
     function llenarModal1(DocEntry, DocNum, Cajas, Tickets) {
-        document.getElementById("M1DocNum").textContent = "Nro: " + DocNum;
-        document.getElementById("M1DocEntry").value = DocEntry;
-        document.getElementById("M1Cajas").textContent = Cajas;
-        document.getElementById("M1Tickets").textContent = Tickets;
+        $("#M1DocNum").text("Nro: " + DocNum); $("#M1DocEntry").val(DocEntry);
+        $("#M1Cajas").text(Cajas);
+        $("#M1Tickets").text(Tickets);
     }
 
     function llenarModal2(DocEntry, DocNum) {
-        document.getElementById("M2DocNum").textContent = "Nro: " + DocNum;
-        document.getElementById("M2DocEntry").value = DocEntry;
+        $("#M2DocNum").text("Nro: " + DocNum); $("#M2DocEntry").val(DocEntry);
     }
 </script>
 
@@ -113,171 +53,170 @@
     label {
         color: black;
     }
-
-    .ss-main {
-        min-height: 30px !important;
-        height: 30px !important;
-        font-size: 0.95rem;
-        padding-top: 2px !important;
-        padding-bottom: 2px !important;
-    }
-
-    .ss-main.ss-open {
-        min-height: 40px !important;
-        height: auto !important;
-        font-size: 1rem;
-        padding-top: 6px !important;
-        padding-bottom: 6px !important;
-    }
 </style>
 
 <div class="pt-4">
     <nav>
         <ol class="cd-breadcrumb bg-cobefar-degradado-1">
             <li><a href="@Url.Action("Sesion", "Index")">Inicio</a></li>
-            <li><a href="@Url.Action("ListadoRepartos", "Rutas")">Listado de repartos</a></li>
+            <li class="current"><em>Listado de repartos</em></li>
         </ol>
     </nav>
 </div>
 
 <div class="border-cabecera-seccion bg-cobefar-degradado-1 pb-2">
-    <div class="d-flex flex-column">
-        <div class="row px-3 pt-3 mb-3">
-            <h3 class="titulo-seccion">@ViewBag.Title.ToUpper()</h3>
-        </div>
-        <div class="px-3 pb-2 mb-2 d-none d-md-flex gap-2">
-            <a href="@Url.Action("NuevaHojaDeReparto", "Rutas",new {TipoRep="Re" })" class="btn btn-danger" data-bs-toggle="tooltip" title="Nueva hoja de reparto">
-                <i class="bi bi-truck"></i>
+    <div class="px-3 pt-3"><h3 class="titulo-seccion">LISTADO DE REPARTOS</h3></div>
+
+    <div class="d-none d-sm-block pl-2 w-100 p-3">
+        <div class="row">
+            <a href="@Url.Action("NuevaHojaDeReparto", "Rutas",new {TipoRep="Re" })" class="btn btn-success ml-2">
                 Hoja de reparto
             </a>
-            <a href="@Url.Action("NuevaTransferenciaEntreAlmacenes", "Rutas",new {TipoRep="Re" })" class="btn btn-outline-warning" data-bs-toggle="tooltip" title="Nueva orden entre almacenes">
-                <i class="bi bi-arrow-left-right"></i>
+            <a href="@Url.Action("NuevaTransferenciaEntreAlmacenes", "Rutas",new {TipoRep="Re" })" class="btn btn-success ml-2">
                 Orden entre almacenes
             </a>
+
+            <button data-toggle="modal" href="#ModalGestion" class="btn btn-warning d-none d-sm-none d-md-none d-lg-block d-xl-block ml-2">
+                <span>Módulo Gestión</span>
+            </button>
+        </div>
+    </div>
+</div>
+
+<div class="modal" id="ModalGestion" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+        <div class="modal-content  border border-secondary">
+            <div class="modal-header bg-headerModals text-white">
+                <h5 class="modal-title" id="moduloGestionModal">MÓDULO PARA GESTIÓN</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span class="text-white" aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body bg-light">
+                <div class="d-flex justify-content-center">
+                    <a id="accion" href="@Url.Action("GestionarAgencias", "Repartos",new {TipoRep="Re" })" class="btn bg-cobefar-6 text-white d-none d-sm-none d-md-none d-lg-block d-xl-block">
+                        <i class="icon-home"></i> Agencias
+                    </a>
+                    <a id="accion" href="@Url.Action("GestionarOficinas", "Rutas",new {TipoRep="Re" })" class="btn bg-cobefar-6 text-white d-none d-sm-none d-md-none d-lg-block d-xl-block">
+                        <i class="icon-office"></i> Oficinas Courier
+                    </a>
+                    <a id="accion" href="@Url.Action("GestionarTarifarios", "Rutas",new {TipoRep="Re" })" class="btn bg-cobefar-6 text-white d-none d-sm-none d-md-none d-lg-block d-xl-block">
+                        <i class="icon-book"></i> Tarifario
+                    </a>
+                </div>
+            </div>
         </div>
     </div>
 </div>
 
 <form name="frm" id="filterForm">
-    <div class="bg-white px-3 py-3 align-items-center">
-        <table class="table table-hover table-sm cls-dataTable50 font-14 w-100" cellspacing="0" width="100%" style="border-radius:8px; border-collapse:separate;">
-            <thead class="thead-cobefar bg-cobefar-6 text-white">
+    <div class="bg-white bg-form-cobefar p-3">
+        <table class="table table-light table-sm table-hover cls-dataTable50" cellspacing="0" width="100%">
+            <thead class="bg-cobefar-6">
                 <tr>
-                    <th class="text-center border-end border-start">
+                    <th class="text-center">
                         @Html.DisplayNameFor(model => model.DocNum)<br />
                         @if (o != null && o.DocNum > 0)
                         {
                             <input class="form-control-sm border" type="text" name="DocNum" onchange="filtrar();" value="@o.DocNum" />
                         }
                         else
-                        {
-                            <input class="form-control-sm border" type="text" name="DocNum" onchange="filtrar();" />
-                        }
+                        { <input class="form-control-sm border" type="text" name="DocNum" onchange="filtrar();" />}
                     </th>
-                    <th class="text-center border-end">
+                    <th class="text-center">
                         @Html.DisplayName("Tipo")<br />
-                        <select name="TipoRuta" id="TipoRuta" class="form-control form-control-sm text-center">
-                            <option value="">Seleccione</option>
-                            <option value="VC" @(o != null && o.TipoRuta == "VC" ? "selected" : "")>CENTRO</option>
-                            <option value="VD" @(o != null && o.TipoRuta == "VD" ? "selected" : "")>DOMICILIO</option>
-                            <option value="TA" @(o != null && o.TipoRuta == "TA" ? "selected" : "")>TRASLADOS</option>
-                            <option value="VA" @(o != null && o.TipoRuta == "VA" ? "selected" : "")>ARRIOLA</option>
-                            <option value="VG" @(o != null && o.TipoRuta == "VG" ? "selected" : "")>AGENCIA</option>
+                        <select name="TipoRuta" class="form-control-sm border" onchange="filtrar();">
+                            <option value=""></option>
+                            <option value="VC" @if (o != null && o.TipoRuta == "VC") { Write("selected"); }>CENTRO</option>
+                            <option value="VD" @if (o != null && o.TipoRuta == "VD") { Write("selected"); }>DOMICILIO</option>
+                            <option value="TA" @if (o != null && o.TipoRuta == "TA") { Write("selected"); }>TRASLADOS</option>
+                            <option value="VA" @if (o != null && o.TipoRuta == "VA") { Write("selected"); }>ARRIOLA</option>
+                            <option value="VG" @if (o != null && o.TipoRuta == "VG") { Write("selected"); }>AGENCIA</option>
+                            @* ELIMINADA OPCION DEVOLUCION DE AQUI *@
                         </select>
                     </th>
-                    <th class="text-center border-end">
+                    <th class="text-center">
                         Conductor<br />
-                        <select name="TransDesc" id="TransDesc" class="form-control form-control-sm text-center">
-                            <option value="">Seleccione</option>
+                        <select name="TransDesc" class="form-control-sm border" onchange="filtrar();">
+                            <option value=""></option>
                             @foreach (var x in Conductores)
                             {
-                                <option value="@x" @(o != null && o.TransDesc == x ? "selected" : "")>@x</option>
+                                <option value="@x" @if (o != null && o.TransDesc == x) { Write("selected"); }>@x</option>
                             }
                         </select>
                     </th>
-                    <th class="text-center border-end">
+                    <th class="text-center">
                         @Html.DisplayNameFor(model => model.TiempoPac)<br />
                         @if (o != null && o.TiempoPac != null)
                         {
                             <input type="date" name="TiempoPac" class="form-control-sm border text-center" value="@Convert.ToDateTime(o.TiempoPac).ToString("yyyy-MM-dd")" onchange="filtrar();" />
                         }
                         else
-                        {
-                            <input type="date" name="TiempoPac" class="form-control-sm border text-center" onchange="filtrar();" />
-                        }
+                        { <input type="date" name="TiempoPac" class="form-control-sm border text-center" onchange="filtrar();" />}
                     </th>
-                    <th class="text-center border-end">
+                    <th class="text-center">
                         @Html.DisplayNameFor(model => model.Estado)<br />
-                        <select name="Estado" id="Estado" class="form-control form-control-sm text-center">
-                            <option value="">Seleccione</option>
-                            <option value="CREADO" @(o != null && o.Estado == "CREADO" ? "selected" : "")>CREADO</option>
-                            <option value="ENVIADO" @(o != null && o.Estado == "ENVIADO" ? "selected" : "")>ENVIADO</option>
-                            <option value="TERMINADO" @(o != null && o.Estado == "TERMINADO" ? "selected" : "")>TERMINADO</option>
-                            <option value="ANULADO" @(o != null && o.Estado == "ANULADO" ? "selected" : "")>ANULADO</option>
+                        <select name="Estado" class="form-control-sm border" onchange="filtrar();">
+                            <option value=""></option>
+                            <option value="CREADO" @if (o != null && o.Estado == "CREADO") { Write("selected"); }>CREADO</option>
+                            <option value="ENVIADO" @if (o != null && o.Estado == "ENVIADO") { Write("selected"); }>ENVIADO</option>
+                            <option value="TERMINADO" @if (o != null && o.Estado == "TERMINADO") { Write("selected"); }>TERMINADO</option>
+                            <option value="ANULADO" @if (o != null && o.Estado == "ANULADO") { Write("selected"); }>ANULADO</option>
                         </select>
                     </th>
-                    <th class="text-center border-end">Cajas</th>
-                    <th class="text-center border-end" style="width: 200px;">Acciones</th>
+                    <th class="text-center">Cajas</th>
+                    <th class="text-center" style="width: 200px;"></th>
                 </tr>
             </thead>
             <tbody>
+                @* AQUÍ FILTRAMOS PARA QUE NO MUESTRE LOS DE TIPO 'DE' *@
                 @foreach (var item in Model.Where(x => x.TipoRuta != "DE"))
                 {
                     <tr>
-                        <td class="text-center @(ViewBag.DocNum == item.DocNum ? "bg-success" : "") border-end border-start">
+                        <td class="text-center @if (ViewBag.DocNum == item.DocNum) { Write("bg-success"); } ">
                             @Html.DisplayFor(modelItem => item.DocNum)
                         </td>
-                        <td class="text-center border-end">
+                        <td class="text-center">
                             @Html.DisplayFor(modelItem => item.TipoRuta)
                         </td>
-                        <td class="text-center border-end">
+                        <td class="text-center">
                             @Html.DisplayFor(modelItem => item.TransDesc)
                         </td>
-                        <td class="text-center border-end">
+                        <td class="text-center">
                             @Convert.ToDateTime(item.TiempoPac).ToString("dd/MM/yyyy") <br class="d-md-none" />@Convert.ToDateTime(item.TiempoPac).ToString("HH:mm")
                         </td>
-                        <td class="text-center border-end">
+                        <td class="text-center">
                             @Html.DisplayFor(modelItem => item.Estado)
                         </td>
-                        <td class="text-center border-end">
+                        <td class="text-center">
                             @Html.DisplayFor(modelItem => item.TotalCajas)
                         </td>
-                        <td class="text-center border-end">
+                        <td class="text-center">
                             <div class="d-flex">
                                 @if (item.Estado.Equals("CREADO"))
                                 {
+                                    @* <button type="button" class="btn btn-success btn-sm d-block d-sm-block d-md-block d-lg-none d-xl-none mx-1" data-toggle="modal" data-target="#M1" onclick="llenarModal1(@item.DocEntry,@item.DocNum,0,0);">Ini</button> *@
                                     <a href="@Url.Action("IniciarReparto", "Rutas", new { DocEntry = item.DocEntry })" class="btn btn-success btn-sm d-block d-sm-block d-md-block d-lg-none d-xl-none mx-1">Ini</a>
                                 }
 
                                 @if (item.Estado.Equals("CREADO") || item.Estado.Equals("ENVIADO"))
                                 {
-                                    <a href="@Url.Action("EditarHojaDeReparto", "Rutas", new { DocEntry = item.DocEntry, TipoRep = "Re" })"
-                                       class="d-none d-sm-none d-md-none d-lg-block d-xl-block btn btn-light mx-1"
-                                       data-bs-toggle="tooltip" data-bs-placement="top" title="Editar">
-                                        <i class="bi bi-pencil-square text-primary"></i>
-                                    </a>
+                                    <a href="@Url.Action("EditarHojaDeReparto", "Rutas", new { DocEntry = item.DocEntry, TipoRep = "Re" })" class="d-none d-sm-none d-md-none d-lg-block d-xl-block btn btn-light mx-1" data-toggle="tooltip" data-placement="top" title="Editar"><i class="icon-pencil text-primary"></i></a>
                                 }
                                 @if (item.Estado.Equals("ENVIADO") && item.TotalCajas > 0)
                                 {
                                     <a href="@Url.Action("ListadoEntregaRepartos", "Rutas", new {TipoRep="Re", DocEntry = item.DocEntry })" class="btn btn-warning d-block d-sm-block d-md-block d-lg-none d-xl-none mx-1">Ent</a>
                                 }
-                                <a href="@Url.Action( "DocumentoRutas", "Rutas", new { DocEntry = item.DocEntry, TipoRuta = item.TipoRuta } )"
-                                   class="btn btn-light d-none d-sm-none d-md-none d-lg-block d-xl-block mx-1"
-                                   data-bs-toggle="tooltip" data-bs-placement="top" title="Pdf">
-                                    <i class="bi bi-file-earmark-pdf text-danger"></i>
-                                </a>
+                                <a href="@Url.Action( "DocumentoRutas", "Rutas", new { DocEntry = item.DocEntry, TipoRuta = item.TipoRuta } )" class="btn d-none d-sm-none d-md-none d-lg-block d-xl-block btn-light mx-1" data-toggle="tooltip" data-placement="top" title="Pdf"><i class="icon-file-pdf text-danger"></i></a>
                                 @if (item.Estado.Equals("ENVIADO") && item.TotalCajas > 0)
                                 {
-                                    <button type="button" class="btn btn-secondary d-block d-sm-block d-md-block d-lg-none d-xl-none mx-1" data-bs-toggle="modal" data-bs-target="#M2" onclick="llenarModal2(@item.DocEntry, @item.DocNum);">Ter</button>
+                                    <button type="button" class="btn btn-secondary d-block d-sm-block d-md-block d-lg-none d-xl-none mx-1" data-toggle="modal" data-target="#M2" onclick="llenarModal2(@item.DocEntry, @item.DocNum);">Ter</button>
                                 }
-                                <a href="@Url.Action("SeguimientoRepartoRutas", "Rutas", new { DocEntry = item.DocEntry, Vista="REPARTOS" })"
-                                   class="btn btn-light d-none d-sm-none d-md-none d-lg-block d-xl-block mx-1"
-                                   data-bs-toggle="tooltip" data-bs-placement="top" title="Seguimiento">
-                                    <i class="bi bi-truck"></i>
-                                </a>
+                                <a href="@Url.Action("SeguimientoRepartoRutas", "Rutas", new { DocEntry = item.DocEntry, Vista="REPARTOS" })" class="btn btn-light text-light d-none d-sm-none d-md-none d-lg-block d-xl-block mx-1" data-toggle="tooltip" data-placement="top" title="Seguimiento"><i class="icon-truck text-dark"></i></a>
+
                                 @if (item.TipoRuta == "TA")
                                 {
-                                    <a href="@Url.Action( "AnularOrdenDeRuta", "Rutas", new { DocEntry = item.DocEntry,TipoRep="Re", Estado = item.Estado } )" class="btn btn-light d-none d-sm-none d-md-none d-lg-block d-xl-block mx-1" data-bs-toggle="tooltip" data-bs-placement="top" title="Anular"><i class="bi bi-x-square text-danger"></i></a>
+                                    <a href="@Url.Action( "AnularOrdenDeRuta", "Rutas", new { DocEntry = item.DocEntry,TipoRep="Re", Estado = item.Estado } )" class="btn btn-light d-none d-sm-none d-md-none d-lg-block d-xl-block mx-1" data-toggle="tooltip" data-placement="top" title="Anular"><i class="icon-blocked text-danger"></i></a>
                                 }
 
                                 @if (item.TipoRuta == "AC" && item.Estado != "TERMINADO")
@@ -294,12 +233,12 @@
                                 {
                                     <a href="@Url.Action("DescargarRptRutasExcel", "Rutas", new { docEntry = item.DocEntry })"
                                        class="btn btn-success d-none d-sm-none d-md-none d-lg-block d-xl-block mx-1"
-                                       data-bs-toggle="tooltip" data-bs-placement="top" title="Excel Rutas">
+                                       data-toggle="tooltip" data-placement="top" title="Excel Rutas">
                                         <i class="bi bi-file-earmark-excel"></i>
                                     </a>
                                     <a href="@Url.Action("DescargarRptRutasExcelGuiaProveedor", "Rutas", new { docEntry = item.DocEntry })"
                                        class="btn btn-info d-none d-sm-none d-md-none d-lg-block d-xl-block mx-1"
-                                       data-bs-toggle="tooltip" data-bs-placement="top" title="Excel Guía/Proveedor">
+                                       data-toggle="tooltip" data-placement="top" title="Excel Guía/Proveedor">
                                         <i class="bi bi-file-spreadsheet-fill"></i>
                                     </a>
                                 }
@@ -312,12 +251,14 @@
     </div>
 </form>
 
-<div class="modal" id="M2" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
+<div class="modal" id="M2" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
             <div class="modal-header bg-cobefar text-white">
                 <h5 class="modal-title" id="exampleModalLabel">¿Terminar Reparto?</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span class="text-white" aria-hidden="true">&times;</span>
+                </button>
             </div>
             <div class="modal-body bg-light">
                 <form id="formTer">
@@ -326,14 +267,15 @@
                         <input class="form-control" name="DocEntry" id="M2DocEntry" type="hidden" readonly>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-success" onclick="mostrarCargandoTerminar();"><i class="bi bi-check-lg"></i> SI</button>
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><i class="icon-cross"></i> NO</button>
+                        <button type="button" class="btn btn-success" onclick="terminarReparto();"><i class="icon-checkmark"></i> SI</button>
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal"><i class="icon-cross"></i> NO</button>
                     </div>
                 </form>
             </div>
         </div>
     </div>
 </div>
+
 <script>
     if ('@ViewBag.Mensaje' != "") {
         Swal.fire({
