@@ -1,17 +1,16 @@
 ﻿@model IEnumerable<dynamic>
 @{
     ViewBag.Title = "ListadoTicketsAutorizacionRegularizar";
-    Layout = "~/Views/Shared/_Layout.cshtml";
+    Layout = "~/Views/Shared/_DefaultLayout.cshtml";
 }
-
 <script>
-    function autorizarContraEntrega(docNumTicket,idOtc) {
+    function autorizarContraEntrega(docNumTicket, idOtc) {
         var data = {
             idOTC: idOtc,
             docNum: docNumTicket
         };
 
-        $, ajax({
+        $.ajax({
             type: 'POST',
             url: '@Url.Action("RegularizarAutorizacion", "Ventas")',
             data: data,
@@ -24,7 +23,9 @@
                 }).then(() => {
                     location.reload();
                 });
-     }
+            }
+        });
+    }
 </script>
 
 <div class="pt-3">
@@ -45,40 +46,45 @@
     </div>
 
 </div>
-<div class="bg-white bg-form-cobefar pt-2">
-    <table class="table table-light table-sm table-hover cls-dataTable50" cellspacing="0" width="100%">
-        <thead class="bg-cobefar-6">
-            <tr>
-                <th class="text-center">Ticket</th>
-                <th class="text-center">Cliente</th>
-                <th class="text-center">TipoPago</th>
-                <th class="text-center">Estado</th>
-                <th class="text-center">Monto Efectivo</th>
-                <th class="text-center">Monto Deposito</th>
-                <th class="text-center">Suma</th>
-                <th class="text-center">Registro</th>
-                <th class="text-center"></th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var item in Model)
-            {
+<div class="bg-white px-3 py-3 align-items-center">
+    <div class="bg-white bg-form-cobefar pt-2">
+        <table class="table table-hover table-sm table-hover cls-dataTable50 font-14 w-100" cellspacing="0" width="100%" style="border-radius:8px; border-collapse:separate; ">
+            <thead class="thead-cobefar bg-cobefar-6 text-white">
                 <tr>
-                    <td class="text-center">@item.DocNumTicket</td>
-                    <td class="text-center" style="max-width:200px">@item.CardName</td>
-                    <td class="text-center">@item.TipoPago</td>
-                    <td class="text-center">@item.Estado</td>
-                    <td class="text-center">@item.MontoRecibidoEfectivo</td>
-                    <td class="text-center">@item.MontoRecibidoDeposito</td>
-                    <td class="text-center">@item.Suma</td>
-                    <td class="text-center">@item.Registro.Substring(0, Math.Min(10, @item.Registro.Length))</td>
-                    <td class="text-center"> <a href="#" onclick="autorizarContraEntrega(@item.DocNumTicket,@item.Id);" class="btn btn-light" data-toggle="tooltip" data-placement="top" title="Autorizar"><i class="text-success icon-checkmark"></i></a></td>
+                    <th class="text-center border-end border-start">Ticket</th>
+                    <th class="text-center border-end">Cliente</th>
+                    <th class="text-center border-end">TipoPago</th>
+                    <th class="text-center border-end">Estado</th>
+                    <th class="text-center border-end">Monto Efectivo</th>
+                    <th class="text-center border-end">Monto Deposito</th>
+                    <th class="text-center border-end">Suma</th>
+                    <th class="text-center border-end">Registro</th>
+                    <th class="text-center border-end"></th>
                 </tr>
-            }
-        </tbody>
-    </table>
-</div>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td class="text-center border-end border-start">@item.DocNumTicket</td>
+                        <td class="text-center border-end" style="max-width:200px">@item.CardName</td>
+                        <td class="text-center border-end">@item.TipoPago</td>
+                        <td class="text-center border-end">@item.Estado</td>
+                        <td class="text-center border-end">@item.MontoRecibidoEfectivo</td>
+                        <td class="text-center border-end">@item.MontoRecibidoDeposito</td>
+                        <td class="text-center border-end">@item.Suma</td>
+                        <td class="text-center border-end">@item.Registro.Substring(0, Math.Min(10, @item.Registro.Length))</td>
+                        <td class="text-center border-end">
+                            <a href="#" onclick="autorizarContraEntrega(@item.DocNumTicket,@item.IdOTC);" class="btn btn-light" data-bs-toggle="tooltip" data-bs-placement="top" title="Autorizar">
+                                <i class="bi bi-check-lg text-success"></i>
+                            </a>
+                        </td>                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
 
+</div>
 
 
 

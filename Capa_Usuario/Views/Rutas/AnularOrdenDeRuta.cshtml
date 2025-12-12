@@ -1,20 +1,20 @@
 ﻿@model Capa_Entidad.Rutas_ENT.TablasSql.ORRU_E
 @using Capa_Entidad.Rutas_ENT.TablasSql
 @{
-    ViewBag.Title = "AnularOrdenDeRuta";
-    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.Title = "Anulación de Orden de Ruta";
+    Layout = "~/Views/Shared/_DefaultLayout.cshtml";
 
     string listado = string.Empty, urlListado = string.Empty;
 
     if (ViewBag.TipoRep == "Re")
     {
         listado = "Listado de repartos";
-        urlListado = @Url.Action("ListadoRepartos", "Rutas");
+        urlListado = Url.Action("ListadoRepartos", "Rutas");
     }
     else
     {
         listado = "Listado de rutas";
-        urlListado = @Url.Action("ListadoRutas", "Rutas");
+        urlListado = Url.Action("ListadoRutas", "Rutas");
     }
 }
 
@@ -29,139 +29,185 @@
 </div>
 
 <div class="border-cabecera-seccion bg-cobefar-degradado-1 pb-2">
-    <div class="px-3 pt-3"><h3 class="titulo-seccion">ANULACIÓN DE ORDEN DE RUTA</h3></div>
+    <div class="d-flex flex-column">
+        <div class="row px-3 pt-3 mb-3">
+            <h3 class="titulo-seccion">@ViewBag.Title.ToUpper()</h3>
+        </div>
+    </div>
 </div>
-
-
 
 <div class="bg-form-pestanas-cobefar pt-4 bg-section-form p-4 bg-form-cobefar">
     <h3 class="text-cobefar font-weight-bold">ORDEN DE REGISTRO DE RUTAS</h3>
 
-
     @using (Html.BeginForm())
     {
-        
-        <div class="row mt-4">
-            <div class="col-lg-6">
-                <button type="submit" class="btn btn-danger"><i class="icon-blocked"></i> Anular Order de Ruta</button>
+        <div class="card mb-4 shadow-sm">
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col-lg-8">
+                        <h5 class="mb-0 text-danger font-weight-bold">¿Está seguro que desea anular la Orden de Ruta?</h5>
+                    </div>
+                    <div class="col-lg-4 text-right">
+                        <button type="submit" class="btn btn-danger btn-lg px-4">
+                            <i class="icon-blocked mr-2"></i> Anular Orden de Ruta
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
     }
 
-
-    <div class="row mt-4">
-        <div class="col-lg-3">
-            <label for="TipoRuta" class="text-dark form-label font-weight-bold font-18">TipoRuta:</label> @Model.TipoRuta
-        </div>
-
-        <div class="col-lg-3">
-            <label for="TipoRuta" class="text-dark form-label font-weight-bold font-18">Estado de documento:</label> @Model.Estado
-        </div>
-    </div>
-
-    <div class="row mt-4">
-        <div class="col-lg-3">
-            <label class="text-dark form-label font-weight-bold font-18">@Html.DisplayNameFor(model => model.TransDesc): </label> @Model.TransDesc
-        </div>
-
-        <div class="col-lg-3">
-            <label class="text-dark form-label font-weight-bold font-18">@Html.DisplayNameFor(model => model.Placa): </label> @Model.Placa
-        </div>
-        <div class="col-lg-3">
-            <label class="text-dark form-label font-weight-bold font-18">@Html.DisplayNameFor(model => model.DocNum): </label> @Model.DocNum
-        </div>
-    </div>
-
-    <div class="row mt-4">
-        <div class="col-lg-3">
-            <label class="text-dark form-label font-weight-bold font-18">@Html.DisplayNameFor(model => model.CopilDesc): </label> @Model.CopilDesc
-        </div>
-
-        <div class="col-lg-3">
-            <label class="text-dark form-label font-weight-bold font-18">@Html.DisplayNameFor(model => model.Copil2Desc): </label> @Model.Copil2Desc
-        </div>
-        <div class="col-lg-3">
-            <label class="text-dark form-label font-weight-bold font-18">@Html.DisplayNameFor(model => model.FechaCont): </label> @Model.FechaCont.ToString().Substring(0, 10)
-        </div>
-    </div>
-
-    <div class="row mt-4">
-        <div class="col-lg-3">
-            <label class="text-dark form-label font-weight-bold font-18">@Html.DisplayNameFor(model => model.CopilDesc): </label> @Model.Copil3Desc
-        </div>
-
-        <div class="col-lg-3">
-            <label class="text-dark form-label font-weight-bold font-18">@Html.DisplayNameFor(model => model.Copil2Desc): </label> @Model.Copil4Desc
-        </div>
-        <div class="col-lg-3">
-            <label class="text-dark form-label font-weight-bold font-18">@Html.DisplayNameFor(model => model.FechaCont): </label> @Model.FechaDoc.ToString().Substring(0, 10)
+    <div class="card mb-4">
+        <div class="card-header bg-cobefar-degradado-1 text-white font-weight-bold">Datos Generales</div>
+        <div class="card-body">
+            <div class="row mb-2">
+                <div class="col-md-4">
+                    <label class="fw-bold">Tipo de Ruta:</label>
+                    <span class="ml-2">@Model.TipoRuta</span>
+                </div>
+                <div class="col-md-4">
+                    <label class="fw-bold">Estado de documento:</label>
+                    <span class="ml-2">@Model.Estado</span>
+                </div>
+                <div class="col-md-4">
+                    <label class="fw-bold">N° Documento:</label>
+                    <span class="ml-2">@Model.DocNum</span>
+                </div>
+            </div>
+            <div class="row mb-2">
+                <div class="col-md-4">
+                    <label class="fw-bold">Transportista:</label>
+                    <span class="ml-2">@Model.TransDesc</span>
+                </div>
+                <div class="col-md-4">
+                    <label class="fw-bold">@Html.DisplayNameFor(model => model.Placa):</label>
+                    <span class="ml-2">@Model.Placa</span>
+                </div>
+                <div class="col-md-4">
+                    <label class="fw-bold">Fecha Contable:</label>
+                    <span class="ml-2">@Model.FechaCont.ToString().Substring(0, 10)</span>
+                </div>
+            </div>
+            <div class="row mb-2">
+                <div class="col-md-4">
+                    <label class="fw-bold">Fecha Documento:</label>
+                    <span class="ml-2">@Model.FechaDoc.ToString().Substring(0, 10)</span>
+                </div>
+                <div class="col-md-4">
+                    <label class="fw-bold">@Html.DisplayNameFor(model => model.AlmOrigenDesc):</label>
+                    <span class="ml-2">@Model.AlmOrigenDesc</span>
+                </div>
+                <div class="col-md-4">
+                    <label class="fw-bold">@Html.DisplayNameFor(model => model.AlmDestinoDesc):</label>
+                    <span class="ml-2">@Model.AlmDestinoDesc</span>
+                </div>
+            </div>
         </div>
     </div>
 
-
-    <div class="row mt-4">
-        <div class="col-lg-3">
-            <label class="text-dark form-label font-weight-bold font-18">@Html.DisplayNameFor(model => model.AlmOrigenDesc): </label> @Model.AlmOrigenDesc
-        </div>
-
-        <div class="col-lg-3">
-            <label class="text-dark form-label font-weight-bold font-18">@Html.DisplayNameFor(model => model.AlmDestinoDesc): </label> @Model.AlmDestinoDesc
-        </div>
-        <div class="col-lg-3">
-            <label class="text-dark form-label font-weight-bold font-18">@Html.DisplayNameFor(model => model.TiempoPac): </label> @Model.TiempoPac
-        </div>
-    </div>
-
-
-    <div class="row mt-4">
-        <div class="col-lg-3">
-            <label class="text-dark form-label font-weight-bold font-18">@Html.DisplayNameFor(model => model.Propietario): </label> @Model.Propietario
-        </div>
-
-        <div class="col-lg-3">
-            <label class="text-dark form-label font-weight-bold font-18">@Html.DisplayNameFor(model => model.Observaciones): </label> @Model.Observaciones
-        </div>
-        <div class="col-lg-3">
-            <label class="text-dark form-label font-weight-bold font-18">@Html.DisplayNameFor(model => model.TiempoPac): </label> @Model.TiempoPac
+    <div class="card mb-4">
+        <div class="card-header bg-cobefar-degradado-1 text-white font-weight-bold">Tripulación</div>
+        <div class="card-body">
+            <div class="row mb-2">
+                <div class="col-md-3">
+                    <label class="fw-bold">Copiloto 1:</label>
+                    <span class="ml-2">@Model.CopilDesc</span>
+                </div>
+                <div class="col-md-3">
+                    <label class="fw-bold">Copiloto 2:</label>
+                    <span class="ml-2">@Model.Copil2Desc</span>
+                </div>
+                <div class="col-md-3">
+                    <label class="fw-bold">Copiloto 3:</label>
+                    <span class="ml-2">@Model.Copil3Desc</span>
+                </div>
+                <div class="col-md-3">
+                    <label class="fw-bold">Copiloto 4:</label>
+                    <span class="ml-2">@Model.Copil4Desc</span>
+                </div>
+            </div>
         </div>
     </div>
 
-
-    <div class="row mt-4">
-        <div class="col-lg-3">
-            <label class="text-dark form-label font-weight-bold font-18">CONTENIDO @Html.DisplayNameFor(model => model.TotalCajas): </label> @Model.TotalCajas
+    <div class="card mb-4">
+        <div class="card-header bg-cobefar-degradado-1 text-white font-weight-bold">Otros Datos</div>
+        <div class="card-body">
+            <div class="row mb-2">
+                <div class="col-md-4">
+                    <label class="fw-bold">@Html.DisplayNameFor(model => model.Propietario):</label>
+                    <span class="ml-2">@Model.Propietario</span>
+                </div>
+                <div class="col-md-4">
+                    <label class="fw-bold">@Html.DisplayNameFor(model => model.Observaciones):</label>
+                    <span class="ml-2">@Model.Observaciones</span>
+                </div>
+                <div class="col-md-4">
+                    <label class="fw-bold">Tiempo Pactado:</label>
+                    <span class="ml-2">@Model.TiempoPac</span>
+                </div>
+            </div>
+            <div class="row mb-2">
+                <div class="col-md-4">
+                    <label class="fw-bold">Total de Cajas:</label>
+                    <span class="ml-2">@Model.TotalCajas</span>
+                </div>
+            </div>
         </div>
     </div>
 
-    <div class="row mt-4">
-        <div class="col-lg-8">
-            <table class="table table-sm table-hover table-responsive-md table-bordered" cellspacing="0" width="100%">
-                <thead class="bg-success text-white">
-                    <tr>
-                        <td class="text-center font-weight-bold">#</td>
-                        <td class="text-center font-weight-bold">Guia</td>
-                        <td class="text-center font-weight-bold">NroSap</td>
-                        <td class="text-center font-weight-bold">Estado</td>
-                    </tr>
-                </thead>
-
-                @foreach (RRU1_E d in Model.DetRRU1)
-                {
-                    <tr>
-                        <td class="text-center">@d.Linea</td>
-                        <td class="text-center">@d.Guia</td>
-                        <td class="text-center">@d.NroSap</td>
-                        <td class="text-center">@d.Estado</td>
-                    </tr>
-                }
-            </table>
+    <div class="card mb-4">
+        <div class="card-header bg-cobefar-degradado-1 text-white font-weight-bold">
+            Detalle de Documentos de la Ruta
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-sm table-hover table-bordered mb-0">
+                    <thead class="bg-success text-white">
+                        <tr>
+                            <th class="text-center font-weight-bold" style="width: 5%;">#</th>
+                            <th class="text-center font-weight-bold" style="width: 30%;">Guía</th>
+                            <th class="text-center font-weight-bold" style="width: 30%;">Nro SAP</th>
+                            <th class="text-center font-weight-bold" style="width: 20%;">Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model.DetRRU1 != null && Model.DetRRU1.Any())
+                        {
+                            foreach (RRU1_E d in Model.DetRRU1)
+                            {
+                                <tr>
+                                    <td class="text-center">@d.Linea</td>
+                                    <td class="text-center">@d.Guia</td>
+                                    <td class="text-center">@d.NroSap</td>
+                                    <td class="text-center">@d.Estado</td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td class="text-center" colspan="4">No hay documentos asociados a la ruta.</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
-
 </div>
 
 <script>
-    if ('@ViewBag.Mensaje' != "") {
-        Swal.fire('@ViewBag.Mensaje');
+document.addEventListener('DOMContentLoaded', function () {
+    var mensaje = '@ViewBag.Mensaje';
+    if (mensaje && mensaje.trim() !== "") {
+        var esError = mensaje.toLowerCase().includes('error');
+        Swal.fire({
+            title: 'Resultado de la operación',
+            text: mensaje,
+            icon: esError ? 'error' : 'success',
+            confirmButtonText: 'Aceptar',
+            confirmButtonColor: '#3085d6'
+        });
     }
+});
 </script>

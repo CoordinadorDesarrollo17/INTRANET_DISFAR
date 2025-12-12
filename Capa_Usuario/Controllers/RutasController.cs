@@ -335,7 +335,11 @@ namespace Capa_Usuario.Controllers
                         return RedirectToAction("ListadoRutas", new { DocNum = DocNum });
                     }
                 }
-                catch (Exception e) { ViewBag.Mensaje = e.Message; return View(orruN.obtenerOrdenDeRuta(DocEntry)); }
+                catch (Exception e)
+                {
+                    ViewBag.Mensaje = "Error: " + e.Message; // Prefijo "Error:" para que el frontend lo detecte
+                    return View(orruN.obtenerOrdenDeRuta(DocEntry));
+                }
             }
             else
             {
@@ -752,6 +756,7 @@ namespace Capa_Usuario.Controllers
                 return resultadoAcceso;
             }
         }
+
         public ActionResult RptControlTemperaturaHumedad(Rpt_TempHumed_E datos, string FechaTerEn, int idOperation = 219)
         {
             var resultadoAcceso = VerificarPermiso(idOperation);

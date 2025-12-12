@@ -4,7 +4,7 @@
 
 @{
     ViewBag.Title = "ListadoTicketsVenta";
-    Layout = "~/Views/Shared/_Layout.cshtml";
+    Layout = "~/Views/Shared/_DefaultLayout.cshtml";
     var hoy = DateTime.Now;
     ORTV_E a = (ORTV_E)ViewBag.Ortv;
     List<Usuario_E> usuarios = (List<Usuario_E>)ViewBag.Vendedores;
@@ -20,42 +20,70 @@
 }
 
 <script>
-     $(document).ready(function () {
-        $('#filterModal').on('shown.bs.modal', function () {
-            $('#filterModal input:first').focus();
+document.addEventListener('DOMContentLoaded', function () {
+    // Enfocar el primer input al mostrar el modal de filtros
+    var filterModal = document.getElementById('filterModal');
+    if (filterModal) {
+        filterModal.addEventListener('shown.bs.modal', function () {
+            var firstInput = filterModal.querySelector('input');
+            if (firstInput) firstInput.focus();
         });
-    });
-    function filtrar() {
-        var object = $("#filterForm").serialize();
-        $(location).attr('href', "/Ventas/ListadoTicketsVenta?" + object);
     }
-    function limpiarFiltros() {
-        const formulario = document.getElementById('filterForm');
-        //Limpia inputs
-        const inputs = formulario.querySelectorAll('input[type="text"], input[type="date"], input[type="number"], textarea');
-        inputs.forEach(input => {
-            input.value = '';
-        });
-        // Deseleccionar los valores de los select
-        const selects = formulario.querySelectorAll('select');
-        selects.forEach(select => {
-            select.selectedIndex = 0; // Selecciona la primera opción (considerar que debe ser valor vacío)
-        });
-        //Llama la funcion anterior para mandar al post
-        filtrar();
-    }
-    function seleccionarVendedor(CodigoSap) {
-        var nombres = $('#selectVendedores option:selected').data('nombres');
-        var apellidos = $('#selectVendedores option:selected').data('apellidos');
+});
 
-        $('#CodigovendedorInput').val(CodigoSap);
-        $('#NombresvendedorInput').val(nombres);
-        $('#ApellidosvendedorInput').val(apellidos);
-    }
-    function enviarDatosTicketReemplazo() {
-    var codigoVendedor = $('#CodigovendedorInput').val();
-    var nombreVendedor = $('#NombresvendedorInput').val();
-    var apellidoVendedor = $('#ApellidosvendedorInput').val();
+// Serializa el formulario como query string
+function serializeForm(form) {
+    var params = [];
+    Array.from(form.elements).forEach(function (el) {
+        if (!el.name || el.disabled) return;
+        if ((el.type === 'checkbox' || el.type === 'radio') && !el.checked) return;
+        if (el.tagName === 'SELECT' && el.multiple) {
+            Array.from(el.selectedOptions).forEach(function (opt) {
+                params.push(encodeURIComponent(el.name) + '=' + encodeURIComponent(opt.value));
+            });
+        } else {
+            params.push(encodeURIComponent(el.name) + '=' + encodeURIComponent(el.value));
+        }
+    });
+    return params.join('&');
+}
+
+function filtrar() {
+    var form = document.getElementById('filterForm');
+    var query = serializeForm(form);
+    window.location.href = "/Ventas/ListadoTicketsVenta?" + query;
+}
+
+function limpiarFiltros() {
+    const formulario = document.getElementById('filterForm');
+    // Limpiar inputs
+    const inputs = formulario.querySelectorAll('input[type="text"], input[type="date"], input[type="number"], textarea');
+    inputs.forEach(input => {
+        input.value = '';
+    });
+    // Deseleccionar los valores de los select
+    const selects = formulario.querySelectorAll('select');
+    selects.forEach(select => {
+        select.selectedIndex = 0;
+    });
+    // Llama la función anterior para mandar al post
+    filtrar();
+}
+
+function seleccionarVendedor(CodigoSap) {
+    var select = document.getElementById('selectVendedores');
+    var selected = select.options[select.selectedIndex];
+    var nombres = selected.getAttribute('data-nombres') || '';
+    var apellidos = selected.getAttribute('data-apellidos') || '';
+    document.getElementById('CodigovendedorInput').value = CodigoSap;
+    document.getElementById('NombresvendedorInput').value = nombres;
+    document.getElementById('ApellidosvendedorInput').value = apellidos;
+}
+
+function enviarDatosTicketReemplazo() {
+    var codigoVendedor = document.getElementById('CodigovendedorInput').value;
+    var nombreVendedor = document.getElementById('NombresvendedorInput').value;
+    var apellidoVendedor = document.getElementById('ApellidosvendedorInput').value;
     var data = {
         CodigoSap: codigoVendedor,
         Nombres: nombreVendedor,
@@ -65,43 +93,45 @@
     Swal.fire({
         title: 'Enviando datos...',
         allowOutsideClick: false,
-        onBeforeOpen: () => {
+        didOpen: () => {
             Swal.showLoading();
         }
     });
 
-    $.ajax({
-        type: 'GET',
-        url: '@Url.Action("CreaTicketVenta", "Ventas")',
-        data: data,
-        success: function(response) {
-        console.log('Datos enviados correctamente.');
-        $('#modalVendedores').hide();
-        location.reload();
-        Swal.fire({
-        icon: 'success',
-        title: 'Datos enviados correctamente',
-        showConfirmButton: false,
-        timer: 1500
-        });
-        },
-        error: function(xhr, status, error) {
-        console.error('Error al enviar datos:', error);
-        Swal.fire({
-        icon: 'error',
-        title: 'Error al enviar datos',
-        text: 'Por favor, inténtelo de nuevo más tarde.',
-        showConfirmButton: true
-        });
-        },
-        complete: function() {
-        Swal.close();
-        }
-        });
-        }
+    var url = '@Url.Action("CreaTicketVenta", "Ventas")';
+    var params = Object.keys(data).map(function (k) {
+        return encodeURIComponent(k) + '=' + encodeURIComponent(data[k]);
+    }).join('&');
 
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', url + '?' + params, true);
+    xhr.onreadystatechange = function () {
+        if (xhr.readyState === 4) {
+            Swal.close();
+            if (xhr.status >= 200 && xhr.status < 300) {
+                console.log('Datos enviados correctamente.');
+                document.getElementById('modalVendedores').style.display = 'none';
+                location.reload();
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Datos enviados correctamente',
+                    showConfirmButton: false,
+                    timer: 1500
+                });
+            } else {
+                console.error('Error al enviar datos:', xhr.statusText);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error al enviar datos',
+                    text: 'Por favor, inténtelo de nuevo más tarde.',
+                    showConfirmButton: true
+                });
+            }
+        }
+    };
+    xhr.send();
+}
 </script>
-
 
 <div class="pt-3">
     <nav>
@@ -113,101 +143,98 @@
 </div>
 
 <div class="border-cabecera-seccion bg-cobefar-degradado-1 pb-2">
-
-    <div class="mx-2 d-flex justify-content-between px-3 pt-3">
-        <div>
-            <h3 class="titulo-seccion">LISTADO DE TICKETS</h3>
-        </div>
-        @if (ViewBag.IdRol == 6 || ViewBag.IdRol == 1)
-        {
-            <div>
-                <input type="text" style="width: 250px; cursor: pointer"
-                       value="REGULARIZAR AUTORIZACION: @ViewBag.FaltaRegularizar"
-                       onclick="redirigirListadoRegularizar()"
-                       class="form-control-sm border-danger bg-danger text-white font-weight-bold"
-                       readonly />
+    <div class="mx-2 px-2 pt-3">
+        <h3 class="titulo-seccion mb-3">LISTADO DE TICKETS</h3>
+        <div class="d-flex flex-wrap align-items-center mb-3">
+            <div class="d-flex flex-wrap">
+                @if (ViewBag.IdRol == 12)
+                {
+                    <a id="accion" href="#" class="btn btn-success d-flex align-items-center me-1" data-bs-toggle="modal" data-bs-target="#modalVendedores">
+                        <i class="bi bi-plus-lg me-2"></i> Nuevo ticket
+                    </a>
+                }
+                else
+                {
+                    <a id="accion" href="@Url.Action("CreaTicketVenta", "Ventas")" class="btn btn-success d-flex align-items-center me-1" title="Crear Ticket Nuevo">
+                        <i class="bi bi-plus-lg me-2"></i> Nuevo ticket
+                    </a>
+                }
+                <button type="button" id="btn_ordenesVenta" class="btn btn-cobefar d-flex align-items-center me-1" data-codsapvendedor="@ViewBag.CodSapVendedor">
+                    <i class="bi bi-file-earmark-text me-2"></i> Órdenes de Venta
+                </button>
+                <button type="button" class="btn btn-primary d-flex align-items-center me-1" data-bs-toggle="modal" data-bs-target="#filterModal">
+                    <i class="bi bi-funnel-fill me-2"></i> Filtrar
+                </button>
             </div>
-        }
-        </div>
-
-</div>
-<form name="filterForm" id="filterForm">
-    <div class="d-flex pl-2 w-100 py-3">
-        <div class="mx-2">
-            @if (ViewBag.IdRol == 12)
+            @if (ViewBag.IdRol == 6 || ViewBag.IdRol == 1)
             {
-                <a id="accion" href="#" class="btn btn-success" data-toggle="modal" data-target="#modalVendedores">
-                    <i class="icon-plus"></i>  Nuevo ticket
-                </a>
+                <div class="ms-auto">
+                    <input type="text" style="width: 250px; cursor: pointer"
+                           value="REGULARIZAR AUTORIZACION: @ViewBag.FaltaRegularizar"
+                           onclick="redirigirListadoRegularizar()"
+                           class="form-control form-control-sm border-danger bg-danger text-white fw-bold"
+                           readonly />
+                </div>
             }
-            else
-            {
-                <a id="accion" href="@Url.Action("CreaTicketVenta", "Ventas")" class="btn btn-success" title="Crear Ticket Nuevo">
-                    <i class="icon-plus"></i>  Nuevo ticket
-                </a>
-            }
-            <button type="button" id="btn_ordenesVenta" class="btn btn-cobefar" data-codsapvendedor="@ViewBag.CodSapVendedor"><i class="icon-file-text2"></i> Órdenes de Venta</button>
-            <button type="button" class="btn btn-primary ml-2" data-toggle="modal" data-target="#filterModal"><i class="icon-filter"> </i> Filtrar</button>
-
-        </div>
-        <div class="mx-2">
-            <input type="text" name="DocNum" id="DocNum" class="form-control border-success" value="@(a.DocNum == 0 ? "" : a.DocNum.ToString())" autocomplete="off" placeholder="Buscar Nro Ticket..." onchange="filtrar();" />
-        </div>
-        <div class="mx-2">
-            <input type="text" id="CardName" name="CardName" class="form-control border-success" value="@a.CardName" autocomplete="off" placeholder="Buscar Cliente..." onchange="filtrar();" />
-        </div>
-        <div class="mx-2">
-            <input type="text" id="Vendedor" name="Vendedor" class="form-control border-success" value="@a.Vendedor" autocomplete="off" placeholder="Buscar Vendedor..." onchange="filtrar();" />
-        </div>
-        <div class="mx-2">
-            <select id="Estado" name="Estado" class="form-control border-success" onchange="filtrar();">
-                <option value="">Seleccione Estado</option>
-                <option value="SEPARADO" @{ if (a.Estado == "SEPARADO") { Write("selected"); } }>SEPARADO</option>
-                <option value="ABIERTO" @{ if (a.Estado == "ABIERTO") { Write("selected"); } }>ABIERTO</option>
-                <option value="RECIBIDO" @{ if (a.Estado == "RECIBIDO") { Write("selected"); } }>RECIBIDO</option>
-                <option value="PICKEANDO" @{ if (a.Estado == "PICKEANDO") { Write("selected"); } }>PICKEANDO</option>
-                <option value="VERIFICANDO" @{ if (a.Estado == "VERIFICANDO") { Write("selected"); } }>VERIFICANDO</option>
-                <option value="EMPACANDO" @{ if (a.Estado == "EMPACANDO") { Write("selected"); } }>EMPACANDO</option>
-                <option value="EMPACADO" @{ if (a.Estado == "EMPACADO") { Write("selected"); } }>EMPACADO</option>
-                <option value="PESADO" @{ if (a.Estado == "PESADO") { Write("selected"); } }>PESADO</option>
-                <option value="PREENVIO" @{ if (a.Estado == "PREENVIO") { Write("selected"); } }>PREENVIO</option>
-                <option value="ENVIADO" @{ if (a.Estado == "ENVIADO") { Write("selected"); } }>ENVIADO</option>
-                <option value="ENTREGADO" @{ if (a.Estado == "ENTREGADO") { Write("selected"); } }>ENTREGADO</option>
-                <option value="ANULADO" @{ if (a.Estado == "ANULADO") { Write("selected"); } }>ANULADO</option>
-                <option value="CANCELADO" @{ if (a.Estado == "CANCELADO") { Write("selected"); } }>CANCELADO</option>
-            </select>
         </div>
     </div>
+</div>
 
-    <!-- Modal para Filtros -->
-    <div class="modal fade" id="filterModal" tabindex="-1" role="dialog" aria-labelledby="filterModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
-            <div class="modal-content">
-                <div class="modal-header bg-cobefar text-light">
-                    <h5 class="modal-title" id="modalFiltrosLabel">Filtros de Búsqueda</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <div class="container-fluid">
-                        <div class="row">
-                            <div class="col-md-4">
-                                <div class="form-group">
-                                    <label for="FechaSapTicket">Fecha del Ticket</label>
+<div class="bg-white px-3 py-3 align-items-center">
+    <form name="filterForm" id="filterForm">
+        <div class="d-flex pl-2 w-100 py-3">
+            
+            <div class="mx-2">
+                <input type="text" name="DocNum" id="DocNum" class="form-control border-success" value="@(a.DocNum == 0 ? "" : a.DocNum.ToString())" autocomplete="off" placeholder="Buscar Nro Ticket..." onchange="filtrar();" />
+            </div>
+            <div class="mx-2">
+                <input type="text" id="CardName" name="CardName" class="form-control border-success" value="@a.CardName" autocomplete="off" placeholder="Buscar Cliente..." onchange="filtrar();" />
+            </div>
+            <div class="mx-2">
+                <input type="text" id="Vendedor" name="Vendedor" class="form-control border-success" value="@a.Vendedor" autocomplete="off" placeholder="Buscar Vendedor..." onchange="filtrar();" />
+            </div>
+            <div class="mx-2">
+                <select id="Estado" name="Estado" class="form-select border-success" onchange="filtrar();">
+                    <option value="">Seleccione Estado</option>
+                    <option value="SEPARADO" @(a.Estado == "SEPARADO" ? "selected" : "")>SEPARADO</option>
+                    <option value="ABIERTO" @(a.Estado == "ABIERTO" ? "selected" : "")>ABIERTO</option>
+                    <option value="RECIBIDO" @(a.Estado == "RECIBIDO" ? "selected" : "")>RECIBIDO</option>
+                    <option value="PICKEANDO" @(a.Estado == "PICKEANDO" ? "selected" : "")>PICKEANDO</option>
+                    <option value="VERIFICANDO" @(a.Estado == "VERIFICANDO" ? "selected" : "")>VERIFICANDO</option>
+                    <option value="EMPACANDO" @(a.Estado == "EMPACANDO" ? "selected" : "")>EMPACANDO</option>
+                    <option value="EMPACADO" @(a.Estado == "EMPACADO" ? "selected" : "")>EMPACADO</option>
+                    <option value="PESADO" @(a.Estado == "PESADO" ? "selected" : "")>PESADO</option>
+                    <option value="PREENVIO" @(a.Estado == "PREENVIO" ? "selected" : "")>PREENVIO</option>
+                    <option value="ENVIADO" @(a.Estado == "ENVIADO" ? "selected" : "")>ENVIADO</option>
+                    <option value="ENTREGADO" @(a.Estado == "ENTREGADO" ? "selected" : "")>ENTREGADO</option>
+                    <option value="ANULADO" @(a.Estado == "ANULADO" ? "selected" : "")>ANULADO</option>
+                    <option value="CANCELADO" @(a.Estado == "CANCELADO" ? "selected" : "")>CANCELADO</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Modal para Filtros -->
+        <div class="modal fade" id="filterModal" tabindex="-1" aria-labelledby="filterModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header bg-cobefar text-light">
+                        <h5 class="modal-title" id="modalFiltrosLabel">Filtros de Búsqueda</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="container-fluid">
+                            <div class="row g-3">
+                                <div class="col-md-4">
+                                    <label for="FechaSapTicket" class="form-label">Fecha del Ticket</label>
                                     <input type="date" id="FechaSapTicket" name="FechaSapTicket" class="form-control" value="@a.FechaSapTicket" autocomplete="off" />
                                 </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="form-group">
-                                    <label for="MontoFinal">Monto Final</label>
+                                <div class="col-md-4">
+                                    <label for="MontoFinal" class="form-label">Monto Final</label>
                                     <input type="text" id="MontoFinal" name="MontoFinal" class="form-control" value="@(a.MontoFinal == 0 ? "" : a.MontoFinal.ToString())" autocomplete="off" />
                                 </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="form-group">
-                                    <label for="LugarDestino">Lugar de Destino</label>
-                                    <select id="LugarDestino" name="LugarDestino" class="form-control">
+                                <div class="col-md-4">
+                                    <label for="LugarDestino" class="form-label">Lugar de Destino</label>
+                                    <select id="LugarDestino" name="LugarDestino" class="form-select">
                                         <option value=""></option>
                                         <option value="Arriola" @{ if (a.LugarDestino == "Arriola") { Write("selected"); } }>Arriola</option>
                                         <option value="Agencia" @{ if (a.LugarDestino == "Agencia") { Write("selected"); } }>Agencia</option>
@@ -215,54 +242,40 @@
                                         <option value="Centro" @{ if (a.LugarDestino == "Centro") { Write("selected"); } }>Centro</option>
                                     </select>
                                 </div>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-4">
-                                <div class="form-group">
-                                    <label for="EstadoPago">Estado de Pago</label>
-                                    <select id="EstadoPago" name="EstadoPago" class="form-control">
+                                <div class="col-md-4">
+                                    <label for="EstadoPago" class="form-label">Estado de Pago</label>
+                                    <select id="EstadoPago" name="EstadoPago" class="form-select">
                                         <option value=""></option>
                                         <option value="PENDIENTE" @{ if (a.EstadoPago == "PENDIENTE") { Write("selected"); } }>PENDIENTE</option>
                                         <option value="PAGADO" @{ if (a.EstadoPago == "PAGADO") { Write("selected"); } }>PAGADO</option>
                                     </select>
                                 </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="form-group">
-                                    <label for="EstadoGasto">Estado de Gasto</label>
-                                    <select id="EstadoGasto" name="EstadoGasto" class="form-control">
+                                <div class="col-md-4">
+                                    <label for="EstadoGasto" class="form-label">Estado de Gasto</label>
+                                    <select id="EstadoGasto" name="EstadoGasto" class="form-select">
                                         <option value=""></option>
                                         <option value="PENDIENTE" @{ if (a.EstadoGasto == "PENDIENTE") { Write("selected"); } }>PENDIENTE</option>
                                         <option value="CONFIRMADO" @{ if (a.EstadoGasto == "CONFIRMADO") { Write("selected"); } }>CONFIRMADO</option>
                                     </select>
                                 </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="form-group">
-                                    <label for="PagoEnv">Pago Envío</label>
-                                    <select id="PagoEnv" name="PagoEnv" class="form-control">
+                                <div class="col-md-4">
+                                    <label for="PagoEnv" class="form-label">Pago Envío</label>
+                                    <select id="PagoEnv" name="PagoEnv" class="form-select">
                                         <option value="0.00" @{ if (a.PagoEnv == 0.00M) { Write("selected"); } }></option>
                                         <option value="0.01" @{ if (a.PagoEnv == 0.01M) { Write("selected"); } }>SI</option>
                                     </select>
                                 </div>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-4">
-                                <div class="form-group">
-                                    <label for="Presupuesto">Presupuesto</label>
-                                    <select id="Presupuesto" name="Presupuesto" class="form-control">
+                                <div class="col-md-4">
+                                    <label for="Presupuesto" class="form-label">Presupuesto</label>
+                                    <select id="Presupuesto" name="Presupuesto" class="form-select">
                                         <option value=""></option>
                                         <option value="SI" @{ if (a.Presupuesto == "SI") { Write("selected"); } }>SI</option>
                                         <option value="NO" @{ if (a.Presupuesto == "NO") { Write("selected"); } }>NO</option>
                                     </select>
                                 </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="form-group">
-                                    <label for="Visible">Impreso</label>
-                                    <select id="Visible" name="Visible" class="form-control">
+                                <div class="col-md-4">
+                                    <label for="Visible" class="form-label">Impreso</label>
+                                    <select id="Visible" name="Visible" class="form-select">
                                         <option value=""></option>
                                         <option value="SI" @{ if (a.Visible == "SI") { Write("selected"); } }>SI</option>
                                         <option value="PI" @{ if (a.Visible == "PI") { Write("selected"); } }>EN PROCESO</option>
@@ -272,18 +285,17 @@
                             </div>
                         </div>
                     </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
-                    <button type="button" class="btn btn-info" onclick="limpiarFiltros();">Limpiar</button>
-                    <button type="button" class="btn btn-primary" onclick="filtrar();">Aplicar Filtros</button>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                        <button type="button" class="btn btn-info" onclick="limpiarFiltros();">Limpiar</button>
+                        <button type="button" class="btn btn-primary" onclick="filtrar();">Aplicar Filtros</button>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
 
 
-</form>
+    </form>
 
 
 
@@ -302,44 +314,44 @@
         </p>
     </div>
 
-    <div class="bg-white bg-form-cobefar pt-2">
-        <table class="table table-light table-sm table-hover cls-dataTable50" cellspacing="0" width="100%">
-            <thead class="bg-cobefar-6">
+    <div class="bg-white px-3 py-3 align-items-center">
+        <table class="table table-sm table-hover cls-dataTable50" cellspacing="0" width="100%">
+            <thead class="thead-cobefar bg-cobefar-6 text-white">
                 <tr>
-                    <th class="text-center">
+                    <th class="text-center border-end border-start">
                         @Html.DisplayNameFor(model => model.DocNum)
                     </th>
-                    <th class="text-center">
+                    <th class="text-center border-end">
                         Fecha Ticket
                     </th>
-                    <th class="text-center">
+                    <th class="text-center border-end">
                         @Html.DisplayNameFor(model => model.HoraRegistro)
                     </th>
-                    <th class="text-center">
+                    <th class="text-center border-end">
                         @Html.DisplayNameFor(model => model.CardName)
                     </th>
-                    <th class="text-center">
+                    <th class="text-center border-end">
                         @Html.DisplayNameFor(model => model.Vendedor)
                     </th>
-                    <th class="text-center">
+                    <th class="text-center border-end">
                         Monto Final
                     </th>
-                    <th class="text-center">
+                    <th class="text-center border-end">
                         @Html.DisplayNameFor(model => model.LugarDestino)
                     </th>
-                    <th class="text-center">
+                    <th class="text-center border-end">
                         @Html.DisplayNameFor(model => model.Estado)
                     </th>
-                    <th class="text-center">
+                    <th class="text-center border-end">
                         Estado Pago
                     </th>
-                    <th class="text-center">
+                    <th class="text-center border-end">
                         Estado Gasto
                     </th>
-                    <th class="text-center">
+                    <th class="text-center border-end">
                         Pago Envio
                     </th>
-                    <th class="text-center">
+                    <th class="text-center border-end">
                         Impreso
                     </th>
                     <th></th>
@@ -360,89 +372,97 @@
 
                     }
                     <tr id="fila" class="@stylePresupuesto">
-                        <td class="text-center">
+                        <td class="text-center border-end border-start">
                             <div class="@if (ViewBag.DocNum == item.DocNum) { Write("bg-success"); }">@Html.DisplayFor(modelItem => item.DocNum)</div>
                         </td>
-                        <td class="text-center">
+                        <td class="text-center border-end">
                             @Html.DisplayFor(modelItem => item.FechaSapTicket)
                         </td>
-                        <td class="text-center">
+                        <td class="text-center border-end">
                             @Html.DisplayFor(modelItem => item.HoraAbierto)
                         </td>
-                        <td>
+                        <td class="text-center border-end">
                             @if (!string.IsNullOrWhiteSpace(item.CardName)) { Write(item.CardName); }
                         </td>
-                        <td class="text-center">
+                        <td class="text-center border-end">
                             @item.Vendedor
                         </td>
-                        <td class="text-center">
+                        <td class="text-center border-end">
                             @Html.DisplayFor(modelItem => item.MontoFinal)
                         </td>
-                        <td class="text-center">
+                        <td class="text-center border-end">
                             @Html.DisplayFor(modelItem => item.LugarDestino)
                         </td>
-                        <td class="text-center">
+                        <td class="text-center border-end">
                             @if (item.Presupuesto != null && item.Presupuesto.Equals("SI"))
                             {<span>PRESUPUESTO</span> }
                             else
-                            {@Html.DisplayFor(modelItem => item.Estado) }
+                            {@Html.DisplayFor(modelItem => item.Estado)}
                         </td>
-                        <td class="text-center">
+                        <td class="text-center border-end">
                             @Html.DisplayFor(modelItem => item.EstadoPago)
                         </td>
-                        <td class="text-center">
+                        <td class="text-center border-end">
                             @Html.DisplayFor(modelItem => item.EstadoGasto)
                         </td>
-                        <td class="text-center">
+                        <td class="text-center border-end">
                             @Html.DisplayFor(modelItem => item.PagoEnv)
                         </td>
-                        <td class="text-center">
+                        <td class="text-center border-end">
                             @if (item.Visible != null && item.Visible.Equals("PI"))
                             {<span>EN PROCESO</span>}
-                            else {
+                            else
+                            {
                                 Write(item.Visible);
                             }
                         </td>
                         <td class="text-center">
                             @if (item.Estado.Equals("SEPARADO") || item.Estado.Equals("ABIERTO"))
                             {
-                                <a href="@Url.Action("EditarTicketVenta", "Ventas", new { DocEntry = item.DocEntry })" class="btn btn-light" data-toggle="tooltip" data-placement="top" title="Editar ticket"><i class="text-primary icon-pencil"></i></a>
+                                <a href="@Url.Action("EditarTicketVenta", "Ventas", new { DocEntry = item.DocEntry })" class="btn btn-light" data-toggle="tooltip" data-placement="top" title="Editar ticket">
+                                    <i class="bi bi-pencil-square text-primary"></i>
+                                </a>
                             }
                         </td>
                         <td class="text-center">
                             @if (((item.Estado.Equals("SEPARADO") || item.Estado.Equals("ABIERTO")) && (ViewBag.IdRol == 1 || ViewBag.IdRol == 6 || ViewBag.IdRol == 7 || ViewBag.IdRol == 12)) && item.EstadoPago != ("PAGADO"))
                             {
-                                <a href="#" onclick="cancelarTicket(@item.DocEntry);" class="btn btn-light" data-toggle="tooltip" data-placement="top" title="Cancelar ticket"><i class="text-danger icon-bin"></i></a>
+                                <a href="#" onclick="cancelarTicket(@item.DocEntry);" class="btn btn-light" data-toggle="tooltip" data-placement="top" title="Cancelar ticket">
+                                    <i class="bi bi-trash text-danger"></i>
+                                </a>
                             }
                         </td>
                         <td class="text-center">
                             @if (item.Estado == "ABIERTO")
                             {
                                 <button onclick="openPreliminar(@item.DocEntry)" id="boton_imprimir" class="btn btn-light text-primary">
-                                    <i class="icon-printer"> </i>
+                                    <i class="bi bi-printer"></i>
                                 </button>
                             }
                         </td>
-
                         <td class="text-center">
                             @if (item.Estado != "SEPARADO")
                             {
                                 <a href="@Url.Action( "SeguimientoDeTicket", "Ventas", new { DocEntry = item.DocEntry  } )" type="button" target="_self" class="btn btn-light" data-toggle="tooltip" data-placement="top" title="PDF de ticket"
                                    onclick="window.open(this.href,this.target,'width=1200,height=650,top=120,left=100,toolbar=no,location=no,status=no,menubar=no');return false;">
-                                    <i title="Seguimiento de ticket" class="text-dark icon-truck"></i>
+                                    <i title="Seguimiento de ticket" class="bi bi-truck text-dark"></i>
                                 </a>
                             }
                         </td>
                         <td class="text-center">
                             @if (item.Estado != "SEPARADO")
                             {
-                                <a href="@Url.Action( "GenerarPDF", "Ventas", new { DocEntry = item.DocEntry  } )" target="_blank" class="btn btn-light" data-toggle="tooltip" data-placement="top" title="PDF de ticket"><i class="text-danger icon-file-pdf"></i></a>
+                                <a href="@Url.Action( "GenerarPDF", "Ventas", new { DocEntry = item.DocEntry  } )" target="_blank" class="btn btn-light" data-toggle="tooltip" data-placement="top" title="PDF de ticket">
+                                    <i class="bi bi-file-earmark-pdf text-danger"></i>
+                                </a>
                             }
                         </td>
-                        <td class="text-center">
+                        <td class="text-center border-end">
                             @if (item.Estado == "ENTREGADO")
                             {
-                                <a href="@Url.Action( "EvidenciaReparto", "Rutas", new { DocEntry = item.DocEntry , TipoRuta="Ventas"} )" class="btn btn-light" data-toggle="tooltip" data-placement="top" title="Evidencia"><i class="text-primary icon-image"></i></a>
+                                <a href="@Url.Action( "EvidenciaReparto", "Rutas", new { DocEntry = item.DocEntry , TipoRuta="Ventas"} )" class="btn btn-light" data-toggle="tooltip" data-placement="top" title="Evidencia">
+                                    <i class="bi bi-image text-primary"></i>
+                                </a>
                             }
                         </td>
 
@@ -486,6 +506,7 @@
             </div>
         </div>
     </div>
+</div>
 
     <style>
         .alertify-notifier .ajs-message.ajs-success {
@@ -496,75 +517,73 @@
             background-color: #FFD700;
         }
     </style>
-
     <script>
-    $(document).ready(function () {
+document.addEventListener('DOMContentLoaded', function () {
+    // --- CONSULTAR NUEVAS SOLICITUDES ---
+    function consultarNuevasSolicitudes() {
+        alertify.set('notifier', 'position', 'top-right');
+        alertify.set('notifier', 'delay', 15);
+        $.ajax({
+            url: '/Caja/ObtenerSolicitudesAutorizar',
+            type: 'POST',
+            dataType: 'json',
+        }).done(function (response) {
+            var contador = 0;
+            if (response.Datos.length >= 1) {
+                response.Datos.forEach(function (solicitud) {
+                    if (contador < 7) {
+                        var mensaje = `<div style="font-size: 11px;margin: 0;padding:0;">
+                            <div style="text-align:center;font-weigth:600">
+                            <button class="btn btn-success" id="autorizar-${solicitud.DocNumTicket}" style="font-size: 12px; margin-left: 5px;  color: white; border: none; padding: 3px 8px; border-radius: 3px;"><i class="bi bi-search-heart"></i></button>
+                            Autorizar ticket N° ${solicitud.DocNumTicket}<br>
+                            ${solicitud.Vendedor}
+                            </div>
+                            </div>`;
+                        var msj = alertify.warning(mensaje);
 
-        var consultarNuevasSolicitudes = function () {
-            alertify.set('notifier', 'position', 'top-right');
-            alertify.set('notifier', 'delay', 15);
-            $.ajax({
-                url: '/Caja/ObtenerSolicitudesAutorizar',
-                type: 'POST',
-                dataType: 'json',
-            }).done(function (response) {
-                var contador = 0;
-                if (response.Datos.length >= 1) {
-                    response.Datos.forEach(function (solicitud) {
-                        if (contador < 7) {
+                        $(`#autorizar-${solicitud.DocNumTicket}`).on('click', function () {
+                            var url = `/Ventas/AutorizarTicketReparto?DocEntry=${solicitud.DocEntryTicket}&IdOTC=${solicitud.IdOTC}`;
+                            window.open(url, '_blank', 'width=1200,height=720,top=120,left=100,toolbar=no,location=no,status=no,menubar=no');
+                        });
+                        $(`#cerrar-${solicitud.DocNumTicket}`).on('click', function () {
+                            msj.close();
+                        });
+                        contador++;
+                    } else {
+                        return false;
+                    }
+                });
+            }
+        }).fail(function (jqXHR, textStatus, errorThrown) {
+            console.log(jqXHR.status + textStatus + errorThrown);
+        });
+    }
 
-                            var mensaje = `<div style="font-size: 11px;margin: 0;padding:0;">
-                                            <div style="text-align:center;font-weigth:600">
-                                            <button class="btn btn-success" id="autorizar-${solicitud.DocNumTicket}" style="font-size: 12px; margin-left: 5px;  color: white; border: none; padding: 3px 8px; border-radius: 3px;"><i class="icon icon-search"></i></button>
-                                            Autorizar ticket N° ${solicitud.DocNumTicket}<br>
-                                            ${solicitud.Vendedor}
-                                            </div>
-                                            </div>`;
-                            var msj = alertify.warning(mensaje);
+    // --- CONSULTAR PRESUPUESTOS ---
+    function consultarPresupuestos() {
+        alertify.set('notifier', 'position', 'bottom-right');
+        alertify.set('notifier', 'delay', 15);
 
-                            $(`#autorizar-${solicitud.DocNumTicket}`).on('click', function () {
-                                var url = `/Ventas/AutorizarTicketReparto?DocEntry=${solicitud.DocEntryTicket}&IdOTC=${solicitud.IdOTC}`;
-                                window.open(url, '_blank', 'width=1200,height=720,top=120,left=100,toolbar=no,location=no,status=no,menubar=no');
-                            });
-                            $(`#cerrar-${solicitud.DocNumTicket}`).on('click', function () {
-                                msj.close();
-                            });
-                            contador++;
-                        } else {
-                            return false;
-                        }
-                    });
-                }
-            }).fail(function (jqXHR, textStatus, errorThrown) {
-                console.log(jqXHR.status + textStatus + errorThrown);
-            });
-        }
-
-        var consultarPresupuestos = function () {
-            alertify.set('notifier', 'position', 'bottom-right');
-            alertify.set('notifier', 'delay', 15);
-
-            var docEntryUsuario = @ViewBag.DocEntryUsuario;
-            $.ajax({
-                url: '/Ventas/ListarTicketsPresupuestoPagados',
-                type: 'POST',
-                dataType: 'json',
-                data: { DocEntryUsuario: docEntryUsuario },
-            }).done(function (response) {
-                var contador = 0;
-                if (response.Datos.length >= 1) {
-                    response.Datos.forEach(function (tk) {
-                        if (contador < 7) {
-                            var mensaje = `<div style="font-size: 13px;margin: 0;padding:0;">
-                            <div style="text-align:center;font-weigth:700:">
-                                    <button class="btn btn-success" id="ver-${tk.DocNum}" style="font-size: 12px; margin-left: 5px;  color: white; border: none; padding: 3px 8px; border-radius: 3px;"><i class="icon icon-search"></i></button>
-                                    Abrir Ticket N° ${tk.DocNum}
-                                    </div>
-                               </div>`;
+        var docEntryUsuario = @ViewBag.DocEntryUsuario;
+        $.ajax({
+            url: '/Ventas/ListarTicketsPresupuestoPagados',
+            type: 'POST',
+            dataType: 'json',
+            data: { DocEntryUsuario: docEntryUsuario },
+        }).done(function (response) {
+            var contador = 0;
+            if (response.Datos.length >= 1) {
+                response.Datos.forEach(function (tk) {
+                    if (contador < 7) {
+                        var mensaje = `<div style="font-size: 13px;margin: 0;padding:0;">
+                        <div style="text-align:center;font-weigth:700:">
+                                <button class="btn btn-success" id="ver-${tk.DocNum}" style="font-size: 12px; margin-left: 5px;  color: white; border: none; padding: 3px 8px; border-radius: 3px;"><i class="icon icon-search"></i></button>
+                                Abrir Ticket N° ${tk.DocNum}
+                                </div>
+                           </div>`;
                         var msj = alertify.success(mensaje);
 
                         $(`#ver-${tk.DocNum}`).on('click', function () {
-
                             var modalHtml = `
                             <div class="modal fade" id="modal-${tk.DocNum}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
                                 <div class="modal-dialog" role="document">
@@ -591,7 +610,6 @@
                             $('#modal-' + tk.DocNum).modal('show');
 
                             $(document).on('click', `#modal-si-button-${tk.DocNum}`, function () {
-
                                 $.ajax({
                                     url: '/Ventas/CambiarPresupuestoTicket?DocEntry=' + tk.DocEntry,
                                     type: 'POST',
@@ -605,123 +623,103 @@
                                 $('#modal-' + tk.DocNum).modal('hide');
                             });
                             $(document).on('click', `#modal-no-button-${tk.DocNum}`, function () {
-
                                 $('#modal-' + tk.DocNum).modal('hide');
                             });
                         });
                         $(`#cerrar2-${tk.DocNum}`).on('click', function () {
                             msj.close();
                         });
-                            contador++;
-                        } else {
-                            return false;
-                        }
-                    });
-                }
-            }).fail(function (jqXHR, textStatus, errorThrown) {
-                console.log(jqXHR.status + textStatus + errorThrown);
-            });
-        }
-
-        // MANAGER - SVENTAS - VENTAS
-        if (@ViewBag.IdRol == 1 || @ViewBag.IdRol == 6 || @ViewBag.IdRol == 7) {
-            setInterval(consultarPresupuestos, 20000);
-            if (@ViewBag.IdRol == 1 || @ViewBag.IdRol == 6) {
-                setInterval(consultarNuevasSolicitudes, 20000);
+                        contador++;
+                    } else {
+                        return false;
+                    }
+                });
             }
-        }
-    });
-    if ('@ViewBag.Mensaje' != "") {
-    Swal.fire('@ViewBag.Mensaje');
+        }).fail(function (jqXHR, textStatus, errorThrown) {
+            console.log(jqXHR.status + textStatus + errorThrown);
+        });
     }
 
-    //Consulta de ordenes de venta
-    document.addEventListener('DOMContentLoaded', function () {
-        document.getElementById('btn_ordenesVenta').addEventListener('click', () => {
-            let codSapVendedor = document.getElementById("btn_ordenesVenta").dataset.codsapvendedor;
+    // --- INTERVALOS DE CONSULTA SEGÚN ROL ---
+    if (@ViewBag.IdRol == 1 || @ViewBag.IdRol == 6 || @ViewBag.IdRol == 7) {
+        setInterval(consultarPresupuestos, 20000);
+        if (@ViewBag.IdRol == 1 || @ViewBag.IdRol == 6) {
+            setInterval(consultarNuevasSolicitudes, 20000);
+        }
+    }
+
+    // --- MENSAJE DE ALERTA INICIAL ---
+    if ('@ViewBag.Mensaje' != "") {
+        Swal.fire('@ViewBag.Mensaje');
+    }
+
+    // --- CONSULTA DE ÓRDENES DE VENTA ---
+    var btnOrdenesVenta = document.getElementById('btn_ordenesVenta');
+    if (btnOrdenesVenta) {
+        btnOrdenesVenta.addEventListener('click', function () {
+            let codSapVendedor = btnOrdenesVenta.dataset.codsapvendedor;
             window.location.href = '@Url.Action("ListadoOrdenesDeVenta", "DireccionTecnica")?SlpCode=' + codSapVendedor;
         });
+    }
+});
+
+// --- FUNCIONES GLOBALES ---
+function openPreliminar(docEntry) {
+    var url = '@Url.Action("PreliminarLayoutOV_Ticket", "Ventas")' + '?DocEntry=' + docEntry;
+    bloquearBotonesImprimir();
+    window.open(url, '_blank', 'noopener,noreferrer');
+    darVisibilidadTicket(docEntry);
+}
+
+function bloquearBotonesImprimir() {
+    document.querySelectorAll('#boton_imprimir').forEach(boton => {
+        boton.setAttribute('disabled', true);
+    });
+}
+
+function darVisibilidadTicket(DocEntry) {
+    $.ajax({
+        url: '/Ventas/CambiarVisibilidadTicket?docEntry=' + DocEntry + '&proceso=PI',
+        type: 'POST',
+        dataType: 'json'
+    }).done(function (response) {
+        desbloquearBotonesImprimir();
+    }).fail(function (jqXHR, textStatus, errorThrown) {
+        console.log(jqXHR.status + textStatus + errorThrown);
+    });
+}
+
+function desbloquearBotonesImprimir() {
+    document.querySelectorAll('#boton_imprimir').forEach(boton => {
+        boton.removeAttribute('disabled');
+    });
+}
+
+function cancelarTicket(DocEntry) {
+    const swalWithBootstrapButtons = Swal.mixin({
+        customClass: {
+            confirmButton: 'btn btn-success mx-4',
+            cancelButton: 'btn btn-danger mx-4'
+        },
+        buttonsStyling: false
     });
 
-    function openPreliminar(docEntry) {
-
-        var url = '@Url.Action("PreliminarLayoutOV_Ticket", "Ventas")' + '?DocEntry=' + docEntry;
-
-        bloquearBotonesImprimir();
-
-        window.open(url, '_blank', 'noopener,noreferrer');
-
-        darVisibilidadTicket(docEntry);
-    }
-
-    function bloquearBotonesImprimir() {
-       //Para evitar sobrecarga de consultas
-        document.querySelectorAll('#boton_imprimir').forEach(boton => {
-            boton.setAttribute('disabled', true); 
-        });
-    }
-
-    function darVisibilidadTicket(DocEntry) {
-        $.ajax({
-            url: '/Ventas/CambiarVisibilidadTicket?docEntry=' + DocEntry +'&proceso=PI',
-            type: 'POST',
-            dataType: 'json'
-        }).done(function (response) {
-                desbloquearBotonesImprimir();
-
-        }).fail(function (jqXHR, textStatus, errorThrown) {
-            console.log(jqXHR.status + textStatus + errorThrown);
-        });
+    swalWithBootstrapButtons.fire({
+        title: '¿Está seguro(a) de cancelar el ticket?',
+        text: "Este proceso es irreversible",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: "<i class='icon-checkmark'></i> Si, estoy seguro(a)",
+        cancelButtonText: "<i class='icon-cross'></i> No",
+        reverseButtons: true
+    }).then((result) => {
+        if (result.isConfirmed) {
+            location.href = '/Ventas/CancelarTicket?DocEntry=' + DocEntry + '&vista=ListadoTicketsVenta';
         }
+    });
+}
 
-    function desbloquearBotonesImprimir() {
-        document.querySelectorAll('#boton_imprimir').forEach(boton => {
-            boton.removeAttribute('disabled'); // Habilitar el botón
-        });
-    }
-
-    @*function openPreliminar(docEntry) {
-        // Construir la URL para la acción en el servidor
-        var url = '@Url.Action("PreliminarLayoutOV_Ticket", "Ventas")' + '?DocEntry=' + docEntry;
-        window.open(url, '_blank', 'noopener,noreferrer');
-        darVisibilidadTicket(docEntry);
-
-    }
-
-    function darVisibilidadTicket(DocEntry) {
-        $.ajax({
-            url: '/Ventas/CambiarVisibilidadTicket?DocEntry=' + DocEntry,
-            type: 'POST',
-            dataType: 'json'
-        }).done(function (response) {
-        }).fail(function (jqXHR, textStatus, errorThrown) {
-            console.log(jqXHR.status + textStatus + errorThrown);
-        });
-    }*@
-    function cancelarTicket(DocEntry) {
-        const swalWithBootstrapButtons = Swal.mixin({
-            customClass: {
-                confirmButton: 'btn btn-success mx-4',
-                cancelButton: 'btn btn-danger mx-4'
-            },
-            buttonsStyling: false
-        })
-
-        swalWithBootstrapButtons.fire({
-            title: '¿Está seguro(a) de cancelar el ticket?',
-            text: "Este proceso es irreversible",
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonText: "<i class='icon-checkmark'></i> Si, estoy seguro(a)",
-            cancelButtonText: "<i class='icon-cross'></i> No",
-            reverseButtons: true
-        }).then((result) => {
-            if (result.isConfirmed) {
-                location.href = '/Ventas/CancelarTicket?DocEntry=' + DocEntry + '&vista=ListadoTicketsVenta';
-            }
-        });
-        }
-        function redirigirListadoRegularizar() {
-            window.location.href = '@Url.Action("ListadoTicketsAutorizacionRegularizar", "Ventas")';
-        }
+function redirigirListadoRegularizar() {
+    window.location.href = '@Url.Action("ListadoTicketsAutorizacionRegularizar", "Ventas")';
+}
     </script>
