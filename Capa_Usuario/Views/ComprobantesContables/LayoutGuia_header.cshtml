@@ -40,32 +40,28 @@
                     <strong>N° TICKET:</strong> @ViewBag.DocNumTicket
                     <img src="~/imagenes/index/encabezado/bpa.jpg" width="45" height="40" style="position: absolute; top: 5px; right: 0;" />
                 </td>
-                <td style="text-align:left;font-size:10px; max-width:300px;">
+                <td style="text-align:left; font-size:10px; max-width:300px;">
                     @if (ViewBag.Agencia is true)
                     {
-                        <div style="border:2px solid #006400; border-radius:10px; text-align:center; font-size:18px; font-weight:bold; color:#006400; ">
-                            CARGO AGENCIA
+                        <div style="border:2px solid #006400; border-radius:10px; height:70px; font-size:26px; font-weight:bold; color:#006400; width:100%; text-align:center; line-height:70px;">
+                            CARGO
                         </div>
                     }
-                    <strong>Dom. Fiscal:</strong> Cal.Carlos Pedemonte Nro. 145b Int. 2pis
-                    <br />
-                    Urb. Lotización Ex Fundo El Pino  Lima - Lima - San Luis
-                    <br />
-                    <strong>Almacén:</strong> Av. Nicolás Arriola N°2955-2963, 2do. Piso
-                    <br />
-                    Urb. Mercurio - San Luis - Lima - Lima
-                    <br />
-                    <strong>Almacén:</strong> Jr. Antonio Miroquezada N° 806 Int. 303
-                    <br />
-                    Lima - Lima - Lima
-                    <br />
-                    <strong>Almacén:</strong> Jr. Antonio Miroquezada N° 806 Int. 502
-                    <br />
-                    Lima - Lima - Lima
-                    <br />
-                    <strong>Teléfono:</strong> 428-1248
-                    <br />
-                    <strong>Email:</strong> cobefar.ventas@gmail.com
+                    else
+                    {
+                        <div>
+                            <strong>Dom. Fiscal:</strong> Cal.Carlos Pedemonte Nro. 145b Int. 2pis<br />
+                            Urb.Lotización Ex Fundo El Pino Lima - Lima - San Luis<br />
+                            <strong>Almacén:</strong> Av.Nicolás Arriola N°2955 - 2963, 2do.Piso<br />
+                            Urb.Mercurio - San Luis - Lima - Lima<br />
+                            <strong>Almacén:</strong> Jr.Antonio Miroquezada N° 806 Int. 303<br />
+                            Lima - Lima - Lima<br />
+                            <strong>Almacén:</strong> Jr.Antonio Miroquezada N° 806 Int. 502<br />
+                            Lima - Lima - Lima<br />
+                            <strong>Teléfono:</strong> 428 - 1248<br />
+                            <strong>Email:</strong> cobefar.ventas@gmail.com
+                        </div>
+                    }
                 </td>
                     <td style="font-size: 20px !important; text-align: center;">
                         <div style="border: 2px solid green; vertical-align: top; padding: 5px; border-radius: 15px;">
