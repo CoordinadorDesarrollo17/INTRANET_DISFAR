@@ -30,34 +30,49 @@
     <div>
         <table border="0">
             <tr>
+                
+            </tr>
+            <tr>
+
                 <td style="font-size: 10px; text-align: left; position: relative;">
                     <img style="float:left" src="~/imagenes/logoventa2.jpg" width="230" height="80" /><br />
                     www.cobefar.com.pe<br /><br />
                     <strong>N° TICKET:</strong> @ViewBag.DocNumTicket
                     <img src="~/imagenes/index/encabezado/bpa.jpg" width="45" height="40" style="position: absolute; top: 5px; right: 0;" />
                 </td>
-                <td style="text-align:left;font-size:10px; max-width:300px;">
-                    <strong>Dom. Fiscal:</strong> Cal.Carlos Pedemonte Nro. 145b Int. 2pis <br />
-                    Urb. Lotización Ex Fundo El Pino  Lima - Lima - San Luis<br />
-                    <strong>Almacén:</strong> Av. Nicolás Arriola N°2955-2963, 2do. Piso <br />
-                    Urb. Mercurio - San Luis - Lima - Lima<br />
-                    <strong>Almacén:</strong> Jr. Antonio Miroquezada N° 806 Int. 303<br />
-                    Lima - Lima - Lima<br />
-                    <strong>Almacén:</strong> Jr. Antonio Miroquezada N° 806 Int. 502<br />
-                    Lima - Lima - Lima<br />
-                    <strong>Teléfono:</strong> 428-1248<br />
-                    <strong>Email:</strong> cobefar.ventas@gmail.com
-                </td>
-                <td style="font-size: 20px !important; text-align: center;">
-                    <div style="border: 2px solid green; vertical-align: top; padding: 5px; border-radius: 15px;">
-                        <div style="height:10px;"></div> R.U.C. 20600546041   <div style="height:25px;"></div>
-                        <strong>GUÍA DE REMISIÓN </strong><br />
-                        <strong>ELECTRÓNICA REMITENTE</strong><div style="height:25px;"></div>
-                        @Cab.NumAtCard <div style="height:10px;">
+                <td style="text-align:left; font-size:10px; max-width:300px;">
+                    @if (ViewBag.Agencia is true)
+                    {
+                        <div style="border:2px solid #006400; border-radius:10px; height:90px; font-size:34px; font-weight:bold; color:#006400; width:100%; text-align:center; line-height:90px;">
+                            CARGO
                         </div>
-                    </div>
+                    }
+                    else
+                    {
+                        <div>
+                            <strong>Dom. Fiscal:</strong> Cal.Carlos Pedemonte Nro. 145b Int. 2pis<br />
+                            Urb.Lotización Ex Fundo El Pino Lima - Lima - San Luis<br />
+                            <strong>Almacén:</strong> Av.Nicolás Arriola N°2955 - 2963, 2do.Piso<br />
+                            Urb.Mercurio - San Luis - Lima - Lima<br />
+                            <strong>Almacén:</strong> Jr.Antonio Miroquezada N° 806 Int. 303<br />
+                            Lima - Lima - Lima<br />
+                            <strong>Almacén:</strong> Jr.Antonio Miroquezada N° 806 Int. 502<br />
+                            Lima - Lima - Lima<br />
+                            <strong>Teléfono:</strong> 428 - 1248<br />
+                            <strong>Email:</strong> cobefar.ventas@gmail.com
+                        </div>
+                    }
                 </td>
-            </tr>
+                    <td style="font-size: 20px !important; text-align: center;">
+                        <div style="border: 2px solid green; vertical-align: top; padding: 5px; border-radius: 15px;">
+                            <div style="height:10px;"></div> R.U.C. 20600546041   <div style="height:25px;"></div>
+                            <strong>GUÍA DE REMISIÓN </strong><br />
+                            <strong>ELECTRÓNICA REMITENTE</strong><div style="height:25px;"></div>
+                            @Cab.NumAtCard <div style="height:10px;">
+                            </div>
+                        </div>
+                    </td>
+                </tr>
         </table>
         @if (ViewBag.Tipo == "T")
         {

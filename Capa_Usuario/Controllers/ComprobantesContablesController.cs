@@ -147,12 +147,9 @@ namespace Capa_Usuario.Controllers
             var pdfResult = new ActionAsPdf(null);
             string NumAtCard = $"{documento.U_SYP_MDTD}-{documento.U_SYP_MDSD}-{documento.U_SYP_MDCD}";
             string fileName = $"{documento.U_SYP_MDTD}_{documento.U_SYP_MDSD}_{documento.U_SYP_MDCD}.pdf";
-            //Contemplar un caso de layout por cada tipo de documentos:
-            //Factura,
-            //Boleta,
-            //Guia,
-            //Nota credito,
-            //Nota debito 
+            int docentry = ortvN.DocEntryTicket(docNum);
+            ORTV_E ortvE = ortvN.ObtenerDatosTicketParaDocumentos(docentry);
+
             switch (Tipo)
             {
                 case "F":
@@ -190,11 +187,13 @@ namespace Capa_Usuario.Controllers
                     };
                     break;
                 case "G":
+                    // 1. PDF normal
                     var parametrosGuia = new
                     {
                         NumAtCard,
                         DocNumTicket = docNum,
-                        Tabla = documento.TablaSAP
+                        Tabla = documento.TablaSAP,
+                        agencia = false
                     };
                     string _headerUrlGuia = Url.Action("LayoutGuia_header", "ComprobantesContables", parametrosGuia, "http");
                     pdfResult = new ActionAsPdf("LayoutGuia", parametrosGuia)
@@ -205,7 +204,72 @@ namespace Capa_Usuario.Controllers
                         PageSize = Rotativa.Options.Size.A4,
                         PageMargins = new Rotativa.Options.Margins(65, 10, 20, 10)
                     };
-                    break;
+
+                    var pdfBytesGuia = pdfResult.BuildFile(ControllerContext);
+                    using (var pdfStream = new MemoryStream(pdfBytesGuia))
+                    using (var pdfReader = new PdfReader(pdfStream))
+                    using (var paginatedPdfStream = new MemoryStream())
+                    {
+                        using (PdfStamper stamper = new PdfStamper(pdfReader, paginatedPdfStream))
+                        {
+                            int totalPages = pdfReader.NumberOfPages;
+                            for (int i = 1; i <= totalPages; i++)
+                            {
+                                PdfContentByte content = stamper.GetUnderContent(i);
+                                iTextSharp.text.Font font = FontFactory.GetFont("Helvetica", BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 8);
+                                Phrase phrase = new Phrase($"Página {i} de {totalPages}", font);
+                                ColumnText.ShowTextAligned(content, Element.ALIGN_RIGHT, phrase, 570, 30, 0);
+                            }
+                        }
+                        using (var paginatedPdfReader = new PdfReader(paginatedPdfStream.ToArray()))
+                        {
+                            copy.AddDocument(paginatedPdfReader);
+                        }
+                    }
+
+                    // 2. PDF modificado (agencia)
+                    if (ortvE.LugarDestino != null && ortvE.LugarDestino.Contains("Agencia"))
+                    {
+                        var parametrosGuiaAgencia = new
+                        {
+                            NumAtCard,
+                            DocNumTicket = docNum,
+                            Tabla = documento.TablaSAP,
+                            agencia = true
+                        };
+                        string _headerUrlGuiaAgencia = Url.Action("LayoutGuia_header", "ComprobantesContables", parametrosGuiaAgencia, "http");
+                        var pdfResultAgencia = new ActionAsPdf("LayoutGuia", parametrosGuiaAgencia)
+                        {
+                            FileName = fileName,
+                            PageOrientation = Rotativa.Options.Orientation.Portrait,
+                            CustomSwitches = "--header-html " + _headerUrlGuiaAgencia + " --header-spacing 0 ",
+                            PageSize = Rotativa.Options.Size.A4,
+                            PageMargins = new Rotativa.Options.Margins(65, 10, 20, 10)
+                        };
+
+                        var pdfBytesGuiaAgencia = pdfResultAgencia.BuildFile(ControllerContext);
+                        using (var pdfStreamAgencia = new MemoryStream(pdfBytesGuiaAgencia))
+                        using (var pdfReaderAgencia = new PdfReader(pdfStreamAgencia))
+                        using (var paginatedPdfStreamAgencia = new MemoryStream())
+                        {
+                            using (PdfStamper stamper = new PdfStamper(pdfReaderAgencia, paginatedPdfStreamAgencia))
+                            {
+                                int totalPages = pdfReaderAgencia.NumberOfPages;
+                                for (int i = 1; i <= totalPages; i++)
+                                {
+                                    PdfContentByte content = stamper.GetUnderContent(i);
+                                    iTextSharp.text.Font font = FontFactory.GetFont("Helvetica", BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 8);
+                                    Phrase phrase = new Phrase($"Página {i} de {totalPages}", font);
+                                    ColumnText.ShowTextAligned(content, Element.ALIGN_RIGHT, phrase, 570, 30, 0);
+                                }
+                            }
+                            using (var paginatedPdfReaderAgencia = new PdfReader(paginatedPdfStreamAgencia.ToArray()))
+                            {
+                                copy.AddDocument(paginatedPdfReaderAgencia);
+                            }
+                        }
+                    }
+                    return; // <-- IMPORTANTE: salir del método para evitar el bloque final
             }
             var pdfBytes = pdfResult.BuildFile(ControllerContext);
             using (var pdfStream = new MemoryStream(pdfBytes))
@@ -314,11 +378,12 @@ namespace Capa_Usuario.Controllers
             }
             return (nota, tipoDocumento, subTipo);
         }
-        public ActionResult LayoutGuia_header(string NumAtCard, string DocNumTicket, string Tabla)
+        public ActionResult LayoutGuia_header(string NumAtCard, string DocNumTicket, string Tabla, bool agencia = false)
         {
             var guia = ObtenerGuia(NumAtCard, Tabla, "Cabecera");
             ViewBag.DocNumTicket = DocNumTicket;
             ViewBag.Tipo = Tabla.Equals("OWTR") ? "T" : "E";
+            ViewBag.Agencia = agencia;
             return View(guia);
         }
         public ActionResult LayoutGuia(string NumAtCard, string Tabla, int DocNumTicket)
