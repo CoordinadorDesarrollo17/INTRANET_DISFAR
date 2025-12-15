@@ -1504,7 +1504,7 @@ namespace Capa_Datos.Rutas_DAO.TablasSql
         LEFT OUTER JOIN vt.RTV3 T4 ON T4.DocEntry = T0.DocEntryTicket
         LEFT OUTER JOIN vt.ORTV T5 ON T5.DocEntry = T0.DocEntryTicket
         LEFT OUTER JOIN vt.RTV1 T1 ON T1.DocEntry = T0.DocEntryTicket
-        WHERE T0.DocEntry = @DocEntry
+        WHERE T0.DocEntry = @DocEntry AND T0.Estado <> 'LIBERADO'
         GROUP BY 
             T0.Guias,
             T0.DocNumTicket,
