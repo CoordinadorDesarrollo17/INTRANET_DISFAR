@@ -127,10 +127,14 @@ namespace Capa_Datos.Ventas_DAO.Tablas
         {
             string result = "";
             string query = "select t0.\"U_SYP_MDNT\" as \"Provedor\" from " + uti.schemaHana + "odln t0 " +
-                "inner join " + uti.schemaHana + "dln1 t1 on t1.\"DocEntry\"=t0.\"DocEntry\" " +
-                "inner join " + uti.schemaHana + "rdr1 t2 on t2.\"DocEntry\"=t1.\"BaseEntry\" and t2.\"ObjType\"=t1.\"BaseType\" and t2.\"ItemCode\"=t1.\"ItemCode\" " +
-                "where t0.\"CANCELED\"='N' and t2.\"DocEntry\"=" + DocEntryVenta +
-                " group by t0.\"U_SYP_MDNT\"";
+                           "inner join " + uti.schemaHana + "dln1 t1 on t1.\"DocEntry\"=t0.\"DocEntry\" " +
+                           "inner join " + uti.schemaHana + "rdr1 t2 on t2.\"DocEntry\"=t1.\"BaseEntry\" and t2.\"ObjType\"=t1.\"BaseType\" and t2.\"ItemCode\"=t1.\"ItemCode\" " +
+                           "where t0.\"CANCELED\"='N' and t2.\"DocEntry\"=" + DocEntryVenta +
+                           " and not exists (" +
+                               "select 1 from " + uti.schemaHana + "rin1 nc " +
+                               "inner join " + uti.schemaHana + "inv1 f on f.\"DocEntry\"=nc.\"BaseEntry\" and f.\"ObjType\"=nc.\"BaseType\" " +
+                               "where f.\"BaseEntry\"=t0.\"DocEntry\" and f.\"BaseType\"='15'" +
+                           ") group by t0.\"U_SYP_MDNT\"";
             HanaConnection cn = new HanaConnection(uti.cadHana);
             try
             {
