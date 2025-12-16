@@ -195,7 +195,8 @@ namespace Capa_Entidad.Ventas_ENT.Reportes
         public string Distrito2 { get; set; }
         public string Provincia2 { get; set; }
         public string Departamento2 { get; set; }
-        public decimal PesoTotalPedido { get; set; }               
+        public decimal PesoTotalPedido { get; set; }
+        public string FechaPesado { get; set; }
         public string FechaPagoTicket { get; set; }               
         public string HoraPagoTicket { get; set; }
         [DisplayName("Tipo Venta")]
