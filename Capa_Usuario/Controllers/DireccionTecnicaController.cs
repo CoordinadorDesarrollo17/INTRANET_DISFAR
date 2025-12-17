@@ -395,6 +395,9 @@ namespace Capa_Usuario.Controllers
                         ViewBag.DatosResponsable = datosFirma["NombApe"];
                         ViewBag.FirmaResponsable = datosFirma["Firma"];
                     }
+
+                    var firmaPersonaEntrega = BuscarFirmas("PersonaEntrega", result[0].CodAlmDestino);
+                    ViewBag.PersonaEntrega = firmaPersonaEntrega != null && firmaPersonaEntrega.Any() ? firmaPersonaEntrega["Firma"] : "";
                 }
                 return View(result);
             }
