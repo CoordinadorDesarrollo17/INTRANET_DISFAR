@@ -44,8 +44,11 @@
             cancelButtonText: 'Cancelar'
 
         }).then(result => {
-            if (result.value) {
-                $(location).attr('href', "/AtencionCliente/RevertirCulminarSolicitud?" + object);
+            if (result.isConfirmed) {
+                var form = $("#CulminarSolicitud");
+                form.attr('method', 'post');
+                form.attr('action', '/AtencionCliente/RevertirCulminarSolicitud');
+                form.submit();
             }
         });
     }
