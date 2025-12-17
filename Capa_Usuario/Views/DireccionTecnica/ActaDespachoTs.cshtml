@@ -133,7 +133,13 @@
 
         <td width="400" align="center" valign="bottom">
             <div style="border-bottom: solid 1px black; width: 80%; margin: 0 auto;">
-                <br /><br /><br /><br />
+                @if (ViewBag.PersonaEntrega != null)
+                {
+                    <img src="@ViewBag.PersonaEntrega" width="150" />
+                }
+                else
+                {
+                    <br /><br /><br /><br />}
             </div>
         </td>
     </tr>
