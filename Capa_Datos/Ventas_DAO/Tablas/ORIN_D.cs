@@ -119,6 +119,7 @@ namespace Capa_Datos.Ventas_DAO.Tablas
                             if (!hdr.IsDBNull(23)) { c.Impuesto = Math.Round(hdr.GetDecimal(23), 2); }
                             if (!hdr.IsDBNull(24)) { c.DocTotal = Math.Round(hdr.GetDecimal(24), 2); }
                             if (!hdr.IsDBNull(28)) { c.Motivo = hdr.GetString(28); }
+                            if (!hdr.IsDBNull(29)) { c.TipoDescripcionC = hdr.GetString(29); }
 
                             lista.Add(c);
                         }
@@ -151,7 +152,7 @@ namespace Capa_Datos.Ventas_DAO.Tablas
 
             if (DocEntry > 0)
             {
-                string query = $"CALL {uti.schemaHana}DIEGO_LYT_NC_ELECT ({DocEntry})";
+                string query = $"CALL {uti.schemaHana} DIEGO_LYT_NC_ELECT ({DocEntry})";
                 try
                 {
                     HanaDataReader hdr = db.HanaExecuteReaderNoSp(query);
@@ -192,6 +193,8 @@ namespace Capa_Datos.Ventas_DAO.Tablas
                             if (!hdr.IsDBNull(31)) { c.PreVentaNeto = Math.Round(hdr.GetDecimal(31), 2); }
                             if (!hdr.IsDBNull(32)) { c.PreUnitSinIgv = Math.Round(hdr.GetDecimal(32), 2); }
                             if (!hdr.IsDBNull(33)) { c.VencLote = hdr.GetDateTime(33).ToString("dd/MM/yyyy"); }
+                            
+                            if (!hdr.IsDBNull(34)) { c.TipoDescripcionC = hdr.GetString(34); }
 
                             lista.Add(c);
                         }
