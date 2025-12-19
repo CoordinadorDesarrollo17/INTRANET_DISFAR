@@ -253,29 +253,29 @@ function agregarItem(docEntry, docNum, cardName, guias, conducyPlaca, cajas, obs
 
         var fila = "<tr>" +
 
-            "<td><input name='DetRRU0[" + contDet + "].Linea' type='text' value='" + (contDet + 1) + "' style='width:40px' class='form-control' readonly/></td>" +
+            "<td class='text-center border-end border-start'><input name='DetRRU0[" + contDet + "].Linea' type='text' value='" + (contDet + 1) + "' style='width:40px' class='form-control' readonly/></td>" +
 
             "<td hidden><input name='DetRRU0[" + contDet + "].DocEntryTicket' id='DocEntryTDet" + contDet + "' type='text' value='" + docEntry + "'  class='form-control'  readonly/></td>" +
 
-            "<td><input name='DetRRU0[" + contDet + "].DocNumTicket' id='DocNumTDet" + contDet + "' type='text' value='" + docNum + "' style='width:110px' class='form-control' readonly/></td>" +
+            "<td class='text-center border-end'><input name='DetRRU0[" + contDet + "].DocNumTicket' id='DocNumTDet" + contDet + "' type='text' value='" + docNum + "' style='width:110px' class='form-control' readonly/></td>" +
 
-            "<td><input name='DetRRU0[" + contDet + "].Socio' type='text' value='" + cardName + "' style='width:200px' class='form-control' readonly/></td>" +
+            "<td class='text-center border-end'><input name='DetRRU0[" + contDet + "].Socio' type='text' value='" + cardName + "' style='width:200px' class='form-control' readonly/></td>" +
 
-            "<td><textarea name='DetRRU0[" + contDet + "].Guias' class='form-control' readonly rows='3'>" + guiasFormateadas + "</textarea></td>" +
+            "<td class='text-center border-end'><textarea name='DetRRU0[" + contDet + "].Guias' class='form-control' readonly rows='3'>" + guiasFormateadas + "</textarea></td>" +
 
-            "<td><textarea name='DetRRU0[" + contDet + "].ConducYPlaca' class='form-control' readonly rows='3'>" + conducyPlacaFormateada + "</textarea></td>" +
+            "<td class='text-center border-end'><textarea name='DetRRU0[" + contDet + "].ConducYPlaca' class='form-control' readonly rows='3'>" + conducyPlacaFormateada + "</textarea></td>" +
 
-            "<td><input name='DetRRU0[" + contDet + "].Cajas' type='text' value='" + cajas + "' style='width:40px' class='form-control' readonly/></td>" +
+            "<td class='text-center border-end'><input name='DetRRU0[" + contDet + "].Cajas' type='text' value='" + cajas + "' style='width:40px' class='form-control' readonly/></td>" +
 
-            "<td><input name='DetRRU0[" + contDet + "].Observaciones' type='text' value='" + obs + "' class='form-control' readonly/></td>" +
+            "<td class='text-center border-end'><input name='DetRRU0[" + contDet + "].Observaciones' type='text' value='" + obs + "' class='form-control' readonly/></td>" +
 
-            "<td><textarea name='DetRRU0[" + contDet + "].Direcciones' class='form-control' readonly>" + direcciones + "</textarea></td>" +
+            "<td class='text-center border-end'><textarea name='DetRRU0[" + contDet + "].Direcciones' class='form-control' readonly>" + direcciones + "</textarea></td>" +
 
-            "<td><input name='DetRRU0[" + contDet + "].MontoFinal' type='text' value='" + montoFinal + "' class='form-control' readonly/></td>" +
+            "<td class='text-center border-end'><input name='DetRRU0[" + contDet + "].MontoFinal' type='text' value='" + montoFinal + "' class='form-control' readonly/></td>" +
 
-            "<td><input name='DetRRU0[" + contDet + "].Envio' type='text' value='" + envio + "' class='form-control' readonly/></td>" +
+            "<td class='text-center border-end'><input name='DetRRU0[" + contDet + "].Envio' type='text' value='" + envio + "' class='form-control' readonly/></td>" +
 
-            "<td><a href='SeguimientoDeTicket?DocEntry=" + docEntry + "' target='_blank' style='cursor:pointer' class='btn btn-outline-primary' onclick=window.open(this.href,this.target,'width=500,height=350,top=120,left=100,toolbar=no,location=no,status=no,menubar=no');><i class='bi bi-truck'></i></a></td>";
+            "<td class='text-center border-end'><a href='SeguimientoDeTicket?DocEntry=" + docEntry + "' target='_blank' style='cursor:pointer' class='btn btn-outline-primary' onclick=window.open(this.href,this.target,'width=500,height=350,top=120,left=100,toolbar=no,location=no,status=no,menubar=no');><i class='bi bi-truck'></i></a></td>";
 
 
         // Agregar botones según si es para grabar o no
@@ -292,12 +292,11 @@ function agregarItem(docEntry, docNum, cardName, guias, conducyPlaca, cajas, obs
             }
 
 
-            fila += "<td colspan='2' class='d-flex justify-content-center' id='acc" + (contDet + 1) + "'>" +
-
-                "<button type='button' class='btn btn-outline-success mr-2' onclick='grabarLineaTabla(" + docEntryOrru + "," + (contDet + 1) + "," + docEntry + ")'><i class='bi bi-lock'></i> Grabar</button>" +
-
-                "<button type='button' class='btn btn-outline-danger' onclick='borrarLineaTabla(this)'><i class='bi bi-trash'></i></button>" +
-
+            fila += "<td colspan='2' class='text-center border-end' id='acc" + (contDet + 1) + "'>" +
+                "<div class='d-flex justify-content-center gap-2'>" +
+                "<button type='button' class='btn btn-outline-success d-flex align-items-center gap-1' onclick='grabarLineaTabla(" + docEntryOrru + "," + (contDet + 1) + "," + docEntry + ")'><i class='bi bi-lock'></i> <span>Grabar</span></button>" +
+                "<button type='button' class='btn btn-outline-danger d-flex align-items-center gap-1' onclick='borrarLineaTabla(this)'><i class='bi bi-trash'></i></button>" +
+                "</div>" +
                 "</td>";
 
         } else {
@@ -466,42 +465,42 @@ function liberarLineaTabla(DocEntry, Linea, DocEntryTicket, idreg) {
 
                 var parametros = { DocEntry, Linea, DocEntryTicket, comentarioLiberado };
 
-                $.ajax('/Rutas/liberarRRU0',
+                Swal.fire({
+                    title: 'Procesando',
+                    text: 'Por favor, espere...',
+                    allowEscapeKey: false,
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
 
-                {
+                $.ajax('/Rutas/liberarRRU0', {
                     data: parametros,
-
                     dataType: 'html',
-
                     cache: false,
-
                     type: 'post'
-
                 })
-                 .done(function (response) {
-                     if (response == "ok") {
-
-                         $("#" + idreg).css("background", "lightgray");
-
-                         Swal.fire(
-
-                             'Ticket liberado exitosamente',
-
-                             '',
-
-                             'success'
-
-                         )
-
-                     }
-
-                     else {
-
-                         swal.fire({ title: response, text: "Presione OK para continuar", icon: "warning" }); return false;
-
-                     }
-
-                 });
+                    .done(function (response) {
+                        Swal.close(); // Cierra el "cargando"
+                        if (response == "ok") {
+                            $("#" + idreg).css("background", "lightgray");
+                            Swal.fire(
+                                'Ticket liberado exitosamente',
+                                '',
+                                'success'
+                            ).then(function () {
+                                location.reload();
+                            });
+                        } else {
+                            swal.fire({ title: response, text: "Presione OK para continuar", icon: "warning" });
+                            return false;
+                        }
+                    })
+                    .fail(function () {
+                        Swal.close(); // Cierra el "cargando" si hay error
+                        Swal.fire('Error', 'Hubo un problema al procesar la solicitud', 'error');
+                    });
 
             }
 
@@ -540,36 +539,41 @@ function grabarLineaTabla(DocEntryRu, Linea, DocEntryTi) {
 
             var object = { "DocEntry": DocEntryRu, "Linea": Linea, "DocEntryTicket": DocEntryTi, "Guias": Guias, "ConducYPlaca": ConducYPlaca };
 
-                $.ajax('/Rutas/agregarRRU0',
+            Swal.fire({
+                title: 'Procesando',
+                text: 'Por favor, espere...',
+                allowEscapeKey: false,
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
 
+            $.ajax('/Rutas/agregarRRU0', {
+                data: object,
+                dataType: 'html',
+                cache: false,
+                type: 'post'
+            })
+            .done(function (response) {
+                Swal.close(); // Cierra el "cargando"
+                if (response != "ok") {
+                    swal.fire({ title: response, text: "Presione OK para continuar", icon: "warning" });
+                    return false;
+                } else {
+                    swal.fire({ title: 'Ticket agregado al detalle de ruta', text: "Presione OK para continuar", icon: "success" }).then(function () {
+                        location.reload();
+                    });
 
-                {
+                    $("#acc" + Linea).html("<button type='button' class='btn btn-blue btn-sm' onclick=liberarTrTable1(" + DocEntryRu + "," + Linea + "," + DocEntryTi + "," + '"' + 'reg' + Linea + '"' + ")><i class='icon icon-unlocked'>  </i>Liberar</button> ");
 
-                    data: object,
-
-                    dataType: 'html',
-
-                    cache: false,
-
-                    type: 'post'
-
-                })
-
-                .done(function (response) {
-
-                    if (response != "ok") { swal.fire({ title: response, text: "Presione OK para continuar", icon: "warning" }); return false }
-
-                    else {
-
-                        swal.fire({ title: 'Ticket agregado al detalle de ruta', text: "Presione OK para continuar", icon: "success" });
-
-                        $("#acc" + Linea).html("<button type='button' class='btn btn-blue btn-sm' onclick=liberarTrTable1(" + DocEntryRu + "," + Linea + "," + DocEntryTi + "," + '"' + 'reg' + Linea + '"' + ")><i class='icon icon-unlocked'>  </i>Liberar</button> ");
-
-                        return false
-
-                    }
-
-                });
+                    return false;
+                }
+            })
+            .fail(function () {
+                Swal.close(); // Cierra el "cargando" si hay error
+                Swal.fire('Error', 'Hubo un problema al procesar la solicitud', 'error');
+            });
 
         }
 
