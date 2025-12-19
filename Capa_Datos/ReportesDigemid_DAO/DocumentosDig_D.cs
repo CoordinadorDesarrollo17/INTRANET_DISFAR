@@ -638,6 +638,9 @@ namespace Capa_Datos.ReportesDigemid_DAO
                     if (!hdr.IsDBNull(31)) { n.PreVentaNeto = hdr.GetDecimal(31); }
                     if (!hdr.IsDBNull(32)) { n.PreUnitSinIgv = hdr.GetDecimal(32); }
                     if (!hdr.IsDBNull(33)) { n.VctoLote = hdr.GetDateTime(33).ToString("dd/MM/yyyy"); }
+
+                    if (!hdr.IsDBNull(34)) { n.TipoDescripcionC = hdr.GetString(34); }
+
                     lista.Add(n);
                 }
                 hdr.Close();

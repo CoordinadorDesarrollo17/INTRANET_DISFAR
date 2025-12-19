@@ -3,7 +3,7 @@
 @using Capa_Entidad.Rutas_ENT.TablasSql
 @{
     ViewBag.Title = "Editar Hoja de Reparto";
-    Layout = "~/Views/Shared/_Layout.cshtml";
+    Layout = "~/Views/Shared/_DefaultLayout.cshtml";
     string tituloHoja = string.Empty, tituloListado = string.Empty, urlActionBreadcrumb = string.Empty;
 
     List<ProvedorTrans> Provedor = new List<ProvedorTrans>(ViewBag.Provedor);
@@ -33,7 +33,7 @@
     }
 </style>
 <script>
-    $(document).ready(function () {
+    document.addEventListener('DOMContentLoaded', function () {
         listarTickets('@Model.Estado');
     });
     var contDet = 0;
@@ -63,17 +63,20 @@
     </div>
 </div>
 
+@using (Html.BeginForm(null, null, FormMethod.Post, new { id = "form" }))
+{
 
-<div class="bg-form-pestanas-cobefar">
+    <div class="bg-white px-3 py-3 align-items-center">
 
-    <div class="bg-section-form p-4 bg-form-cobefar">
-        @using (Html.BeginForm(null, null, FormMethod.Post, new { id = "form" }))
-        {
-
-            <input name="TipoRep" type="hidden" value="@ViewBag.TipoRep" readonly />
-            <input name="DocEntry" id="doc_entry" type="hidden" value="@Model.DocEntry" readonly />
-
-            <div class="row mb-4 mt-4">
+        <input name="TipoRep" type="hidden" value="@ViewBag.TipoRep" readonly />
+        <input name="DocEntry" id="doc_entry" type="hidden" value="@Model.DocEntry" readonly />
+        <h4 class="mt-0 mb-2 d-inline-block py-1 position-relative"
+            style="color: #009688; font-weight: bold; letter-spacing: 1px;">
+            <i class="bi bi-card-list" style="margin-right:8px;"></i> Datos Generales
+            <span style="display:block; height:3px; background: linear-gradient(90deg, #009688 0%, #26a69a 100%); border-radius:2px; margin-top:3px;"></span>
+        </h4>
+        <div class="bg-white bg-section-form p-3 bg-form-cobefar">
+            <div class="row mt-2">
                 <div class="col-lg-2">
                     <label for="TipoRuta" class="text-dark form-label font-weight-bold font-18">Tipo de Ruta:</label>
                     <input type="text" value="@Model.TipoRuta" id="TipoRuta" name="TipoRuta" class="text-center form-control border-success" readonly />
@@ -106,13 +109,13 @@
                 </div>
                 <div class="col-lg-2">
                     <label for="Zona" class="text-dark form-label font-weight-bold font-18">Zona:</label>
-                    <input id="Zona" class="form-control text-center border-success" value="@if (Model.DetRRU0 != null && Model.DetRRU0.Count() >= 1) { Write(Model.DetRRU0[0].Ticket.Zona);}" readonly />
+                    <input id="Zona" class="form-control text-center border-success" value="@if (Model.DetRRU0 != null && Model.DetRRU0.Count() >= 1) { Write(Model.DetRRU0[0].Ticket.Zona); }" readonly />
                 </div>
                 @if (Model.TipoRuta == "VG")
                 {
                     <div class="col-lg-2" id="DepartamentoDiv">
                         <label for="Departamento" class="text-dark form-label font-weight-bold font-18">Departamento:</label>
-                        <select id="Departamento" name="Departamento" class="form-control bg-cobefar text-white border-success" onchange="listarTickets('');">
+                        <select id="Departamento" name="Departamento" class="form-control form-select border-success" onchange="listarTickets('');">
                             <option value="">Seleccione</option>
                             @foreach (var dep in Ubigeos.Select(u => u.Departamento).Distinct().OrderBy(u => u))
                             {
@@ -123,21 +126,21 @@
 
                     <div class="col-lg-2" id="ProvinciaDiv">
                         <label for="Provincia" class="text-dark form-label font-weight-bold font-18">Provincia:</label>
-                        <select id="Provincia" name="Provincia" class="form-control bg-cobefar text-white border-success" onchange="listarTickets('');">
+                        <select id="Provincia" name="Provincia" class="form-control form-select border-success" onchange="listarTickets('');">
                             <option value="">Seleccione</option>
                         </select>
                     </div>
 
                     <div class="col-lg-2" id="DistritoDiv">
                         <label for="Distrito" class="text-dark form-label font-weight-bold font-18">Distrito:</label>
-                        <select id="Distrito" name="Distrito" class="form-control bg-cobefar text-white border-success" onchange="listarTickets('');">
+                        <select id="Distrito" name="Distrito" class="form-control form-select border-success" onchange="listarTickets('');">
                             <option value="">Seleccione</option>
                         </select>
                     </div>
 
                     <div class="col-lg-2" id="ProvedorDiv">
                         <label class="text-dark form-label font-weight-bold font-18">Proveedor Transporte:</label>
-                        <select id="ProveedorTrans" name="ProvDesc" class="form-control bg-cobefar text-white border-success">
+                        <select id="ProveedorTrans" name="ProvDesc" class="form-control form-select border-success">
                             <option value="">Seleccione</option>
                             @foreach (var x in Provedor)
                             {
@@ -210,8 +213,8 @@
                             {
                                 <option value="@x.ToUpper()" @if (Model.CopilDesc == x.ToUpper()) { <text> selected</text> }>
                                     @x.ToUpper()
-                            </option>
-                        }
+                                </option>
+                            }
                         </select>
                     </div>
 
@@ -223,13 +226,13 @@
                             {
                                 <option value="@x.ToUpper()" @if (Model.Copil2Desc == x.ToUpper()) { <text> selected</text> }>
                                     @x.ToUpper()
-                            </option>
-                        }
+                                </option>
+                            }
                         </select>
                     </div>
                 }
                 <div class="col-lg-2">
-                    <label class="text-dark form-label font-weight-bold font-18">Tiempo de entrega pactado: </label>
+                    <label class="text-dark form-label font-weight-bold font-18">Tiempo pactado: </label>
                     <input type="datetime-local" class="text-center form-control border-success" name="TiempoPac" id="TiempoPac" value="@Convert.ToDateTime(Model.TiempoPac).ToString("yyyy-MM-ddTHH:mm:ss")" />
                 </div>
 
@@ -244,180 +247,189 @@
                 </div>
             </div>
             <!--Boton de editar datos de cabecera-->
-            <div class="row align-content-between py-lg-4">
-                <div class="col-lg-10 align-bottom">
-                    <input type="checkbox" id="chk_verifTodos" onclick="seleccionarVerif()" /> <label for="chk_verifTodos" class="text-primary">Seleccionar Todos</label>
-                </div>
-                <div class="ml-auto mr-3 align-content-end">
-                    <button type="button" class="btn btn-cobefar-2 ml-2" id="btn-Agregar" onclick="agregarTicketsDetalle(true)"><i class="icon icon-plus">   </i> Agregar </button>
-                    <button type="button" class="btn btn-info" onclick="validarEnviarFormulario('@Model.Estado');">
-                        <i class="icon icon-pencil2"> </i> Editar
-                    </button>
-                </div>
-            </div>
+            <div class="row py-lg-4">
+                <div class="d-flex justify-content-between align-items-center">
+                    <!-- Izquierda: checkbox -->
+                    <div class="form-check d-inline-flex align-items-center">
+                        <input class="form-check-input me-2" type="checkbox" id="chk_verifTodos" onclick="seleccionarVerif()">
+                        <label class="form-check-label text-primary" for="chk_verifTodos">Seleccionar Todos</label>
+                    </div>
 
-
-            if (Model.DetRRU0 != null && Model.DetRRU0.Count > 0)
-            {
-                <div class="col-lg-12">
-                    <table id="detalleRuta" class="table table-light table-sm table-hover" cellspacing="0" width="100%">
-                        <thead class="bg-cobefar text-white">
-                            <tr>
-                                <th class="text-center" style="width: 20px"></th>
-                                <th class="text-center" style="width: 40px">#</th>
-                                <th hidden>DocEntryTicket</th>
-                                <th class="text-center" style="width: 110px">NroTicket</th>
-                                <th hidden>CodSocio</th>
-                                <th class="text-center" style="width:250px">Socio</th>
-                                <th class="text-center" style="width: 270px">Guías</th>
-                                <th class="text-center" style="width:350px">Conductor/Placa</th> <!-- ✅ AGREGAR ESTA COLUMNA -->
-                                <th class="text-center" style="width: 80px">Cajas</th>
-                                <th hidden>Obs.</th>
-                                <th hidden>Direcciones</th>
-                                <th class="text-center" style="width: 100px">Monto final</th>
-                                <th hidden>Envio</th>
-                                <th class="text-center" style="width: 100px">Tipo de venta</th>
-                                <th class="text-center" style="width: 110px">Fecha Entrega</th>
-                                <th class="text-center" style="width: 110px">Estado de pago</th>
-                                <th hidden>Vinculados</th>
-                            </tr>
-                        </thead>
-                    </table>
-                </div>
-
-
-                <h3 class="text-cobefar font-weight-bold mt-2">
-                    DETALLE DE RUTA<br />
-                </h3>
-                <div id="divDetalleRuta">
-                    <div class="mt-2">
-                        <table id="Detalles" class="table table-light table-md table-hover" cellspacing="0" width="100%">
-                            <thead class="bg-success">
-                                <tr>
-                                    <th class="text-center">#</th>
-                                    <th hidden>DocEntryT</th>
-                                    <th class="text-center">NroTicket</th>
-                                    <th class="text-center">Socio</th>
-                                    <th class="text-center">Guias</th>
-                                    <th class="text-center" style="width:350px">Conductor/Placa</th> <!-- ✅ AGREGAR ESTA COLUMNA -->
-                                    <th class="text-center">Cajas</th>
-                                    <th class="text-center">Obs.</th>
-                                    <th class="text-center">Direcciones</th>
-                                    <th class="text-center">MontoFinal</th>
-                                    <th class="text-center">Envio</th>
-                                    <th class="text-center"></th><!--Boton seguimiento-->
-                                    <th class="text-center"></th> <!--Boton liberar-->
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @{ string style = "";}
-                                @foreach (var det in Model.DetRRU0)
-                                {
-                                    if (det.Estado == "LIBERADO") { style = "background:lightgray;"; } else { style = ""; }
-                                    <tr id="reg@(det.Linea)" style="@style">
-                                        <td><input name='DetRRU0[@(det.Linea - 1)].Linea' type='hidden' class="form-control border-success" value='@det.Linea' style='width:40px;' readonly />@det.Linea</td>
-                                        <td hidden><input name='DetRRU0[@(det.Linea - 1)].DocEntryTicket' type='text' class="form-control border-success" value='@det.DocEntryTicket' style='width:80px;' readonly /></td>
-                                        <td><input name='DetRRU0[@(det.Linea - 1)].DocNumTicket' id="DocNumTDet@(det.Linea)" type='hidden' class="form-control border-success" value='@det.DocNumTicket' readonly />@det.DocNumTicket</td>
-                                        <td><input name='DetRRU0[@(det.Linea - 1)].Socio' type='hidden' class="form-control border-success" value='@det.Socio' style='width:100px;' readonly />@det.Socio</td>
-                                        <td><input name='DetRRU0[@(det.Linea - 1)].Guias' type='hidden' class="form-control border-success" value='@det.Guias' style='width:100px;' readonly />@det.Guias</td>
-                                        <td><input name='DetRRU0[@(det.Linea - 1)].ConducYPlaca' type='hidden' class="form-control border-success" value='@det.ConducYPlaca' style='width:100px;' readonly />@det.ConducYPlaca</td>
-                                        <td class="text-center"><input name='DetRRU0[@(det.Linea - 1)].Cajas' type='hidden' class="form-control border-success" value='@det.Cajas' readonly />@det.Cajas</td>
-                                        <td><input name='DetRRU0[@(det.Linea - 1)].Observaciones' type='hidden' class="form-control border-success" value='@det.Observaciones' style='width:100px;' readonly />@det.Observaciones</td>
-                                        <td><textarea name='DetRRU0[@(det.Linea - 1)].Direcciones' class="form-control border-success" readonly>@det.Direcciones</textarea></td>
-                                        <td class="text-center"><input name='DetRRU0[@(det.Linea - 1)].MontoFinal' type='hidden' class="form-control border-success" value='@det.MontoFinal' style='width:90px;' readonly />@det.MontoFinal</td>
-                                        <td class="text-center"><input name='DetRRU0[@(det.Linea - 1)].Envio' type='hidden' class="form-control border-success" value='@det.Envio' style='width:50px;' readonly />@det.Envio</td>
-                                        <td><a href='SeguimientoDeTicket?DocEntry=@det.DocEntryTicket' target='_blank' class="btn btn-outline-primary" style='cursor:pointer' onclick="window.open(this.href,this.target,'width=500,height=350,top=120,left=100,toolbar=no,location=no,status=no,menubar=no');"><i class="icon-truck"></i></a></td>
-                                        <td class="d-flex justify-content-center" colspan="2"><button type='button' class='btn btn-outline-danger' onclick='liberarLineaTabla(@det.DocEntry,@det.Linea,@det.DocEntryTicket,"reg@(det.Linea)")'><i class="icon icon-unlocked">  </i>Liberar</button></td>
-                                    </tr>
-                                }
-                            </tbody>
-                        </table>
+                    <div class="d-flex gap-2">
+                        <button type="button" class="btn btn-primary btn-sm" id="btn-Agregar" onclick="agregarTicketsDetalle(true)"> <i class="bi bi-plus-lg"></i> Agregar </button>
+                        <button type="button" class="btn btn-info" onclick="validarEnviarFormulario('@Model.Estado');">
+                            <i class="bi bi-check-lg"></i> Editar
+                        </button>
                     </div>
                 </div>
-
-            }
-
-            <script>
-                contDet=@Model.DetRRU0.Count
-            </script>
-
-        }
-    </div>
-</div>
-<!-- Modal para ver tickets no enviados-->
-<div class="modal" id="ModalTicketsNE" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-xl modal-dialog-centered" role="document">
-        <div class="modal-content">
-            <div class="modal-header bg-cobefar text-light">
-                <h5 class="modal-title" id="exampleModalLabel">Relación de tickets</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
             </div>
-            <div class="modal-body">
-                <div class="mt-2">
-                    <table id="tableModalNE" class="table table-bordered table-sm table-hover" cellspacing="0" width="100%">
-                        <thead class="bg-dark">
-                            <tr>
-                                <th class="text-center">DocNum</th>
-                                <th class="text-center">Fecha</th>
-                                <th class="text-center">Cliente</th>
-                                <th class="text-center">Monto Final</th>
-                            </tr>
-                        </thead>
-                        <tbody></tbody>
-                    </table>
+
+
+
+            <div class="col-lg-12 table-responsive">
+                <table id="detalleRuta" class="table table-sm table-hover cls-dataTable no-auto-dt table-striped" cellspacing="0" width="100%">
+                    <thead class="thead-cobefar bg-cobefar-6 text-white">
+                        <tr>
+                            <th class="text-center border-start"></th>
+                            <th class="text-center border-end">#</th>
+                            <th hidden>DocEntryTicket</th>
+                            <th class="text-center border-end">NroTicket</th>
+                            <th hidden>CodSocio</th>
+                            <th class="text-center border-end">Socio</th>
+                            <th class="text-center border-end">Guías</th>
+                            <th class="text-center border-end">Conductor/Placa</th>
+                            <th class="text-center border-end">Cajas</th>
+                            <th hidden>Obs.</th>
+                            <th hidden>Direcciones</th>
+                            <th class="text-center border-end">Monto final</th>
+                            <th hidden>Envio</th>
+                            <th class="text-center border-end">Tipo de venta</th>
+                            <th class="text-center border-end">Tiempo de entrega</th>
+                            <th class="text-center border-end">Tiempo de pago</th>
+                            <th hidden>Vinculados</th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+        </div>
+
+        <h4 class="mt-3 mb-2 d-inline-block py-1 position-relative"
+            style="color: #009688; font-weight: bold; letter-spacing: 1px;">
+            <i class="bi bi-card-list" style="margin-right:8px;"></i> Detalle de Ruta
+            <span style="display:block; height:4px; background: linear-gradient(90deg, #009688 0%, #26a69a 100%); border-radius:2px; margin-top:4px;"></span>
+        </h4>
+
+        <div class="col-lg-12 table-responsive" id="divDetalleRuta">
+            <table id="Detalles" class="table table-sm table-hover table-striped w-100" cellspacing="0" width="100%">
+                <thead class="thead-cobefar bg-cobefar-6 text-white">
+                    <tr>
+                        <th class="text-center border-start border-end">#</th>
+                        <th hidden>DocEntryT</th>
+                        <th class="text-center border-end">NroTicket</th>
+                        <th class="text-center border-end">Socio</th>
+                        <th class="text-center border-end">Guías</th>
+                        <th class="text-center border-end">Conductor/Placa</th>
+                        <th class="text-center border-end">Cajas</th>
+                        <th class="text-center border-end">Obs.</th>
+                        <th class="text-center border-end">Direcciones</th>
+                        <th class="text-center border-end">MontoFinal</th>
+                        <th class="text-center border-end">Envio</th>
+                        <th class="text-center border-end"></th><!--Boton seguimiento-->
+                        <th class="text-center border-end"></th> <!--Boton liberar-->
+                    </tr>
+                </thead>
+                <tbody>
+                    @{ string style = "";}
+                    @foreach (var det in Model.DetRRU0)
+                    {
+                        if (det.Estado == "LIBERADO") { style = "background:lightgray;"; } else { style = ""; }
+                        <tr id="reg@(det.Linea)" style="@style">
+                            <td class="text-center border-start border-end"><input name='DetRRU0[@(det.Linea - 1)].Linea' type='hidden' class="form-control border-success" value='@det.Linea' readonly />@det.Linea</td>
+                            <td hidden><input name='DetRRU0[@(det.Linea - 1)].DocEntryTicket' type='text' class="form-control border-success" value='@det.DocEntryTicket' readonly /></td>
+                            <td class="text-center border-end"><input name='DetRRU0[@(det.Linea - 1)].DocNumTicket' id="DocNumTDet@(det.Linea)" type='hidden' class="form-control border-success" value='@det.DocNumTicket' readonly />@det.DocNumTicket</td>
+                            <td class="text-center border-end"><input name='DetRRU0[@(det.Linea - 1)].Socio' type='hidden' class="form-control border-success" value='@det.Socio' readonly />@det.Socio</td>
+                            <td class="text-center border-end"><input name='DetRRU0[@(det.Linea - 1)].Guias' type='hidden' class="form-control border-success" value='@det.Guias' readonly />@det.Guias</td>
+                            <td class="text-center border-end"><input name='DetRRU0[@(det.Linea - 1)].ConducYPlaca' type='hidden' class="form-control border-success" value='@det.ConducYPlaca' readonly />@det.ConducYPlaca</td>
+                            <td class="text-center border-end"><input name='DetRRU0[@(det.Linea - 1)].Cajas' type='hidden' class="form-control border-success" value='@det.Cajas' readonly />@det.Cajas</td>
+                            <td class="text-center border-end"><input name='DetRRU0[@(det.Linea - 1)].Observaciones' type='hidden' class="form-control border-success" value='@det.Observaciones' readonly />@det.Observaciones</td>
+                            <td class="text-center border-end"><textarea name='DetRRU0[@(det.Linea - 1)].Direcciones' class="form-control border-success" readonly>@det.Direcciones</textarea></td>
+                            <td class="text-center border-end"><input name='DetRRU0[@(det.Linea - 1)].MontoFinal' type='hidden' class="form-control border-success" value='@det.MontoFinal' readonly />@det.MontoFinal</td>
+                            <td class="text-center border-end"><input name='DetRRU0[@(det.Linea - 1)].Envio' type='hidden' class="form-control border-success" value='@det.Envio' readonly />@det.Envio</td>
+                            <td class="text-center border-end"><a href='SeguimientoDeTicket?DocEntry=@det.DocEntryTicket' target='_blank' class="btn btn-outline-primary" style='cursor:pointer' onclick="window.open(this.href,this.target,'width=500,height=350,top=120,left=100,toolbar=no,location=no,status=no,menubar=no');"><i class="bi bi-truck"></i></a></td>
+                            <td class="text-center border-end">
+                                <button type="button" class="btn btn-outline-danger d-flex align-items-center gap-1"
+                                        onclick="liberarLineaTabla(@det.DocEntry,@det.Linea,@det.DocEntryTicket,'reg@(det.Linea)')">
+                                    <i class="bi bi-unlock"></i>
+                                    <span>Liberar</span>
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+
+        <script>
+             contDet=@Model.DetRRU0.Count
+        </script>
+
+        <!-- Modal para ver tickets no enviados-->
+        <div class="modal" id="ModalTicketsNE" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-xl modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header bg-cobefar text-light">
+                        <h5 class="modal-title" id="exampleModalLabel">Relación de tickets</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mt-2">
+                            <table id="tableModalNE" class="table table-bordered table-sm table-hover" cellspacing="0" width="100%">
+                                <thead class="bg-dark">
+                                    <tr>
+                                        <th class="text-center">DocNum</th>
+                                        <th class="text-center">Fecha</th>
+                                        <th class="text-center">Cliente</th>
+                                        <th class="text-center">Monto Final</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
-@if (!string.IsNullOrWhiteSpace(ViewBag.Mensaje))
-{
-    <script>
+                                    }
+    @if (!string.IsNullOrWhiteSpace(ViewBag.Mensaje))
+    {
+        <script>
      var mensaje = '@Html.Raw(ViewBag.Mensaje)';
         Swal.fire({
             text: mensaje,
             showConfirmButton: false,
             timer: 2000
         });
-    </script>
-}
-<script>
-    function listarDetalleGuia(baseEntry, linea, idTR, btnEditarDetalle) {
-        $.ajax({
-            url: '/Rutas/ObtenerDetalleOrdenRuta',
-            type: 'POST',
-            data: { BaseEntry: baseEntry, BaseLinea: linea, HabilitarBotonEditar: btnEditarDetalle },
-        }).done(function (response) {
-            Swal.fire(response.mensaje);
-            $('#baselinea_RRU11').val(linea);
-            if (response.existeDatos) {
-                $(".cls-colorFilaGuia").css('background-color', 'white');
-                $("#" + idTR).css('background-color', 'yellow');
-            }
-            $("#tbl_detRRu11 > tbody").html(response.lista);
-        });
+        </script>
     }
-    function editarDetalle() {
-        $.ajax({
-            url: '/Rutas/EditarDetalleOrdenRuta',
-            type: 'POST',
-            data: $('#frm_detalle').serialize() + '&BaseEntry=' + $('#doc_entry').val() + '&BaseLinea=' + $('#baselinea_RRU11').val(),
-            dataType: 'JSON',
-        }).done(function (response) {
-            Swal.fire({
-                confirmButtonColor: '#26653D',
-                closeOnCancel: false,
-                allowOutsideClick: false,
-                showCancelButton: false,
-                text: response.mensaje,
-            }).then((result) => {
-                if (result.isConfirmed && response.nrocajas == true) {
-                    location.reload();
+    <script>
+        function listarDetalleGuia(baseEntry, linea, idTR, btnEditarDetalle) {
+            $.ajax({
+                url: '/Rutas/ObtenerDetalleOrdenRuta',
+                type: 'POST',
+                data: { BaseEntry: baseEntry, BaseLinea: linea, HabilitarBotonEditar: btnEditarDetalle },
+            }).done(function (response) {
+                Swal.fire(response.mensaje);
+                $('#baselinea_RRU11').val(linea);
+                if (response.existeDatos) {
+                    $(".cls-colorFilaGuia").css('background-color', 'white');
+                    $("#" + idTR).css('background-color', 'yellow');
                 }
-            })
+                $("#tbl_detRRu11 > tbody").html(response.lista);
+            });
+        }
+        function editarDetalle() {
+            $.ajax({
+                url: '/Rutas/EditarDetalleOrdenRuta',
+                type: 'POST',
+                data: $('#frm_detalle').serialize() + '&BaseEntry=' + $('#doc_entry').val() + '&BaseLinea=' + $('#baselinea_RRU11').val(),
+                dataType: 'JSON',
+            }).done(function (response) {
+                Swal.fire({
+                    confirmButtonColor: '#26653D',
+                    closeOnCancel: false,
+                    allowOutsideClick: false,
+                    showCancelButton: false,
+                    text: response.mensaje,
+                }).then((result) => {
+                    if (result.isConfirmed && response.nrocajas == true) {
+                        location.reload();
+                    }
+                })
 
-        });
-    }
-</script>
+            });
+        }
+    </script>

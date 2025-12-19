@@ -389,7 +389,9 @@ namespace Capa_Datos.Almacen_DAO.TablasSql
             {
                 if (!string.IsNullOrWhiteSpace(Filtros.FechaDesde) && !string.IsNullOrWhiteSpace(Filtros.FechaHasta))
                 {
-                    condWhere += $" AND (SELECT TOP 1 FechaOperacion FROM al.cc_ORPD WHERE DocEntry = DEV.DocEntry AND Operacion = 'REGISTRAR') BETWEEN '{Filtros.FechaDesde}' AND '{Filtros.FechaHasta}'";
+                    condWhere += $" AND (SELECT TOP 1 FechaOperacion FROM al.cc_ORPD WHERE DocEntry = DEV.DocEntry " +
+                        $"AND Operacion = 'REGISTRAR' ORDER BY Id ASC) " +
+                        $" BETWEEN '{Filtros.FechaDesde}' AND '{Filtros.FechaHasta}'";
                 }
 
                 if (!string.IsNullOrWhiteSpace(Filtros.RefFactura))
@@ -425,8 +427,14 @@ namespace Capa_Datos.Almacen_DAO.TablasSql
             {
                 StringBuilder sb = new StringBuilder();
 
-                sb.Append("SELECT DEV.DocNum,DEV.Correlativo, (SELECT TOP 1 CONVERT(varchar,FechaOperacion ,103) FROM al.CC_ORPD WHERE DocEntry = DEV.DocEntry AND Operacion = 'REGISTRAR'), DEV.CardCode, DEV.CardName, CONVERT(varchar,DEV.FechaDevolucion,103) AS 'FechaDevolucion',  DEV.Estado, DET.ItemCode, DET.ItemName, DEV.WhsCode, DET.BatchNum, CONVERT(varchar,DET.ExpDate,103), DET.BuyUnitMsr, DET.Quantity,  DET.RefFactura, MD.Descripcion, SUB.Descripcion, DET.Observacion, DEV.Comentario,");
-                sb.Append(" (SELECT TOP 1 Operario FROM al.cc_ORPD WHERE DocEntry = DEV.DocEntry AND Operacion = 'REGISTRAR')");
+                sb.Append("SELECT DEV.DocNum, DEV.Correlativo, ");
+                sb.Append(" (SELECT TOP 1 CONVERT(varchar, FechaOperacion, 103) FROM al.cc_ORPD WHERE DocEntry = DEV.DocEntry AND Operacion = 'REGISTRAR' ORDER BY Id ASC), ");
+                sb.Append(" DEV.CardCode, DEV.CardName, CONVERT(varchar,DEV.FechaDevolucion,103) AS 'FechaDevolucion', DEV.Estado, DET.ItemCode, DET.ItemName, DEV.WhsCode, DET.BatchNum, CONVERT(varchar,DET.ExpDate,103), DET.BuyUnitMsr, DET.Quantity, DET.RefFactura, MD.Descripcion, SUB.Descripcion, DET.Observacion, DEV.Comentario,");
+                sb.Append(" ISNULL(");
+                sb.Append("   (SELECT TOP 1 Operario FROM al.cc_ORPD WHERE DocEntry = DEV.DocEntry AND Operacion = 'EDITAR' ORDER BY Id DESC), ");
+                sb.Append("   (SELECT TOP 1 Operario FROM al.cc_ORPD WHERE DocEntry = DEV.DocEntry AND Operacion = 'REGISTRAR' ORDER BY Id ASC)");
+                sb.Append(" ) AS OpFinal");
+
                 sb.Append(" FROM al.ORPD DEV");
                 sb.Append(" INNER JOIN al.RPD1 DET ON DET.DocEntry = DEV.DocEntry");
                 sb.Append(" INNER JOIN al.MotivosDevoluciones MD ON MD.IdMotivo = DET.Motivo");

@@ -44,6 +44,7 @@ namespace Capa_Entidad.ReportesDigemid_ENT.Reportes
         public decimal PreVentaNeto { get; set; }
         public decimal PreUnitSinIgv { get; set; }
         public string VctoLote { get; set; }
+        public string TipoDescripcionC { get; set; }
         //metodos
         public decimal cantVta()
         {

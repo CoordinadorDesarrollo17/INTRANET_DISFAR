@@ -55,6 +55,7 @@ namespace Capa_Entidad.Ventas_ENT.Tablas
         public string VencLote { get; set; }
         public string CodImpuesto { get; set; }
         public string UmLinea { get; set; }
+        public string TipoDescripcionC { get; set; }
         public string TotalL()
         {
             string toWords = "";

@@ -209,6 +209,9 @@ namespace Capa_Usuario.Controllers
             {
                 var user = (Usuario_E)Session["UsuarioId"];
                 var datosOrdenRuta = orruN.obtenerOrdenDeRuta(DocEntry);
+                datosOrdenRuta.DetRRU0 = datosOrdenRuta.DetRRU0
+                .Where(x => x.Estado != "LIBERADO")
+                .ToList();
                 var filtrosAlm = Array.Empty<string>();
                 var nombreVista = "EditarHojaDeReparto";
                 if (datosOrdenRuta?.TipoRuta == "TA")
