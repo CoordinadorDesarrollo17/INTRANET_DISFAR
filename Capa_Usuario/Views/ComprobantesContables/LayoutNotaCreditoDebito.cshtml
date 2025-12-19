@@ -27,8 +27,8 @@
 <body>
     <div>
         <div>
-            <table border="1" style="text-align:center;" >
-                <tr >
+            <table border="1" style="text-align:center;">
+                <tr>
                     <td>TIPO DE DOC.</td>
                     <td>SERIE Y CORRELATIVO</td>
                     <td>FECHA DEL DOCUMENTO</td>
@@ -57,100 +57,139 @@
                 </tr>
                 @foreach (var item in Model)
                 {
-                <tr style="text-align: center;page-break-inside:avoid;">
-                    <td style="width: 100px;">
-                        @if (item.Cantidad > 0) { Math.Round(Convert.ToDouble(item.Cantidad), 0); }
-                    </td>
-                    <td style="width: 400px;">
-                        @Html.DisplayFor(modelItem => item.DescripcionLinea)
-                    </td>
-                    <td style="width: 100px;">
-                        @Html.DisplayFor(modelItem => item.PrecioLinea)
-                    </td>
-                    <td style="width: 100px;">
-                        @Html.DisplayFor(modelItem => item.PrecioLinea)
-                    </td>
-                </tr>
+                    <tr style="text-align: center;page-break-inside:avoid;">
+                        <td style="width: 100px;">
+                            @if (item.Cantidad > 0) { Math.Round(Convert.ToDouble(item.Cantidad), 0); }
+                        </td>
+                        <td style="width: 400px;">
+                            @if (item.TipoDescripcionC != null && item.TipoDescripcionC.Trim() == "05")
+                            {
+                                <span>Descuento Especial</span>
+                            }
+                            else
+                            {
+                                @Html.DisplayFor(modelItem => item.DescripcionLinea)
+                            }
+                        </td>
+                        <td style="width: 100px;">
+                            @Html.DisplayFor(modelItem => item.PrecioLinea)
+                        </td>
+                        <td style="width: 100px;">
+                            @Html.DisplayFor(modelItem => item.PrecioLinea)
+                        </td>
+                    </tr>
                 }
             </table>
         }
         else if (ViewBag.Tipo == "ND")
         {
-    <table border="1">
-        <tr style="text-align:center">
-            <th style="width: 100px;">ITEM</th>
-            <th style="width: 400px;">DESCRIPCIÓN</th>
-            <th style="width: 100px;">VALOR<br />UNITARIO</th>
-            <th style="width: 100px;">PRECIO<br />VENTA</th>
-        </tr>
-        @foreach (var item in Model) { 
-        <tr style="page-break-inside: avoid;">
-            <td style="width: 100px;">
-                @Html.DisplayFor(modelItem => item.CodigoGasto)
-            </td>
-            <td style="width: 400px;">
-                @Html.DisplayFor(modelItem => item.DescripcionLinea)
-            </td>
-            <td style="width: 100px;">
-                @Html.DisplayFor(modelItem => item.PrecioLinea)
-            </td>
-            <td style="width: 100px;">
-                @Html.DisplayFor(modelItem => item.PrecioLinea)
-            </td>
-        </tr>
-        }
-    </table>
+            <table border="1">
+                <tr style="text-align:center">
+                    <th style="width: 100px;">ITEM</th>
+                    <th style="width: 400px;">DESCRIPCIÓN</th>
+                    <th style="width: 100px;">VALOR<br />UNITARIO</th>
+                    <th style="width: 100px;">PRECIO<br />VENTA</th>
+                </tr>
+                @foreach (var item in Model)
+                {
+                    <tr style="page-break-inside: avoid;">
+                        <td style="width: 100px;">
+                            @Html.DisplayFor(modelItem => item.CodigoGasto)
+                        </td>
+                        <td style="width: 400px;">
+                            @if (item.TipoDescripcionC != null && item.TipoDescripcionC.Trim() == "05")
+                            {
+                                <span>Descuento Especial</span>
+                            }
+                            else
+                            {
+                                @Html.DisplayFor(modelItem => item.DescripcionLinea)
+                            }
+                        </td>
+                        <td style="width: 100px;">
+                            @Html.DisplayFor(modelItem => item.PrecioLinea)
+                        </td>
+                        <td style="width: 100px;">
+                            @Html.DisplayFor(modelItem => item.PrecioLinea)
+                        </td>
+                    </tr>
+                }
+            </table>
 
         }
         else if (ViewBag.Tipo == "NC" && ViewBag.SubTipo == "I")
         {
-    <table border="1" style="text-align:center">
-        <tr>
-            <th style="width: 80px;">CANTIDAD</th>
-            <th style="width: 260px;">DESCRIPCION</th>
-            <th style="width: 50px;">LAB.</th>
-            <th style="width: 80px;">LOTE</th>
-            <th style="width: 100px;">FECHA<br />VENC.</th>
-            <th style="width: 100px;">PRECIO<br />UNIT.</th>
-            <th style="width: 80px;">DSCTO<br />%</th>
-            <th style="width: 100px;">V. VENTA<br />NETO</th>
-            <th style="width: 100px;">PRECIO<br />VENTA</th>
-        </tr>
-        @foreach (var item in Model)
-        {
-        <tr style="page-break-inside: avoid;">
-            <td style="width: 80px;">
-                @Math.Round(Convert.ToDouble(item.CantidadL), 0)
-                @if (item.UmLinea.Equals("PZA"))
-                {<span>PZA</span>}
-            </td>
-            <td style="width: 260px;">
-                @Html.DisplayFor(modelItem => item.DescripcionLinea)
-            </td>
-            <td style="width: 50px;">
-                @Html.DisplayFor(modelItem => item.Laboratorio)
-            </td>
-            <td style="width: 80px;">
-                @Html.DisplayFor(modelItem => item.LoteNum)
-            </td>
-            <td style="width: 100px;">
-                @Html.DisplayFor(modelItem => item.VencLote)
-            </td>
-            <td style="width: 100px;">
-                @Math.Round(item.F_ItemPrecio(), 2)
-            </td>
-            <td style="width: 80px;">
-                @Html.DisplayFor(modelItem => item.Descuento)
-            </td>
-            <td style="width: 100px;">
-                @Html.DisplayFor(modelItem => item.PreVentaNeto)
-            </td>
-            <td style="width: 100px;">
-                @Math.Round(item.ItemTotalxLot(), 2)
-            </td>
-        </tr>
-        }
-    </table>
+            <table border="1" style="text-align:center">
+                <tr>
+                    <th style="width: 80px;">CANTIDAD</th>
+                    <th style="width: 260px;">DESCRIPCION</th>
+                    <th style="width: 50px;">LAB.</th>
+                    <th style="width: 80px;">LOTE</th>
+                    <th style="width: 100px;">FECHA<br />VENC.</th>
+                    <th style="width: 100px;">PRECIO<br />UNIT.</th>
+                    <th style="width: 80px;">DSCTO<br />%</th>
+                    <th style="width: 100px;">V. VENTA<br />NETO</th>
+                    <th style="width: 100px;">PRECIO<br />VENTA</th>
+                </tr>
+                @* 1. LISTADO DE PRODUCTOS NORMALES (CUALQUIER CÓDIGO MENOS 05) *@
+                @foreach (var item in Model.Where(x => x.TipoDescripcionC == null || x.TipoDescripcionC.Trim() != "05"))
+                {
+                    <tr style="page-break-inside: avoid;">
+                        <td style="width: 80px;">
+                            @Math.Round(Convert.ToDouble(item.CantidadL), 0)
+                            @if (item.UmLinea.Equals("PZA"))
+                            {<span>PZA</span>}
+                        </td>
+                        <td style="width: 260px;">
+                            @Html.DisplayFor(modelItem => item.DescripcionLinea)
+                        </td>
+                        <td style="width: 50px;">
+                            @Html.DisplayFor(modelItem => item.Laboratorio)
+                        </td>
+                        <td style="width: 80px;">
+                            @Html.DisplayFor(modelItem => item.LoteNum)
+                        </td>
+                        <td style="width: 100px;">
+                            @Html.DisplayFor(modelItem => item.VencLote)
+                        </td>
+                        <td style="width: 100px;">
+                            @Math.Round(item.F_ItemPrecio(), 2)
+                        </td>
+                        <td style="width: 80px;">
+                            @Html.DisplayFor(modelItem => item.Descuento)
+                        </td>
+                        <td style="width: 100px;">
+                            @Html.DisplayFor(modelItem => item.PreVentaNeto)
+                        </td>
+                        <td style="width: 100px;">
+                            @Math.Round(item.ItemTotalxLot(), 2)
+                        </td>
+                    </tr>
+                }
+
+                @* 2. FILA ÚNICA PARA EL CASO 05 - DESCUENTO ESPECIAL *@
+                @{
+                    var listaSolo05 = Model.Where(x => x.TipoDescripcionC != null && x.TipoDescripcionC.Trim() == "05").ToList();
+                    if (listaSolo05.Any())
+                    {
+                    <tr style="page-break-inside: avoid;">
+                        <td style="width: 80px;">1.00</td>
+                        <td style="width: 260px;"><strong>DESCUENTO ESPECIAL</strong></td>
+                        <td style="width: 50px;"></td>
+                        <td style="width: 80px;"></td>
+                        <td style="width: 100px;"></td>
+                        <td style="width: 100px;"></td>
+                        <td style="width: 80px;">0.00</td>
+                        <td style="width: 100px;">
+                            @Math.Round(Cab.Tgrabado(Cab.Sum_Topgratuita(Model.ToList()), Cab.Sum_Tinafecto(Model.ToList())), 2)
+                        </td>
+                        <td style="width: 100px;">
+                            @Math.Round(Cab.TotalFactura(Cab.Sum_Topgratuita(Model.ToList())), 2)
+                        </td>
+                    </tr>
+                    }
+                }
+            </table>
 
         }
         <h6><strong>MOTIVO: </strong>@Cab.Motivo<br /><br /></h6>
@@ -226,7 +265,7 @@
                          <tr>
                              <td style="font-weight:600">Importe Total</td>
                              <td style="font-weight:600">S/</td>
-                             <td style="font-weight:600; text-align: right">@Math.Round((Math.Round(Cab.Impuesto, 2) + Cab.PreUnitSinIgv), 2)</td>
+                             <td style="font-weight:600, text-align: right">@Math.Round((Math.Round(Cab.Impuesto, 2) + Cab.PreUnitSinIgv), 2)</td>
                          </tr>
                      </table>
                  }
@@ -249,7 +288,7 @@
                          <tr>
                              <td style="font-weight:600">Importe Total</td>
                              <td style="font-weight:600">S/</td>
-                             <td style="font-weight:600; text-align: right"> @Math.Round(Cab.DocTotal, 2)</td>
+                             <td style="font-weight:600, text-align: right"> @Math.Round(Cab.DocTotal, 2)</td>
                          </tr>
                      </table>
                  }
@@ -292,7 +331,7 @@
                          <tr>
                              <td style="font-weight:600">Importe Total</td>
                              <td style="font-weight:600">S/</td>
-                             <td style="font-weight:600; text-align: right"> @Math.Round(Cab.TotalFactura(Cab.Sum_Topgratuita(Model.ToList())), 2)</td>
+                             <td style="font-weight:600, text-align: right"> @Math.Round(Cab.TotalFactura(Cab.Sum_Topgratuita(Model.ToList())), 2)</td>
                          </tr>
                      </table>
                  }
@@ -312,6 +351,12 @@
      </table>
 </body>
 </html>
+
+
+
+
+
+
 
 
 
