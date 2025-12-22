@@ -59,62 +59,39 @@
     <nav>
         <ol class="cd-breadcrumb bg-cobefar-degradado-1">
             <li><a href="@Url.Action("Sesion", "Index")">Inicio</a></li>
-            <li class="current"><em>Listado de repartos</em></li>
+            <li><a href="@Url.Action("ListadoRepartos", "Rutas")">Listado de repartos</a></li>
         </ol>
     </nav>
 </div>
 
 <div class="border-cabecera-seccion bg-cobefar-degradado-1 pb-2">
-    <div class="px-3 pt-3"><h3 class="titulo-seccion">LISTADO DE REPARTOS</h3></div>
+    <div class="px-3 pt-3">
+        <h3 class="titulo-seccion">LISTADO DE REPARTOS</h3>
+    </div>
 
     <div class="d-none d-sm-block pl-2 w-100 p-3">
         <div class="row">
-            <a href="@Url.Action("NuevaHojaDeReparto", "Rutas",new {TipoRep="Re" })" class="btn btn-success ml-2">
-                Hoja de reparto
+            <a href="@Url.Action("NuevaHojaDeReparto", "Rutas", new { TipoRep = "Re" })"
+               class="btn btn-success ml-2 shadow-sm d-flex align-items-center px-4 py-2">
+                <i class="icon-truck mr-2" style="font-size:1.2em;"></i>
+                <span>Hoja de reparto</span>
             </a>
-            <a href="@Url.Action("NuevaTransferenciaEntreAlmacenes", "Rutas",new {TipoRep="Re" })" class="btn btn-success ml-2">
-                Orden entre almacenes
+            <a href="@Url.Action("NuevaTransferenciaEntreAlmacenes", "Rutas", new { TipoRep = "Re" })"
+               class="btn btn-primary ml-2 shadow-sm d-flex align-items-center px-4 py-2">
+                <i class="icon-office mr-2" style="font-size:1.2em;"></i>
+                <span>Orden entre almacenes</span>
             </a>
-
-            <button data-toggle="modal" href="#ModalGestion" class="btn btn-warning d-none d-sm-none d-md-none d-lg-block d-xl-block ml-2">
-                <span>Módulo Gestión</span>
-            </button>
         </div>
     </div>
 </div>
 
-<div class="modal" id="ModalGestion" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
-        <div class="modal-content  border border-secondary">
-            <div class="modal-header bg-headerModals text-white">
-                <h5 class="modal-title" id="moduloGestionModal">MÓDULO PARA GESTIÓN</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span class="text-white" aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body bg-light">
-                <div class="d-flex justify-content-center">
-                    <a id="accion" href="@Url.Action("GestionarAgencias", "Repartos",new {TipoRep="Re" })" class="btn bg-cobefar-6 text-white d-none d-sm-none d-md-none d-lg-block d-xl-block">
-                        <i class="icon-home"></i> Agencias
-                    </a>
-                    <a id="accion" href="@Url.Action("GestionarOficinas", "Rutas",new {TipoRep="Re" })" class="btn bg-cobefar-6 text-white d-none d-sm-none d-md-none d-lg-block d-xl-block">
-                        <i class="icon-office"></i> Oficinas Courier
-                    </a>
-                    <a id="accion" href="@Url.Action("GestionarTarifarios", "Rutas",new {TipoRep="Re" })" class="btn bg-cobefar-6 text-white d-none d-sm-none d-md-none d-lg-block d-xl-block">
-                        <i class="icon-book"></i> Tarifario
-                    </a>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
 
 <form name="frm" id="filterForm">
     <div class="bg-white bg-form-cobefar p-3">
         <table class="table table-light table-sm table-hover cls-dataTable50" cellspacing="0" width="100%">
             <thead class="bg-cobefar-6">
                 <tr>
-                    <th class="text-center">
+                    <th class="text-center border-right ">
                         @Html.DisplayNameFor(model => model.DocNum)<br />
                         @if (o != null && o.DocNum > 0)
                         {
@@ -123,7 +100,7 @@
                         else
                         { <input class="form-control-sm border" type="text" name="DocNum" onchange="filtrar();" />}
                     </th>
-                    <th class="text-center">
+                    <th class="text-center border-right">
                         @Html.DisplayName("Tipo")<br />
                         <select name="TipoRuta" class="form-control-sm border" onchange="filtrar();">
                             <option value=""></option>
@@ -135,7 +112,7 @@
                             @* ELIMINADA OPCION DEVOLUCION DE AQUI *@
                         </select>
                     </th>
-                    <th class="text-center">
+                    <th class="text-center border-right">
                         Conductor<br />
                         <select name="TransDesc" class="form-control-sm border" onchange="filtrar();">
                             <option value=""></option>
@@ -145,7 +122,7 @@
                             }
                         </select>
                     </th>
-                    <th class="text-center">
+                    <th class="text-center border-right">
                         @Html.DisplayNameFor(model => model.TiempoPac)<br />
                         @if (o != null && o.TiempoPac != null)
                         {
@@ -154,7 +131,7 @@
                         else
                         { <input type="date" name="TiempoPac" class="form-control-sm border text-center" onchange="filtrar();" />}
                     </th>
-                    <th class="text-center">
+                    <th class="text-center border-right">
                         @Html.DisplayNameFor(model => model.Estado)<br />
                         <select name="Estado" class="form-control-sm border" onchange="filtrar();">
                             <option value=""></option>
@@ -164,8 +141,8 @@
                             <option value="ANULADO" @if (o != null && o.Estado == "ANULADO") { Write("selected"); }>ANULADO</option>
                         </select>
                     </th>
-                    <th class="text-center">Cajas</th>
-                    <th class="text-center" style="width: 200px;"></th>
+                    <th class="text-center border-right">Cajas</th>
+                    <th class="text-center border-right" style="width: 200px;"></th>
                 </tr>
             </thead>
             <tbody>
@@ -173,25 +150,25 @@
                 @foreach (var item in Model.Where(x => x.TipoRuta != "DE"))
                 {
                     <tr>
-                        <td class="text-center @if (ViewBag.DocNum == item.DocNum) { Write("bg-success"); } ">
+                        <td class="text-center border-right border-left border-bottom @if (ViewBag.DocNum == item.DocNum) { Write("bg-success"); } ">
                             @Html.DisplayFor(modelItem => item.DocNum)
                         </td>
-                        <td class="text-center">
+                        <td class="text-center border-right border-bottom">
                             @Html.DisplayFor(modelItem => item.TipoRuta)
                         </td>
-                        <td class="text-center">
+                        <td class="text-center border-right border-bottom">
                             @Html.DisplayFor(modelItem => item.TransDesc)
                         </td>
-                        <td class="text-center">
+                        <td class="text-center border-right border-bottom">
                             @Convert.ToDateTime(item.TiempoPac).ToString("dd/MM/yyyy") <br class="d-md-none" />@Convert.ToDateTime(item.TiempoPac).ToString("HH:mm")
                         </td>
-                        <td class="text-center">
+                        <td class="text-center border-right border-bottom">
                             @Html.DisplayFor(modelItem => item.Estado)
                         </td>
-                        <td class="text-center">
+                        <td class="text-center border-right border-bottom">
                             @Html.DisplayFor(modelItem => item.TotalCajas)
                         </td>
-                        <td class="text-center">
+                        <td class="text-center border-right border-bottom">
                             <div class="d-flex">
                                 @if (item.Estado.Equals("CREADO"))
                                 {
