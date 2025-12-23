@@ -562,7 +562,7 @@ function grabarLineaTabla(DocEntryRu, Linea, DocEntryTi) {
                     return false;
                 } else {
                     swal.fire({ title: 'Ticket agregado al detalle de ruta', text: "Presione OK para continuar", icon: "success" }).then(function () {
-                        location.reload();
+                        //location.reload();
                     });
 
                     $("#acc" + Linea).html("<button type='button' class='btn btn-blue btn-sm' onclick=liberarTrTable1(" + DocEntryRu + "," + Linea + "," + DocEntryTi + "," + '"' + 'reg' + Linea + '"' + ")><i class='icon icon-unlocked'>  </i>Liberar</button> ");
