@@ -175,6 +175,27 @@
             });
 		}
 
+        if (document.getElementsByClassName("cls-dataTable0").length > 0) {
+            $('.cls-dataTable0').DataTable({
+                "searching": true,
+                "ordering": false,
+                "scrollX": false,
+                pageLength: 50,
+                lengthMenu: [50, 100, 150],
+                "language": {
+                    "info": "Mostrando _START_ a _END_ de _TOTAL_ registros",
+                    "infoEmpty": "No hay registros disponibles",
+                    "infoFiltered": "(filtrado de _MAX_ registros totales)",
+                    "lengthMenu": "Mostrar _MENU_ registros por página",
+                    "search": "Buscar:",
+                    "loadingRecords": "Cargando...",
+                    "processing": "Procesando...",
+                    "zeroRecords": "No se encontraron registros"
+                }
+            });
+        }
+
+
 		if (document.getElementsByClassName("cls-dataTable50").length > 0) {
             $('.cls-dataTable50').DataTable({
                 "searching": true,

@@ -110,20 +110,6 @@ namespace Capa_Negocio.Rutas_NEG.TablasSql
                     throw new Exception("El ticket no tiene guias en linea " + o.Linea);
                 }
             }
-            ////buscar vinculados solo en caso de Domicilio para validar que todos son enviados juntos en la misma hoja de ruta.
-            //if (ortvE.LugarDestino == "Domicilio")
-            //{
-            //    var listTicketsVinculados = ortvN.BuscarVinculados(ortvE.DocEntry, ortvE.DocNum);
-            //    foreach (string DocNumVinculado in listTicketsVinculados)
-            //    {
-            //        //buscamos que el ticket vinculado se encuentre en la hoja de ruta creandose
-            //        var ticketEncontrado = orruE.DetRRU0.FirstOrDefault(detalle => Convert.ToString(detalle.DocNumTicket) == DocNumVinculado);
-            //        if (ticketEncontrado == null)
-            //        {
-            //            throw new Exception("El ticket: " + ortvE.DocNum + " no ha agregado a su ticket vinculado: " + DocNumVinculado + ". Esto es necesario para agregar a la hoja de ruta.");
-            //        }
-            //    }
-            //}
             rru0D.agregarRRU0(o);
         }
         public RRU0_E BuscarRRU0(int DocEntry, int Linea)
