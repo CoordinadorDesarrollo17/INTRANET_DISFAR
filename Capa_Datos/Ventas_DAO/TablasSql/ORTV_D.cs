@@ -3454,6 +3454,7 @@ AND YEAR(T0.FechaSapTicket) = 2025 AND ((SELECT  Estado FROM vt.BusquedaProducto
                             ticket.FechaSapTicket = (ticket.FechaSapTicket != null) ? Convert.ToDateTime(ticket.FechaSapTicket).ToString("dd/MM/yyyy") : null;
                             ticket.Det1 = obtenerDet1Ticket(ticket.DocEntry); if (ticket.Det1.Count == 0) { ticket.Det1 = null; }      //Datos de recojo
                             ticket.Det2 = obtenerDet2Ticket(ticket.DocEntry);
+                            ticket.Det3 = obtenerDet3Ticket(ticket.DocEntry);
 
                             var validLugarDestino = new List<string> { "Domicilio", "Agencia" };
                             if (validLugarDestino.Contains(ticket.LugarDestino))

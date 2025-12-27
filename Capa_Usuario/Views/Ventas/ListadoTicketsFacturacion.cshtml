@@ -587,7 +587,35 @@
     }
 </script>
 
+<script>
+    $(document).ready(function () {
+        // 1. Poblar el select de provincias con las provincias únicas de la tabla
+        var provincias = new Set();
+        $('#tablaFacturacion tbody tr').each(function () {
+            var provincia = $(this).data('provincia');
+            if (provincia && provincia !== "") {
+                provincias.add(provincia);
+            }
+        });
+        provincias = Array.from(provincias).sort();
+        provincias.forEach(function (prov) {
+            $('#filtroProvincia').append($('<option>', { value: prov, text: prov }));
+        });
 
+        // 2. Filtrar filas al cambiar el select
+        $('#filtroProvincia').on('change', function () {
+            var seleccion = $(this).val();
+            $('#tablaFacturacion tbody tr').each(function () {
+                var provincia = $(this).data('provincia');
+                if (seleccion === "" || provincia === seleccion) {
+                    $(this).show();
+                } else {
+                    $(this).hide();
+                }
+            });
+        });
+    });
+</script>
 <div class="pt-4">
     <nav>
         <ol class="cd-breadcrumb bg-cobefar-degradado-1">
@@ -675,6 +703,12 @@
                 <button type="button" class="btn btn-info" onclick="activarFiltroObservacion();">
                     Observación !
                 </button>
+            </div>
+            <div class="mx-2">
+                <select id="filtroProvincia" class="form-control-sm border">
+                    <option value="">Filtrar por provincia</option>
+                    @* Las opciones se llenarán por JS *@
+                </select>
             </div>
         </div>
 
@@ -770,6 +804,7 @@
                         { <input type="date" id="TiempoEntrega" name="TiempoEntrega" class="form-control-sm border" value="@Html.Raw(DateTime.Today)" onchange="filtrar();" />}
                     </th><!--10-->
                     <th>Persona de recojo </th><!--11-->
+                    <th>Direccion</th><!--11-->
                     <th></th><!--12-->
                     <th></th><!--13-->
                     <th></th><!--14-->
@@ -804,7 +839,7 @@
                         styleEmitirGuias = "border-bottom: 3px solid #dc3545;";
                     }
 
-                    <tr id="fila" class="@style @styleImpreso">
+                    <tr id="fila" class="@style @styleImpreso" data-provincia="@(item.Det3 != null && item.Det3.Count > 0 ? item.Det3[0].Provincia : "")">
                         <td style="@styleEmitirGuias">
                             @Html.DisplayFor(modelItem => item.FechaSapTicket)
                         </td>
@@ -908,6 +943,17 @@
                                 }
                             }
                         </td><!--11-->
+                        <td>
+                            @if (item.Det3 != null && item.Det3.Count > 0)
+                            {
+                                var distrito = item.Det3[0].Distrito ?? "";
+                                var provincia = item.Det3[0].Provincia ?? "";
+                                var departamento = item.Det3[0].Departamento ?? "";
+                                @(distrito + (string.IsNullOrEmpty(distrito) ? "" : "-") +
+                                provincia + (string.IsNullOrEmpty(provincia) ? "" : "-") +
+                                departamento)
+                            }
+                        </td>
                         <td style="@styleEmitirGuias">
                             @if (item.hayFinVerificar && item.ProductoPendiente == 0 && item.EstadoFacturacion == "PENDIENTE")
                             {
