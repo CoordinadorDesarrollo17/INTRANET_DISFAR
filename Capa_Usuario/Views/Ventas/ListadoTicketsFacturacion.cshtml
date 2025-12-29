@@ -587,7 +587,35 @@
     }
 </script>
 
+<script>
+    $(document).ready(function () {
+        // Poblar el select de departamentos con los valores únicos de la tabla
+        var departamentos = new Set();
+        $('#tablaFacturacion tbody tr').each(function () {
+            var departamento = $(this).data('departamento');
+            if (departamento && departamento !== "") {
+                departamentos.add(departamento);
+            }
+        });
+        departamentos = Array.from(departamentos).sort();
+        departamentos.forEach(function (dep) {
+            $('#filtroDepartamento').append($('<option>', { value: dep, text: dep }));
+        });
 
+        // Filtrar filas al cambiar el select
+        $('#filtroDepartamento').on('change', function () {
+            var seleccion = $(this).val();
+            $('#tablaFacturacion tbody tr').each(function () {
+                var departamento = $(this).data('departamento');
+                if (seleccion === "" || departamento === seleccion) {
+                    $(this).show();
+                } else {
+                    $(this).hide();
+                }
+            });
+        });
+    });
+</script>
 <div class="pt-4">
     <nav>
         <ol class="cd-breadcrumb bg-cobefar-degradado-1">
@@ -675,6 +703,12 @@
                 <button type="button" class="btn btn-info" onclick="activarFiltroObservacion();">
                     Observación !
                 </button>
+            </div>
+            <div class="mx-2">
+                <select id="filtroDepartamento" class="form-control-sm border">
+                    <option value="">Filtrar por departamento</option>
+                    @* Las opciones se llenarán por JS *@
+                </select>
             </div>
         </div>
 
@@ -770,6 +804,7 @@
                         { <input type="date" id="TiempoEntrega" name="TiempoEntrega" class="form-control-sm border" value="@Html.Raw(DateTime.Today)" onchange="filtrar();" />}
                     </th><!--10-->
                     <th>Persona de recojo </th><!--11-->
+                    <th>Direccion</th><!--11-->
                     <th></th><!--12-->
                     <th></th><!--13-->
                     <th></th><!--14-->
@@ -804,114 +839,125 @@
                         styleEmitirGuias = "border-bottom: 3px solid #dc3545;";
                     }
 
-                    <tr id="fila" class="@style @styleImpreso">
-                        <td style="@styleEmitirGuias">
-                            @Html.DisplayFor(modelItem => item.FechaSapTicket)
-                        </td>
-                        <td class="font-weight-bold" style="@styleEmitirGuias">
-                            @Html.DisplayFor(modelItem => item.DocNum)
-                        </td>
-                        <td style="@styleEmitirGuias">
-                            <span class="pl-2">@Html.DisplayFor(modelItem => item.CardName)</span>
-                        </td>
-                        <td style="@styleEmitirGuias">
-                            @if (item.Det2 != null)
-                            {
-                                <div class="pt-2">
-                                    @foreach (RTV2_E dt in item.Det2)
-                                    {
-                                        string styleObs = (@dt.Observaciones != "") ? "background-color: #00FFFF;color:black !important;" : "";
-                                        string colorTipoComprobante = "background-color: #FCC5CA;";
-                                        string lineheight = "line-height: 1;";
+<tr id="fila" class="@style @styleImpreso" data-departamento="@(item.Det3 != null && item.Det3.Count > 0 ? item.Det3[0].Departamento : "")" data-provincia="@(item.Det3 != null && item.Det3.Count > 0 ? item.Det3[0].Provincia : "")">
+    <td style="@styleEmitirGuias">
+        @Html.DisplayFor(modelItem => item.FechaSapTicket)
+    </td>
+    <td class="font-weight-bold" style="@styleEmitirGuias">
+        @Html.DisplayFor(modelItem => item.DocNum)
+    </td>
+    <td style="@styleEmitirGuias">
+        <span class="pl-2">@Html.DisplayFor(modelItem => item.CardName)</span>
+    </td>
+    <td style="@styleEmitirGuias">
+        @if (item.Det2 != null)
+        {
+            <div class="pt-2">
+                @foreach (RTV2_E dt in item.Det2)
+                {
+                    string styleObs = (@dt.Observaciones != "") ? "background-color: #00FFFF;color:black !important;" : "";
+                    string colorTipoComprobante = "background-color: #FCC5CA;";
+                    string lineheight = "line-height: 1;";
 
-                                        if (dt.TipoComprobante == "Factura")
-                                        {
-                                            colorTipoComprobante = "";
-                                        }
-                                        else if (dt.TipoComprobante == "Boleta")
-                                        {
-                                            colorTipoComprobante = "background-color: #E8C2F7;color:black !important;";
-                                        }
-                                        <p class="pl-2" style="@colorTipoComprobante @lineheight">@dt.Monto: @dt.TipoComprobante</p>
-                                        <p class="pl-2 text-sm-center" style="@styleObs">@dt.Observaciones</p>
-                                    }
+                    if (dt.TipoComprobante == "Factura")
+                    {
+                        colorTipoComprobante = "";
+                    }
+                    else if (dt.TipoComprobante == "Boleta")
+                    {
+                        colorTipoComprobante = "background-color: #E8C2F7;color:black !important;";
+                    }
+                    <p class="pl-2" style="@colorTipoComprobante @lineheight">@dt.Monto: @dt.TipoComprobante</p>
+                    <p class="pl-2 text-sm-center" style="@styleObs">@dt.Observaciones</p>
+                }
 
-                                    @if (item.LugarDestino != null)
-                                    {
-                                        if (item.LugarDestino.Equals("Centro") || item.LugarDestino.Equals("Arriola"))
-                                        {
-                                            <p class="pl-2">Origen: @item.AlmProcedencia</p>
-                                        }
-                                    }
-                                    else if (item.Det2.Count >= 1)
-                                    {
-                                        <p class="pl-2">Origen: @item.Det2.FirstOrDefault(y => y.Monto > 0 && y.AlmacenSalida != "06").AlmacenSalida</p>
-                                    }
-                                </div>
-                            }
-                        </td>
-                        <td style="@styleEmitirGuias">
-                            @Html.DisplayFor(modelItem => item.Zona)
-                            @if (item.zonaDistinta)
-                            {
-                                <button type="button" class="btn btn-danger btn-sm border-warning text-light font-weight-bold" data-toggle="tooltip" data-placement="top" title="ZONA POR CAMBIAR"><i class="icon-warning font-14"></i></button>
-                            }
-                        </td>
-                        <td style="@styleEmitirGuias">
-                            @Html.DisplayFor(modelItem => item.Vendedor)
-                        </td>
-                        <td style="@styleEmitirGuias">
-                            <label class="@if (item.Flete > 0) { Write("bg-warning px-2 py-1"); } else { Write("text-ligth"); }"> @Html.DisplayFor(modelItem => item.Flete)</label>
-                        </td>
-                        <td style="@styleEmitirGuias">
-                            @if (item.DescuentoNC > 0)
-                            {
-                                <label class="px-2 py-1" style="background-color:deepskyblue"> @Html.DisplayFor(modelItem => item.DescuentoNC)</label>
-                            }
-                            else
-                            {
-                                @Html.DisplayFor(modelItem => item.DescuentoNC)
-                            }
-                        </td>
-                        <td style="@styleEmitirGuias">
-                            @Html.DisplayFor(modelItem => item.Estado)
-                        </td>
+                @if (item.LugarDestino != null)
+                {
+                    if (item.LugarDestino.Equals("Centro") || item.LugarDestino.Equals("Arriola"))
+                    {
+                        <p class="pl-2">Origen: @item.AlmProcedencia</p>
+                    }
+                }
+                else if (item.Det2.Count >= 1)
+                {
+                    <p class="pl-2">Origen: @item.Det2.FirstOrDefault(y => y.Monto > 0 && y.AlmacenSalida != "06").AlmacenSalida</p>
+                }
+            </div>
+        }
+    </td>
+    <td style="@styleEmitirGuias">
+        @Html.DisplayFor(modelItem => item.Zona)
+        @if (item.zonaDistinta)
+        {
+            <button type="button" class="btn btn-danger btn-sm border-warning text-light font-weight-bold" data-toggle="tooltip" data-placement="top" title="ZONA POR CAMBIAR"><i class="icon-warning font-14"></i></button>
+        }
+    </td>
+    <td style="@styleEmitirGuias">
+        @Html.DisplayFor(modelItem => item.Vendedor)
+    </td>
+    <td style="@styleEmitirGuias">
+        <label class="@if (item.Flete > 0) { Write("bg-warning px-2 py-1"); } else { Write("text-ligth"); }"> @Html.DisplayFor(modelItem => item.Flete)</label>
+    </td>
+    <td style="@styleEmitirGuias">
+        @if (item.DescuentoNC > 0)
+        {
+            <label class="px-2 py-1" style="background-color:deepskyblue"> @Html.DisplayFor(modelItem => item.DescuentoNC)</label>
+        }
+        else
+        {
+            @Html.DisplayFor(modelItem => item.DescuentoNC)
+        }
+    </td>
+    <td style="@styleEmitirGuias">
+        @Html.DisplayFor(modelItem => item.Estado)
+    </td>
 
-                        @if (item.TiempoEntrega != null)
-                        {
-                            string styleTiempoEntrega = string.Empty;
-                            if (Convert.ToDateTime(item.TiempoEntrega).ToString("dd/MM/yyyy") == DateTime.Now.ToString("dd/MM/yyyy"))
-                            {
-                                styleTiempoEntrega = "background-color:#DEFF00;color:black !important;";
-                            }
-                            <td style="width: 130px; @styleTiempoEntrega @styleEmitirGuias">
-                                <div class="mx-2">@Convert.ToDateTime(item.TiempoEntrega).ToString("dd/MM/yyyy HH:mm:ss")</div>
-                            </td>
-                        }
-                        else
-                        {
-                            <td style="width: 130px; @styleEmitirGuias">
-                                <div class="mx-2">@Convert.ToDateTime(item.TiempoEntrega).ToString("dd/MM/yyyy HH:mm:ss")</div>
-                            </td>
-                        }
-                        <td style="max-width:200px; @styleEmitirGuias">
-                            @if (item.Det1 != null)
-                            {
-                                if (item.Det1.Count >= 1)
-                                {
-                                    if (item.Det1[0].NombrePer != null)
-                                    {
-                                        Write(item.Det1[0].NombrePer);
-                                        <br />
-                                        Write($"{item.Det1[0].TipoDocPer}: {item.Det1[0].DocPer}");
-                                    }
-                                }
-                            }
-                        </td><!--11-->
-                        <td style="@styleEmitirGuias">
-                            @if (item.hayFinVerificar && item.ProductoPendiente == 0 && item.EstadoFacturacion == "PENDIENTE")
-                            {
-                                <a class="btn btn-sm btn-light" data-toggle="tooltip" data-placement="top" title="Emitir guías" href="@Url.Action("EmitirGuiasTicketVenta", "Ventas", new
+    @if (item.TiempoEntrega != null)
+    {
+        string styleTiempoEntrega = string.Empty;
+        if (Convert.ToDateTime(item.TiempoEntrega).ToString("dd/MM/yyyy") == DateTime.Now.ToString("dd/MM/yyyy"))
+        {
+            styleTiempoEntrega = "background-color:#DEFF00;color:black !important;";
+        }
+        <td style="width: 130px; @styleTiempoEntrega @styleEmitirGuias">
+            <div class="mx-2">@Convert.ToDateTime(item.TiempoEntrega).ToString("dd/MM/yyyy HH:mm:ss")</div>
+        </td>
+    }
+    else
+    {
+        <td style="width: 130px; @styleEmitirGuias">
+            <div class="mx-2">@Convert.ToDateTime(item.TiempoEntrega).ToString("dd/MM/yyyy HH:mm:ss")</div>
+        </td>
+    }
+    <td style="max-width:200px; @styleEmitirGuias">
+        @if (item.Det1 != null)
+        {
+            if (item.Det1.Count >= 1)
+            {
+                if (item.Det1[0].NombrePer != null)
+                {
+                    Write(item.Det1[0].NombrePer);
+                    <br />
+                    Write($"{item.Det1[0].TipoDocPer}: {item.Det1[0].DocPer}");
+                }
+            }
+        }
+    </td><!--11-->
+    <td>
+        @if (item.Det3 != null && item.Det3.Count > 0)
+        {
+            var distrito = item.Det3[0].Distrito ?? "";
+            var provincia = item.Det3[0].Provincia ?? "";
+            var departamento = item.Det3[0].Departamento ?? "";
+            @(distrito + (string.IsNullOrEmpty(distrito) ? "" : "-") +
+                                provincia + (string.IsNullOrEmpty(provincia) ? "" : "-") +
+                                departamento)
+        }
+    </td>
+    <td style="@styleEmitirGuias">
+        @if (item.hayFinVerificar && item.ProductoPendiente == 0 && item.EstadoFacturacion == "PENDIENTE")
+        {
+            <a class="btn btn-sm btn-light" data-toggle="tooltip" data-placement="top" title="Emitir guías" href="@Url.Action("EmitirGuiasTicketVenta", "Ventas", new
                                         {
                                             DocEntry = item.DocEntry,
                                             EstadoPago = ViewBag.Ortv.EstadoPago,
@@ -928,14 +974,14 @@
                                             Zona = ViewBag.Ortv.Zona,
                                             zonaDistinta = ViewBag.Ortv.zonaDistinta
                                 })">
-                                    <i class="icon icon-file-text2 text-success"></i>
-                                </a>
-                            }
-                        </td>
-                        <td style="@styleEmitirGuias">
-                            @if (item.ProductoPendiente == 0 && item.EstadoFacturacion == "GRE EMITIDA")
-                            {
-                                <a href="@Url.Action("RevertirEmitirGuiasTicketVenta", "Ventas", new { DocEntry = item.DocEntry,
+                <i class="icon icon-file-text2 text-success"></i>
+            </a>
+        }
+    </td>
+    <td style="@styleEmitirGuias">
+        @if (item.ProductoPendiente == 0 && item.EstadoFacturacion == "GRE EMITIDA")
+        {
+            <a href="@Url.Action("RevertirEmitirGuiasTicketVenta", "Ventas", new { DocEntry = item.DocEntry,
                                     EstadoPago = ViewBag.Ortv.EstadoPago,
                                 TipoVenta = ViewBag.Ortv.TipoVenta,
                                 TiempoEntrega = ViewBag.Ortv.TiempoEntrega,
@@ -950,14 +996,14 @@
                                 Zona=ViewBag.Ortv.Zona ,
                                 zonaDistinta = ViewBag.Ortv.zonaDistinta
                                         })" type="button" target="_self" class="btn btn-sm btn-light" data-toggle="tooltip" data-placement="top" title="Revertir emisión de guías">
-                                    <i class="icon icon-blocked text-danger"></i>
-                                </a>
-                            }
-                        </td>
-                        <td style="@styleEmitirGuias">
-                            @if (item.ProductoPendiente == 0 && item.EstadoFacturacion == "GRE EMITIDA")
-                            {
-                                <a class="btn btn-sm btn-light" data-toggle="tooltip" data-placement="top" title="Facturar" href="@Url.Action( "FacturarTicketVenta", "Ventas", new { DocEntry = item.DocEntry,
+                <i class="icon icon-blocked text-danger"></i>
+            </a>
+        }
+    </td>
+    <td style="@styleEmitirGuias">
+        @if (item.ProductoPendiente == 0 && item.EstadoFacturacion == "GRE EMITIDA")
+        {
+            <a class="btn btn-sm btn-light" data-toggle="tooltip" data-placement="top" title="Facturar" href="@Url.Action( "FacturarTicketVenta", "Ventas", new { DocEntry = item.DocEntry,
                                     EstadoPago = ViewBag.Ortv.EstadoPago,
                                     TipoVenta = ViewBag.Ortv.TipoVenta,
                                     TiempoEntrega = ViewBag.Ortv.TiempoEntrega,
@@ -972,14 +1018,14 @@
                                     Zona = ViewBag.Ortv.Zona,
                                     zonaDistinta = ViewBag.Ortv.zonaDistinta
                                         })">
-                                    <i class="icon icon-file-text2 text-success"></i>
-                                </a>
-                            }
-                        </td>
-                        <td style="@styleEmitirGuias">
-                            @if (item.ProductoPendiente == 0 && item.EstadoFacturacion == "FACTURADO")
-                            {
-                                <a href="@Url.Action( "AnularFacturarTicketVenta", "Ventas", new { DocEntry = item.DocEntry,
+                <i class="icon icon-file-text2 text-success"></i>
+            </a>
+        }
+    </td>
+    <td style="@styleEmitirGuias">
+        @if (item.ProductoPendiente == 0 && item.EstadoFacturacion == "FACTURADO")
+        {
+            <a href="@Url.Action( "AnularFacturarTicketVenta", "Ventas", new { DocEntry = item.DocEntry,
                                 EstadoPago = ViewBag.Ortv.EstadoPago,
                                 TipoVenta = ViewBag.Ortv.TipoVenta,
                                 TiempoEntrega = ViewBag.Ortv.TiempoEntrega,
@@ -994,79 +1040,79 @@
                                 Zona = ViewBag.Ortv.Zona,
                                 zonaDistinta = ViewBag.Ortv.zonaDistinta
                                     })" type="button" target="_self" class="btn btn-sm btn-light" data-toggle="tooltip" data-placement="top" title="Anular Facturado">
-                                    <i class="icon icon-blocked text-danger"></i>
-                                </a>
-                            }
-                        </td>
-                        <td style="@styleEmitirGuias">
-                            <a href="@Url.Action( "SeguimientoDeTicket", "Ventas", new { DocEntry = item.DocEntry  } )" type="button" target="_blank" class="btn btn-sm btn-light" title="Seguimiento de ticket" data-toggle="tooltip" data-placement="top"
-                               onclick="window.open(this.href,this.target,'width=1200,height=650,top=120,left=100,toolbar=no,location=no,status=no,menubar=no'); return false;">
-                                <i class="icon-truck"></i>
-                            </a>
-                        </td>
-                        <td style="@styleEmitirGuias">
-                            @if (item.EstadoFacturacion == "GRE EMITIDA" || item.EstadoFacturacion == "FACTURADO")
-                            {
-                                <button type="button" class="btn btn-sm btn-light" onclick="abrirModalGuias(@item.DocEntry)" data-toggle="tooltip" data-placement="top" title="Ver Guías">
-                                    <span class="text-orange">Guia</span>
-                                </button>
-                            }
-                        </td>
-                        <td style="@styleEmitirGuias">
-                            @if (item.EstadoFacturacion == "FACTURADO")
-                            {
-                                <button type="button" class="btn btn-sm btn-light" onclick="abrirModalFB(@item.DocEntry)" data-toggle="tooltip" data-placement="top" title="Ver Facturas">
-                                    <span class="text-darkblue">Factura</span>
-                                </button>
-                            }
-                        </td>
-                        <td style="@styleEmitirGuias">
-                            @{
-                                var validStates = new List<string> { "PICKEANDO", "VERIFICANDO", "EMPACANDO", "EMPACADO", "PREENVIO", "ENVIADO", "PESADO", "ENTREGADO" };
-                                if (item.LugarDestino != null && validStates.Contains(item.Estado))
-                                {
+                <i class="icon icon-blocked text-danger"></i>
+            </a>
+        }
+    </td>
+    <td style="@styleEmitirGuias">
+        <a href="@Url.Action( "SeguimientoDeTicket", "Ventas", new { DocEntry = item.DocEntry  } )" type="button" target="_blank" class="btn btn-sm btn-light" title="Seguimiento de ticket" data-toggle="tooltip" data-placement="top"
+           onclick="window.open(this.href,this.target,'width=1200,height=650,top=120,left=100,toolbar=no,location=no,status=no,menubar=no'); return false;">
+            <i class="icon-truck"></i>
+        </a>
+    </td>
+    <td style="@styleEmitirGuias">
+        @if (item.EstadoFacturacion == "GRE EMITIDA" || item.EstadoFacturacion == "FACTURADO")
+        {
+            <button type="button" class="btn btn-sm btn-light" onclick="abrirModalGuias(@item.DocEntry)" data-toggle="tooltip" data-placement="top" title="Ver Guías">
+                <span class="text-orange">Guia</span>
+            </button>
+        }
+    </td>
+    <td style="@styleEmitirGuias">
+        @if (item.EstadoFacturacion == "FACTURADO")
+        {
+            <button type="button" class="btn btn-sm btn-light" onclick="abrirModalFB(@item.DocEntry)" data-toggle="tooltip" data-placement="top" title="Ver Facturas">
+                <span class="text-darkblue">Factura</span>
+            </button>
+        }
+    </td>
+    <td style="@styleEmitirGuias">
+        @{
+            var validStates = new List<string> { "PICKEANDO", "VERIFICANDO", "EMPACANDO", "EMPACADO", "PREENVIO", "ENVIADO", "PESADO", "ENTREGADO" };
+            if (item.LugarDestino != null && validStates.Contains(item.Estado))
+            {
 
-                                    <button type="button" onclick="generarHtmlComprobantes(@item.DocEntry,'@item.Estado','@item.LugarDestino');"
-                                            class="btn btn-light btn-sm text-danger"
-                                            data-placement="top"
-                                            title="Descargar Comprobantes"
-                                            data-toggle="tooltip">
-                                        <i class="icon icon-download"></i>
-                                    </button>
-                                }
-                            }
-                        </td>
-                        <td style="@styleEmitirGuias">
-                            <a href="#" class="btn btn-light" data-toggle="tooltip" data-placement="top" title="Imprimir" onclick="registrarImpresion(@item.DocEntry);">
-                                <i class="icon-printer text-cobefar"></i>
-                            </a>
-                        </td>
-                        <td style="@styleEmitirGuias">
-                            <a href="#" class="btn btn-light" data-toggle="tooltip" data-placement="top" title="Observación" onclick="cargarObservacion(@item.DocEntry); $('#modalObservacion_@item.DocEntry').modal('show'); return false;">
-                                <span class="icon icon-bubble2 text-primary"></span>
-                            </a>
-                            <!-- Modal Observación -->
-                            <div class="modal fade" id="modalObservacion_@item.DocEntry" tabindex="-1" role="dialog" aria-labelledby="modalObservacionLabel_@item.DocEntry" aria-hidden="true">
-                                <div class="modal-dialog" role="document">
-                                    <div class="modal-content">
-                                        <div class="modal-header">
-                                            <h5 class="modal-title" id="modalObservacionLabel_@item.DocEntry">Observación para Ticket @item.DocNum</h5>
-                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                                <span aria-hidden="true">&times;</span>
-                                            </button>
-                                        </div>
-                                        <div class="modal-body">
-                                            <textarea class="form-control" id="observacion_@item.DocEntry" rows="3" placeholder="Ingrese su observación aquí..." maxlength="400" oninput="validarObservacionInput(@item.DocEntry)"></textarea>
-                                        </div>
-                                        <div class="modal-footer">
-                                            <button type="button" class="btn btn-primary" onclick="guardarObservacion(@item.DocEntry)">Guardar</button>
-                                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </td>
-                    </tr>
+                <button type="button" onclick="generarHtmlComprobantes(@item.DocEntry,'@item.Estado','@item.LugarDestino');"
+                        class="btn btn-light btn-sm text-danger"
+                        data-placement="top"
+                        title="Descargar Comprobantes"
+                        data-toggle="tooltip">
+                    <i class="icon icon-download"></i>
+                </button>
+            }
+        }
+    </td>
+    <td style="@styleEmitirGuias">
+        <a href="#" class="btn btn-light" data-toggle="tooltip" data-placement="top" title="Imprimir" onclick="registrarImpresion(@item.DocEntry);">
+            <i class="icon-printer text-cobefar"></i>
+        </a>
+    </td>
+    <td style="@styleEmitirGuias">
+        <a href="#" class="btn btn-light" data-toggle="tooltip" data-placement="top" title="Observación" onclick="cargarObservacion(@item.DocEntry); $('#modalObservacion_@item.DocEntry').modal('show'); return false;">
+            <span class="icon icon-bubble2 text-primary"></span>
+        </a>
+        <!-- Modal Observación -->
+        <div class="modal fade" id="modalObservacion_@item.DocEntry" tabindex="-1" role="dialog" aria-labelledby="modalObservacionLabel_@item.DocEntry" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="modalObservacionLabel_@item.DocEntry">Observación para Ticket @item.DocNum</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <textarea class="form-control" id="observacion_@item.DocEntry" rows="3" placeholder="Ingrese su observación aquí..." maxlength="400" oninput="validarObservacionInput(@item.DocEntry)"></textarea>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" onclick="guardarObservacion(@item.DocEntry)">Guardar</button>
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </td>
+</tr>
                 }
             </tbody>
         </table>
