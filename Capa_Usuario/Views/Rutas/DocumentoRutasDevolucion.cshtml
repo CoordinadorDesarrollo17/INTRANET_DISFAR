@@ -28,7 +28,7 @@
                     <table width="100%">
                         <tr>
                             <td width="100" style="text-align: center; border: 1px solid;"><strong> <font size="@(ViewBag.Letra+1)">F/DBT-011</font></strong></td>
-                            <td style="text-align: center; border: 1px solid;" width="30"><strong>V1</strong></td>
+                            <td style="text-align: center; border: 1px solid;" width="30"><strong>V2</strong></td>
                         </tr>
                     </table>
                 </td>
@@ -54,30 +54,28 @@
                 <td width=270px><font size="@ViewBag.Letra">@Convert.ToDateTime(Model.TiempoPac).ToString("dd/MM/yyyy")</font></td>
             </tr>
             <tr>
-                <td colspan=10><font size="@ViewBag.Letra">CONDICIÓN ALMACENAMIENTO : T° 15°C-25°C</font></td>
-            </tr>
-            <tr>
                 <td><font size="@ViewBag.Letra"><strong>ALM: LLEGADA: </strong></font></td>
-                <td colspan="6">
-                    <font size="@ViewBag.Letra">
-                        <strong style="margin-right:30px">
-                            @Model2.AlmDestinoDesc
-                        </strong>
-                        <br />
-                        @Html.DisplayFor(model2 => model2.AlmDestinoDesc2)
-                    </font>
-                </td>
+                <td colspan="3">
+         <font size="@ViewBag.Letra">
+           <strong style="margin-right:30px">
+      @Model2.AlmDestinoDesc
+    </strong>
+              <br />
+  @Html.DisplayFor(model2 => model2.AlmDestinoDesc2)
+           </font>
+              </td>
+ <td colspan="2" style="text-align: right;">
+     <font size="@ViewBag.Letra">CONDICIÓN ALMACENAMIENTO : T° 15°C-25°C</font>
+        </td>
             </tr>
-        </table>
-        <table border=1 style='width: 1275px'>
+    </table>
+      <table border=1 style='width: 1275px'>
             <tr>
                 <th width=2%><font size="@ViewBag.Letra">#</font></th>
                 <th align=center width=10%><font size="@ViewBag.Letra">RAZÓN SOCIAL-RUC</font></th>
                 <th align=center width=12%><font size="@ViewBag.Letra">DIRECCIÓN PARTIDA</font></th>
                 <th align=center width=10%><font size="@ViewBag.Letra">NRO. DE GUIAS</font></th>
                 <th align=center width=5%><font size="@ViewBag.Letra"># BULTO</font></th>
-                <th align=center width=5%><font size="@ViewBag.Letra">HORA</font></th>
-                <th align=center width=18%><font size="@ViewBag.Letra">FIRMA Y/O SELLO DEL CLIENTE</font></th>
             </tr>
             @foreach (var det in Model2.DetRRU0.Where(x => x.Estado != "LIBERADO").OrderBy(x => x.Linea).ToList())
             {
@@ -101,35 +99,23 @@
                     </td>
                     <td><font size="@ViewBag.Letra">@det.Guias</font></td>
                     <td style='text-align: center;'><font size="@ViewBag.Letra">@det.Cajas</font></td>
-                    <td style='text-align: center;'><font size="@ViewBag.Letra">:</font></td>
-                    <td style='text-align: justify; word-wrap: break-word;'><font size="@ViewBag.Letra">_</font></td>
                 </tr>
             }
         </table>
 
-        <table border=0>
-            <tr>
-                <td height=50px></td>
-                <td></td>
-                <td></td>
-                <td align=center><font size="@ViewBag.Letra"></font></td>
-            </tr>
-            <tr>
-                <td width=100px><font size="@ViewBag.Letra"></font></td>
-                <td><font size="@ViewBag.Letra"></font></td>
-                <td><font size="@ViewBag.Letra"></font></td>
-                <td width=600px><font size="@ViewBag.Letra"></font></td>
-                <td><font size="@ViewBag.Letra"></font></td>
-                <td><font size="@ViewBag.Letra"></font></td>
-            </tr>
-            <tr>
-                <td><font size="@ViewBag.Letra"></font></td>
-                <td><font size="@ViewBag.Letra">TRANSPORTISTA </font></td>
-                <td><font size="@ViewBag.Letra"></font></td>
-                <td><font size="@ViewBag.Letra"></font></td>
-                <td><font size="@ViewBag.Letra">VIGILANCIA</font></td>
-                <td><font size="@ViewBag.Letra"></font></td>
-            </tr>
+        <table border=0 style="width: 1275px; margin-top: 100px;">
+        <tr>
+     <td width="50%" style="text-align: center;">
+                  <div style="border-top: 1px solid black; width: 300px; margin: 0 auto; padding-top: 5px;">
+   <font size="@ViewBag.Letra"><strong>TRANSPORTISTA</strong></font>
+        </div>
+      </td>
+                <td width="50%" style="text-align: center;">
+            <div style="border-top: 1px solid black; width: 300px; margin: 0 auto; padding-top: 5px;">
+        <font size="@ViewBag.Letra"><strong>VIGILANCIA</strong></font>
+       </div>
+    </td>
+  </tr>
         </table>
 
         <table width="100%">
