@@ -900,5 +900,54 @@ namespace Capa_Usuario.Controllers
             var lista = new ORTV_N().obtenerOrdenDeVenta(filtros.DocNum);
             return View("~/Views/Ventas/PDF/PDF_OrdenesDeVentas.cshtml", lista);
         }
+
+        public JsonResult GenerarPDFNotaCredito(int DocEntry)
+        {
+            try
+            {
+                var datos = dgN.ConsultarNotaCreditoVentaArticulos(DocEntry);
+
+                if (datos == null || !datos.Any())
+                {
+                    return Json(new { success = false, message = "No se encontraron datos" }, JsonRequestBehavior.AllowGet);
+                }
+
+                var cab = datos.First();
+                string fileName = $"NotaCredito_{cab.SerieDoc}_{cab.CorreDoc}.pdf";
+
+                var pdfResult = new ViewAsPdf("NotaDeCreditoVentaArticulos", datos)
+                {
+                    FileName = fileName,
+                    PageSize = Rotativa.Options.Size.A4,
+                    PageOrientation = Rotativa.Options.Orientation.Portrait
+                };
+
+                byte[] pdfBytes = pdfResult.BuildFile(ControllerContext);
+
+                // Guardar en servidor
+                string rutaArchivo = Path.Combine(new Utilitarios_N().directorioFileServer, "NotasCredito", fileName);
+                Directory.CreateDirectory(Path.GetDirectoryName(rutaArchivo));
+                System.IO.File.WriteAllBytes(rutaArchivo, pdfBytes);
+
+                string fileUrl = Url.Action("DescargarNotaCredito", "DireccionTecnica", new { fileName }, Request.Url.Scheme);
+
+                return Json(new { success = true, fileUrl }, JsonRequestBehavior.AllowGet);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        public ActionResult DescargarNotaCredito(string fileName)
+        {
+            string filePath = Path.Combine(new Utilitarios_N().directorioFileServer, "NotasCredito", fileName);
+
+            if (!System.IO.File.Exists(filePath))
+                return HttpNotFound();
+
+            Response.AppendHeader("Content-Disposition", "inline; filename=" + fileName);
+            return File(filePath, "application/pdf");
+        }
     }
 }
