@@ -67,31 +67,30 @@
         window.location.href = '/Ventas/PdfTacoComentarios?DocEntry=' + docEntry;
     }
 
-    // Inicialización de SlimSelect para los filtros cuando el DOM esté listo
+    // Inicialización robusta de SlimSelect para los filtros cuando el DOM esté listo
     document.addEventListener("DOMContentLoaded", function () {
-        var slimEstadoPago = new SlimSelect({
-            select: '#EstadoPago',
-            settings: { showSearch: false },
-            events: {
-                afterChange: filtrar
-            }
-        });
-
-        var slimLugarDestino = new SlimSelect({
-            select: '#LugarDestino',
-            settings: { showSearch: false },
-            events: {
-                afterChange: filtrar
-            }
-        });
-
-        var slimAlmProcedencia = new SlimSelect({
-            select: '#AlmProcedencia',
-            settings: { showSearch: false },
-            events: {
-                afterChange: filtrar
-            }
-        });
+        console.log("DOM completamente cargado");
+        if (document.getElementById('EstadoPago')) {
+            new SlimSelect({
+                select: '#EstadoPago',
+                settings: { showSearch: false },
+                events: { afterChange: filtrar }
+            });
+        }
+        if (document.getElementById('LugarDestino')) {
+            new SlimSelect({
+                select: '#LugarDestino',
+                settings: { showSearch: false },
+                events: { afterChange: filtrar }
+            });
+        }
+        if (document.getElementById('AlmProcedencia')) {
+            new SlimSelect({
+                select: '#AlmProcedencia',
+                settings: { showSearch: false },
+                events: { afterChange: filtrar }
+            });
+        }
     });
 </script>
 
@@ -297,7 +296,7 @@
                                 <td class="text-center border-end">
                                     @if (item.Estado.Equals("ABIERTO"))
                                     {
-                                        <a class="btn btn-sm btn-light" href="@Url.Action( "PdfTacoComentarios", "Ventas", new { DocEntry = item.DocEntry  } )" data-toggle="tooltip" data-placement="top" title="PDF Taco Comentarios">
+                                        <a class="btn btn-sm btn-light" href="@Url.Action("PdfTacoComentarios", "Ventas", new { DocEntry = item.DocEntry }, protocol: "https")" data-toggle="tooltip" data-placement="top" title="PDF Taco Comentarios">
                                             <i class="bi bi-file-earmark-pdf text-danger bordered"></i>
                                         </a>
                                     }
@@ -327,5 +326,13 @@
 
 @if (Request["DescargarPDF"] == "1")
 {
-    <script>Swal.fire('En breve se descargará el TacoComentario.pdf'); descargarTacoComentarios(document.getElementById('pdf_taco_comentarios').value);</script>
+    <script>
+        Swal.fire('En breve se descargará el TacoComentario.pdf');
+        document.addEventListener("DOMContentLoaded", function () {
+            setTimeout(function () {
+                var docEntry = document.getElementById('pdf_taco_comentarios').value;
+                window.open('/Ventas/PdfTacoComentarios?DocEntry=' + docEntry, '_blank');
+            }, 3000);
+        });
+    </script>
 }
