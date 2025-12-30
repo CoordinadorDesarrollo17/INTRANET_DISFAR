@@ -42,6 +42,7 @@ namespace Capa_Datos.Rutas_DAO.TablasSql
         {
             ORTV_D ortvD = new ORTV_D(); ORRU_D orruD = new ORRU_D(); List<RRU0_E> lis = new List<RRU0_E>();
             SqlConnection cn = new SqlConnection(uti.cadSql);
+            ORRU_E x = orruD.obtenerOrdenDeRuta(o.DocEntry);
             try
             {
                 cn.Open();
@@ -56,7 +57,6 @@ namespace Capa_Datos.Rutas_DAO.TablasSql
                     cmd.Parameters.AddWithValue("@TipoMantenimiento", "IDR");
                     cmd.Parameters.AddWithValue("@DocEntry", o.DocEntry).Direction = ParameterDirection.InputOutput;
                     cmd.Parameters.AddWithValue("@DocNum", 0).Direction = ParameterDirection.Output;
-                    var x = orruD.obtenerOrdenDeRuta(o.DocEntry);
                     cmd.Parameters.AddWithValue("@Estado", x.Estado);
                     cmd.Parameters.AddWithValue("@Linea", x.DetRRU0.Count() + 1);
                     lis.Add(o);
