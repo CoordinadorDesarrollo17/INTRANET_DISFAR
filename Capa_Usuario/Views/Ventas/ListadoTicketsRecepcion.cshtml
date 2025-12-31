@@ -67,31 +67,30 @@
         window.location.href = '/Ventas/PdfTacoComentarios?DocEntry=' + docEntry;
     }
 
-    // Inicialización de SlimSelect para los filtros cuando el DOM esté listo
+    // Inicialización robusta de SlimSelect para los filtros cuando el DOM esté listo
     document.addEventListener("DOMContentLoaded", function () {
-        var slimEstadoPago = new SlimSelect({
-            select: '#EstadoPago',
-            settings: { showSearch: false },
-            events: {
-                afterChange: filtrar
-            }
-        });
-
-        var slimLugarDestino = new SlimSelect({
-            select: '#LugarDestino',
-            settings: { showSearch: false },
-            events: {
-                afterChange: filtrar
-            }
-        });
-
-        var slimAlmProcedencia = new SlimSelect({
-            select: '#AlmProcedencia',
-            settings: { showSearch: false },
-            events: {
-                afterChange: filtrar
-            }
-        });
+        console.log("DOM completamente cargado");
+        if (document.getElementById('EstadoPago')) {
+            new SlimSelect({
+                select: '#EstadoPago',
+                settings: { showSearch: false },
+                events: { afterChange: filtrar }
+            });
+        }
+        if (document.getElementById('LugarDestino')) {
+            new SlimSelect({
+                select: '#LugarDestino',
+                settings: { showSearch: false },
+                events: { afterChange: filtrar }
+            });
+        }
+        if (document.getElementById('AlmProcedencia')) {
+            new SlimSelect({
+                select: '#AlmProcedencia',
+                settings: { showSearch: false },
+                events: { afterChange: filtrar }
+            });
+        }
     });
 </script>
 
@@ -138,196 +137,202 @@
                     </select>
                 </div>
             </div>
+            <div class="bg-white bg-form-cobefar">
+                <table class="table table-sm table-hover cls-dataTable50 font-14" width="100%" cellspacing="0">
+                    <thead class="thead-cobefar bg-cobefar-6 text-white">
+                        <tr>
+                            <th class="text-center border-start border-end">
+                                @Html.DisplayNameFor(model => model.DocNum)
+                                <br />
+                                @if (ViewBag.Ortv != null && ViewBag.Ortv.DocNum > 0)
+                                {
+                                    <input type="text" name="DocNum" class="form-control-sm border w-75" onchange="filtrar();" value="@ViewBag.Ortv.DocNum" autocomplete="off" />
+                                }
+                                else
+                                {
+                                    <input type="text" name="DocNum" class="form-control-sm border w-75" onchange="filtrar();" />
+                                }
+                            </th>
+                            <th class="text-center border-end">
+                                Fecha ticket
+                                <br />
+                                @if (ViewBag.Ortv != null && ViewBag.Ortv.FechaSapTicket != null)
+                                {
+                                    <input type="date" name="FechaSapTicket" style="font-size:12px;" class="form-control-sm border" value="@ViewBag.Ortv.FechaSapTicket" onchange="filtrar();" />
+                                }
+                                else
+                                {
+                                    <input type="date" name="FechaSapTicket" style="font-size:12px;" class="form-control-sm border" onchange="filtrar();" />
+                                }
+                            </th>
+                            <th class="text-center border-end">
+                                <span class="pl-2">@Html.DisplayNameFor(model => model.CardName)</span>
+                                @if (ViewBag.Ortv != null && ViewBag.Ortv.CardName != null)
+                                {
+                                    <input type="text" name="CardName" class="form-control-sm border w-100" onchange="filtrar();" value="@ViewBag.Ortv.CardName" autocomplete="off" />
+                                }
+                                else
+                                {
+                                    <input type="text" name="CardName" class="form-control-sm border w-100" onchange="filtrar();" />
+                                }
+                            </th>
+                            <th class="text-center border-end">Orden de venta SAP</th>
+                            <th class="text-center border-end">
+                                @Html.DisplayNameFor(model => model.Vendedor)
+                                <br />
+                                @if (ViewBag.Ortv != null && ViewBag.Ortv.Vendedor != null)
+                                {
+                                    <input type="text" name="Vendedor" class="form-control-sm border" onchange="filtrar();" value="@ViewBag.Ortv.Vendedor" />
+                                }
+                                else
+                                {
+                                    <input type="text" name="Vendedor" class="form-control-sm border" onchange="filtrar();" />
+                                }
+                            </th>
+                            <th class="text-center border-end">
+                                Monto total
+                            </th>
+                            <th class="text-center border-end">
+                                @Html.DisplayNameFor(model => model.Estado)
+                                <br />
+                                <select name="Estado" id="Estado" class="form-control-sm border" onchange="filtrar();">
+                                    <option value=""></option>
+                                    <option value="ABIERTO" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.Estado == "ABIERTO") { Write("selected"); } }>ABIERTO</option>
+                                    <option value="RECIBIDO" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.Estado == "RECIBIDO") { Write("selected"); } }>RECIBIDO</option>
+                                    <option value="PICKEANDO" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.Estado == "PICKEANDO") { Write("selected"); } }>PICKEANDO</option>
+                                    <option value="VERIFICANDO" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.Estado == "VERIFICANDO") { Write("selected"); } }>VERIFICANDO</option>
+                                    <option value="EMPACANDO" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.Estado == "EMPACANDO") { Write("selected"); } }>EMPACANDO</option>
+                                    <option value="EMPACADO" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.Estado == "EMPACADO") { Write("selected"); } }>EMPACADO</option>
+                                    <option value="PESADO" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.Estado == "PESADO") { Write("selected"); } }>PESADO</option>
+                                    <option value="PREENVIO" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.Estado == "PREENVIO") { Write("selected"); } }>PREENVIO</option>
+                                    <option value="ENVIADO" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.Estado == "ENVIADO") { Write("selected"); } }>ENVIADO</option>
+                                    <option value="ENTREGADO" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.Estado == "ENTREGADO") { Write("selected"); } }>ENTREGADO</option>
+                                    <option value="ANULADO" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.Estado == "ANULADO") { Write("selected"); } }>ANULADO</option>
+                                    <option value="CANCELADO" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.Estado == "CANCELADO") { Write("selected"); } }>CANCELADO</option>
+                                </select>
+                            </th>
+                            <th class="text-center border-end">
+                                Fecha y hora<br />abierto
+                            </th>
+                            <th class="text-center border-end">Tipo venta</th>
+                            <th class="text-center border-end">Estado pago</th>
+                            <th class="text-center border-end">@Html.DisplayNameFor(model => model.LugarDestino)</th>
+                            <th class="bg-success text-center text-white border-end">Recibir</th>
+                            <th class="bg-danger text-center text-white border-end">Anular<br /> Recibir</th>
+                            <th class="text-center text-white border-end">PDF</th>
+                            <th class="text-center text-white border-end">Cancelar</th>
+                            <th class="text-center text-white border-end">Seguimiento</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-dark">
+                        @foreach (var item in Model)
+                        {
+                            bool condRecibir = false, condAnularRecibir = false;
+                            String styleEstado = "";
+                            if (item.Estado == "ABIERTO")
+                            {
+                                condRecibir = true;
+                            }
+                            if (item.Estado == "RECIBIDO")
+                            {
+                                condAnularRecibir = true;
+                            }
+
+                            if (item.Estado != null && item.Estado.Equals("ABIERTO"))
+                            {
+                                styleEstado = "style=background-color:gold";
+                            }
+                            else if (item.Estado != null && item.Estado.Equals("RECIBIDO"))
+                            {
+                                styleEstado = "style=background-color:greenyellow;font-weight:bold";
+                            }
+                            <tr id="fila">
+                                <td class="text-center border-end border-start">@item.DocNum</td>
+                                <td class="text-center border-end">@item.FechaSapTicket</td>
+                                <td class="text-center border-end"><span class="pl-2">@Html.DisplayFor(modelItem => item.CardName)</span></td>
+                                <td class="text-center border-end">
+                                    @if (item.Det2 != null)
+                                    {
+                                        foreach (RTV2_E d in item.Det2)
+                                        {
+                                            @d.NroSap<br />
+                                        }
+                                    }
+                                </td>
+                                <td class="text-center border-end">
+                                    @Html.DisplayFor(modelItem => item.Vendedor)
+                                </td>
+                                <td class="text-center border-end">
+                                    @Html.DisplayFor(modelItem => item.MontoTotal)
+                                </td>
+                                <td class="text-center border-end" @styleEstado>@Html.DisplayFor(modelItem => item.Estado)</td>
+                                <td class="text-center border-end">
+                                    <span class="">@item.FechaAbierto</span>
+                                </td>
+                                <td class="text-center border-end">@item.TipoVenta</td>
+                                <td class="text-center border-end">
+                                    @Html.DisplayFor(modelItem => item.EstadoPago)
+                                </td>
+                                <td class="text-center border-end">
+                                    @Html.DisplayFor(modelItem => item.LugarDestino)
+                                </td>
+
+                                <td class="text-center border-end">
+                                    @if (condRecibir == true)
+                                    {
+                                        <a href="@Url.Action("RecibirTicketVenta", "Ventas", new { DocEntry = item.DocEntry })" class="btn btn-sm btn-light" data-toggle="tooltip" data-placement="top" title="Recibir">
+                                            <i class="bi bi-check-lg text-success"> </i>
+                                        </a>
+                                    }
+                                </td>
+                                <td class="text-center border-end">
+                                    @if (condAnularRecibir == true)
+                                    {
+                                        <a href="@Url.Action( "AnularRecibirTicketVenta", "Ventas", new { DocEntry = item.DocEntry  } )" class="btn btn-sm btn-light" data-toggle="tooltip" data-placement="top" title="Anular Recibir">
+                                            <i class="bi bi-slash-circle text-danger"></i>
+                                        </a>
+                                    }
+                                </td>
+                                <td class="text-center border-end">
+                                    @if (item.Estado.Equals("ABIERTO"))
+                                    {
+                                        <a class="btn btn-sm btn-light" href="@Url.Action("PdfTacoComentarios", "Ventas", new { DocEntry = item.DocEntry }, protocol: "https")" data-toggle="tooltip" data-placement="top" title="PDF Taco Comentarios">
+                                            <i class="bi bi-file-earmark-pdf text-danger bordered"></i>
+                                        </a>
+                                    }
+                                    <input type="hidden" id="pdf_taco_comentarios" value="@item.DocEntry" />
+                                </td>
+                                <td class="text-center border-end">
+                                    @if ((item.Estado.Equals("RECIBIDO") || item.Estado.Equals("PICKEANDO") || item.Estado.Equals("VERIFICANDO") || item.Estado.Equals("EMPACANDO")) && (ViewBag.IdRol == 1 || ViewBag.IdRol == 5))
+                                    {
+                                        <a href="#" class="btn btn-sm btn-light" onclick="cancelarTicket(@item.DocEntry);" data-toggle="tooltip" data-placement="top" title="Cancelar"><i class="bi bi-x-lg text-danger"></i></a>
+                                    }
+                                </td>
+                                <td class="text-center border-end">
+                                    <a href="@Url.Action( "SeguimientoDeTicket", "Ventas", new { DocEntry = item.DocEntry  } )" class="btn btn-sm btn-light" data-toggle="tooltip" data-placement="top" title="Seguimiento de Ticket" type="button" target="_blank"
+                                       onclick="window.open(this.href,this.target,'width=1200,height=650,top=120,left=100,toolbar=no,location=no,status=no,menubar=no');return false;">
+                                        <i class="bi bi-truck text-dark"></i>
+                                    </a>
+                                </td>
+
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
         </form>
     </div>
-
-    <div class="bg-white bg-form-cobefar">
-        <table class="table table-sm table-hover cls-dataTable50 font-14" width="100%" cellspacing="0">
-            <thead class="thead-cobefar bg-cobefar-6 text-white">
-                <tr>
-                    <th class="text-center border-start border-end">
-                        @Html.DisplayNameFor(model => model.DocNum)
-                        <br />
-                        @if (ViewBag.Ortv != null && ViewBag.Ortv.DocNum > 0)
-                        {
-                            <input type="text" name="DocNum" class="form-control-sm border w-75" onchange="filtrar();" value="@ViewBag.Ortv.DocNum" autocomplete="off" />
-                        }
-                        else
-                        {
-                            <input type="text" name="DocNum" class="form-control-sm border w-75" onchange="filtrar();" />
-                        }
-                    </th>
-                    <th class="text-center border-end">
-                        Fecha ticket
-                        <br />
-                        @if (ViewBag.Ortv != null && ViewBag.Ortv.FechaSapTicket != null)
-                        {
-                            <input type="date" name="FechaSapTicket" style="font-size:12px;" class="form-control-sm border" value="@ViewBag.Ortv.FechaSapTicket" onchange="filtrar();" />
-                        }
-                        else
-                        {
-                            <input type="date" name="FechaSapTicket" style="font-size:12px;" class="form-control-sm border" onchange="filtrar();" />
-                        }
-                    </th>
-                    <th class="text-center border-end">
-                        <span class="pl-2">@Html.DisplayNameFor(model => model.CardName)</span>
-                        @if (ViewBag.Ortv != null && ViewBag.Ortv.CardName != null)
-                        {
-                            <input type="text" name="CardName" class="form-control-sm border w-100" onchange="filtrar();" value="@ViewBag.Ortv.CardName" autocomplete="off" />
-                        }
-                        else
-                        {
-                            <input type="text" name="CardName" class="form-control-sm border w-100" onchange="filtrar();" />
-                        }
-                    </th>
-                    <th class="text-center border-end">Orden de venta SAP</th>
-                    <th class="text-center border-end">
-                        @Html.DisplayNameFor(model => model.Vendedor)
-                        <br />
-                        @if (ViewBag.Ortv != null && ViewBag.Ortv.Vendedor != null)
-                        {
-                            <input type="text" name="Vendedor" class="form-control-sm border" onchange="filtrar();" value="@ViewBag.Ortv.Vendedor" />
-                        }
-                        else
-                        {
-                            <input type="text" name="Vendedor" class="form-control-sm border" onchange="filtrar();" />
-                        }
-                    </th>
-                    <th class="text-center border-end">
-                        Monto total
-                    </th>
-                    <th class="text-center border-end">
-                        @Html.DisplayNameFor(model => model.Estado)
-                        <br />
-                        <select name="Estado" id="Estado" class="form-control-sm border" onchange="filtrar();">
-                            <option value=""></option>
-                            <option value="ABIERTO" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.Estado == "ABIERTO") { Write("selected"); } }>ABIERTO</option>
-                            <option value="RECIBIDO" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.Estado == "RECIBIDO") { Write("selected"); } }>RECIBIDO</option>
-                            <option value="PICKEANDO" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.Estado == "PICKEANDO") { Write("selected"); } }>PICKEANDO</option>
-                            <option value="VERIFICANDO" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.Estado == "VERIFICANDO") { Write("selected"); } }>VERIFICANDO</option>
-                            <option value="EMPACANDO" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.Estado == "EMPACANDO") { Write("selected"); } }>EMPACANDO</option>
-                            <option value="EMPACADO" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.Estado == "EMPACADO") { Write("selected"); } }>EMPACADO</option>
-                            <option value="PESADO" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.Estado == "PESADO") { Write("selected"); } }>PESADO</option>
-                            <option value="PREENVIO" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.Estado == "PREENVIO") { Write("selected"); } }>PREENVIO</option>
-                            <option value="ENVIADO" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.Estado == "ENVIADO") { Write("selected"); } }>ENVIADO</option>
-                            <option value="ENTREGADO" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.Estado == "ENTREGADO") { Write("selected"); } }>ENTREGADO</option>
-                            <option value="ANULADO" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.Estado == "ANULADO") { Write("selected"); } }>ANULADO</option>
-                            <option value="CANCELADO" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.Estado == "CANCELADO") { Write("selected"); } }>CANCELADO</option>
-                        </select>
-                    </th>
-                    <th class="text-center border-end">
-                        Fecha y hora<br />abierto
-                    </th>
-                    <th class="text-center border-end">Tipo venta</th>
-                    <th class="text-center border-end">Estado pago</th>
-                    <th class="text-center border-end">@Html.DisplayNameFor(model => model.LugarDestino)</th>
-                    <th class="bg-success text-center text-white border-end">Recibir</th>
-                    <th class="bg-danger text-center text-white border-end">Anular<br /> Recibir</th>
-                    <th class="text-center text-white border-end">PDF</th>
-                    <th class="text-center text-white border-end">Cancelar</th>
-                    <th class="text-center text-white border-end">Seguimiento</th>
-                </tr>
-            </thead>
-            <tbody class="text-dark">
-                @foreach (var item in Model)
-                {
-                    bool condRecibir = false, condAnularRecibir = false;
-                    String styleEstado = "";
-                    if (item.Estado == "ABIERTO")
-                    {
-                        condRecibir = true;
-                    }
-                    if (item.Estado == "RECIBIDO")
-                    {
-                        condAnularRecibir = true;
-                    }
-
-                    if (item.Estado != null && item.Estado.Equals("ABIERTO"))
-                    {
-                        styleEstado = "style=background-color:gold";
-                    }
-                    else if (item.Estado != null && item.Estado.Equals("RECIBIDO"))
-                    {
-                        styleEstado = "style=background-color:greenyellow;font-weight:bold";
-                    }
-                    <tr id="fila">
-                        <td class="text-center border-end border-start">@item.DocNum</td>
-                        <td class="text-center border-end">@item.FechaSapTicket</td>
-                        <td class="text-center border-end"><span class="pl-2">@Html.DisplayFor(modelItem => item.CardName)</span></td>
-                        <td class="text-center border-end">
-                            @if (item.Det2 != null)
-                            {
-                                foreach (RTV2_E d in item.Det2)
-                                {
-                                    @d.NroSap<br />
-                                }
-                            }
-                        </td>
-                        <td class="text-center border-end">
-                            @Html.DisplayFor(modelItem => item.Vendedor)
-                        </td>
-                        <td class="text-center border-end">
-                            @Html.DisplayFor(modelItem => item.MontoTotal)
-                        </td>
-                        <td class="text-center border-end" @styleEstado>@Html.DisplayFor(modelItem => item.Estado)</td>
-                        <td class="text-center border-end">
-                            <span class="">@item.FechaAbierto</span>
-                        </td>
-                        <td class="text-center border-end">@item.TipoVenta</td>
-                        <td class="text-center border-end">
-                            @Html.DisplayFor(modelItem => item.EstadoPago)
-                        </td>
-                        <td class="text-center border-end">
-                            @Html.DisplayFor(modelItem => item.LugarDestino)
-                        </td>
-
-                        <td class="text-center border-end">
-                            @if (condRecibir == true)
-                            {
-                                <a href="@Url.Action("RecibirTicketVenta", "Ventas", new { DocEntry = item.DocEntry })" class="btn btn-sm btn-light" data-toggle="tooltip" data-placement="top" title="Recibir">
-                                    <i class="bi bi-check-lg text-success"> </i>
-                                </a>
-                            }
-                        </td>
-                        <td class="text-center border-end">
-                            @if (condAnularRecibir == true)
-                            {
-                                <a href="@Url.Action( "AnularRecibirTicketVenta", "Ventas", new { DocEntry = item.DocEntry  } )" class="btn btn-sm btn-light" data-toggle="tooltip" data-placement="top" title="Anular Recibir">
-                                    <i class="bi bi-slash-circle text-danger"></i>
-                                </a>
-                            }
-                        </td>
-                        <td class="text-center border-end">
-                            @if (item.Estado.Equals("ABIERTO"))
-                            {
-                                <a class="btn btn-sm btn-light" href="@Url.Action( "PdfTacoComentarios", "Ventas", new { DocEntry = item.DocEntry  } )" data-toggle="tooltip" data-placement="top" title="PDF Taco Comentarios">
-                                    <i class="bi bi-file-earmark-pdf text-danger bordered"></i>
-                                </a>
-                            }
-                            <input type="hidden" id="pdf_taco_comentarios" value="@item.DocEntry" />
-                        </td>
-                        <td class="text-center border-end">
-                            @if ((item.Estado.Equals("RECIBIDO") || item.Estado.Equals("PICKEANDO") || item.Estado.Equals("VERIFICANDO") || item.Estado.Equals("EMPACANDO")) && (ViewBag.IdRol == 1 || ViewBag.IdRol == 5))
-                            {
-                                <a href="#" class="btn btn-sm btn-light" onclick="cancelarTicket(@item.DocEntry);" data-toggle="tooltip" data-placement="top" title="Cancelar"><i class="bi bi-x-lg text-danger"></i></a>
-                            }
-                        </td>
-                        <td class="text-center border-end">
-                            <a href="@Url.Action( "SeguimientoDeTicket", "Ventas", new { DocEntry = item.DocEntry  } )" class="btn btn-sm btn-light" data-toggle="tooltip" data-placement="top" title="Seguimiento de Ticket" type="button" target="_blank"
-                               onclick="window.open(this.href,this.target,'width=1200,height=650,top=120,left=100,toolbar=no,location=no,status=no,menubar=no');return false;">
-                                <i class="bi bi-truck text-dark"></i>
-                            </a>
-                        </td>
-
-                    </tr>
-                }
-            </tbody>
-        </table>
-    </div>
-    </form>
 </div>
 
 @if (Request["DescargarPDF"] == "1")
 {
-    <script>Swal.fire('En breve se descargará el TacoComentario.pdf'); descargarTacoComentarios(document.getElementById('pdf_taco_comentarios').value);</script>
+    <script>
+        Swal.fire('En breve se descargará el TacoComentario.pdf');
+        document.addEventListener("DOMContentLoaded", function () {
+            setTimeout(function () {
+                var docEntry = document.getElementById('pdf_taco_comentarios').value;
+                window.open('/Ventas/PdfTacoComentarios?DocEntry=' + docEntry, '_blank');
+            }, 3000);
+        });
+    </script>
 }
