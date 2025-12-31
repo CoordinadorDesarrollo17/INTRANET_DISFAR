@@ -1432,13 +1432,6 @@ namespace Capa_Usuario.Controllers
             {
                 Usuario_E user = (Usuario_E)Session["UsuarioId"];
                 ViewBag.DocNum = DocNum;
-                //if (user.WhsCode != null && (user.IdRol == 5 || user.IdRol == 4 || user.IdRol == 51))
-                //{
-                //    if (user.WhsCode.Equals("07"))
-                //    {
-                //        ticket.AlmProcedencia = "ALM07";
-                //    }
-                //}
                 if (DocNum > 0)
                 {
                     ticket.DocNum = DocNum;
