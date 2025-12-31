@@ -146,11 +146,11 @@
                                 <br />
                                 @if (ViewBag.Ortv != null && ViewBag.Ortv.DocNum > 0)
                                 {
-                                    <input type="text" name="DocNum" class="form-control-sm border w-75" onchange="filtrar();" value="@ViewBag.Ortv.DocNum" autocomplete="off" />
+                                    <input type="text" name="DocNum" class="form-control-sm border w-75" onchange="filtrar();" onkeypress="if(event.keyCode==13){filtrar();return false;}" value="@ViewBag.Ortv.DocNum" autocomplete="off" />
                                 }
                                 else
                                 {
-                                    <input type="text" name="DocNum" class="form-control-sm border w-75" onchange="filtrar();" />
+                                    <input type="text" name="DocNum" class="form-control-sm border w-75" onchange="filtrar();" onkeypress="if(event.keyCode==13){filtrar();return false;}" />
                                 }
                             </th>
                             <th class="text-center border-end">
@@ -158,22 +158,22 @@
                                 <br />
                                 @if (ViewBag.Ortv != null && ViewBag.Ortv.FechaSapTicket != null)
                                 {
-                                    <input type="date" name="FechaSapTicket" style="font-size:12px;" class="form-control-sm border" value="@ViewBag.Ortv.FechaSapTicket" onchange="filtrar();" />
+                                    <input type="date" name="FechaSapTicket" style="font-size:12px;" class="form-control-sm border" value="@ViewBag.Ortv.FechaSapTicket" onchange="filtrar();" onkeypress="if(event.keyCode==13){filtrar();return false;}" />
                                 }
                                 else
                                 {
-                                    <input type="date" name="FechaSapTicket" style="font-size:12px;" class="form-control-sm border" onchange="filtrar();" />
+                                    <input type="date" name="FechaSapTicket" style="font-size:12px;" class="form-control-sm border" onchange="filtrar();" onkeypress="if(event.keyCode==13){filtrar();return false;}" />
                                 }
                             </th>
                             <th class="text-center border-end">
-                                <span class="pl-2">@Html.DisplayNameFor(model => model.CardName)</span>
+                            <span class="pl-2">@Html.DisplayNameFor(model => model.CardName)</span>
                                 @if (ViewBag.Ortv != null && ViewBag.Ortv.CardName != null)
                                 {
-                                    <input type="text" name="CardName" class="form-control-sm border w-100" onchange="filtrar();" value="@ViewBag.Ortv.CardName" autocomplete="off" />
+                                    <input type="text" name="CardName" class="form-control-sm border w-100" onchange="filtrar();" onkeypress="if(event.keyCode==13){filtrar();return false;}" value="@ViewBag.Ortv.CardName" autocomplete="off" />
                                 }
                                 else
                                 {
-                                    <input type="text" name="CardName" class="form-control-sm border w-100" onchange="filtrar();" />
+                                    <input type="text" name="CardName" class="form-control-sm border w-100" onchange="filtrar();" onkeypress="if(event.keyCode==13){filtrar();return false;}" />
                                 }
                             </th>
                             <th class="text-center border-end">Orden de venta SAP</th>
@@ -182,11 +182,11 @@
                                 <br />
                                 @if (ViewBag.Ortv != null && ViewBag.Ortv.Vendedor != null)
                                 {
-                                    <input type="text" name="Vendedor" class="form-control-sm border" onchange="filtrar();" value="@ViewBag.Ortv.Vendedor" />
+                                    <input type="text" name="Vendedor" class="form-control-sm border" onchange="filtrar();" onkeypress="if(event.keyCode==13){filtrar();return false;}" value="@ViewBag.Ortv.Vendedor" />
                                 }
                                 else
                                 {
-                                    <input type="text" name="Vendedor" class="form-control-sm border" onchange="filtrar();" />
+                                    <input type="text" name="Vendedor" class="form-control-sm border" onchange="filtrar();" onkeypress="if(event.keyCode==13){filtrar();return false;}" />
                                 }
                             </th>
                             <th class="text-center border-end">
