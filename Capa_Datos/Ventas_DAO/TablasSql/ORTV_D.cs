@@ -2906,7 +2906,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                                             (SELECT TOP 1 Id FROM VT.CC_ORTV WHERE DocEntry = T0.DocEntry AND Operacion = 'ANULAR FIN VERIFICAR' ORDER BY Id DESC)
                                         ) 
                                     )
-AND YEAR(T0.FechaSapTicket) = 2025 AND ((SELECT  Estado FROM vt.BusquedaProducto WHERE DocEntry=t0.DocEntry )='CONCLUIDO' or not exists (SELECT  Estado FROM vt.BusquedaProducto WHERE DocEntry=t0.DocEntry ))";
+                AND (YEAR(T0.FechaSapTicket) = 2026 OR YEAR(T0.FechaSapTicket) = 2025) AND ((SELECT  Estado FROM vt.BusquedaProducto WHERE DocEntry=t0.DocEntry )='CONCLUIDO' or not exists (SELECT  Estado FROM vt.BusquedaProducto WHERE DocEntry=t0.DocEntry ))";
             using (SqlConnection cn = new SqlConnection(uti.cadSql))
             {
                 try
@@ -3399,7 +3399,7 @@ AND YEAR(T0.FechaSapTicket) = 2025 AND ((SELECT  Estado FROM vt.BusquedaProducto
             queryBuilder.AppendLine("   WHERE bp.DocEntry = t0.DocEntry");
             queryBuilder.AppendLine(") AS subBusquedaProducto");
             queryBuilder.AppendLine("WHERE");
-            queryBuilder.AppendLine("    YEAR(T0.FechaSapTicket) = 2025");
+            queryBuilder.AppendLine("    (YEAR(T0.FechaSapTicket) = 2026 OR YEAR(T0.FechaSapTicket) = 2025)");
             queryBuilder.AppendLine("    AND ((SELECT TOP 1 Estado FROM vt.BusquedaProducto WHERE DocEntry=T0.DocEntry) = 'CONCLUIDO'");
             queryBuilder.AppendLine("    OR NOT EXISTS (SELECT 1 FROM vt.BusquedaProducto WHERE DocEntry=T0.DocEntry))");
             queryBuilder.AppendLine($"    {condWhere}");
