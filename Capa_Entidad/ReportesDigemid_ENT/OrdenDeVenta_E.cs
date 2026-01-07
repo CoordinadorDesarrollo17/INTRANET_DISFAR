@@ -38,5 +38,6 @@ namespace Capa_Entidad.ReportesDigemid_ENT
 
         // C A M P O S   E X T R A S
         public decimal TotalNumUnidVend { get; set; }
+        public string DirecionDestino { get; set; }
     }
 }
