@@ -797,28 +797,49 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
             {
                 hcn.Open();
                 string query = $@"
-            SELECT 
-                IFNULL(T0.""Street"", '') || ' ' || IFNULL(T0.""Block"", '') || ' ' || IFNULL(T0.""City"", '') || ' ' || IFNULL(T0.""County"", '') AS ""Dir"",
-                T0.""Block"",
-                T0.""City"",
-                T0.""County"",
-                T0.""ZipCode"",
-                T0.""Street"",
-                T0.""Address2""
-            FROM {uti.schemaHana}CRD1 T0
-            INNER JOIN {uti.schemaHana}ORDR T1 ON T0.""CardCode"" = T1.""CardCode""
-            WHERE T0.""CardCode"" = '{CardCode}'
-              AND T0.""Address"" LIKE 'ENV%'
-              AND T1.""Comments"" = '{docnum}'
-              AND UPPER(TRIM(
-                    REPLACE(
-                        REPLACE(
-                            REPLACE(T1.""Address2"", CHAR(13), ' '),
-                        CHAR(10), ' '),
-                    '-', ' ')
-                )) = UPPER(TRIM(IFNULL(T0.""Street"", '') || ' ' || IFNULL(T0.""Block"", '') || ' ' || IFNULL(T0.""City"", '') || ' ' || IFNULL(T0.""County"", '')))
-            ORDER BY T0.""LineNum""
-            LIMIT 1";
+    SELECT 
+        IFNULL(T0.""Street"", '') || ' ' || IFNULL(T0.""Block"", '') || ' ' || IFNULL(T0.""City"", '') || ' ' || IFNULL(T0.""County"", '') AS ""Dir"",
+        T0.""Block"",
+        T0.""City"",
+        T0.""County"",
+        T0.""ZipCode"",
+        T0.""Street"",
+        T0.""Address2""
+    FROM {uti.schemaHana}CRD1 T0
+    INNER JOIN {uti.schemaHana}ORDR T1 ON T0.""CardCode"" = T1.""CardCode""
+    WHERE
+        T0.""CardCode"" = '{CardCode}'
+        AND T0.""Address"" LIKE 'ENV%'
+        AND T1.""Comments"" = '{docnum}'
+        AND
+        REPLACE(
+            REPLACE(
+                REPLACE(
+                    UPPER(TRIM(T1.""Address2"")),
+                    NCHAR(13), ' '
+                ),
+                NCHAR(10), ' '
+            ),
+            '-', ' '
+        )
+        =
+        REPLACE(
+            REPLACE(
+                REPLACE(
+                    UPPER(TRIM(
+                        IFNULL(T0.""Street"", '') || ' ' ||
+                        IFNULL(T0.""Block"",  '') || ' ' ||
+                        IFNULL(T0.""City"",   '') || ' ' ||
+                        IFNULL(T0.""County"", '')
+                    )),
+                    NCHAR(13), ' '
+                ),
+                NCHAR(10), ' '
+            ),
+            '-', ' '
+        )
+    ORDER BY T0.""LineNum""
+    LIMIT 1";
                 HanaCommand hcmd = new HanaCommand(query, hcn);
                 HanaDataReader hdr = hcmd.ExecuteReader();
                 while (hdr.Read())
