@@ -69,6 +69,15 @@
             $("#div_FormaPago").show();
             $("input[name='FormaPago'], select[name='FormaPago']").val("EFE/CAPON");
         }
+
+        $('#DirDestino').on('mousedown', function (e) {
+            e.preventDefault();
+            this.blur();
+            window.focus();
+        });
+        $('#DirDestino').on('keydown', function (e) {
+            e.preventDefault();
+        });
     });
 
     if ('@ViewBag.Mensaje' != "") {

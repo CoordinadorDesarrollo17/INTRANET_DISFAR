@@ -14,7 +14,14 @@
 <script>
   $(document).ready(function () {
       validacionDirDestino(); muestraCampo();
-
+      $('#DirDestino').on('mousedown', function (e) {
+          e.preventDefault();
+          this.blur();
+          window.focus();
+      });
+      $('#DirDestino').on('keydown', function (e) {
+          e.preventDefault();
+      });
     if ($("#Agencia").val() == 'CRUZ DEL SUR' && $("#EnvioAgencia").val() == 'Oficina de agencia') {
         $("#btnOficinas").show();
         $("#btn_verTarifario").show();
@@ -204,8 +211,10 @@
     }
     function validacionDirDestino() {
         var CardCode = $("#CardCode").val();
-        if (!CardCode) { CardCode = "" };
-        var parametros = { "CardCode": CardCode };
+        var Docnum = $("#DocNum").val(); // <-- Obtiene el valor del input DocNum
+        if (!CardCode) { CardCode = ""; }
+        if (!Docnum) { Docnum = ""; }
+        var parametros = { "CardCode": CardCode, "DocNum": Docnum }; // <-- Agrega DocNum al objeto
         $.ajax('/Ventas/infoDirDestino',
             {
                 data: parametros,
@@ -215,6 +224,12 @@
             })
             .done(function (response) {
                 $('#DirDestino').html(response);
+                // Selecciona automáticamente la primera opción válida
+                var $dirDestino = $('#DirDestino');
+                var $firstValidOption = $dirDestino.find('option:not([value=""]):first');
+                if ($firstValidOption.length) {
+                    $dirDestino.val($firstValidOption.val()).trigger('change');
+                }
             });
     }
     function reubicarZona() {
@@ -513,9 +528,8 @@
 
                         <div class="row mt-4">
                             <div class="col-lg-9">
-                                @if (!string.IsNullOrWhiteSpace(Model.DirDestino))
-                                {<label for="DirDestino" class="text-dark form-label" id="DireccionEscogida">@Model.DirDestino </label>}
-                                <select name="DirDestino" id="DirDestino" class="form-control bg-cobefar text-white border-success" onchange="enviarValSelect('DirDestino', 'Distrito', 'Distrito');enviarValSelect('DirDestino', 'Provincia', 'Provincia');enviarValSelect('DirDestino', 'Departamento', 'Departamento');enviarValSelect('DirDestino', 'Ubigeo', 'Ubigeo');enviarValSelect('DirDestino', 'Calle', 'Calle');enviarValSelect('DirDestino', 'Zona', 'Zona');muestraCampo()">
+                                <label for="CardCode" class="text-dark form-label font-weight-bold font-18">Direccion Destino:</label>
+                                <select name="DirDestino" id="DirDestino" class="form-control bg-cobefar text-white" onchange="enviarValSelect('DirDestino', 'Distrito', 'Distrito');enviarValSelect('DirDestino', 'Provincia', 'Provincia');enviarValSelect('DirDestino', 'Departamento', 'Departamento');enviarValSelect('DirDestino', 'Ubigeo', 'Ubigeo');enviarValSelect('DirDestino', 'Calle', 'Calle');enviarValSelect('DirDestino', 'Zona', 'Zona');muestraCampo()">
                                     <option value="">Seleccione</option>
                                 </select>
                                 <input type="hidden" id="Calle" name="Det3[0].Calle" />
@@ -523,7 +537,6 @@
                                 <input type="hidden" id="Distrito" name="Det3[0].Distrito" />
                                 <input type="hidden" id="Provincia" name="Det3[0].Provincia" />
                                 <input type="hidden" id="Departamento" name="Det3[0].Departamento" />
-
                             </div>
                             <div class="col-lg-3">
                                 <label class="text-dark form-label font-weight-bold font-18">Zona: </label> @Model.Zona

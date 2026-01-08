@@ -65,6 +65,14 @@
             $("#btn_verTarifario").hide();
             $("#btnUbigeo").show();
         }
+        $('#DirDestino').on('mousedown', function (e) {
+            e.preventDefault();
+            this.blur();
+            window.focus();
+        });
+        $('#DirDestino').on('keydown', function (e) {
+            e.preventDefault();
+        });
     });
 
     if ('@ViewBag.Mensaje' != "") {
