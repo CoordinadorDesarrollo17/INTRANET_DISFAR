@@ -849,9 +849,9 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
         {
             return tkD.GeneraInfoListaClientes(Fecha);
         }
-        public string generaInfoListaDirDestinos(string CardCode, int docnum)
+        public string generaInfoListaDirDestinos(string CardCode)
         {
-            return tkD.GeneraInfoListaDirDestinos(CardCode, docnum);
+            return tkD.GeneraInfoListaDirDestinos(CardCode);
         }
         public string generaInfoListaNotasDeCreditoV(string CardCode)
         {
@@ -935,17 +935,9 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
             }
             tkD.EditarTicketSup(DocEntry, ticket);
         }
-        public (string HtmlContent, string TipoVenta, string ErrorMessage) generaInfoListaOrdenesDeVenta(string fecha, string cardCode, int docNum)
+        public (string HtmlContent, string TipoVenta) generaInfoListaOrdenesDeVenta(string fecha, string cardCode, int docNum)
         {
-            try
-            {
-                var result = tkD.GeneraInfoListaOrdenesDeVenta(fecha, cardCode, docNum);
-                return (result.HtmlContent, result.TipoVenta, null);
-            }
-            catch (Exception ex)
-            {
-                return ("", "", ex.Message);
-            }
+            return tkD.GeneraInfoListaOrdenesDeVenta(fecha, cardCode, docNum);
         }
         public string EstadoTicket(int docEntry)
         { return tkD.EstadoTicket(docEntry); }
