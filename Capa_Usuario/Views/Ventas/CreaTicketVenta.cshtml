@@ -42,7 +42,7 @@
         // Inicializamos los tabs desactivados
         $('#nav-det-pedidos-tab').addClass('disabled');
         //solo para las vendedoras seleccionadas muestra el select FormaPago precargado con la opcion EFE/CAPON
-        if ('@usuario' !== 'VENTAS32' && '@usuario' !== 'VENTAS05') {
+        if ('@usuario' !== 'VENTAS32' && '@usuario' !== 'VENTAS05'&& '@usuario' !== 'VENTAS130') {
             $("#div_FormaPago").hide();
             $("input[name='FormaPago'], select[name='FormaPago']").val('');
         } else {
@@ -381,7 +381,7 @@
         var lista = JSON.parse(jsonLista);
         document.getElementById('NroSolicitudReclamo').value = lista.join(', ');
         document.getElementById('SolicitudesReclamoSeleccionadas').value = lista.join(',');
-    }    
+    }
 </script>
 <script src="~/Scripts/Ventas/TicketDeVenta.js"></script>
 <style>
@@ -458,7 +458,7 @@
                                 <option value="">Seleccione</option>
                                 <option value="Normal" @{ if (Model.TipoVenta == "Normal") { Write("selected"); } }>Normal</option>
                                 <option value="ContraEntrega" @{ if (Model.TipoVenta == "ContraEntrega") { Write("selected"); } }>ContraEntrega</option>
-                                @if (usuario == "VENTAS32" || usuario == "VENTAS05")
+                                @if (usuario == "VENTAS32" || usuario == "VENTAS05" || usuario == "VENTAS130")
                                 {
                                     <option value="Credito" @{ if (Model.TipoVenta == "Credito") { Write("selected"); } }>Credito</option>
                                 }
