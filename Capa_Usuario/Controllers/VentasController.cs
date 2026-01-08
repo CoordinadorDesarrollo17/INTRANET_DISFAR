@@ -3351,18 +3351,17 @@ namespace Capa_Usuario.Controllers
         {
             return Content(_ticketN.generaInfoListaClientes(Fecha));
         }
-        public ActionResult infoDirDestino(string CardCode, int docnum)
+        public ActionResult infoDirDestino(string CardCode)
         {
-            return Content(_ticketN.generaInfoListaDirDestinos(CardCode, docnum));
+            return Content(_ticketN.generaInfoListaDirDestinos(CardCode));
         }
         public ActionResult infoListaOrdenesDeVenta(string Fecha, string CardCode, int DocNum)
         {
-            var (htmlContent, tipoVenta, errorMessage) = _ticketN.generaInfoListaOrdenesDeVenta(Fecha, CardCode, DocNum);
+            var (htmlContent, tipoVenta) = _ticketN.generaInfoListaOrdenesDeVenta(Fecha, CardCode, DocNum);
             var response = new
             {
                 HtmlContent = htmlContent,
-                TipoVenta = tipoVenta,
-                ErrorMessage = errorMessage
+                TipoVenta = tipoVenta
             };
             return Json(response, JsonRequestBehavior.AllowGet);
         }
