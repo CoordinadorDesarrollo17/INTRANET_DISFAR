@@ -158,7 +158,10 @@ function validacionDirDestino(estado) {
                     var $dirDestino = $('#DirDestino');
                     var $firstValidOption = $dirDestino.find('option:not([value=""]):first');
                     if ($firstValidOption.length) {
-                        $dirDestino.val($firstValidOption.val()).trigger('change');
+                        $dirDestino.val($firstValidOption.val());
+                        var zonaDefault = $firstValidOption.attr('Zona') || "";
+                        $("#Zona").val(zonaDefault);
+                        $dirDestino.trigger('change');
                     }
                 });
 
@@ -182,7 +185,10 @@ function validacionDirDestino(estado) {
                 var $dirDestino = $('#DirDestino');
                 var $firstValidOption = $dirDestino.find('option:not([value=""]):first');
                 if ($firstValidOption.length) {
-                    $dirDestino.val($firstValidOption.val()).trigger('change'); 
+                    $dirDestino.val($firstValidOption.val());
+                    var zonaDefault = $firstValidOption.attr('Zona') || "";
+                    $("#Zona").val(zonaDefault);
+                    $dirDestino.trigger('change');
                 }
             });
         }
