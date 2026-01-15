@@ -2906,7 +2906,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                                             (SELECT TOP 1 Id FROM VT.CC_ORTV WHERE DocEntry = T0.DocEntry AND Operacion = 'ANULAR FIN VERIFICAR' ORDER BY Id DESC)
                                         ) 
                                     )
-                AND (YEAR(T0.FechaSapTicket) = 2026 OR YEAR(T0.FechaSapTicket) = 2025) AND ((SELECT  Estado FROM vt.BusquedaProducto WHERE DocEntry=t0.DocEntry )='CONCLUIDO' or not exists (SELECT  Estado FROM vt.BusquedaProducto WHERE DocEntry=t0.DocEntry ))";
+AND YEAR(T0.FechaSapTicket) = (SELECT YEAR(GETDATE())) AND ((SELECT  Estado FROM vt.BusquedaProducto WHERE DocEntry=t0.DocEntry )='CONCLUIDO' or not exists (SELECT  Estado FROM vt.BusquedaProducto WHERE DocEntry=t0.DocEntry ))";
             using (SqlConnection cn = new SqlConnection(uti.cadSql))
             {
                 try
