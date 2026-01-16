@@ -1,18 +1,21 @@
-﻿using System;
+﻿using Capa_Entidad.Almacen_ENT.Tablas;
+using Capa_Entidad.DireccionTecnica_ENT.Reportes.BalanceControlados;
+using Capa_Entidad.ReportesDigemid_ENT.Formularios;
+using Capa_Entidad.ReportesDigemid_ENT.Reportes;
+using Capa_Entidad.Seguridad_ENT;
+using Capa_Negocio.DireccionTecnica_NEG.Reportes;
+using Capa_Negocio.ReportesDigemid_NEG;
+using Capa_Usuario.Helpers;
+using Microsoft.Reporting.WebForms;
+using OfficeOpenXml;
+using OfficeOpenXml.FormulaParsing.Excel.Functions.Math;
+using OfficeOpenXml.Style;
+using OfficeOpenXml.Table;
+using Rotativa;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web.Mvc;
-using Capa_Entidad.Seguridad_ENT;
-using Capa_Entidad.Almacen_ENT.Tablas;
-using Capa_Entidad.ReportesDigemid_ENT.Formularios;
-using Capa_Entidad.ReportesDigemid_ENT.Reportes;
-using Capa_Negocio.ReportesDigemid_NEG;
-using Microsoft.Reporting.WebForms;
-using Rotativa;
-using Capa_Negocio.DireccionTecnica_NEG.Reportes;
-using OfficeOpenXml;
-using OfficeOpenXml.Table;
-using Capa_Usuario.Helpers;
 namespace Capa_Usuario.Controllers
 {
     public class ReportesDigemidController : Controller
@@ -177,6 +180,389 @@ namespace Capa_Usuario.Controllers
         }
         /*****************************************************************************************/
         /********************** B A L A N C E   C O N T R O L A D O S **********************/
+        public ActionResult ExcelBalanceControlados_Ingreso(IEnumerable<dynamic> lista)
+        {
+            using (var package = new ExcelPackage())
+            {
+                var ws = package.Workbook.Worksheets.Add("Ingresos");
+                int row = 1;
+                ws.Cells[row, 1].Value = "CÓDIGO";
+                ws.Cells[row, 2].Value = "DESCRIPCIÓN DEL PRODUCTO";
+                ws.Cells[row, 4].Value = "N° REGISTRO SANITARIO";
+                ws.Cells[row, 5].Value = "CONCENTRACIÓN";
+                ws.Cells[row, 6].Value = "FORMA PRESENTACIÓN";
+                ws.Cells[row, 7].Value = "F.F";
+                ws.Cells[row, 8].Value = "LOTE";
+                ws.Cells[row, 9].Value = "CANTIDAD";
+                ws.Cells[row, 10].Value = "PROVEEDOR";
+                ws.Cells[row, 11].Value = "R.U.C.";
+                ws.Cells[row, 12].Value = "DIRECCIÓN";
+                ws.Cells[row, 16].Value = "N° FACTURA";
+                ws.Cells[row, 17].Value = "FECHA";
+
+                ws.Cells[row, 2, row, 3].Merge = true;
+                ws.Cells[row, 12, row, 15].Merge = true;
+
+                row++;
+
+                ws.Cells[row, 2].Value = "NOMBRE GENÉRICO";
+                ws.Cells[row, 3].Value = "NOMBRE COMERCIAL";
+                ws.Cells[row, 12].Value = "CALLE / JR / AV";
+                ws.Cells[row, 13].Value = "DISTRITO";
+                ws.Cells[row, 14].Value = "PROVINCIA";
+                ws.Cells[row, 15].Value = "DEPARTAMENTO";
+
+                ws.Cells[1, 1, 2, 1].Merge = true;
+                ws.Cells[1, 4, 2, 4].Merge = true;
+                ws.Cells[1, 5, 2, 5].Merge = true;
+                ws.Cells[1, 6, 2, 6].Merge = true;
+                ws.Cells[1, 7, 2, 7].Merge = true;
+                ws.Cells[1, 8, 2, 8].Merge = true;
+                ws.Cells[1, 9, 2, 9].Merge = true;
+                ws.Cells[1, 10, 2, 10].Merge = true;
+                ws.Cells[1, 11, 2, 11].Merge = true;
+                ws.Cells[1, 16, 2, 16].Merge = true;
+                ws.Cells[1, 17, 2, 17].Merge = true;
+
+                using (var range = ws.Cells[1, 1, 2, 17])
+                {
+                    range.Style.Font.Bold = true;
+                    range.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                    range.Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+                    range.Style.Border.BorderAround(ExcelBorderStyle.Thin);
+                }
+
+                row++;
+
+                string codActual = "";
+                decimal total = 0;
+
+                foreach (var det in lista)
+                {
+                    if (codActual != "" && codActual != det.CodProducto)
+                    {
+                        ws.Cells[row, 7].Value = "TOTAL";
+                        ws.Cells[row, 7, row, 8].Merge = true;
+                        ws.Cells[row, 9].Value = total;
+                        ws.Cells[row, 7, row, 9].Style.Font.Bold = true;
+
+                        row++;
+                        total = 0;
+                    }
+                    ws.Cells[row, 1].Value = det.CodProducto;
+                    ws.Cells[row, 2].Value = det.NombreGenerico;
+                    ws.Cells[row, 3].Value = det.NombreComercial;
+                    ws.Cells[row, 4].Value = det.RegSanitario;
+                    ws.Cells[row, 5].Value = det.Concentracion;
+                    ws.Cells[row, 6].Value = det.FormaPresentacion;
+                    ws.Cells[row, 7].Value = det.FormaFamaceutica;
+                    ws.Cells[row, 8].Value = det.NroLote;
+                    ws.Cells[row, 9].Value = det.CantLote;
+                    ws.Cells[row, 10].Value = det.Proveedor;
+                    ws.Cells[row, 11].Value = det.RucProveedor;
+                    ws.Cells[row, 12].Value = det.CalleJrAvN;
+                    ws.Cells[row, 13].Value = det.Distrito;
+                    ws.Cells[row, 14].Value = det.Provincia;
+                    ws.Cells[row, 15].Value = det.Departamento;
+                    ws.Cells[row, 16].Value = det.NroFacturaNcredito;
+                    ws.Cells[row, 17].Value = det.Fecha;
+
+                    total += det.CantLote;
+                    codActual = det.CodProducto;
+                    row++;
+                }
+                ws.Cells[row, 7].Value = "TOTAL";
+                ws.Cells[row, 7, row, 8].Merge = true;
+                ws.Cells[row, 9].Value = total;
+                ws.Cells[row, 7, row, 9].Style.Font.Bold = true;
+
+                ws.Cells[1, 1, row, 17].Style.Border.BorderAround(ExcelBorderStyle.Thin);
+                ws.Cells.AutoFitColumns();
+                ws.Column(4).Width = 22;
+
+                return File(
+                    package.GetAsByteArray(),
+                    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                    "BalanceControlados_Ingresos.xlsx"
+                );
+            }
+        }
+        public ActionResult ExcelBalanceControlados_Egreso(IEnumerable<dynamic> lista)
+        {
+            using (var package = new ExcelPackage())
+            {
+                var ws = package.Workbook.Worksheets.Add("Egresos");
+                int row = 1;
+
+                // =========================
+                // CABECERA
+                // =========================
+                ws.Cells[row, 1].Value = "CÓDIGO";
+                ws.Cells[row, 2].Value = "DESCRIPCIÓN DEL PRODUCTO";
+                ws.Cells[row, 4].Value = "N° REGISTRO SANITARIO";
+                ws.Cells[row, 5].Value = "CONCENTRACIÓN";
+                ws.Cells[row, 6].Value = "FORMA PRESENTACIÓN";
+                ws.Cells[row, 7].Value = "F.F";
+                ws.Cells[row, 8].Value = "LOTE";
+                ws.Cells[row, 9].Value = "CANTIDAD";
+                ws.Cells[row, 10].Value = "ESTABLECIMIENTO ATENDIDO";
+                ws.Cells[row, 11].Value = "R.U.C.";
+                ws.Cells[row, 12].Value = "DIRECCIÓN";
+                ws.Cells[row, 16].Value = "N° FACTURA / BOLETA";
+                ws.Cells[row, 17].Value = "FECHA";
+
+                ws.Cells[row, 2, row, 3].Merge = true;
+                ws.Cells[row, 12, row, 15].Merge = true;
+
+                row++;
+
+                ws.Cells[row, 2].Value = "NOMBRE GENÉRICO";
+                ws.Cells[row, 3].Value = "NOMBRE COMERCIAL";
+                ws.Cells[row, 12].Value = "CALLE / JR / AV";
+                ws.Cells[row, 13].Value = "DISTRITO";
+                ws.Cells[row, 14].Value = "PROVINCIA";
+                ws.Cells[row, 15].Value = "DEPARTAMENTO";
+
+                ws.Cells[1, 1, 2, 1].Merge = true;
+                ws.Cells[1, 4, 2, 4].Merge = true;
+                ws.Cells[1, 5, 2, 5].Merge = true;
+                ws.Cells[1, 6, 2, 6].Merge = true;
+                ws.Cells[1, 7, 2, 7].Merge = true;
+                ws.Cells[1, 8, 2, 8].Merge = true;
+                ws.Cells[1, 9, 2, 9].Merge = true;
+                ws.Cells[1, 10, 2, 10].Merge = true;
+                ws.Cells[1, 11, 2, 11].Merge = true;
+                ws.Cells[1, 16, 2, 16].Merge = true;
+                ws.Cells[1, 17, 2, 17].Merge = true;
+
+                using (var range = ws.Cells[1, 1, 2, 17])
+                {
+                    range.Style.Font.Bold = true;
+                    range.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                    range.Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+                    range.Style.Border.BorderAround(ExcelBorderStyle.Thin);
+                }
+
+                row++;
+
+                // =========================
+                // CUERPO
+                // =========================
+                string codActual = "";
+                decimal total = 0;
+
+                foreach (var det in lista)
+                {
+                    if (codActual != "" && codActual != det.CodProducto)
+                    {
+                        ws.Cells[row, 7].Value = "TOTAL";
+                        ws.Cells[row, 7, row, 8].Merge = true;
+                        ws.Cells[row, 9].Value = total;
+                        ws.Cells[row, 7, row, 9].Style.Font.Bold = true;
+
+                        row++;
+                        total = 0;
+                    }
+
+                    ws.Cells[row, 1].Value = det.CodProducto;
+                    ws.Cells[row, 2].Value = det.NombreGenerico;
+                    ws.Cells[row, 3].Value = det.NombreComercial;
+                    ws.Cells[row, 4].Value = det.RegSanitario;
+                    ws.Cells[row, 5].Value = det.Concentracion;
+                    ws.Cells[row, 6].Value = det.FormaPresentacion;
+                    ws.Cells[row, 7].Value = det.FormaFamaceutica;
+                    ws.Cells[row, 8].Value = det.NroLote;
+                    ws.Cells[row, 9].Value = det.CantLote;
+                    ws.Cells[row, 10].Value = det.Establecimiento;
+                    ws.Cells[row, 11].Value = det.RucEstab;
+                    ws.Cells[row, 12].Value = det.CalleJrAvN;
+                    ws.Cells[row, 13].Value = det.Distrito;
+                    ws.Cells[row, 14].Value = det.Provincia;
+                    ws.Cells[row, 15].Value = det.Departamento;
+                    ws.Cells[row, 16].Value = det.NroFactura;
+                    ws.Cells[row, 17].Value = det.Fecha;
+
+                    total += det.CantLote;
+                    codActual = det.CodProducto;
+                    row++;
+                }
+
+                // TOTAL FINAL
+                ws.Cells[row, 7].Value = "TOTAL";
+                ws.Cells[row, 7, row, 8].Merge = true;
+                ws.Cells[row, 9].Value = total;
+                ws.Cells[row, 7, row, 9].Style.Font.Bold = true;
+
+                ws.Cells[1, 1, row, 17].Style.Border.BorderAround(ExcelBorderStyle.Thin);
+                ws.Cells.AutoFitColumns();
+                ws.Column(4).Width = 22;
+                ws.Column(16).Width = 30;
+
+                return File(
+                    package.GetAsByteArray(),
+                    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                    "BalanceControlados_Egresos.xlsx"
+                );
+            }
+        }
+        public ActionResult ExcelBalanceControlados_Consolidado(IEnumerable<RptBalanceControladosConsolidado_E> lista)
+        {
+            using (var package = new ExcelPackage())
+            {
+                var ws = package.Workbook.Worksheets.Add("Consolidado");
+                int row = 1;
+
+                ws.Column(1).Width = 20;
+                ws.Column(2).Width = 60;
+                ws.Column(3).Width = 60;
+                ws.Column(4).Width = 25;
+                ws.Column(5).Width = 15;
+                ws.Column(6).Width = 15;
+                ws.Column(7).Width = 15;
+                ws.Column(8).Width = 15;
+                ws.Column(9).Width = 15;
+                ws.Column(10).Width = 15;
+                ws.Column(11).Width = 20;
+                // =========================
+                // CABECERA
+                // =========================
+                ws.Cells[row, 1].Value = "CÓDIGO";
+                ws.Cells[row, 2].Value = "DESCRIPCIÓN DEL PRODUCTO";
+                ws.Cells[row, 4].Value = "CONCENTRACIÓN";
+                ws.Cells[row, 5].Value = "F.F.";
+                ws.Cells[row, 6].Value = "SALDO ANTERIOR";
+                ws.Cells[row, 7].Value = "INGRESOS";
+                ws.Cells[row, 9].Value = "EGRESOS";
+                ws.Cells[row, 11].Value = "SALDO ACTUAL";
+
+                ws.Cells[row, 2, row, 3].Merge = true;
+                ws.Cells[row, 7, row, 8].Merge = true;
+                ws.Cells[row, 9, row, 10].Merge = true;
+
+                row++;
+
+                ws.Cells[row, 2].Value = "NOMBRE GENÉRICO";
+                ws.Cells[row, 3].Value = "NOMBRE COMERCIAL";
+                ws.Cells[row, 7].Value = "COMPRA";
+                ws.Cells[row, 8].Value = "OTROS";
+                ws.Cells[row, 9].Value = "VENTA";
+                ws.Cells[row, 10].Value = "OTROS";
+
+                ws.Cells[1, 1, 2, 1].Merge = true;
+                ws.Cells[1, 4, 2, 4].Merge = true;
+                ws.Cells[1, 5, 2, 5].Merge = true;
+                ws.Cells[1, 6, 2, 6].Merge = true;
+                ws.Cells[1, 11, 2, 11].Merge = true;
+
+                using (var range = ws.Cells[1, 1, 2, 11])
+                {
+                    range.Style.Font.Bold = true;
+                    range.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                    range.Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+                    range.Style.Border.BorderAround(ExcelBorderStyle.Thin);
+                }
+
+                row++;
+
+                // =========================
+                // CUERPO
+                // =========================
+                string codActual = "";
+                decimal sumCompra = 0;
+                decimal sumOtrosIng = 0;
+                decimal sumVenta = 0;
+                decimal sumOtrosEgr = 0;
+                decimal saldoActual = 0;
+
+                RptBalanceControladosConsolidado_E baseRow = null;
+
+                foreach (var det in lista)
+                {
+                    if (codActual != "" && codActual != det.CodProducto)
+                    {
+                        ws.Cells[row, 1].Value = baseRow.CodProducto;
+                        ws.Cells[row, 2].Value = baseRow.NombreGenerico;
+                        ws.Cells[row, 3].Value = baseRow.NombreComercial;
+                        ws.Cells[row, 4].Value = baseRow.Concentracion;
+                        ws.Cells[row, 5].Value = baseRow.FormaFamaceutica;
+                        ws.Cells[row, 6].Value = baseRow.SaldoAnterior;
+                        ws.Cells[row, 7].Value = sumCompra;
+                        ws.Cells[row, 8].Value = sumOtrosIng;
+                        ws.Cells[row, 9].Value = sumVenta;
+                        ws.Cells[row, 10].Value = sumOtrosEgr;
+                        ws.Cells[row, 11].Value = saldoActual + baseRow.SaldoAnterior;
+
+                        row++;
+
+                        sumCompra = 0;
+                        sumOtrosIng = 0;
+                        sumVenta = 0;
+                        sumOtrosEgr = 0;
+                    }
+
+                    baseRow = det;
+
+                    sumCompra += det.Compra;
+                    sumOtrosIng += det.OtrosIngresosNC;
+                    sumVenta += det.Venta;
+                    sumOtrosEgr += det.OtrosEgresosDEV;
+
+                    saldoActual = sumCompra + sumOtrosIng - sumVenta - sumOtrosEgr;
+                    codActual = det.CodProducto;
+                }
+
+                // ÚLTIMO REGISTRO
+                if (baseRow != null)
+                {
+                    ws.Cells[row, 1].Value = baseRow.CodProducto;
+                    ws.Cells[row, 2].Value = baseRow.NombreGenerico;
+                    ws.Cells[row, 3].Value = baseRow.NombreComercial;
+                    ws.Cells[row, 4].Value = baseRow.Concentracion;
+                    ws.Cells[row, 5].Value = baseRow.FormaFamaceutica;
+                    ws.Cells[row, 6].Value = baseRow.SaldoAnterior;
+                    ws.Cells[row, 7].Value = sumCompra;
+                    ws.Cells[row, 8].Value = sumOtrosIng;
+                    ws.Cells[row, 9].Value = sumVenta;
+                    ws.Cells[row, 10].Value = sumOtrosEgr;
+                    ws.Cells[row, 11].Value = saldoActual + baseRow.SaldoAnterior;
+                }
+
+                ws.Cells[1, 1, row, 11].Style.Border.BorderAround(ExcelBorderStyle.Thin);
+        
+                return File(
+                    package.GetAsByteArray(),
+                    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                    "BalanceControlados_Consolidado.xlsx"
+                );
+            }
+        }
+
+        public ActionResult ExcelBalanceControlados(FrmBalanceControlados_E filtros)
+        {
+            ReportesDigemid_N digN = new ReportesDigemid_N();
+
+            if (filtros.Informe.Equals("Ingresos"))
+            {
+                var lista = digN.ReporteBalanceControladosIngreso(filtros);
+                return ExcelBalanceControlados_Ingreso(lista);
+            }
+            else if (filtros.Informe.Equals("Egresos"))
+            {
+                var lista = digN.ReporteBalanceControladosEgreso(filtros);
+                return ExcelBalanceControlados_Egreso(lista);
+            }
+            else if (filtros.Informe.Equals("Consolidado"))
+            {
+                var lista = digN.ReporteBalanceControladosConsolidado(filtros);
+                return ExcelBalanceControlados_Consolidado(lista);
+            }
+        
+            return Content("No hay datos");
+   
+        }
+
+
+
         public ActionResult PdfRptBalanceControlados(FrmBalanceControlados_E filtros, string impresion)
         {
             return new ActionAsPdf("RptBalanceControlados", new { Informe = filtros.Informe, FecIni = filtros.FecIni, FecFin = filtros.FecFin, TipoControlado = filtros.TipoControlado, Impresion = impresion }) { FileName = $"ReporteBalanceControlados{filtros.Informe}.pdf", PageOrientation = Rotativa.Options.Orientation.Landscape, PageSize = Rotativa.Options.Size.A4 };
