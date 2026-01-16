@@ -14,6 +14,12 @@
 
             if ($('#Informe').val() == 'Libro Controlados') {
                 botonesDescarga += `<button type="button" class="btn btn-success mx-2" onclick="exportTableToExcel('tbl_libroControlados')"><i class="icon-file-excel"></i> Excel</button>`;
+            } else if ($('#Informe').val() == 'Ingresos') {
+                botonesDescarga += `<button type="button" class="btn btn-success mx-2" onclick="descargarEXCEL()"><i class="icon-file-excel"></i> Excel</button>`;
+            } else if ($('#Informe').val() == 'Egresos') {
+                botonesDescarga += `<button type="button" class="btn btn-success mx-2" onclick="descargarEXCEL()"><i class="icon-file-excel"></i> Excel</button>`;
+            } else if ($('#Informe').val() == 'Consolidado') {
+                botonesDescarga += `<button type="button" class="btn btn-success mx-2" onclick="descargarEXCEL()"><i class="icon-file-excel"></i> Excel</button>`;
             }
 
             botonesDescarga += `</td>

@@ -789,37 +789,14 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
             catch { hcn.Close(); }
             return lista;
         }
-        private List<RTV3_E> listarDirDestinos(string CardCode, int docnum)
+        private List<RTV3_E> listarDirDestinos(string CardCode)
         {
             List<RTV3_E> lista = new List<RTV3_E>();
             HanaConnection hcn = new HanaConnection(uti.cadHana);
             try
             {
                 hcn.Open();
-                string query = $@"
-            SELECT 
-                IFNULL(T0.""Street"", '') || ' ' || IFNULL(T0.""Block"", '') || ' ' || IFNULL(T0.""City"", '') || ' ' || IFNULL(T0.""County"", '') AS ""Dir"",
-                T0.""Block"",
-                T0.""City"",
-                T0.""County"",
-                T0.""ZipCode"",
-                T0.""Street"",
-                T0.""Address2""
-            FROM {uti.schemaHana}CRD1 T0
-            INNER JOIN {uti.schemaHana}ORDR T1 ON T0.""CardCode"" = T1.""CardCode""
-            WHERE T0.""CardCode"" = '{CardCode}'
-              AND T0.""Address"" LIKE 'ENV%'
-              AND T1.""Comments"" = '{docnum}'
-              AND UPPER(TRIM(
-                    REPLACE(
-                        REPLACE(
-                            REPLACE(T1.""Address2"", CHAR(13), ' '),
-                        CHAR(10), ' '),
-                    '-', ' ')
-                )) = UPPER(TRIM(IFNULL(T0.""Street"", '') || ' ' || IFNULL(T0.""Block"", '') || ' ' || IFNULL(T0.""City"", '') || ' ' || IFNULL(T0.""County"", '')))
-            ORDER BY T0.""LineNum""
-            LIMIT 1";
-                HanaCommand hcmd = new HanaCommand(query, hcn);
+                HanaCommand hcmd = new HanaCommand("select \"Address\"||': '||ifnull(\"Street\",'')||' '||ifnull(\"Block\",'') ||' '||ifnull(\"City\",'')||' '||ifnull(\"County\",'')as \"Dir\", \"Block\",\"City\",\"County\", \"ZipCode\", \"Street\" ,\"Address2\"  from " + uti.schemaHana + "crd1 where \"CardCode\"='" + CardCode + "' and \"Address\" like 'ENV%' ORDER BY \"LineNum\" ", hcn);
                 HanaDataReader hdr = hcmd.ExecuteReader();
                 while (hdr.Read())
                 {
@@ -853,8 +830,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                        T0.""DocTotal"",
                        L.""Name"",
                        T1.""WhsCode"",
-                       P.""PymntGroup"",
-                       T0.""Address2""
+                       P.""PymntGroup""
                 FROM {uti.schemaHana}ORDR T0
                 INNER JOIN {uti.schemaHana}RDR1 T1 ON T1.""DocEntry"" = T0.""DocEntry""
                 INNER JOIN {uti.schemaHana}OSLP S ON S.""SlpCode"" = T0.""SlpCode""
@@ -866,7 +842,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                   AND T0.""CANCELED"" = 'N'
                 GROUP BY T0.""DocEntry"", T0.""DocNum"", T0.""SlpCode"", T0.""DocTotal"",
                          T0.""U_COB_LUGAREN"", T1.""WhsCode"", T0.""DocDate"", T0.""CardCode"", T0.""GroupNum"",
-                         S.""SlpName"", L.""Name"", P.""PymntGroup"", T0.""Address2""
+                         S.""SlpName"", L.""Name"", P.""PymntGroup""
                 ORDER BY T0.""DocDate"", T0.""CardCode"", T0.""DocEntry""";
                     var hcmd = new HanaCommand(query, hcn);
                     using (var hdr = hcmd.ExecuteReader())
@@ -881,8 +857,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                                 DocTotal = hdr.GetDecimal(2),
                                 LugarDeEntrega = hdr.GetString(3),
                                 AlmacenSalida = hdr.GetString(4),
-                                TipoVenta = hdr.GetString(5), // Crédito, contado.
-                                DirecionDestino = hdr.GetString(6)
+                                TipoVenta = hdr.GetString(5) // Crédito, contado.
                             };
                             lista.Add(o);
                         }
@@ -1889,10 +1864,10 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
             info += "</datalist>";
             return info;
         }
-        public string GeneraInfoListaDirDestinos(string CardCode, int docnum)
+        public string GeneraInfoListaDirDestinos(string CardCode)
         {
             string info = "<option value=''>Seleccione</option>";
-            foreach (RTV3_E x in listarDirDestinos(CardCode, docnum))
+            foreach (RTV3_E x in listarDirDestinos(CardCode))
             {
                 info += "<option  value ='" + x.DirDestino + "' Zona='" + x.Zona + "' Distrito='" + x.Distrito + "' Provincia='" + x.Provincia + " 'Departamento='" + x.Departamento + "' Ubigeo='" + x.Ubigeo + "' Calle='" + x.Calle + "'>" + x.DirDestino + "</option>";
             }
@@ -1918,49 +1893,27 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
             int linea = 1;
             List<OrdenDeVenta_E> lista = ListarOrdenesdeVentaFinales(fecha, cardCode, docNum);
             string tipoVenta = lista.Where(x => x.DocTotal != 0).Select(x => x.TipoVenta).Distinct().SingleOrDefault();
-
-            if (lista != null && lista.Count > 0)
+            //Verifica si existe un solo TipoVenta en todas las órdenes relacionadas
+            if (tipoVenta != null && lista.Where(x => x.DocTotal != 0).Select(x => x.TipoVenta).Distinct().Count() == 1)
             {
-                var direccionReferencia = lista[0].DirecionDestino;
-                bool todasIguales = lista.All(x => x.DirecionDestino == direccionReferencia);
-
-                if (!todasIguales)
+                info += "<thead class='bg-cobefar text-white'><tr><th class='text-center'>#</th><th class='text-center'>VER</th><th class='text-center'>Monto</th>" +
+                              "<th class='text-center'>Nro SAP</th><th class='text-center'>Tipo Comprobante</th><th class='text-center'>Vendedor</th>" +
+                              "<th class='text-center'>Lugar de Entrega</th><th class='text-center'>ALM Salida</th><th class='text-center font-24'>Observación</th></tr></thead><tbody style='background: #D1D1D1'>";
+                foreach (OrdenDeVenta_E o in lista)
                 {
-                    // Generar tabla HTML con Nro SAP y Dirección
-                    var tabla = new StringBuilder();
-                    tabla.Append("<table class='table table-sm table-bordered tabla-direcciones-compacta' style='min-width:350px;width:auto;margin:0 auto;'><thead><tr><th style='width:110px;min-width:110px;'>Nro SAP</th><th>Dirección de Envío</th></tr></thead><tbody>");
-                    foreach (var orden in lista)
-                    {
-                        tabla.AppendFormat("<tr><td style='width:110px;min-width:110px;white-space:pre-line;'>{0}</td><td>{1}</td></tr>", orden.DocNum, orden.DirecionDestino);
-                    }
-                    tabla.Append("</tbody></table>");
-                    throw new Exception("Las direcciones de envío no son iguales en todas las órdenes de venta.<br><br>" + tabla.ToString());
+                    info += "<tr><td  class='text-center'><input id='Linea" + linea + "' name='Det2[" + (linea - 1) + "].Linea' type='hidden' value='" + linea + "' readonly />" + linea + "</td>" +
+                        "<td class='text-center'><input id='Verificar" + linea + "' name='Det2[" + (linea - 1) + "].Verificar' type='checkbox' onclick=\"validacionVerificarMontos('')\" /></td>" +
+                        "<td class='text-center'><input id='Monto" + linea + "' name='Det2[" + (linea - 1) + "].Monto' type='hidden' value='" + String.Format("{0:0.00}", o.DocTotal) + "' readonly />" + String.Format("{0:0.00}", o.DocTotal) + "</td>" +
+                        "<td class='text-center'><input id='NroSap" + linea + "' name='Det2[" + (linea - 1) + "].NroSap' type='hidden' value='" + o.DocNum + "' readonly size=8 />" + o.DocNum + "</td>" +
+                        "<td class='text-center'><select id='TipoComprobante" + linea + "' name='Det2[" + (linea - 1) + "].TipoComprobante' class='form-control'><option value=''>Seleccione</option><option value='Factura'>Factura</option><option value='Boleta'>Boleta</option><option value='F/B'>F/B</option></select></td>" +
+                        "<td class='text-center'><input id='Vendedor" + linea + "' name='Det2[" + (linea - 1) + "].Vendedor' type='hidden' value='" + o.SlpName + "' readonly />" + o.SlpName + "</td>" +
+                        "<td class='text-center'><input id='LugarDeEntrega" + linea + "' name='Det2[" + (linea - 1) + "].LugarDeEntrega' type='hidden' value='" + o.LugarDeEntrega + "' readonly />" + o.LugarDeEntrega + "</td>" +
+                        "<td class='text-center'><input id='AlmacenSalida" + linea + "' name='Det2[" + (linea - 1) + "].AlmacenSalida' type='hidden' value='" + o.AlmacenSalida + "' readonly />" + o.AlmacenSalida + "</td>" +
+                        "<td class='text-center' style=width:'500px'><input id='Observaciones" + linea + "' name='Det2[" + (linea - 1) + "].Observaciones' type='text' size='30' class='form-control' /></td></tr>";
+                    linea++;
                 }
+                info += "</tbody>";
             }
-            // Verifica si existe un solo TipoVenta en todas las órdenes relacionadas
-            if (tipoVenta == null || lista.Where(x => x.DocTotal != 0).Select(x => x.TipoVenta).Distinct().Count() != 1)
-            {
-                throw new Exception("El tipo de venta no es único en las órdenes de venta seleccionadas.");
-            }
-
-            info += "<thead class='bg-cobefar text-white'><tr><th class='text-center'>#</th><th class='text-center'>VER</th><th class='text-center'>Monto</th>" +
-                          "<th class='text-center'>Nro SAP</th><th class='text-center'>Tipo Comprobante</th><th class='text-center'>Vendedor</th>" +
-                          "<th class='text-center'>Lugar de Entrega</th><th class='text-center'>ALM Salida</th><th class='text-center font-24'>Observación</th></tr></thead><tbody style='background: #D1D1D1'>";
-            foreach (OrdenDeVenta_E o in lista)
-            {
-                info += "<tr><td  class='text-center'><input id='Linea" + linea + "' name='Det2[" + (linea - 1) + "].Linea' type='hidden' value='" + linea + "' readonly />" + linea + "</td>" +
-                    "<td class='text-center'><input id='Verificar" + linea + "' name='Det2[" + (linea - 1) + "].Verificar' type='checkbox' onclick=\"validacionVerificarMontos('')\" /></td>" +
-                    "<td class='text-center'><input id='Monto" + linea + "' name='Det2[" + (linea - 1) + "].Monto' type='hidden' value='" + String.Format("{0:0.00}", o.DocTotal) + "' readonly />" + String.Format("{0:0.00}", o.DocTotal) + "</td>" +
-                    "<td class='text-center'><input id='NroSap" + linea + "' name='Det2[" + (linea - 1) + "].NroSap' type='hidden' value='" + o.DocNum + "' readonly size=8 />" + o.DocNum + "</td>" +
-                    "<td class='text-center'><select id='TipoComprobante" + linea + "' name='Det2[" + (linea - 1) + "].TipoComprobante' class='form-control'><option value=''>Seleccione</option><option value='Factura'>Factura</option><option value='Boleta'>Boleta</option><option value='F/B'>F/B</option></select></td>" +
-                    "<td class='text-center'><input id='Vendedor" + linea + "' name='Det2[" + (linea - 1) + "].Vendedor' type='hidden' value='" + o.SlpName + "' readonly />" + o.SlpName + "</td>" +
-                    "<td class='text-center'><input id='LugarDeEntrega" + linea + "' name='Det2[" + (linea - 1) + "].LugarDeEntrega' type='hidden' value='" + o.LugarDeEntrega + "' readonly />" + o.LugarDeEntrega + "</td>" +
-                    "<td class='text-center'><input id='AlmacenSalida" + linea + "' name='Det2[" + (linea - 1) + "].AlmacenSalida' type='hidden' value='" + o.AlmacenSalida + "' readonly />" + o.AlmacenSalida + "</td>" +
-                    "<td class='text-center' style=width:'500px'><input id='Observaciones" + linea + "' name='Det2[" + (linea - 1) + "].Observaciones' type='text' size='30' class='form-control' /></td></tr>";
-                linea++;
-            }
-            info += "</tbody>";
-
             return (info, tipoVenta);
         }
         public string GeneraInfoListaNotasDeCreditoV(string CardCode)
@@ -2953,7 +2906,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                                             (SELECT TOP 1 Id FROM VT.CC_ORTV WHERE DocEntry = T0.DocEntry AND Operacion = 'ANULAR FIN VERIFICAR' ORDER BY Id DESC)
                                         ) 
                                     )
-                AND (YEAR(T0.FechaSapTicket) = 2026 OR YEAR(T0.FechaSapTicket) = 2025) AND ((SELECT  Estado FROM vt.BusquedaProducto WHERE DocEntry=t0.DocEntry )='CONCLUIDO' or not exists (SELECT  Estado FROM vt.BusquedaProducto WHERE DocEntry=t0.DocEntry ))";
+AND YEAR(T0.FechaSapTicket) = (SELECT YEAR(GETDATE())) AND ((SELECT  Estado FROM vt.BusquedaProducto WHERE DocEntry=t0.DocEntry )='CONCLUIDO' or not exists (SELECT  Estado FROM vt.BusquedaProducto WHERE DocEntry=t0.DocEntry ))";
             using (SqlConnection cn = new SqlConnection(uti.cadSql))
             {
                 try

@@ -11,27 +11,7 @@
     var usuario = ViewBag.Usuario;
 
 }
-<style>
-    .tabla-direcciones-compacta {
-        border-collapse: collapse !important;
-        width: auto;
-        margin: 0 auto;
-        background: #fff;
-        font-size: 13px;
-    }
 
-        .tabla-direcciones-compacta th, .tabla-direcciones-compacta td {
-            border: 1px solid #888 !important;
-            padding: 4px 8px !important;
-            vertical-align: middle;
-            text-align: left;
-        }
-
-        .tabla-direcciones-compacta th {
-            background: #f5f5f5;
-            color: #333 !important; /* <-- Añade esta línea */
-        }
-</style>
 <script>
     window.hayReclamos = false;
     $(document).ready(function () {
@@ -62,7 +42,7 @@
         // Inicializamos los tabs desactivados
         $('#nav-det-pedidos-tab').addClass('disabled');
         //solo para las vendedoras seleccionadas muestra el select FormaPago precargado con la opcion EFE/CAPON
-        if ('@usuario' !== 'VENTAS32' && '@usuario' !== 'VENTAS05' && '@usuario' !== 'VENTAS130') {
+        if ('@usuario' !== 'VENTAS32' && '@usuario' !== 'VENTAS05'&& '@usuario' !== 'VENTAS130') {
             $("#div_FormaPago").hide();
             $("input[name='FormaPago'], select[name='FormaPago']").val('');
         } else {
@@ -253,6 +233,8 @@
                         $('#detallesPedidos').html(response.HtmlContent);
 
                         var tipoVenta = response.TipoVenta ? response.TipoVenta.toUpperCase() : '';
+                        // Mostrar/ocultar elementos según el valor de TipoVenta
+
                         if (tipoVenta.startsWith('CREDITO')) {
                             tipoVentaInput.show().val('Credito');
                             tipoVentaSelect.hide();
@@ -268,16 +250,7 @@
                         tipoVentaSelect.val(''); tipoVentaInput.val('');
                         tipoVentaSelect.hide();
                         tipoVentaInput.hide();
-                        // Mostrar el mensaje de error específico si existe
-                        if (response.ErrorMessage && response.ErrorMessage !== "") {
-                            Swal.fire({
-                                title: 'Error en Ordenes de Venta',
-                                html: response.ErrorMessage,
-                                width: 600 // o el valor que prefieras
-                            });
-                        } else {
-                            Swal.fire('Tipo de venta no único o dirección destino diferente en las órdenes de venta, validar en SAP');
-                        }
+                        Swal.fire('No existe elementos en la tabla de ordenes o el tipo de venta no es único.')
                     }
                 });
         });
