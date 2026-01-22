@@ -472,4 +472,9 @@
     function descargarPDF() {
         window.open('/ReportesDigemid/PdfRptBalanceControlados?Informe=Consolidado&FecIni=' + $('#FecIni').val() + '&FecFin=' + $('#FecFin').val() + '&TipoControlado=' + $('#TipoControlado').val() + '&Impresion=SI', '_blank');
     }
+
+    function descargarEXCEL() {
+        window.open('/ReportesDigemid/ExcelBalanceControlados?Informe=Consolidado&FecIni=' + $('#FecIni').val() + '&FecFin=' + $('#FecFin').val() + '&TipoControlado=' + $('#TipoControlado').val(), '_blank');
+    }
+
 </script>

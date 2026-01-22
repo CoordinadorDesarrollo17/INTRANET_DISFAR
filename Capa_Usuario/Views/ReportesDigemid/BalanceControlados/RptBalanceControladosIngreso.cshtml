@@ -75,7 +75,7 @@
         </tr>
     </table>
 
-    <table style="margin-top: 200px; font-size: 12.5px">
+    <table id="tbl_ingresos" style="margin-top: 200px; font-size: 12.5px">
         <thead class="text-dark">
             <tr>
                 <th class="text-dark " style="vertical-align: middle"></th>
@@ -219,7 +219,13 @@
         window.open('/ReportesDigemid/PdfRptBalanceControlados?Informe=Ingresos&FecIni=' + $('#FecIni').val() + '&FecFin=' + $('#FecFin').val() + '&TipoControlado=' + $('#TipoControlado').val() + '&Impresion=SI', '_blank');
     }
 
+    function descargarEXCEL() {
+        window.open('/ReportesDigemid/ExcelBalanceControlados?Informe=Ingresos&FecIni=' + $('#FecIni').val() + '&FecFin=' + $('#FecFin').val() + '&TipoControlado=' + $('#TipoControlado').val() , '_blank');
+    }
+
     //function descargarExcel() {
     //    window.open('/DireccionTecnica/RptExcelKardexAlmacenes?WhsCode=' + $('#WhsCode').val() + '&FecIni=' + $('#FecIni').val() + '&FecFin=' + $('#FecFin').val() + '&ItemCode=' + $('#ItemCode').val() + '&Lote=' + $('#Lote').val(), '_blank');
     //}
+
+
 </script>

@@ -220,6 +220,11 @@
         window.open('/ReportesDigemid/PdfRptBalanceControlados?Informe=Egresos&FecIni=' + $('#FecIni').val() + '&FecFin=' + $('#FecFin').val() + '&TipoControlado=' + $('#TipoControlado').val() + '&Impresion=SI', '_blank');
     }
 
+    function descargarEXCEL() {
+        window.open('/ReportesDigemid/ExcelBalanceControlados?Informe=Egresos&FecIni=' + $('#FecIni').val() + '&FecFin=' + $('#FecFin').val() + '&TipoControlado=' + $('#TipoControlado').val(), '_blank');
+    }
+
+
     //function descargarExcel() {
     //    window.open('/DireccionTecnica/RptExcelKardexAlmacenes?WhsCode=' + $('#WhsCode').val() + '&FecIni=' + $('#FecIni').val() + '&FecFin=' + $('#FecFin').val() + '&ItemCode=' + $('#ItemCode').val() + '&Lote=' + $('#Lote').val(), '_blank');
     //}
