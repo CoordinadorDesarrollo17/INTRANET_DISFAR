@@ -367,7 +367,45 @@ namespace Capa_Negocio.Rutas_NEG.TablasSql
 
         public void RecibirDevolucion(int DocEntry, string opRegistro)
         {
-            orruD.RecibirDevolucion(DocEntry, opRegistro);
+            // 1. Obtener la ruta completa
+            ORRU_E ruta = obtenerOrdenDeRuta(DocEntry);
+
+          // 2. Validar que sea una devolución
+  if (ruta.TipoRuta != "DE")
+            {
+    throw new Exception("Solo se pueden recibir devoluciones (TipoRuta = DE)");
+    }
+
+// 3. Validar estado previo
+  if (ruta.Estado != "ENVIADO")
+    {
+  throw new Exception("La devolución debe estar en estado ENVIADO para poder recibirse");
+            }
+
+         // 4. Cambiar estado a "DEVUELTO" usando el SP con URD
+          orruD.RecibirDevolucion(DocEntry, opRegistro);
+        }
+
+        public void TerminarDevolucion(int DocEntry, string opRegistro)
+        {
+ // 1. Obtener la ruta completa
+         ORRU_E ruta = obtenerOrdenDeRuta(DocEntry);
+
+     // 2. Validar que sea una devolución
+       if (ruta.TipoRuta != "DE")
+    {
+    throw new Exception("Solo se pueden terminar devoluciones (TipoRuta = DE)");
+            }
+
+       // 3. Validar estado previo
+            if (ruta.Estado != "DEVUELTO")
+            {
+         throw new Exception("La devolución debe estar RECIBIDA (Estado DEVUELTO) para poder terminarla");
+    }
+
+            // 4. Asignar operario y terminar
+ ruta.Operario = opRegistro;
+TerminarReparto(ruta);
         }
         public List<ORRU_E.RptRutasExcel> ObtenerRptRutasExcel(int docEntry)
         {
