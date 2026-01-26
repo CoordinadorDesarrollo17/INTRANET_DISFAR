@@ -1796,6 +1796,30 @@ namespace Capa_Usuario.Controllers
                 return resultadoAcceso;
             }
         }
+        public ActionResult TerminarDevolucion(int DocEntry, int idOperation = 218)
+        {
+            var resultadoAcceso = VerificarPermiso(idOperation);
+            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
+            {
+                try
+                {
+                    Usuario_E user = (Usuario_E)Session["UsuarioId"];
+                    string opRegistro = $"{user.Nombres} {user.Apellidos}";
+                    orruN.TerminarDevolucion(DocEntry, opRegistro);
+                    TempData["Mensaje"] = "Devolución terminada exitosamente.";
+                    return RedirectToAction("ListadoRutas");
+                }
+                catch (Exception e)
+                {
+                    TempData["Mensaje"] = "Error al terminar la devolución: " + e.Message;
+                    return RedirectToAction("ListadoRutas");
+                }
+            }
+            else
+            {
+                return resultadoAcceso;
+            }
+        }
 
         public ActionResult DescargarRptRutasExcel(int docEntry)
         {
