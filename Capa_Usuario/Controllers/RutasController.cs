@@ -1781,37 +1781,19 @@ namespace Capa_Usuario.Controllers
                 {
                     Usuario_E user = (Usuario_E)Session["UsuarioId"];
                     string opRegistro = $"{user.Nombres} {user.Apellidos}";
+     
+                    // PASO 1: Cambiar estado a DEVUELTO
                     orruN.RecibirDevolucion(DocEntry, opRegistro);
-                    TempData["Mensaje"] = "Devolución recibida y ruta terminada.";
-                    return RedirectToAction("ListadoRutas");
-                }
-                catch (Exception e)
-                {
-                    TempData["Mensaje"] = "Error al recibir la devolución: " + e.Message;
-                    return RedirectToAction("ListadoRutas");
-                }
-            }
-            else
-            {
-                return resultadoAcceso;
-            }
-        }
-        public ActionResult TerminarDevolucion(int DocEntry, int idOperation = 218)
-        {
-            var resultadoAcceso = VerificarPermiso(idOperation);
-            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
-            {
-                try
-                {
-                    Usuario_E user = (Usuario_E)Session["UsuarioId"];
-                    string opRegistro = $"{user.Nombres} {user.Apellidos}";
+     
+                    // PASO 2: Terminar la ruta (DEVUELTO → TERMINADO)
                     orruN.TerminarDevolucion(DocEntry, opRegistro);
-                    TempData["Mensaje"] = "Devolución terminada exitosamente.";
+             
+                    TempData["Mensaje"] = "Devolución recibida y terminada exitosamente.";
                     return RedirectToAction("ListadoRutas");
                 }
                 catch (Exception e)
                 {
-                    TempData["Mensaje"] = "Error al terminar la devolución: " + e.Message;
+                    TempData["Mensaje"] = "Error: " + e.Message;
                     return RedirectToAction("ListadoRutas");
                 }
             }
@@ -1820,7 +1802,6 @@ namespace Capa_Usuario.Controllers
                 return resultadoAcceso;
             }
         }
-
         public ActionResult DescargarRptRutasExcel(int docEntry)
         {
             var excelContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
