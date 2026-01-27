@@ -199,15 +199,10 @@
                         <th class="text-center border-end">MontoFinal</th>
                         <th class="text-center border-end">Envio</th>
                         <th class="text-center border-end">Estado</th>
-                       
-                        @if (Model.TipoRuta != "DE")
-                        {
-                            <th class="text-center border-end">TempI1</th>
-                            <th class="text-center border-end">TempI2</th>
-                            <th class="text-center border-end">TempF1</th>
-                            <th class="text-center border-end">TempF2</th>
-                        }
-                     
+                        <th class="text-center border-end">TempI1</th>
+                        <th class="text-center border-end">TempI2</th>
+                        <th class="text-center border-end">TempF1</th>
+                        <th class="text-center border-end">TempF2</th>
                         <th class="text-center border-end">OpEnt</th>
                         <th class="text-center border-end">TiempoEnt</th>
                         <th class="text-center border-end">ImgEvidencia</th>
@@ -277,15 +272,10 @@
                                     <td class="text-center border-end">S/ @Html.DisplayFor(model => dt.MontoFinal)</td>
                                     <td class="text-center border-end">S/ @Html.DisplayFor(model => dt.Envio)</td>
                                     <td class="text-center border-end">@Html.DisplayFor(model => dt.Estado)</td>
-
-                                    @if (Model.TipoRuta != "DE")
-                                    {
-                                        <td class="text-center border-end">@Html.DisplayFor(model => dt.TempI1)</td>
-                                        <td class="text-center border-end">@Html.DisplayFor(model => dt.TempI2)</td>
-                                        <td class="text-center border-end">@Html.DisplayFor(model => dt.TempF1)</td>
-                                        <td class="text-center border-end">@Html.DisplayFor(model => dt.TempF2)</td>
-                                    }
-
+                                    <td class="text-center border-end">@Html.DisplayFor(model => dt.TempI1)</td>
+                                    <td class="text-center border-end">@Html.DisplayFor(model => dt.TempI2)</td>
+                                    <td class="text-center border-end">@Html.DisplayFor(model => dt.TempF1)</td>
+                                    <td class="text-center border-end">@Html.DisplayFor(model => dt.TempF2)</td>
                                     <td class="text-center border-end">@Html.DisplayFor(model => dt.OpEntrega)</td>
                                     <td class="text-center border-end">@Html.DisplayFor(model => dt.FechaEntrega)</td>
                                     <td class="text-center border-end">

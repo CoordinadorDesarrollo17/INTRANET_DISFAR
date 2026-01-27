@@ -76,4 +76,3 @@ PublishScripts/
 
 # Archivos de configuración sensibles (asegurar que no estén en el repo) #
 *.config.user
-/Capa_Usuario/Views/Rutas/ListadoRutas.cshtml

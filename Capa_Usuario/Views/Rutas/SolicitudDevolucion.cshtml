@@ -493,14 +493,12 @@
                 "columnDefs": [{ "visible": false, "targets": [2, 4, 11, 12, 13] }]
             });
         }
-        var primerConductor = '', primerPlaca = '',
-            primerAlmacen = '';   // ✅ NUEVO
+        var primerConductor = '', primerPlaca = '';
 
         $.each(data, function (index, item) {
             if (index === 0) {
                 primerConductor = item.Conductor || '';
                 primerPlaca = item.Placa || '';
-                primerAlmacen = item.Agencia || '';  // ✅ NUEVO
             }
             var conductorPlaca = (item.Conductor || '') + ' / ' + (item.Placa || '');
             var checkbox = '<input type="checkbox" class="cls-chkVerif" data-conductor="' + (item.Conductor || '') + '" data-placa="' + (item.Placa || '') + '" />';
@@ -526,15 +524,6 @@
         // Establecer primer conductor y placa
         if (primerConductor) $('#TransDesc').val(primerConductor);
         if (primerPlaca) $('#Placa').val(primerPlaca).trigger('change');
-
-        // ✅ Seleccionar almacén POR CÓDIGO
-        if (primerAlmacen) {
-            $("#AlmDestinoDesc option[almdestinocod='" + primerAlmacen + "']")
-                .prop("selected", true);
-
-            $("#AlmDestinoDesc").trigger('change');
-        }
-
 
         // Configurar evento de checkboxes
         setTimeout(function () {
