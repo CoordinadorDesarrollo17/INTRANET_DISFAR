@@ -12,6 +12,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web.Mvc;
+using Capa_Entidad.Rutas_ENT.TablasSql;
+using Capa_Negocio.Rutas_NEG.TablasSql;
+using Capa_Negocio.General_NEG.TablasSql;
+
 namespace Capa_Usuario.Controllers
 {
     public class AtencionClienteController : Controller
@@ -356,39 +360,39 @@ namespace Capa_Usuario.Controllers
         {
             var resultadoAcceso = VerificarPermiso(idOperation);
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
-            {
-                OWHS_N owhsN = new OWHS_N();
-                OREG_N oregN = new OREG_N();
-                CC_OSAT_N ccOSAT_N = new CC_OSAT_N();
-                string errorAlm = string.Empty;
-                var result = osatN.buscarSolicitud(id);
-                // Solo cuando el Tipo de Error sea "ErrorAlmacen" mostrará el campo Error de almacén
-                if (result.Det != null && result.Det.Count >= 1)
-                {
-                    errorAlm = result.Det[0].ErrorAlmacen;
-                }
-                var datos = DatosSolicitud(result.TipoVenta, result.CanalVenta, errorAlm);
-                ViewBag.ErrorAlmacen = errorAlm;
-                ViewBag.TipoVenta = datos["TipoVenta"];
-                ViewBag.CanalVenta = datos["CanalVenta"];
-                ViewBag.ErrorAlmacen = datos["ErrorAlmacen"];
-                ViewBag.Almacenes = owhsN.ListarAlmacenes("todos");
-                ViewBag.Regalos = oregN.listaRegalos(null);
-                ViewBag.DatosAtencion = ccOSAT_N.ListarCC_OSAT(id, "ATENDER");
-                return View(result);
-            }
-            else
-            {
-                return resultadoAcceso;
-            }
-        }
+  {
+    Capa_Negocio.General_NEG.Tablas.OWHS_N owhsN = new Capa_Negocio.General_NEG.Tablas.OWHS_N();
+   OREG_N oregN = new OREG_N();
+   CC_OSAT_N ccOSAT_N = new CC_OSAT_N();
+   string errorAlm = string.Empty;
+ var result = osatN.buscarSolicitud(id);
+        // Solo cuando el Tipo de Error sea "ErrorAlmacen" mostrará el campo Error de almacén
+        if (result.Det != null && result.Det.Count >= 1)
+   {
+   errorAlm = result.Det[0].ErrorAlmacen;
+     }
+     var datos = DatosSolicitud(result.TipoVenta, result.CanalVenta, errorAlm);
+   ViewBag.ErrorAlmacen = errorAlm;
+   ViewBag.TipoVenta = datos["TipoVenta"];
+   ViewBag.CanalVenta = datos["CanalVenta"];
+        ViewBag.ErrorAlmacen = datos["ErrorAlmacen"];
+        ViewBag.Almacenes = owhsN.ListarAlmacenes("todos");
+  ViewBag.Regalos = oregN.listaRegalos(null);
+   ViewBag.DatosAtencion = ccOSAT_N.ListarCC_OSAT(id, "ATENDER");
+   return View(result);
+    }
+    else
+    {
+        return resultadoAcceso;
+ }
+}
         [HttpPost]
         public ActionResult AtenderSolicitud(OSAT_E obj, int idOperation = 2707)
         {
             var resultadoAcceso = VerificarPermiso(idOperation);
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
-                OWHS_N owhsN = new OWHS_N();
+              Capa_Negocio.General_NEG.Tablas.OWHS_N owhsN = new Capa_Negocio.General_NEG.Tablas.OWHS_N();
                 OREG_N oregN = new OREG_N();
                 try
                 {
@@ -696,6 +700,38 @@ namespace Capa_Usuario.Controllers
                     }
                     return File(libro.GetAsByteArray(), excelContentType, "RegalosAplicados.xlsx");
                 }
+            }
+            else
+            {
+                return resultadoAcceso;
+            }
+        }
+
+        public ActionResult HojaRuta(ORRU_E filtro = null, string Mensaje = "", int idOperation = 2714)
+        {
+            var resultadoAcceso = VerificarPermiso(idOperation);
+            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
+            {
+                ORRU_N orruN = new ORRU_N();
+                Usuario_N ousrN = new Usuario_N();
+                OVEH_N ovehN = new OVEH_N();
+
+                if (filtro == null) { filtro = new ORRU_E(); }
+
+                // FORZAR filtro de TipoRuta = "DE" (Devoluciones)
+                filtro.TipoRuta = "DE";
+
+                var lista = orruN.Listar(filtro);
+                var usuarios = ousrN.ListaUsuarios(null);
+                var Conductores = usuarios != null ? usuarios.Select(u => u.Nombres + " " + u.Apellidos).Distinct().ToList() : new List<string>();
+                var listaVeh = ovehN.listaVeh(0, null);
+
+                ViewBag.Mensaje = Mensaje;
+                ViewBag.Orru = filtro;
+                ViewBag.Conductores = Conductores;
+                ViewBag.listaVeh = listaVeh;
+
+                return View(lista);
             }
             else
             {

@@ -1667,9 +1667,9 @@ namespace Capa_Usuario.Controllers
 
                     int DocNum = orruN.NuevaHojaDeReparto(o);
 
-                    return TipoRep == "Re"
-                        ? RedirectToAction("ListadoRepartos", new { DocNum })
-                        : RedirectToAction("ListadoRutas", new { DocNum });
+                    // Redirigir a HojaRuta en AtencionCliente con mensaje de éxito
+                    TempData["Mensaje"] = "Devolución creada exitosamente";
+                    return RedirectToAction("HojaRuta", "AtencionCliente", new { DocNum });
                 }
                 catch (Exception e)
                 {
