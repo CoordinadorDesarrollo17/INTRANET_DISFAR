@@ -1,30 +1,34 @@
 ﻿using Capa_Entidad.Almacen_ENT.Tablas;
 using Capa_Entidad.Compras_ENT.Tablas;
+using Capa_Entidad.DireccionTecnica_ENT.Reportes.BalanceControlados;
 using Capa_Entidad.DireccionTecnica_ENT.TablasSql;
 using Capa_Entidad.General_ENT.Tablas;
 using Capa_Entidad.General_ENT.TablasSql;
 using Capa_Entidad.ReportesDigemid_ENT;
 using Capa_Entidad.Seguridad_ENT;
+using Capa_Entidad.TablasSql;
 using Capa_Entidad.Ventas_ENT.Tablas;
+using Capa_Negocio;
 using Capa_Negocio.Almacen_NEG.Tablas;
+using Capa_Negocio.DireccionTecnica_NEG.TablasExternas;
 using Capa_Negocio.DireccionTecnica_NEG.TablasSql;
 using Capa_Negocio.General_NEG.Tablas;
 using Capa_Negocio.General_NEG.TablasSql;
 using Capa_Negocio.ReportesDigemid_NEG;
 using Capa_Negocio.Ventas_NEG.Tablas;
 using Capa_Negocio.Ventas_NEG.TablasSql;
+using Capa_Usuario.Helpers;
+using DocumentFormat.OpenXml.Spreadsheet;
+using OfficeOpenXml;
+using OfficeOpenXml.Style;
 using Rotativa;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Web.Mvc;
-using Capa_Usuario.Helpers;
-using Capa_Negocio;
-using Capa_Negocio.DireccionTecnica_NEG.TablasExternas;
-using DocumentFormat.OpenXml.Spreadsheet;
 using System.IO;
+using System.Linq;
 using System.util;
-using Capa_Entidad.TablasSql;
+using System.Web.Mvc;
+using System.Web.Services.Description;
 namespace Capa_Usuario.Controllers
 {
     public class DireccionTecnicaController : Controller
@@ -433,6 +437,87 @@ namespace Capa_Usuario.Controllers
                 return resultadoAcceso;
             }
         }
+
+        [HttpGet]
+        public ActionResult ExportarExcelEntradaMercancia(Capa_Entidad.Compras_ENT.Tablas.OPDN_E filtros)
+        {
+            // 1️⃣ Obtener la MISMA lista que usas en la vista
+            var lista = new Capa_Negocio.Compras_NEG.Tablas.OPDN_N().listadoEntradaMercancias(filtros);
+
+            using (var package = new ExcelPackage())
+            {
+                var ws = package.Workbook.Worksheets.Add("Entradas Mercancía");
+
+                // =========================
+                // ANCHO DE COLUMNAS
+                // =========================
+                ws.Column(1).Width = 15; // DocNum
+                ws.Column(2).Width = 15; // DocDate
+                ws.Column(3).Width = 40; // CardName
+                ws.Column(4).Width = 20; // NumAtCard
+                ws.Column(5).Width = 15; // DocTotal
+                ws.Column(6).Width = 20; // Estado Doc
+                ws.Column(7).Width = 20; // Almacén
+                ws.Column(8).Width = 20; // Estado Mercancía
+
+                ws.Column(5).Style.Numberformat.Format = "#,##0.00";
+
+                int row = 1;
+
+                // =========================
+                // CABECERA
+                // =========================
+                ws.Cells[row, 1].Value = "N° Documento";
+                ws.Cells[row, 2].Value = "Fecha";
+                ws.Cells[row, 3].Value = "Proveedor";
+                ws.Cells[row, 4].Value = "Guia";
+                ws.Cells[row, 5].Value = "Total";
+                ws.Cells[row, 6].Value = "Estado Documento";
+                ws.Cells[row, 7].Value = "Almacén";
+                ws.Cells[row, 8].Value = "Estado";
+
+                using (var range = ws.Cells[row, 1, row, 8])
+                {
+                    range.Style.Font.Bold = true;
+                    range.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                    range.Style.Border.BorderAround(ExcelBorderStyle.Thin);
+                }
+
+                row++;
+
+                // =========================
+                // CUERPO (MISMO CONTENIDO QUE LA TABLA)
+                // =========================
+                foreach (var item in lista)
+                {
+                    string estadoMercancia = item.sqlopdn?.Estado ?? "PENDIENTE";
+
+                    ws.Cells[row, 1].Value = item.DocNum;
+                    ws.Cells[row, 2].Value = item.DocDate;
+                    ws.Cells[row, 3].Value = item.CardName;
+                    ws.Cells[row, 4].Value = item.NumAtCard;
+                    ws.Cells[row, 5].Value = item.DocTotal;
+                    ws.Cells[row, 6].Value = item.U_SYP_STATUS == "A" ? "Anulado"
+                                              : item.U_SYP_STATUS == "I" ? "Anulado Interno"
+                                              : "Vigente";
+                    ws.Cells[row, 7].Value = item.Almacen;
+                    ws.Cells[row, 8].Value = estadoMercancia;
+
+                    row++;
+                }
+
+                ws.Cells[1, 1, row - 1, 8].Style.Border.BorderAround(ExcelBorderStyle.Thin);
+
+                return File(
+                    package.GetAsByteArray(),
+                    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                    "Listado_Entradas_Mercancias.xlsx"
+                );
+            }
+        }
+
+
+
         public ActionResult ListadoEntradasDeMercancias(Capa_Entidad.Compras_ENT.Tablas.OPDN_E fil, int idOperation = 2301)
         {
             var resultadoAcceso = VerificarPermiso(idOperation);
