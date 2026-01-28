@@ -849,9 +849,9 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
         {
             return tkD.GeneraInfoListaClientes(Fecha);
         }
-        public string generaInfoListaDirDestinos(string CardCode)
+        public string generaInfoListaDirDestinos(string CardCode, int docnum)
         {
-            return tkD.GeneraInfoListaDirDestinos(CardCode);
+            return tkD.GeneraInfoListaDirDestinos(CardCode, docnum);
         }
         public string generaInfoListaNotasDeCreditoV(string CardCode)
         {
