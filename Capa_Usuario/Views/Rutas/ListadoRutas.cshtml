@@ -274,7 +274,7 @@
                                     {
                                         if (esDE)
                                         {
-                                            <button type="button" class="btn btn-success btn-mobile-block shadow-sm mb-2" onclick="iniciarDevolucionRapida(@item.DocEntry);"><i class="icon-play"></i> INICIAR RECOJO</button>
+                                            <button type="button" class="btn btn-danger btn-mobile-block shadow-sm mb-2" onclick="iniciarDevolucionRapida(@item.DocEntry);"><i class="icon-play"></i>INICIO</button><!--INICIAR RECOJO-->
                                         }
                                         else
                                         {
@@ -299,7 +299,15 @@
 
                                     @if (showRecibir)
                                     {
-                                        <button type="button" class="btn btn-success btn-mobile-block shadow-sm mb-2" onclick="confirmarRecepcionDevolucion(@item.DocEntry);"><i class="icon-checkmark"></i> RECIBIR DEVOLUCIÓN</button>
+                                        if (esDE)
+                                        {
+                                            <button type="button" class="btn btn-danger btn-mobile-block shadow-sm mb-2" onclick="confirmarRecepcionDevolucion(@item.DocEntry);"><i class="icon-checkmark"></i>FIN</button>
+                                        }
+                                        else
+                                        {
+                                            <button type="button" class="btn btn-success btn-mobile-block shadow-sm mb-2" onclick="confirmarRecepcionDevolucion(@item.DocEntry);"><i class="icon-checkmark"></i> RECIBIR DEVOLUCIÓN</button>
+                                        }
+
                                     }
                                 </div>
 

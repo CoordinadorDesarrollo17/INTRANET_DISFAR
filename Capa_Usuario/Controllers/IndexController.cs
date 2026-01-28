@@ -5,6 +5,7 @@ using Capa_Negocio.General_NEG.TablasSql;
 using Capa_Negocio.Seguridad_NEG;
 using Capa_Usuario.Helpers;
 using System;
+using System.Data.Entity.Core.Metadata.Edm;
 using System.Linq;
 using System.Net;
 using System.Web.Mvc;
@@ -364,6 +365,11 @@ namespace Capa_Usuario.Controllers
         public ActionResult ATC_RegalosAplicados(int idOperation = 2712)
         {
             return AccesoHelper.GestionarAccesoIndex(this, new AccessoHelper_E { OpeID = idOperation, action = "RegalosAplicados", controllerDestino = "AtencionCliente", usuario = (Usuario_E)Session["UsuarioId"] });
+        }
+        
+        public ActionResult ATC_HojaRuta(int idOperation = 2714)
+        {
+            return AccesoHelper.GestionarAccesoIndex(this, new AccessoHelper_E { OpeID = idOperation, action = "HojaRuta", controllerDestino = "AtencionCliente", usuario = (Usuario_E)Session["UsuarioId"] });
         }
     }
 }

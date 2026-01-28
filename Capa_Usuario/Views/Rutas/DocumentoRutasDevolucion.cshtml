@@ -70,13 +70,14 @@
             </tr>
     </table>
       <table border=1 style='width: 1275px'>
-            <tr>
-                <th width=2%><font size="@ViewBag.Letra">#</font></th>
-                <th align=center width=10%><font size="@ViewBag.Letra">RAZÓN SOCIAL-RUC</font></th>
-                <th align=center width=12%><font size="@ViewBag.Letra">DIRECCIÓN PARTIDA</font></th>
-                <th align=center width=10%><font size="@ViewBag.Letra">NRO. DE GUIAS</font></th>
-                <th align=center width=5%><font size="@ViewBag.Letra"># BULTO</font></th>
-            </tr>
+          <tr>
+              <th width=2%><font size="@ViewBag.Letra">#</font></th>
+              <th align=center width=10%><font size="@ViewBag.Letra">RAZÓN SOCIAL-RUC</font></th>
+              <th align=center width=12%><font size="@ViewBag.Letra">DIRECCIÓN PARTIDA</font></th>
+              <th align=center width=10%><font size="@ViewBag.Letra">NRO. DE GUIAS</font></th>
+              <th align=center width=5%><font size="@ViewBag.Letra"># BULTO</font></th>
+              <th align=center width=10%><font size="@ViewBag.Letra">FIRMA Y/O SELLO DEL CLIENTE</font></th>
+          </tr>
             @foreach (var det in Model2.DetRRU0.Where(x => x.Estado != "LIBERADO").OrderBy(x => x.Linea).ToList())
             {
                 <tr>
@@ -99,11 +100,13 @@
                     </td>
                     <td><font size="@ViewBag.Letra">@det.Guias</font></td>
                     <td style='text-align: center;'><font size="@ViewBag.Letra">@det.Cajas</font></td>
+
+                    <td style='text-align: center;'><font size="@ViewBag.Letra"></font></td>
                 </tr>
             }
         </table>
 
-        <table border=0 style="width: 1275px; margin-top: 100px;">
+        <table border=0 style="width: 1275px; margin-top: 200px;">
         <tr>
      <td width="50%" style="text-align: center;">
                   <div style="border-top: 1px solid black; width: 300px; margin: 0 auto; padding-top: 5px;">
