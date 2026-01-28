@@ -796,7 +796,63 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
             try
             {
                 hcn.Open();
-                HanaCommand hcmd = new HanaCommand("select \"Address\"||': '||ifnull(\"Street\",'')||' '||ifnull(\"Block\",'') ||' '||ifnull(\"City\",'')||' '||ifnull(\"County\",'')as \"Dir\", \"Block\",\"City\",\"County\", \"ZipCode\", \"Street\" ,\"Address2\"  from " + uti.schemaHana + "crd1 where \"CardCode\"='" + CardCode + "' and \"Address\" like 'ENV%' ORDER BY \"LineNum\" ", hcn);
+                string query = $@"
+            SELECT 
+                IFNULL(T0.""Street"", '') || ' ' || IFNULL(T0.""Block"", '') || ' ' || IFNULL(T0.""City"", '') || ' ' || IFNULL(T0.""County"", '') AS ""Dir"",
+                T0.""Block"",
+                T0.""City"",
+                T0.""County"",
+                T0.""ZipCode"",
+                T0.""Street"",
+                T0.""Address2""
+            FROM {uti.schemaHana}CRD1 T0
+            INNER JOIN {uti.schemaHana}ORDR T1 ON T0.""CardCode"" = T1.""CardCode""
+            INNER JOIN {uti.schemaHana}RDR1 T2 ON T2.""DocEntry"" = T1.""DocEntry""
+            INNER JOIN {uti.schemaHana}OSLP S ON S.""SlpCode"" = T1.""SlpCode""
+            INNER JOIN {uti.schemaHana}""@COB_LUG_ENTREGA"" L ON L.""Code"" = T1.""U_COB_LUGAREN""
+            INNER JOIN {uti.schemaHana}OCTG P ON P.""GroupNum"" = T1.""GroupNum""
+            WHERE
+                T1.""CardCode"" = '{CardCode}'
+                AND T1.""Comments"" = '{docnum}'
+                AND T0.""Address"" LIKE 'ENV%'
+                AND T1.""DocDate"" = '{DateTime.Now:yyyy-MM-dd}'
+                AND T1.""CANCELED"" = 'N'
+                AND
+                REPLACE(
+                    REPLACE(
+                        REPLACE(
+                            UPPER(TRIM(T1.""Address2"")),
+                            NCHAR(13), ' '
+                        ),
+                        NCHAR(10), ' '
+                    ),
+                    '-', ' '
+                )
+                =
+                REPLACE(
+                    REPLACE(
+                        REPLACE(
+                            UPPER(TRIM(
+                                IFNULL(T0.""Street"", '') || ' ' ||
+                                IFNULL(T0.""Block"",  '') || ' ' ||
+                                IFNULL(T0.""City"",   '') || ' ' ||
+                                IFNULL(T0.""County"", '')
+                            )),
+                            NCHAR(13), ' '
+                        ),
+                        NCHAR(10), ' '
+                    ),
+                    '-', ' '
+                )
+            GROUP BY T0.""Block"",
+                T0.""City"",
+                T0.""County"",
+                T0.""ZipCode"",
+                T0.""Street"",
+                T0.""Address2"",
+                T0.""LineNum""
+            ORDER BY T0.""LineNum""";
+                HanaCommand hcmd = new HanaCommand(query, hcn);
                 HanaDataReader hdr = hcmd.ExecuteReader();
                 while (hdr.Read())
                 {
