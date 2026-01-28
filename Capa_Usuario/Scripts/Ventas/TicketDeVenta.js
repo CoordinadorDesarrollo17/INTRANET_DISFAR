@@ -1,23 +1,12 @@
 ﻿$(document).ready(function () {
-    //para casos en donde la zona es un desplegable (pachacamac y lima) se bloquea la escritura
+    //para casos en donde la Zona es un desplegable (pachacamac y lima) se bloquea la escritura
     function bloquearEscritura(event) {
         event.preventDefault();
     }
     $("#Zona").on("keydown", bloquearEscritura);
 });
 function enviarValSelect(idi, idf, attrf) {
-    //validar que si existe DirDestino2 la zona debe ser solo de esta ultima Direccion
-    if (idf === "Zona") {
-        if ($("#Departamento2").val() == "" && $("#DirDestino2").val() == "") {
-            if ($("#LugarDestino").val() === "Domicilio" || $("#LugarDestino").val() === "Agencia") {
-                $("#" + idf).val($("#" + idi + " option:selected").attr(attrf));
-            }
-        }
-    }
-    else {
-        $("#" + idf).val($("#" + idi + " option:selected").attr(attrf));
-    }
-
+    $("#" + idf).val($("#" + idi + " option:selected").attr(attrf) || "");
 }
 function verTarifario() {
     window.open('/Rutas/GestionarTarifarios?TipoRep=Re&ticketventa=1', 'popUpWindow', 'height=500,width=850,left=100,top=100,resizable=yes,scrollbars=yes,toolbar=no,menubar=no,location=no,directories=no, status=yes');
@@ -40,7 +29,7 @@ function reubicarZona(direccion) {
             }
         });
     } else {
-        Zona = selectedOption.attr('zona');
+        Zona = selectedOption.attr('Zona');
     }
     $("#Zona").val(Zona);
 
@@ -78,8 +67,8 @@ function busqueda(dom, tabla) {
     });
 }
 //v
-function agregarDatos(ubi, dis, pro, dep, zona) {
-    //caso Pachacamac, si la direccion fiscal es pachacamac o lima y el distrito 2 es igual a la 1, la zona debe ser la de SAP
+function agregarDatos(ubi, dis, pro, dep, Zona) {
+    //caso Pachacamac, si la direccion fiscal es pachacamac o lima y el distrito 2 es igual a la 1, la Zona debe ser la de SAP
     if ((dis === 'Pachacamac' && $("#Distrito").val() === 'Pachacamac') || (dis === 'Lima' && $("#Distrito").val() === 'Lima')) {
         var DirDestino = $('#DirDestino');
         var selectedOption = DirDestino.find('option:selected');
@@ -94,7 +83,7 @@ function agregarDatos(ubi, dis, pro, dep, zona) {
                 }
             });
         } else {
-            Zona = selectedOption.attr('zona');
+            Zona = selectedOption.attr('Zona');
         }
         $("#Zona").val(Zona);
         $("#Zona").removeAttr("list");
@@ -102,7 +91,7 @@ function agregarDatos(ubi, dis, pro, dep, zona) {
     } else if ($("#Zona").val() != "PREVENTA" &&
         ((dis !== 'Pachacamac' && $("#Distrito").val() !== 'Pachacamac'
         ) && (dis !== 'Lima' && $("#Distrito").val() !== 'Lima'))) {
-        $("#Zona").val(zona);
+        $("#Zona").val(Zona);
         $("#Zona").removeAttr("list");
         $("#Zona").prop("readonly", true);
     } else if ($("#Zona").val() != "PREVENTA" &&
@@ -117,7 +106,7 @@ function agregarDatos(ubi, dis, pro, dep, zona) {
             $("#Zona").attr("list", "opcionesZonaLima");
         }
     } else {
-        $("#Zona").val(zona);
+        $("#Zona").val(Zona);
         $("#Zona").removeAttr("list");
         $("#Zona").prop("readonly", true);
     }
@@ -152,8 +141,10 @@ function validacionDirDestino(estado) {
     if (estado === '') {
         $('#infoListaClientes input').on('change', function () {
             CardCode = $("#infoListaClientes #ListaClientes option[value='" + $("#infoListaClientes input").val() + "']").attr("CardCode");
-            if (!CardCode) { CardCode = "" };
-            var parametros = { "CardCode": CardCode };
+            var Docnum = $("#DocNum").val(); // <-- Obtiene el valor del input DocNum
+            if (!CardCode) { CardCode = ""; }
+            if (!Docnum) { Docnum = ""; }
+            var parametros = { "CardCode": CardCode, "DocNum": Docnum }; // <-- Agrega DocNum al objeto
             $.ajax('/Ventas/infoDirDestino',
                 {
                     data: parametros,
@@ -163,14 +154,24 @@ function validacionDirDestino(estado) {
                 })
                 .done(function (response) {
                     $('#DirDestino').html(response);
+                    // Selecciona automáticamente la primera opción válida
+                    var $dirDestino = $('#DirDestino');
+                    var $firstValidOption = $dirDestino.find('option:not([value=""]):first');
+                    if ($firstValidOption.length) {
+                        $dirDestino.val($firstValidOption.val());
+                        var zonaDefault = $firstValidOption.attr('Zona') || "";
+                        $("#Zona").val(zonaDefault);
+                        $dirDestino.trigger('change');
+                    }
                 });
 
         });
     } else {
         CardCode = $("#CardCode").val();
+        var Docnum = $("#DocNum").val(); // <-- Obtiene el valor del input DocNum
         //si CardCode no encuenta un valor
         if (!CardCode) { CardCode = "" };
-        var parametros = { "CardCode": CardCode };
+        var parametros = { "CardCode": CardCode, "DocNum": Docnum }; // <-- Agrega DocNum al objeto
         $.ajax('/Ventas/infoDirDestino',
             {
                 data: parametros,
@@ -180,8 +181,17 @@ function validacionDirDestino(estado) {
             })
             .done(function (response) {
                 $('#DirDestino').html(response);
+                // Selecciona automáticamente la primera opción válida
+                var $dirDestino = $('#DirDestino');
+                var $firstValidOption = $dirDestino.find('option:not([value=""]):first');
+                if ($firstValidOption.length) {
+                    $dirDestino.val($firstValidOption.val());
+                    var zonaDefault = $firstValidOption.attr('Zona') || "";
+                    $("#Zona").val(zonaDefault);
+                    $dirDestino.trigger('change');
+                }
             });
-        }
+    }
 }
 function validarDirDestino2(textoIngresado) {
     let cantidadRestante = parseInt(200) - parseInt(textoIngresado.length);
@@ -363,11 +373,13 @@ function clienteRegalos() {
 }
 function muestraCampo() {
     if ($("#LugarDestino").val() == 'Agencia' || $("#LugarDestino").val() == 'Agencia Courier') {
-        $("#CamposAgDom").show(); $("#CamposAgencia").show();$("#Referencia").val("");
+        $("#CamposAgDom").show(); $("#CamposAgencia").show(); $("#Referencia").val(""); $("#Zona").val("AGENCIA")
     }
     else if ($("#LugarDestino").val() == 'Domicilio') {
         $("#Agencia").val(""); $("#EnvioAgencia").val(""); $("#Referencia").val("");
         $("#CamposAgDom").show(); $("#CamposAgencia").hide();
+        var zonaDefault = $("#DirDestino option:selected").attr("Zona") || "";
+        $("#Zona").val(zonaDefault);
     }
     else {
         $("#Agencia").val(""); $("#EnvioAgencia").val("");$("#Referencia").val("");$("#DirDestino").val("");$("#CamposAgDom").hide(); $("#DirDestino").val(""); $("#DirDestino2").val(""); $("#Ubigeo").val(""); $("#Calle").val(""); $("#Distrito").val(""); $("#Provincia").val(""); $("#Departamento").val(""); $("#Ubigeo2").val(""); $("#Calle2").val(""); $("#Distrito2").val(""); $("#Provincia2").val(""); $("#Departamento2").val("");

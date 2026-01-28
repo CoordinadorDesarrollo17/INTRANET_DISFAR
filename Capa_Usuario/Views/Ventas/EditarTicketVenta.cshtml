@@ -65,6 +65,14 @@
             $("#btn_verTarifario").hide();
             $("#btnUbigeo").show();
         }
+        $('#DirDestino').on('mousedown', function (e) {
+            e.preventDefault();
+            this.blur();
+            window.focus();
+        });
+        $('#DirDestino').on('keydown', function (e) {
+            e.preventDefault();
+        });
     });
 
     if ('@ViewBag.Mensaje' != "") {
@@ -183,7 +191,7 @@
         });
     }
 </script>
-<script src="~/Scripts/Ventas/TicketDeVenta.js"></script>
+<script src="~/Scripts/Ventas/TicketDeVenta.js?v=20260112"></script>
 <div class="pt-4">
     <nav>
         <ol class="cd-breadcrumb bg-cobefar-degradado-1">
@@ -343,9 +351,8 @@
 
                         <div class="row mt-4">
                             <div class="col-lg-9">
-                                <label for="DirDestino" class="text-dark form-label font-weight-bold font-18">DirDestino:</label>
-                                <select name="DirDestino" id="DirDestino" class="form-control bg-cobefar text-white border-success"
-                                        onchange="enviarValSelect('DirDestino', 'Distrito', 'Distrito');enviarValSelect('DirDestino', 'Provincia', 'Provincia');enviarValSelect('DirDestino', 'Departamento', 'Departamento');enviarValSelect('DirDestino', 'Ubigeo', 'Ubigeo');enviarValSelect('DirDestino', 'Calle', 'Calle');enviarValSelect('DirDestino', 'Zona', 'Zona');">
+                                <label class="text-dark form-label font-weight-bold font-18">Direccion Destino:</label>
+                                <select name="DirDestino" id="DirDestino" class="form-control bg-cobefar text-white" onchange="enviarValSelect('DirDestino', 'Distrito', 'Distrito');enviarValSelect('DirDestino', 'Provincia', 'Provincia');enviarValSelect('DirDestino', 'Departamento', 'Departamento');enviarValSelect('DirDestino', 'Ubigeo', 'Ubigeo');enviarValSelect('DirDestino', 'Calle', 'Calle');enviarValSelect('DirDestino', 'Zona', 'Zona');muestraCampo()">
                                     <option value="">Seleccione</option>
                                 </select>
                                 <input type="hidden" id="Calle" name="Det3[0].Calle" />
@@ -355,15 +362,15 @@
                                 <input type="hidden" id="Departamento" name="Det3[0].Departamento" />
                             </div>
                             <div class="col-lg-3">
-                                <label class="text-dark form-label font-weight-bold font-18">Zona: </label> @Model.Zona
-                                <div class="input-group">
-                                    <input type="text" id="Zona" name="Zona" class="form-control text-center border-success" value="@Model.Zona" autocomplete="off">
-                                    <div class="input-group-append">
-                                        <button type="button" id="borrarZona" onclick="$('#Zona').val('');" class="btn btn-outline-danger">
-                                            <i class="icon icon-bin2"></i>
-                                        </button>
-                                    </div>
+                                <label class="text-dark form-label font-weight-bold font-18">Zona: </label>
+                            <div class="input-group">
+                                <input type="text" id="Zona" name="Zona" class="form-control text-center border-success" value="@Model.Zona" autocomplete="off">
+                                <div class="input-group-append">
+                                    <button type="button" id="borrarZona" onclick="$('#Zona').val('');" class="btn btn-outline-danger">
+                                        <i class="icon icon-bin2"></i>
+                                    </button>
                                 </div>
+                            </div>
                                 <datalist id="opcionesZonaPachacamac">
                                     <option value="CONO ESTE2">
                                     <option value="CONO SUR">
