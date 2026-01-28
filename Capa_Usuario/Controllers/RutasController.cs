@@ -1667,9 +1667,9 @@ namespace Capa_Usuario.Controllers
 
                     int DocNum = orruN.NuevaHojaDeReparto(o);
 
-                    return TipoRep == "Re"
-                        ? RedirectToAction("ListadoRepartos", new { DocNum })
-                        : RedirectToAction("ListadoRutas", new { DocNum });
+                    // Redirigir a HojaRuta en AtencionCliente con mensaje de éxito
+                    TempData["Mensaje"] = "Devolución creada exitosamente";
+                    return RedirectToAction("HojaRuta", "AtencionCliente", new { DocNum });
                 }
                 catch (Exception e)
                 {
@@ -1781,13 +1781,19 @@ namespace Capa_Usuario.Controllers
                 {
                     Usuario_E user = (Usuario_E)Session["UsuarioId"];
                     string opRegistro = $"{user.Nombres} {user.Apellidos}";
+     
+                    // PASO 1: Cambiar estado a DEVUELTO
                     orruN.RecibirDevolucion(DocEntry, opRegistro);
-                    TempData["Mensaje"] = "Devolución recibida y ruta terminada.";
+     
+                    // PASO 2: Terminar la ruta (DEVUELTO → TERMINADO)
+                    orruN.TerminarDevolucion(DocEntry, opRegistro);
+             
+                    TempData["Mensaje"] = "Devolución recibida y terminada exitosamente.";
                     return RedirectToAction("ListadoRutas");
                 }
                 catch (Exception e)
                 {
-                    TempData["Mensaje"] = "Error al recibir la devolución: " + e.Message;
+                    TempData["Mensaje"] = "Error: " + e.Message;
                     return RedirectToAction("ListadoRutas");
                 }
             }
@@ -1796,7 +1802,6 @@ namespace Capa_Usuario.Controllers
                 return resultadoAcceso;
             }
         }
-
         public ActionResult DescargarRptRutasExcel(int docEntry)
         {
             var excelContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";

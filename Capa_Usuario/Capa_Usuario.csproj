@@ -1052,6 +1052,7 @@
     <Content Include="Views\Rutas\SolicitudDevolucion.cshtml" />
     <Content Include="Views\Rutas\DocumentoRutasDevolucion.cshtml" />
     <Content Include="Views\Rutas\EditarHojaDeRepartoDE.cshtml" />
+    <Content Include="Views\AtencionCliente\HojaRuta.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
