@@ -141,8 +141,10 @@ function validacionDirDestino(estado) {
     if (estado === '') {
         $('#infoListaClientes input').on('change', function () {
             CardCode = $("#infoListaClientes #ListaClientes option[value='" + $("#infoListaClientes input").val() + "']").attr("CardCode");
-            if (!CardCode) { CardCode = "" };
-            var parametros = { "CardCode": CardCode };
+            var Docnum = $("#DocNum").val(); // <-- Obtiene el valor del input DocNum
+            if (!CardCode) { CardCode = ""; }
+            if (!Docnum) { Docnum = ""; }
+            var parametros = { "CardCode": CardCode, "DocNum": Docnum }; // <-- Agrega DocNum al objeto
             $.ajax('/Ventas/infoDirDestino',
                 {
                     data: parametros,
@@ -166,9 +168,10 @@ function validacionDirDestino(estado) {
         });
     } else {
         CardCode = $("#CardCode").val();
+        var Docnum = $("#DocNum").val(); // <-- Obtiene el valor del input DocNum
         //si CardCode no encuenta un valor
         if (!CardCode) { CardCode = "" };
-        var parametros = { "CardCode": CardCode };
+        var parametros = { "CardCode": CardCode, "DocNum": Docnum }; // <-- Agrega DocNum al objeto
         $.ajax('/Ventas/infoDirDestino',
             {
                 data: parametros,
@@ -188,7 +191,7 @@ function validacionDirDestino(estado) {
                     $dirDestino.trigger('change');
                 }
             });
-        }
+    }
 }
 function validarDirDestino2(textoIngresado) {
     let cantidadRestante = parseInt(200) - parseInt(textoIngresado.length);

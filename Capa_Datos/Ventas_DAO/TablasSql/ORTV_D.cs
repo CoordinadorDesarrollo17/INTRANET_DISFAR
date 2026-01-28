@@ -789,7 +789,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
             catch { hcn.Close(); }
             return lista;
         }
-        private List<RTV3_E> listarDirDestinos(string CardCode)
+        private List<RTV3_E> listarDirDestinos(string CardCode, int docnum)
         {
             List<RTV3_E> lista = new List<RTV3_E>();
             HanaConnection hcn = new HanaConnection(uti.cadHana);
@@ -1920,10 +1920,10 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
             info += "</datalist>";
             return info;
         }
-        public string GeneraInfoListaDirDestinos(string CardCode)
+        public string GeneraInfoListaDirDestinos(string CardCode, int docnum)
         {
             string info = "<option value=''>Seleccione</option>";
-            foreach (RTV3_E x in listarDirDestinos(CardCode))
+            foreach (RTV3_E x in listarDirDestinos(CardCode, docnum))
             {
                 info += "<option  value ='" + x.DirDestino + "' Zona='" + x.Zona + "' Distrito='" + x.Distrito + "' Provincia='" + x.Provincia + " 'Departamento='" + x.Departamento + "' Ubigeo='" + x.Ubigeo + "' Calle='" + x.Calle + "'>" + x.DirDestino + "</option>";
             }
