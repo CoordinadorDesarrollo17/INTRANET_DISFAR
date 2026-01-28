@@ -1,12 +1,15 @@
 @model IEnumerable<Capa_Entidad.Rutas_ENT.TablasSql.ORRU_E>
 @using Capa_Entidad.Rutas_ENT.TablasSql;
 @using Capa_Entidad.General_ENT.TablasSql
+@using Capa_Entidad.Seguridad_ENT
+@using Capa_Usuario.Helpers
 @{
     ViewBag.Title = "Hoja de Ruta - Devoluciones";
     Layout = "~/Views/Shared/_DefaultLayout.cshtml";
     ORRU_E o = (ORRU_E)ViewBag.Orru;
     List<string> Conductores = (List<string>)ViewBag.Conductores;
     List<OVEH_E> listaVeh = (List<OVEH_E>)ViewBag.listaVeh;
+    var usuario = (Usuario_E)Session["UsuarioId"];
 }
 
 <script>
@@ -41,7 +44,7 @@
     display: block;
         width: 100%;
         margin-bottom: 5px;
-     font-weight: bold;
+        font-weight: bold;
      padding: 8px;
     }
 
@@ -50,22 +53,12 @@
             display: block;
           width: 100%;
   margin-left: 0 !important;
-   margin-bottom: 5px;
+       margin-bottom: 5px;
         }
 
         .botones-superiores {
     padding-left: 1rem !important;
   }
-    }
-
-    .botones-superiores .btn {
-        width: auto;
-    display: inline-block;
-    }
-
-    .thead-cobefar {
-        background-color: #007bff; /* Azul corporativo de Cobefar */
-        color: white;
     }
 </style>
 
@@ -82,7 +75,7 @@
   <div class="px-3 pt-3"><h3 class="titulo-seccion">HOJA DE RUTA - DEVOLUCIONES</h3></div>
     <div class="w-100 p-3 botones-superiores">
   <div class="row mx-0">
-  <a href="@Url.Action("SolicitudDevolucion", "Rutas", new { TipoRep = "Re" })" class="btn btn-success ml-2">
+  <a href="@Url.Action("SolicitudDevolucion", "Rutas", new { TipoRep = "Re" })" class="btn btn-success" style="width: auto;">
   <i class="bi bi-file-earmark-arrow-down"></i> Solicitud Devolución
       </a>
         </div>
@@ -95,54 +88,54 @@
     
     <div class="bg-white bg-form-cobefar p-3">
     <table class="table table-light table-sm table-hover cls-dataTable50" cellspacing="0" width="100%">
-     <thead class="thead-cobefar">
-                <tr>
+ <thead class="thead-cobefar">
+       <tr>
           <th class="text-center">
       DocNum<br />
       @if (o != null && o.DocNum > 0)
             {
    <input class="form-control-sm border" type="text" name="DocNum" onchange="filtrar();" value="@o.DocNum" />
-      }
-       else
-        {
+    }
+          else
+   {
     <input class="form-control-sm border" type="text" name="DocNum" onchange="filtrar();" />
       }
         </th>
       <th class="text-center">
-           Conductor<br />
+         Conductor<br />
          <select name="TransDesc" class="form-control-sm border" onchange="filtrar();">
    <option value=""></option>
              @foreach (var x in Conductores)
   {
-                 <option value="@x" @if (o != null && o.TransDesc == x) { Write("selected"); }>@x</option>
-                 }
+        <option value="@x" @if (o != null && o.TransDesc == x) { Write("selected"); }>@x</option>
+           }
      </select>
     </th>
   <th class="text-center">
   Tiempo entrega/recojo<br />
 @if (o != null && o.TiempoPac != null)
-          {
-         <input type="date" name="TiempoPac" class="form-control-sm border text-center" value="@Convert.ToDateTime(o.TiempoPac).ToString("yyyy-MM-dd")" onchange="filtrar();" />
+       {
+   <input type="date" name="TiempoPac" class="form-control-sm border text-center" value="@Convert.ToDateTime(o.TiempoPac).ToString("yyyy-MM-dd")" onchange="filtrar();" />
            }
    else
 {
   <input type="date" name="TiempoPac" class="form-control-sm border text-center" onchange="filtrar();" />
-              }
-          </th>
+           }
+  </th>
           <th class="text-center">
           Estado<br />
          <select name="Estado" class="form-control-sm border" onchange="filtrar();">
    <option value=""></option>
       <option value="CREADO" @if (o != null && o.Estado == "CREADO") { Write("selected"); }>CREADO</option>
         <option value="ENVIADO" @if (o != null && o.Estado == "ENVIADO") { Write("selected"); }>ENVIADO</option>
-         <option value="TERMINADO" @if (o != null && o.Estado == "TERMINADO") { Write("selected"); }>TERMINADO</option>
+  <option value="TERMINADO" @if (o != null && o.Estado == "TERMINADO") { Write("selected"); }>TERMINADO</option>
     <option value="DEVUELTO" @if (o != null && o.Estado == "DEVUELTO") { Write("selected"); }>DEVUELTO</option>
        <option value="ANULADO" @if (o != null && o.Estado == "ANULADO") { Write("selected"); }>ANULADO</option>
-            </select>
+      </select>
     </th>
    <th class="text-center">Cajas</th>
-              <th class="text-center" style="width: 200px;"></th>
-                </tr>
+          <th class="text-center" style="width: 200px;"></th>
+ </tr>
  </thead>
    <tbody>
       @if (Model != null)
@@ -169,46 +162,43 @@ bool esEnviado = estado == "ENVIADO";
        <td class="text-center">@Html.DisplayFor(modelItem => item.TotalCajas)</td>
      
                 <td class="text-center">
-        <div class="d-flex justify-content-center align-items-center">
-        @* Botón Editar - Solo si está CREADO o ENVIADO *@
-        @if (esCreado || esEnviado)
-        {
+      <div class="d-flex justify-content-center align-items-center">
+@* Botón Editar - Solo si está CREADO o ENVIADO *@
+   @if (esCreado || esEnviado)
+   {
   <a href="@Url.Action("EditarHojaDeReparto", "Rutas", new { DocEntry = item.DocEntry, TipoRep = "Re" })" 
           class="btn btn-light btn-sm rounded-circle shadow-sm mx-1" 
      data-bs-toggle="tooltip" 
    title="Editar">
      <i class="bi bi-pencil text-primary"></i>
           </a>
-        }
+   }
 
         @* Botón PDF *@
         <a href="@Url.Action("DocumentoRutas", "Rutas", new { DocEntry = item.DocEntry, TipoRuta = item.TipoRuta })" 
-      class="btn btn-light btn-sm rounded-circle shadow-sm mx-1" 
-           data-bs-toggle="tooltip" 
+   class="btn btn-light btn-sm rounded-circle shadow-sm mx-1" 
+     data-bs-toggle="tooltip" 
     title="Pdf">
-            <i class="bi bi-file-earmark-pdf text-danger"></i>
+   <i class="bi bi-file-earmark-pdf text-danger"></i>
       </a>
 
         @* Botón Seguimiento *@
-        <a href="@Url.Action("SeguimientoRepartoRutas", "Rutas", new { DocEntry = item.DocEntry, Vista = "REPARTOS" })" 
+      <a href="@Url.Action("SeguimientoRepartoRutas", "Rutas", new { DocEntry = item.DocEntry, Vista = "REPARTOS" })" 
     class="btn btn-light btn-sm rounded-circle shadow-sm mx-1" 
    data-bs-toggle="tooltip" 
            title="Seguimiento">
-      <i class="bi bi-truck text-dark"></i>
-  </a>
+  <i class="bi bi-truck text-dark"></i>
+</a>
 
-        @* Botón Anular - Solo Devoluciones en CREADO *@
+    @* Botón Anular - Solo Devoluciones en CREADO con permiso 6301 *@
      @if (esCreado)
         {
-            <a href="@Url.Action("AnularOrdenDeRuta", "Rutas", new { DocEntry = item.DocEntry, TipoRep = "Re", Estado = item.Estado })" 
-    class="btn btn-light btn-sm rounded-circle shadow-sm mx-1" 
-       data-bs-toggle="tooltip"
-      title="Anular">
-   <i class="bi bi-x-circle text-danger"></i>
- </a>
+            var urlAnular = Url.Action("AnularDevolucion", "AtencionCliente", new { DocEntry = item.DocEntry });
+    var botonHtml = $"<a href=\"{urlAnular}\" class=\"btn btn-light btn-sm rounded-circle shadow-sm mx-1\" data-bs-toggle=\"tooltip\" title=\"Anular Devolución\"><i class=\"bi bi-x-circle text-danger\"></i></a>";
+     @Html.Raw(AccesoHelper.MostrarBotonSiTienePermiso(6301, usuario, botonHtml))
         }
     </div>
-                </td>
+     </td>
        </tr>
          }
         }
@@ -219,13 +209,18 @@ bool esEnviado = estado == "ENVIADO";
 
 @if (ViewBag.Mensaje != null && !string.IsNullOrEmpty(ViewBag.Mensaje.ToString()))
 {
-    <script>
+  <script>
         // Usar SweetAlert2 con JavaScript puro (sin jQuery)
-        if (typeof Swal !== 'undefined') {
-  Swal.fire({ 
-    icon: 'info', 
-                text: '@ViewBag.Mensaje' 
-            });
+  if (typeof Swal !== 'undefined') {
+   var mensaje = '@ViewBag.Mensaje';
+     var esExito = mensaje.toLowerCase().includes('exitosa') || mensaje.toLowerCase().includes('correcta');
+            Swal.fire({ 
+     icon: esExito ? 'success' : 'info',
+         title: esExito ? '¡Operación exitosa!' : 'Información',
+     text: mensaje,
+          confirmButtonText: 'Aceptar',
+     confirmButtonColor: '#3085d6'
+       });
         }
     </script>
 }
