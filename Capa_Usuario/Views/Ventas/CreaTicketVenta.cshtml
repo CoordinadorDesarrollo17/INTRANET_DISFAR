@@ -49,6 +49,15 @@
             $("#div_FormaPago").show();
             $("input[name='FormaPago'], select[name='FormaPago']").val("EFE/CAPON");
         }
+
+        $('#DirDestino').on('mousedown', function (e) {
+            e.preventDefault();
+            this.blur();
+            window.focus();
+        });
+        $('#DirDestino').on('keydown', function (e) {
+            e.preventDefault();
+        });
     });
 
     if ('@ViewBag.Mensaje' != "") {
@@ -383,7 +392,7 @@
         document.getElementById('SolicitudesReclamoSeleccionadas').value = lista.join(',');
     }
 </script>
-<script src="~/Scripts/Ventas/TicketDeVenta.js"></script>
+<script src="~/Scripts/Ventas/TicketDeVenta.js?v=20260112"></script>
 <style>
     .my-swal-text {
         background-color: yellow;

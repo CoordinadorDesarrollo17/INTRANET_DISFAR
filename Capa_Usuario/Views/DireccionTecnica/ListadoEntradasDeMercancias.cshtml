@@ -28,6 +28,11 @@
 
 <div class="pt-3 bg-form-pestanas-cobefar">
     <div class="bg-white">
+        <div class="mb-2 d-flex justify-content-end mr-2">
+            <button type="button" class="btn btn-success" onclick="exportarExcel()">
+                <i class="bi bi-file-earmark-excel"></i> Reporte Excel
+            </button>
+        </div>
         <form name="frm" id="frm">
             <table class="table table-light table-sm table-hover cls-dataTable" cellspacing="0" width="100%">
                 <thead class="bg-cobefar-6">
@@ -160,3 +165,10 @@
         </form>
     </div>
 </div>
+
+<script>
+    function exportarExcel() {
+        var parametros = $("#frm").serialize();
+        window.location.href = "/DireccionTecnica/ExportarExcelEntradaMercancia?" + parametros;
+    }
+</script>
