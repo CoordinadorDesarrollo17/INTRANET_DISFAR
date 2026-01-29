@@ -91,6 +91,27 @@ namespace Capa_Usuario.Helpers
             }
         }
 
+        
+        public static string MostrarBotonSiTienePermiso(int opeID, Usuario_E usuario, string botonHtml)
+        {
+            if (usuario == null)
+            {
+                return string.Empty;
+            }
+
+            // Verificar si el usuario tiene acceso mediante su rol o permisos personalizados
+            var accesoRol = new ROL_OPE_N().VerificarAccesoOperacion(usuario.IdRol, opeID);
+            var accesoPersonalizado = new OUSR_OPE_N().VerificarAccesoOperacion(new OUSR_OPE_E { OpeID = opeID, UsrDocEntry = usuario.DocEntry });
+
+            // Si es administrador (IdRol == 1) o tiene permiso por rol o personalizado
+            if (usuario.IdRol == 1 || accesoRol == 1 || accesoPersonalizado == 1)
+            {
+                return botonHtml;
+            }
+
+            return string.Empty;
+        }
+
         private static ActionResult Redirect(Controller controller, string action, string controllerName)
         {
             string url = new UrlHelper(controller.Request.RequestContext).Action(action, controllerName);

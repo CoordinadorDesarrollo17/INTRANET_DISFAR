@@ -360,39 +360,39 @@ namespace Capa_Usuario.Controllers
         {
             var resultadoAcceso = VerificarPermiso(idOperation);
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
-  {
-    Capa_Negocio.General_NEG.Tablas.OWHS_N owhsN = new Capa_Negocio.General_NEG.Tablas.OWHS_N();
-   OREG_N oregN = new OREG_N();
-   CC_OSAT_N ccOSAT_N = new CC_OSAT_N();
-   string errorAlm = string.Empty;
- var result = osatN.buscarSolicitud(id);
-        // Solo cuando el Tipo de Error sea "ErrorAlmacen" mostrará el campo Error de almacén
-        if (result.Det != null && result.Det.Count >= 1)
-   {
-   errorAlm = result.Det[0].ErrorAlmacen;
-     }
-     var datos = DatosSolicitud(result.TipoVenta, result.CanalVenta, errorAlm);
-   ViewBag.ErrorAlmacen = errorAlm;
-   ViewBag.TipoVenta = datos["TipoVenta"];
-   ViewBag.CanalVenta = datos["CanalVenta"];
-        ViewBag.ErrorAlmacen = datos["ErrorAlmacen"];
-        ViewBag.Almacenes = owhsN.ListarAlmacenes("todos");
-  ViewBag.Regalos = oregN.listaRegalos(null);
-   ViewBag.DatosAtencion = ccOSAT_N.ListarCC_OSAT(id, "ATENDER");
-   return View(result);
-    }
-    else
-    {
-        return resultadoAcceso;
- }
-}
+            {
+                Capa_Negocio.General_NEG.Tablas.OWHS_N owhsN = new Capa_Negocio.General_NEG.Tablas.OWHS_N();
+                OREG_N oregN = new OREG_N();
+                CC_OSAT_N ccOSAT_N = new CC_OSAT_N();
+                string errorAlm = string.Empty;
+                var result = osatN.buscarSolicitud(id);
+                // Solo cuando el Tipo de Error sea "ErrorAlmacen" mostrará el campo Error de almacén
+                if (result.Det != null && result.Det.Count >= 1)
+                {
+                    errorAlm = result.Det[0].ErrorAlmacen;
+                }
+                var datos = DatosSolicitud(result.TipoVenta, result.CanalVenta, errorAlm);
+                ViewBag.ErrorAlmacen = errorAlm;
+                ViewBag.TipoVenta = datos["TipoVenta"];
+                ViewBag.CanalVenta = datos["CanalVenta"];
+                ViewBag.ErrorAlmacen = datos["ErrorAlmacen"];
+                ViewBag.Almacenes = owhsN.ListarAlmacenes("todos");
+                ViewBag.Regalos = oregN.listaRegalos(null);
+                ViewBag.DatosAtencion = ccOSAT_N.ListarCC_OSAT(id, "ATENDER");
+                return View(result);
+            }
+            else
+            {
+                return resultadoAcceso;
+            }
+        }
         [HttpPost]
         public ActionResult AtenderSolicitud(OSAT_E obj, int idOperation = 2707)
         {
             var resultadoAcceso = VerificarPermiso(idOperation);
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
-              Capa_Negocio.General_NEG.Tablas.OWHS_N owhsN = new Capa_Negocio.General_NEG.Tablas.OWHS_N();
+                Capa_Negocio.General_NEG.Tablas.OWHS_N owhsN = new Capa_Negocio.General_NEG.Tablas.OWHS_N();
                 OREG_N oregN = new OREG_N();
                 try
                 {
@@ -707,7 +707,7 @@ namespace Capa_Usuario.Controllers
             }
         }
 
-        public ActionResult HojaRuta(ORRU_E filtro = null, string Mensaje = "", int idOperation = 2714)
+        public ActionResult HojaRuta(ORRU_E filtro = null, string Mensaje = "", int idOperation = 6300)
         {
             var resultadoAcceso = VerificarPermiso(idOperation);
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
@@ -726,12 +726,69 @@ namespace Capa_Usuario.Controllers
                 var Conductores = usuarios != null ? usuarios.Select(u => u.Nombres + " " + u.Apellidos).Distinct().ToList() : new List<string>();
                 var listaVeh = ovehN.listaVeh(0, null);
 
-                ViewBag.Mensaje = Mensaje;
+                // Priorizar TempData sobre parámetro Mensaje
+                if (TempData["Mensaje"] != null)
+                {
+                    ViewBag.Mensaje = TempData["Mensaje"].ToString();
+                }
+                else if (!string.IsNullOrEmpty(Mensaje))
+                {
+                    ViewBag.Mensaje = Mensaje;
+                }
+
                 ViewBag.Orru = filtro;
                 ViewBag.Conductores = Conductores;
                 ViewBag.listaVeh = listaVeh;
 
                 return View(lista);
+            }
+            else
+            {
+                return resultadoAcceso;
+            }
+        }
+        // ============================================
+        // NUEVO MÉTODO: Anular Devolución con permisos (ID 6301)
+        // ============================================
+        public ActionResult AnularDevolucion(int DocEntry, int idOperation = 6301)
+        {
+            var resultadoAcceso = VerificarPermiso(idOperation);
+            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
+            {
+                ORRU_N orruN = new ORRU_N();
+                ViewBag.Mensaje = string.Empty;
+                return View(orruN.obtenerOrdenDeRuta(DocEntry));
+            }
+            else
+            {
+                return resultadoAcceso;
+            }
+        }
+
+        [ActionName("AnularDevolucion")]
+        [HttpPost]
+        public ActionResult AnularDevolucionPost(int DocEntry, int idOperation = 6301)
+        {
+            var resultadoAcceso = VerificarPermiso(idOperation);
+            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
+            {
+                try
+                {
+                    ORRU_N orruN = new ORRU_N();
+                    Usuario_E user = (Usuario_E)Session["UsuarioId"];
+                    string OpRegistro = $"{user.Nombres} {user.Apellidos}";
+
+                    int DocNum = orruN.AnularOrdenDeRuta(DocEntry, OpRegistro);
+
+                    TempData["Mensaje"] = "Devolución anulada exitosamente";
+                    return RedirectToAction("HojaRuta", new { DocNum = DocNum });
+                }
+                catch (Exception e)
+                {
+                    ViewBag.Mensaje = "Error: " + e.Message;
+                    ORRU_N orruN = new ORRU_N();
+                    return View(orruN.obtenerOrdenDeRuta(DocEntry));
+                }
             }
             else
             {

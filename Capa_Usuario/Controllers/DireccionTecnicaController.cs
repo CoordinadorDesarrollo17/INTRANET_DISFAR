@@ -441,7 +441,8 @@ namespace Capa_Usuario.Controllers
         [HttpGet]
         public ActionResult ExportarExcelEntradaMercancia(Capa_Entidad.Compras_ENT.Tablas.OPDN_E filtros)
         {
-            // 1️⃣ Obtener la MISMA lista que usas en la vista
+
+            filtros.esExcel = true;
             var lista = new Capa_Negocio.Compras_NEG.Tablas.OPDN_N().listadoEntradaMercancias(filtros);
 
             using (var package = new ExcelPackage())
