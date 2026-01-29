@@ -19,7 +19,28 @@ namespace Capa_Datos.Compras_DAO.Tablas
             if (fil != null)
             {
                 if (fil.DocNum > 0) { filtros += " and \"DocNum\" like '%" + fil.DocNum + "'"; }
-                if (fil.DocDate != null) { filtros += " and \"DocDate\"='" + fil.DocDate + "'"; }
+               
+                if (fil.esExcel)
+                {
+                    if (fil.DocDate != null && fil.DocDateFin != null)
+                    {
+                        filtros += " and \"DocDate\" >= '" + fil.DocDate + "'";
+                        filtros += " and \"DocDate\" <= '" + fil.DocDateFin + "'";
+                    }
+                    else if (fil.DocDate != null)
+                    {
+                        filtros += " and \"DocDate\" >= '" + fil.DocDate + "'";
+                    }
+                    else if (fil.DocDateFin != null)
+                    {
+                        filtros += " and \"DocDate\" <= '" + fil.DocDateFin + "'";
+                    }
+                }
+                else //lo de siempre
+                {
+                    if (fil.DocDate != null) { filtros += " and \"DocDate\"='" + fil.DocDate + "'"; }
+                }
+
                 if (fil.CardName != null) { filtros += " and UPPER(\"CardName\") like UPPER('%" + fil.CardName + "%')"; }
                 if (fil.NumAtCard != null) { filtros += " and UPPER(\"NumAtCard\") like UPPER('%" + fil.NumAtCard + "')"; }
                 if (fil.DocTotal > 0.00M) { filtros += " and \"DocTotal\" like '%" + fil.DocTotal + "%'"; }
