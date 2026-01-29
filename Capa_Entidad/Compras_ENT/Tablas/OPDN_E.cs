@@ -26,5 +26,8 @@ namespace Capa_Entidad.Compras_ENT.Tablas
         // no esta en la tabla
         public string Almacen { get; set; }
         public SQL_OPDN_E sqlopdn { get; set; }
+
+        public string DocDateFin { get; set; }
+        public bool esExcel { get; set; }
     }
 }
