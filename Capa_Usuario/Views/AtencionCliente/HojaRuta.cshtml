@@ -13,8 +13,8 @@
 }
 
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-      // JavaScript puro para Bootstrap 5
+    document.addEventListener('DOMContentLoaded', function () {
+        // JavaScript puro para Bootstrap 5
     });
 
     function filtrar() {
@@ -27,9 +27,9 @@
 
 <style>
     .modal-body {
-      position: relative;
+        position: relative;
         flex: 1 1 auto;
-    padding: 1rem;
+        padding: 1rem;
     }
 
     .modal-backdrop {
@@ -41,43 +41,43 @@
     }
 
     .btn-mobile-block {
-    display: block;
+        display: block;
         width: 100%;
         margin-bottom: 5px;
         font-weight: bold;
-     padding: 8px;
+        padding: 8px;
     }
 
     @@media (max-width: 768px) {
         .botones-superiores .btn {
             display: block;
-          width: 100%;
-  margin-left: 0 !important;
-       margin-bottom: 5px;
+            width: 100%;
+            margin-left: 0 !important;
+            margin-bottom: 5px;
         }
 
         .botones-superiores {
-    padding-left: 1rem !important;
-  }
+            padding-left: 1rem !important;
+        }
     }
 </style>
 
 <div class="pt-4">
     <nav>
-    <ol class="cd-breadcrumb bg-cobefar-degradado-1">
-       <li><a href="@Url.Action("Sesion", "Index")">Inicio</a></li>
-     <li class="current"><em>Hoja de Ruta - Devoluciones</em></li>
+        <ol class="cd-breadcrumb bg-cobefar-degradado-1">
+            <li><a href="@Url.Action("Sesion", "Index")">Inicio</a></li>
+            <li class="current"><em>Hoja de Ruta - Devoluciones</em></li>
         </ol>
- </nav>
+    </nav>
 </div>
 
 <div class="border-cabecera-seccion bg-cobefar-degradado-1 pb-2">
-  <div class="px-3 pt-3"><h3 class="titulo-seccion">HOJA DE RUTA - DEVOLUCIONES</h3></div>
+    <div class="px-3 pt-3"><h3 class="titulo-seccion">HOJA DE RUTA - DEVOLUCIONES</h3></div>
     <div class="w-100 p-3 botones-superiores">
-  <div class="row mx-0">
-  <a href="@Url.Action("SolicitudDevolucion", "Rutas", new { TipoRep = "Re" })" class="btn btn-success" style="width: auto;">
-  <i class="bi bi-file-earmark-arrow-down"></i> Solicitud Devolución
-      </a>
+        <div class="row mx-0">
+            <a href="@Url.Action("SolicitudDevolucion", "Rutas", new { TipoRep = "Re" })" class="btn btn-success" style="width: auto;">
+                <i class="bi bi-file-earmark-arrow-down"></i> Solicitud Devolución
+            </a>
         </div>
     </div>
 </div>
@@ -85,123 +85,123 @@
 <form name="frm" id="filterForm">
     <!-- Campo oculto para forzar TipoRuta = DE -->
     <input type="hidden" name="TipoRuta" value="DE" />
-    
+
     <div class="bg-white bg-form-cobefar p-3">
-    <table class="table table-light table-sm table-hover cls-dataTable50" cellspacing="0" width="100%">
- <thead class="thead-cobefar">
-       <tr>
-          <th class="text-center">
-      DocNum<br />
-      @if (o != null && o.DocNum > 0)
-            {
-   <input class="form-control-sm border" type="text" name="DocNum" onchange="filtrar();" value="@o.DocNum" />
-    }
-          else
-   {
-    <input class="form-control-sm border" type="text" name="DocNum" onchange="filtrar();" />
-      }
-        </th>
-      <th class="text-center">
-         Conductor<br />
-         <select name="TransDesc" class="form-control-sm border" onchange="filtrar();">
-   <option value=""></option>
-             @foreach (var x in Conductores)
-  {
-        <option value="@x" @if (o != null && o.TransDesc == x) { Write("selected"); }>@x</option>
-           }
-     </select>
-    </th>
-  <th class="text-center">
-  Tiempo entrega/recojo<br />
-@if (o != null && o.TiempoPac != null)
-       {
-   <input type="date" name="TiempoPac" class="form-control-sm border text-center" value="@Convert.ToDateTime(o.TiempoPac).ToString("yyyy-MM-dd")" onchange="filtrar();" />
-           }
-   else
-{
-  <input type="date" name="TiempoPac" class="form-control-sm border text-center" onchange="filtrar();" />
-           }
-  </th>
-          <th class="text-center">
-          Estado<br />
-         <select name="Estado" class="form-control-sm border" onchange="filtrar();">
-   <option value=""></option>
-      <option value="CREADO" @if (o != null && o.Estado == "CREADO") { Write("selected"); }>CREADO</option>
-        <option value="ENVIADO" @if (o != null && o.Estado == "ENVIADO") { Write("selected"); }>ENVIADO</option>
-  <option value="TERMINADO" @if (o != null && o.Estado == "TERMINADO") { Write("selected"); }>TERMINADO</option>
-    <option value="DEVUELTO" @if (o != null && o.Estado == "DEVUELTO") { Write("selected"); }>DEVUELTO</option>
-       <option value="ANULADO" @if (o != null && o.Estado == "ANULADO") { Write("selected"); }>ANULADO</option>
-      </select>
-    </th>
-   <th class="text-center">Cajas</th>
-          <th class="text-center" style="width: 200px;"></th>
- </tr>
- </thead>
-   <tbody>
-      @if (Model != null)
-     {
-     // Filtrar solo los que tienen TipoRuta = "DE" (Devolución)
-        foreach (var item in Model.Where(x => x.TipoRuta == "DE"))
-          {
- string estado = (item.Estado ?? "").Trim();
-             bool esCreado = estado == "CREADO";
-bool esEnviado = estado == "ENVIADO";
+        <table class="table table-light table-sm table-hover cls-dataTable50" cellspacing="0" width="100%">
+            <thead class="thead-cobefar">
+                <tr>
+                    <th class="text-center">
+                        DocNum<br />
+                        @if (o != null && o.DocNum > 0)
+                        {
+                            <input class="form-control-sm border" type="text" name="DocNum" onchange="filtrar();" value="@o.DocNum" />
+                        }
+                        else
+                        {
+                            <input class="form-control-sm border" type="text" name="DocNum" onchange="filtrar();" />
+                        }
+                    </th>
+                    <th class="text-center">
+                        Conductor<br />
+                        <select name="TransDesc" class="form-control-sm border" onchange="filtrar();">
+                            <option value=""></option>
+                            @foreach (var x in Conductores)
+                            {
+                                <option value="@x" @if (o != null && o.TransDesc == x) { Write("selected"); }>@x</option>
+                            }
+                        </select>
+                    </th>
+                    <th class="text-center">
+                        Tiempo entrega/recojo<br />
+                        @if (o != null && o.TiempoPac != null)
+                        {
+                            <input type="date" name="TiempoPac" class="form-control-sm border text-center" value="@Convert.ToDateTime(o.TiempoPac).ToString("yyyy-MM-dd")" onchange="filtrar();" />
+                        }
+                        else
+                        {
+                            <input type="date" name="TiempoPac" class="form-control-sm border text-center" onchange="filtrar();" />
+                        }
+                    </th>
+                    <th class="text-center">
+                        Estado<br />
+                        <select name="Estado" class="form-control-sm border" onchange="filtrar();">
+                            <option value=""></option>
+                            <option value="CREADO" @if (o != null && o.Estado == "CREADO") { Write("selected"); }>CREADO</option>
+                            <option value="ENVIADO" @if (o != null && o.Estado == "ENVIADO") { Write("selected"); }>ENVIADO</option>
+                            <option value="TERMINADO" @if (o != null && o.Estado == "TERMINADO") { Write("selected"); }>TERMINADO</option>
+                            <option value="DEVUELTO" @if (o != null && o.Estado == "DEVUELTO") { Write("selected"); }>DEVUELTO</option>
+                            <option value="ANULADO" @if (o != null && o.Estado == "ANULADO") { Write("selected"); }>ANULADO</option>
+                        </select>
+                    </th>
+                    <th class="text-center">Cajas</th>
+                    <th class="text-center" style="width: 200px;"></th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model != null)
+                {
+                    // Filtrar solo los que tienen TipoRuta = "DE" (Devolución)
+                    foreach (var item in Model.Where(x => x.TipoRuta == "DE"))
+                    {
+                        string estado = (item.Estado ?? "").Trim();
+                        bool esCreado = estado == "CREADO";
+                        bool esEnviado = estado == "ENVIADO";
 
-       <tr>
-         <td class="text-center @if (ViewBag.DocNum == item.DocNum) { Write("bg-success"); }">@Html.DisplayFor(modelItem => item.DocNum)</td>
-                <td class="text-center">@Html.DisplayFor(modelItem => item.TransDesc)</td>
-        <td class="text-center">
-   @if (item.TiempoPac != null)
-       {
-   @Convert.ToDateTime(item.TiempoPac).ToString("dd/MM/yyyy")
-      <br class="d-md-none" />
-       @Convert.ToDateTime(item.TiempoPac).ToString("HH:mm")
-         }
-           </td>
-           <td class="text-center">@Html.DisplayFor(modelItem => item.Estado)</td>
-       <td class="text-center">@Html.DisplayFor(modelItem => item.TotalCajas)</td>
-     
-                <td class="text-center">
-      <div class="d-flex justify-content-center align-items-center">
-@* Botón Editar - Solo si está CREADO o ENVIADO *@
-   @if (esCreado || esEnviado)
-   {
-  <a href="@Url.Action("EditarHojaDeReparto", "Rutas", new { DocEntry = item.DocEntry, TipoRep = "Re" })" 
-          class="btn btn-light btn-sm rounded-circle shadow-sm mx-1" 
-     data-bs-toggle="tooltip" 
-   title="Editar">
-     <i class="bi bi-pencil text-primary"></i>
-          </a>
-   }
+                        <tr>
+                            <td class="text-center @if (ViewBag.DocNum == item.DocNum) { Write("bg-success"); }">@Html.DisplayFor(modelItem => item.DocNum)</td>
+                            <td class="text-center">@Html.DisplayFor(modelItem => item.TransDesc)</td>
+                            <td class="text-center">
+                                @if (item.TiempoPac != null)
+                                {
+                                    @Convert.ToDateTime(item.TiempoPac).ToString("dd/MM/yyyy")
+                                    <br class="d-md-none" />
+                                    @Convert.ToDateTime(item.TiempoPac).ToString("HH:mm")
+                                }
+                            </td>
+                            <td class="text-center">@Html.DisplayFor(modelItem => item.Estado)</td>
+                            <td class="text-center">@Html.DisplayFor(modelItem => item.TotalCajas)</td>
 
-        @* Botón PDF *@
-        <a href="@Url.Action("DocumentoRutas", "Rutas", new { DocEntry = item.DocEntry, TipoRuta = item.TipoRuta })" 
-   class="btn btn-light btn-sm rounded-circle shadow-sm mx-1" 
-     data-bs-toggle="tooltip" 
-    title="Pdf">
-   <i class="bi bi-file-earmark-pdf text-danger"></i>
-      </a>
+                            <td class="text-center">
+                                <div class="d-flex justify-content-center align-items-center">
+                                    @* Botón Editar - Solo si está CREADO o ENVIADO *@
+                                    @if (esCreado || esEnviado)
+                                    {
+                                        <a href="@Url.Action("EditarHojaDeReparto", "Rutas", new { DocEntry = item.DocEntry, TipoRep = "Re" })"
+                                           class="btn btn-light btn-sm rounded-circle shadow-sm mx-1"
+                                           data-bs-toggle="tooltip"
+                                           title="Editar">
+                                            <i class="bi bi-pencil text-primary"></i>
+                                        </a>
+                                    }
 
-        @* Botón Seguimiento *@
-      <a href="@Url.Action("SeguimientoRepartoRutas", "Rutas", new { DocEntry = item.DocEntry, Vista = "REPARTOS" })" 
-    class="btn btn-light btn-sm rounded-circle shadow-sm mx-1" 
-   data-bs-toggle="tooltip" 
-           title="Seguimiento">
-  <i class="bi bi-truck text-dark"></i>
-</a>
+                                    @* Botón PDF *@
+                                    <a href="@Url.Action("DocumentoRutas", "Rutas", new { DocEntry = item.DocEntry, TipoRuta = item.TipoRuta })"
+                                       class="btn btn-light btn-sm rounded-circle shadow-sm mx-1"
+                                       data-bs-toggle="tooltip"
+                                       title="Pdf">
+                                        <i class="bi bi-file-earmark-pdf text-danger"></i>
+                                    </a>
 
-    @* Botón Anular - Solo Devoluciones en CREADO con permiso 6301 *@
-     @if (esCreado)
-        {
-            var urlAnular = Url.Action("AnularDevolucion", "AtencionCliente", new { DocEntry = item.DocEntry });
-    var botonHtml = $"<a href=\"{urlAnular}\" class=\"btn btn-light btn-sm rounded-circle shadow-sm mx-1\" data-bs-toggle=\"tooltip\" title=\"Anular Devolución\"><i class=\"bi bi-x-circle text-danger\"></i></a>";
-     @Html.Raw(AccesoHelper.MostrarBotonSiTienePermiso(6301, usuario, botonHtml))
-        }
-    </div>
-     </td>
-       </tr>
-         }
-        }
+                                    @* Botón Seguimiento *@
+                                    <a href="@Url.Action("SeguimientoRepartoRutas", "Rutas", new { DocEntry = item.DocEntry, Vista = "REPARTOS" })"
+                                       class="btn btn-light btn-sm rounded-circle shadow-sm mx-1"
+                                       data-bs-toggle="tooltip"
+                                       title="Seguimiento">
+                                        <i class="bi bi-truck text-dark"></i>
+                                    </a>
+
+                                    @* Botón Anular - Solo Devoluciones en CREADO con permiso 6301 *@
+                                    @if (esCreado)
+                                    {
+                                        var urlAnular = Url.Action("AnularDevolucion", "AtencionCliente", new { DocEntry = item.DocEntry });
+                                        var botonHtml = $"<a href=\"{urlAnular}\" class=\"btn btn-light btn-sm rounded-circle shadow-sm mx-1\" data-bs-toggle=\"tooltip\" title=\"Anular Devolución\"><i class=\"bi bi-x-circle text-danger\"></i></a>";
+                                        @Html.Raw(AccesoHelper.MostrarBotonSiTienePermiso(6301, usuario, botonHtml))
+                                    }
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                }
             </tbody>
         </table>
     </div>
@@ -209,18 +209,18 @@ bool esEnviado = estado == "ENVIADO";
 
 @if (ViewBag.Mensaje != null && !string.IsNullOrEmpty(ViewBag.Mensaje.ToString()))
 {
-  <script>
-        // Usar SweetAlert2 con JavaScript puro (sin jQuery)
-  if (typeof Swal !== 'undefined') {
-   var mensaje = '@ViewBag.Mensaje';
-     var esExito = mensaje.toLowerCase().includes('exitosa') || mensaje.toLowerCase().includes('correcta');
-            Swal.fire({ 
-     icon: esExito ? 'success' : 'info',
+    <script>
+        if (typeof Swal !== 'undefined') {
+        var mensaje = '@Html.Raw(ViewBag.Mensaje)'; 
+        var esExito = mensaje.toLowerCase().includes('exitosa') || mensaje.toLowerCase().includes('correcta');
+            Swal.fire({
+         icon: esExito ? 'success' : 'info',
          title: esExito ? '¡Operación exitosa!' : 'Información',
-     text: mensaje,
-          confirmButtonText: 'Aceptar',
-     confirmButtonColor: '#3085d6'
-       });
+        text: mensaje,
+        confirmButtonText: 'Aceptar',
+        confirmButtonColor: '#3085d6'
+        });
         }
     </script>
 }
+
