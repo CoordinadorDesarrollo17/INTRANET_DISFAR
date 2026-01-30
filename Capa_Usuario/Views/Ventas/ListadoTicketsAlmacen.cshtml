@@ -303,7 +303,7 @@
                         {
                             <td if="ip-if" class="text-center">
                                 @*El boton "INICIO PICKING" solo se habilita si y solo si, el ticket tiene como ultimo estado "RECIBIR" y se encuentra en estado general RECIBIDO*@
-                                @if (condIniPickingExc && (ViewBag.RolSupervisor == 50 || ViewBag.RolSupervisor == 51 || ViewBag.RolSupervisor == 52 || ViewBag.RolSupervisor == 53 || ViewBag.RolSupervisor == 1 || ViewBag.RolSupervisor == 4))
+                                @if (condIniPickingExc && (ViewBag.RolSupervisor == 50 || ViewBag.RolSupervisor == 51 || ViewBag.RolSupervisor == 52 || ViewBag.RolSupervisor == 53 || ViewBag.RolSupervisor == 1 || ViewBag.RolSupervisor == 4 || ViewBag.RolSupervisor == 11))
                                 {
                                     @*<a href="@Url.Action("IniciarSacandoTicketVenta", "Ventas", new { DocEntry = item.DocEntry })" class="btn btn-success btn-sm"> Inicio <br /> Picking </a>*@
                                     <a href="@Url.Action("IniciarSacandoTicketVenta", "Ventas", new { DocEntry = item.DocEntry })"
@@ -318,7 +318,7 @@
                             </td>
                             <td class="text-center">
                                 @*El boton "FIN EMPACAR" solo se habilita si el ticket tiene cantidad de cajas mayor a cero (quiere decir que ya ha sido verificado) y si tiene como ultimo estado en la tabla control de cambios "INICIO EMPACAR" o "ANULAR FIN EMPACAR" asi mismo tiene que estar en estado general EMPACANDO o VERIFICANDO*@
-                                @if (condFinEmpacarExc && (ViewBag.RolSupervisor == 50 || ViewBag.RolSupervisor == 51 || ViewBag.RolSupervisor == 52 || ViewBag.RolSupervisor == 53 || ViewBag.RolSupervisor == 1 || ViewBag.RolSupervisor == 4))
+                                @if (condFinEmpacarExc && (ViewBag.RolSupervisor == 50 || ViewBag.RolSupervisor == 51 || ViewBag.RolSupervisor == 52 || ViewBag.RolSupervisor == 53 || ViewBag.RolSupervisor == 1 || ViewBag.RolSupervisor == 4 || ViewBag.RolSupervisor == 11))
                                 {
                                     @*<a href="@Url.Action( "EmpacadoTicketVenta", "Ventas", new { DocEntry = item.DocEntry  } )" class="btn btn-naranja btn-sm">Fin <br />Empacar</a>*@
                                     <a href="@Url.Action("EmpacadoTicketVenta", "Ventas", new { DocEntry = item.DocEntry })"
@@ -336,7 +336,7 @@
                         {
                             <td id="ip-else" class="text-center">
                                 @*El boton "INICIO PICKING" solo se habilita si y solo si, el ticket tiene como ultimo estado "RECIBIR" y se encuentra en estado general RECIBIDO*@
-                                @if ((ViewBag.RolSupervisor == 50 || ViewBag.RolSupervisor == 51 || ViewBag.RolSupervisor == 52 || ViewBag.RolSupervisor == 53 || ViewBag.RolSupervisor == 1 || ViewBag.RolSupervisor == 4))
+                                @if ((ViewBag.RolSupervisor == 50 || ViewBag.RolSupervisor == 51 || ViewBag.RolSupervisor == 52 || ViewBag.RolSupervisor == 53 || ViewBag.RolSupervisor == 1 || ViewBag.RolSupervisor == 4 || ViewBag.RolSupervisor == 11))
                                 {
                                     <div class="btn-container">
                                         @if (condIniPicking)
@@ -369,7 +369,7 @@
 
                             <td class="text-center">
                                 @*El boton "INICIO VERIFICAR" solo se habilita si y solo si el ticket tiene como ultimo estado "FIN PICKING" o "INICIO PICKING" o "ANULAR INICIO VERIFICAR"*@
-                                @if (ViewBag.RolSupervisor == 50 || ViewBag.RolSupervisor == 51 || ViewBag.RolSupervisor == 1 || ViewBag.RolSupervisor == 4)
+                                @if (ViewBag.RolSupervisor == 50 || ViewBag.RolSupervisor == 51 || ViewBag.RolSupervisor == 1 || ViewBag.RolSupervisor == 4 || ViewBag.RolSupervisor == 11)
                                 {
                                     <div class="btn-container">
                                         @if (condIniVerificar)

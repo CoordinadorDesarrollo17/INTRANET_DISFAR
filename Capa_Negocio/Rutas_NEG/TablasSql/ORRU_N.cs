@@ -39,7 +39,13 @@ namespace Capa_Negocio.Rutas_NEG.TablasSql
         {
             ORRU_E o = orruD.obtenerOrdenDeRuta(DocEntry);
             if (!o.Estado.Equals("CREADO")) { throw new Exception("Solo puede anular en Estado Creado"); }
-            if (!o.TipoRuta.Equals("TA")) { throw new Exception("Solo puede anular ruta TA"); }
+            
+            // ✅ PERMITIR ANULAR TANTO TRANSFERENCIAS (TA) COMO DEVOLUCIONES (DE)
+            if (!o.TipoRuta.Equals("TA") && !o.TipoRuta.Equals("DE")) 
+            { 
+                throw new Exception("Solo puede anular rutas de tipo Transferencia (TA) o Devolución (DE)"); 
+            }
+            
             return orruD.AnularOrdenDeRuta(DocEntry, OpRegistro);
         }
         public ORRU_E obtenerOrdenDeRuta(int DocEntry)

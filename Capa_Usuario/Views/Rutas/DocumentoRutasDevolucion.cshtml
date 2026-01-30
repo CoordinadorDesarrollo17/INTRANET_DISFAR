@@ -56,31 +56,31 @@
             <tr>
                 <td><font size="@ViewBag.Letra"><strong>ALM: LLEGADA: </strong></font></td>
                 <td colspan="3">
-         <font size="@ViewBag.Letra">
-           <strong style="margin-right:30px">
-      @Model2.AlmDestinoDesc
-    </strong>
-              <br />
-  @Html.DisplayFor(model2 => model2.AlmDestinoDesc2)
-           </font>
-              </td>
- <td colspan="2" style="text-align: right;">
-     <font size="@ViewBag.Letra">CONDICIÓN ALMACENAMIENTO : T° 15°C-25°C</font>
-        </td>
+                    <font size="@ViewBag.Letra">
+                        <strong style="margin-right:30px">
+                            @Model2.AlmDestinoDesc
+                        </strong>
+                        <br />
+                        @Html.DisplayFor(model2 => model2.AlmDestinoDesc2)
+                    </font>
+                </td>
+                <td colspan="2" style="text-align: right;">
+                    <font size="@ViewBag.Letra">CONDICIÓN ALMACENAMIENTO : T° 15°C-25°C</font>
+                </td>
             </tr>
-    </table>
-      <table border=1 style='width: 1275px'>
-          <tr>
-              <th width=2%><font size="@ViewBag.Letra">#</font></th>
-              <th align=center width=10%><font size="@ViewBag.Letra">RAZÓN SOCIAL-RUC</font></th>
-              <th align=center width=12%><font size="@ViewBag.Letra">DIRECCIÓN PARTIDA</font></th>
-              <th align=center width=10%><font size="@ViewBag.Letra">NRO. DE GUIAS</font></th>
-              <th align=center width=5%><font size="@ViewBag.Letra"># BULTO</font></th>
-              <th align=center width=10%><font size="@ViewBag.Letra">FIRMA Y/O SELLO DEL CLIENTE</font></th>
-          </tr>
+        </table>
+        <table border=1 style='width: 1275px'>
+            <tr>
+                <th width=2%><font size="@ViewBag.Letra">#</font></th>
+                <th align=center width=10%><font size="@ViewBag.Letra">RAZÓN SOCIAL-RUC</font></th>
+                <th align=center width=12%><font size="@ViewBag.Letra">DIRECCIÓN PARTIDA</font></th>
+                <th align=center width=10%><font size="@ViewBag.Letra">NRO. DE GUIAS</font></th>
+                <th align=center width=5%><font size="@ViewBag.Letra"># BULTO</font></th>
+                <th align=center width=10%><font size="@ViewBag.Letra">FIRMA Y/O SELLO DEL CLIENTE</font></th>
+            </tr>
             @foreach (var det in Model2.DetRRU0.Where(x => x.Estado != "LIBERADO").OrderBy(x => x.Linea).ToList())
             {
-                <tr>
+                <tr style="height:150px;">
                     <td><font size="@ViewBag.Letra">@det.Linea</font></td>
                     <td style='text-align: justify; word-wrap: break-word;'>
                         <font size="@ViewBag.Letra">
@@ -106,21 +106,20 @@
             }
         </table>
 
-        <table border=0 style="width: 1275px; margin-top: 200px;">
-        <tr>
-     <td width="50%" style="text-align: center;">
-                  <div style="border-top: 1px solid black; width: 300px; margin: 0 auto; padding-top: 5px;">
-   <font size="@ViewBag.Letra"><strong>TRANSPORTISTA</strong></font>
-        </div>
-      </td>
+        <table border=0 style="width:1275px; margin-top:250px;">
+            <tr>
                 <td width="50%" style="text-align: center;">
-            <div style="border-top: 1px solid black; width: 300px; margin: 0 auto; padding-top: 5px;">
-        <font size="@ViewBag.Letra"><strong>VIGILANCIA</strong></font>
-       </div>
-    </td>
-  </tr>
+                    <div style="border-top:1px solid black; width:300px; margin:0 auto; padding-top:5px;">
+                        <font size="@ViewBag.Letra"><strong>TRANSPORTISTA</strong></font>
+                    </div>
+                </td>
+                <td width="50%" style="text-align: center;">
+                    <div style="border-top:1px solid black; width:300px; margin:0 auto; padding-top:5px;">
+                        <font size="@ViewBag.Letra"><strong>VIGILANCIA</strong></font>
+                    </div>
+                </td>
+            </tr>
         </table>
-
         <table width="100%">
             <tr>
                 <td colspan="26">

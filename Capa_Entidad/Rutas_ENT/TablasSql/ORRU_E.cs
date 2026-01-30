@@ -224,6 +224,7 @@ namespace Capa_Entidad.Rutas_ENT.TablasSql
             public string Placa { get; set; }          // U_SYP_MDVC
             public int Bultos { get; set; }
             public decimal DocTotal { get; set; }   
+            public string U_BPP_FECINITRA { get; set; } // ✅ Fecha/hora de inicio de traslado desde SAP
         }
         public class RptRutasExcel
         {

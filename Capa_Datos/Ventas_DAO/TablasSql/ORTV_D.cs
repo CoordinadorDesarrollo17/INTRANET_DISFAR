@@ -789,12 +789,14 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
             catch { hcn.Close(); }
             return lista;
         }
-        private List<RTV3_E> listarDirDestinos(string CardCode, int docnum)
+        private List<RTV3_E> listarDirDestinos(string CardCode, int docnum, DateTime? fechaTK)
         {
             List<RTV3_E> lista = new List<RTV3_E>();
             HanaConnection hcn = new HanaConnection(uti.cadHana);
             try
             {
+                string fechaFiltro = fechaTK.HasValue ? fechaTK.Value.ToString("yyyy-MM-dd") : DateTime.Now.ToString("yyyy-MM-dd");
+
                 hcn.Open();
                 string query = $@"
             SELECT 
@@ -815,7 +817,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                 T1.""CardCode"" = '{CardCode}'
                 AND T1.""Comments"" = '{docnum}'
                 AND T0.""Address"" LIKE 'ENV%'
-                AND T1.""DocDate"" = '{DateTime.Now:yyyy-MM-dd}'
+                AND T1.""DocDate"" = '{fechaFiltro}'
                 AND T1.""CANCELED"" = 'N'
                 AND
                 REPLACE(
@@ -1920,10 +1922,10 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
             info += "</datalist>";
             return info;
         }
-        public string GeneraInfoListaDirDestinos(string CardCode, int docnum)
+        public string GeneraInfoListaDirDestinos(string CardCode, int docnum, DateTime? fechaTK)
         {
             string info = "<option value=''>Seleccione</option>";
-            foreach (RTV3_E x in listarDirDestinos(CardCode, docnum))
+            foreach (RTV3_E x in listarDirDestinos(CardCode, docnum, fechaTK))
             {
                 info += "<option  value ='" + x.DirDestino + "' Zona='" + x.Zona + "' Distrito='" + x.Distrito + "' Provincia='" + x.Provincia + " 'Departamento='" + x.Departamento + "' Ubigeo='" + x.Ubigeo + "' Calle='" + x.Calle + "'>" + x.DirDestino + "</option>";
             }

@@ -190,7 +190,7 @@ namespace Capa_Datos.Rutas_DAO.TablasSql
                     " where Operacion='TERMINAR' and DocEntry=t1.DocEntry order by FechaOperacion,HoraOperacion desc),T1.Estado,T1.Observaciones,(select top 1 Operario from al.CC_ORRU " +
                     " where Operacion='INICIAR' and DocEntry=t1.DocEntry order by FechaOperacion,HoraOperacion desc) ,(select top 1 Operario from " +
                     "al.CC_ORRU where Operacion='TERMINAR' and DocEntry=t1.DocEntry order by FechaOperacion,HoraOperacion desc),T1.Agencia,T1.RucAgencia," +
-                    " (select SerieT1 from al.oveh where Code = T1.VehiculoCod), (select SerieT2 from al.oveh where Code = T1.VehiculoCod) " +
+                    " (select SerieT1 from al.oveh where Code = T1.VehiculoCod), (select SerieT2 from al.oveh where Code = T1.VehiculoCod),T1.HoraRegistro " + 
                     "from al.ORRU T1 where T1.DocEntry=@DocEntry", cn);
 
                 cmd.CommandType = CommandType.Text;
@@ -230,7 +230,9 @@ namespace Capa_Datos.Rutas_DAO.TablasSql
                 if (!dr.IsDBNull(30)) { o.RucAgencia = dr.GetString(30); }
                 if (!dr.IsDBNull(31)) { o.SerieT1 = dr.GetString(31); }
                 if (!dr.IsDBNull(32)) { o.SerieT2 = dr.GetString(32); }
+                if (!dr.IsDBNull(33)) { o.HoraRegistro = dr.GetTimeSpan(33).ToString(@"hh\:mm\:ss"); }  // ✅ Formato HH:mm:ss
                 dr.Close();
+                o.Operario = o.Propietario;
 
                 StringBuilder sb = new StringBuilder();
 
@@ -286,7 +288,7 @@ namespace Capa_Datos.Rutas_DAO.TablasSql
                     d.Ticket = ortv.ObtenerDatosCompletosTicket(d.DocEntryTicket);
 
                     // --- INICIO DEL CAMBIO ---
-                    // Si hay un "Socio" escrito manualmente en RRU0, buscamos su RUC y reemplazamos el del ticket
+                    // Si hay un "Socio" نوشته شده manualmente en RRU0, buscamos su RUC y reemplazamos el del ticket
                     if (!string.IsNullOrWhiteSpace(d.Socio))
                     {
                         try
@@ -321,6 +323,7 @@ namespace Capa_Datos.Rutas_DAO.TablasSql
                     o.DetRRU0.Add(d);
                 }
                 dr2.Close();
+                o.TotalCajas = o.TotCajas();
 
                 SqlCommand cmd20 = new SqlCommand("select DocEntryORRU,DocEntryTicket,Linea, TablaSAP,Identificador,U_SYP_MDTD,U_SYP_MDSD,U_SYP_MDCD,DocDate,U_BPP_FECINITRA,Impreso,Estado,Id " +
                    " from al.RRU01 where DocEntryORRU=@DocEntry", cn);
@@ -653,79 +656,144 @@ namespace Capa_Datos.Rutas_DAO.TablasSql
         public int EditarHojaDeReparto(ORRU_E o)
         {
             int status = -1;
-            SqlConnection cn = new SqlConnection(uti.cadSql);
+
+            // ✅ VERIFICAR SI ES DEVOLUCIÓN ANTES DE EDITAR
+            ORRU_E rutaActual = obtenerOrdenDeRuta(o.DocEntry);
+            string tipoMant = (rutaActual.TipoRuta == "DE") ? "UPDE" : "UP";  
+
+            using (SqlConnection cn = new SqlConnection(uti.cadSql))
             try
             {
                 cn.Open();
-                SqlCommand cmd = new SqlCommand("al.MANT_ORRU", cn);
-                cmd.CommandType = CommandType.StoredProcedure;
-                cmd.Parameters.AddWithValue("@TipoMantenimiento", "UP");//UPDATE
-                cmd.Parameters.AddWithValue("@DocEntry", o.DocEntry).Direction = ParameterDirection.InputOutput;
-                cmd.Parameters.AddWithValue("@DocNum", o.DocNum).Direction = ParameterDirection.Output;
-                cmd.Parameters.AddWithValue("@TransCod", o.TransCod);
-                cmd.Parameters.AddWithValue("@TransDesc", o.TransDesc);
-                cmd.Parameters.AddWithValue("@ProvDesc", o.ProvDesc);
-                cmd.Parameters.AddWithValue("@VehiculoCod", o.VehiculoCod);
-                cmd.Parameters.AddWithValue("@Placa", o.Placa);
-                cmd.Parameters.AddWithValue("@Marca", o.Marca);
-                cmd.Parameters.AddWithValue("@Modelo", o.Modelo);
-                cmd.Parameters.AddWithValue("@CopilDesc", o.CopilDesc);
-                cmd.Parameters.AddWithValue("@Copil2Desc", o.Copil2Desc);
-                cmd.Parameters.AddWithValue("@Copil3Desc", o.Copil3Desc);
-                cmd.Parameters.AddWithValue("@Copil4Desc", o.Copil4Desc);
-                cmd.Parameters.AddWithValue("@AlmOrigenCod", o.AlmOrigenCod);
-                cmd.Parameters.AddWithValue("@AlmOrigenDesc", o.AlmOrigenDesc);
-                cmd.Parameters.AddWithValue("@AlmOrigenDesc2", o.AlmOrigenDesc2);
-                cmd.Parameters.AddWithValue("@AlmDestinoCod", o.AlmDestinoCod);
-                cmd.Parameters.AddWithValue("@AlmDestinoDesc", o.AlmDestinoDesc);
-                cmd.Parameters.AddWithValue("@AlmDestinoDesc2", o.AlmDestinoDesc2);
+                SqlTransaction tran = cn.BeginTransaction();
+                try
+                {
+                    SqlCommand cmd = new SqlCommand("al.MANT_ORRU", cn, tran)
+                    {
+                        CommandType = CommandType.StoredProcedure
+                    };
+                    cmd.Parameters.AddWithValue("@TipoMantenimiento", tipoMant);//UPDATE
+                    cmd.Parameters.AddWithValue("@DocEntry", o.DocEntry).Direction = ParameterDirection.InputOutput;
+                    cmd.Parameters.AddWithValue("@DocNum", o.DocNum).Direction = ParameterDirection.Output;
+                    cmd.Parameters.AddWithValue("@TransCod", o.TransCod);
+                    cmd.Parameters.AddWithValue("@TransDesc", o.TransDesc);
+                    cmd.Parameters.AddWithValue("@ProvDesc", o.ProvDesc);
+                    cmd.Parameters.AddWithValue("@VehiculoCod", o.VehiculoCod);
+                    cmd.Parameters.AddWithValue("@Placa", o.Placa);
+                    cmd.Parameters.AddWithValue("@Marca", o.Marca);
+                    cmd.Parameters.AddWithValue("@Modelo", o.Modelo);
+                    cmd.Parameters.AddWithValue("@CopilDesc", o.CopilDesc);
+                    cmd.Parameters.AddWithValue("@Copil2Desc", o.Copil2Desc);
+                    cmd.Parameters.AddWithValue("@Copil3Desc", o.Copil3Desc);
+                    cmd.Parameters.AddWithValue("@Copil4Desc", o.Copil4Desc);
+                        cmd.Parameters.AddWithValue("@FechaCont", o.FechaCont ?? (object)DBNull.Value);
+                    cmd.Parameters.AddWithValue("@AlmOrigenCod", o.AlmOrigenCod);
+                    cmd.Parameters.AddWithValue("@AlmOrigenDesc", o.AlmOrigenDesc);
+                    cmd.Parameters.AddWithValue("@AlmOrigenDesc2", o.AlmOrigenDesc2);
+                    cmd.Parameters.AddWithValue("@AlmDestinoCod", o.AlmDestinoCod);
+                    cmd.Parameters.AddWithValue("@AlmDestinoDesc", o.AlmDestinoDesc);
+                    cmd.Parameters.AddWithValue("@AlmDestinoDesc2", o.AlmDestinoDesc2);
 
-                DateTime newTiempoPac = Convert.ToDateTime(o.TiempoPac);
-                DateTime tiempoPacFormatted = new DateTime(newTiempoPac.Year, newTiempoPac.Month, newTiempoPac.Day, newTiempoPac.Hour, 0, 0);
+                    DateTime newTiempoPac = Convert.ToDateTime(o.TiempoPac);
+                    DateTime tiempoPacFormatted = new DateTime(newTiempoPac.Year, newTiempoPac.Month, newTiempoPac.Day, newTiempoPac.Hour, 0, 0);
 
-                // Agregar el parámetro con la fecha ajustada
-                cmd.Parameters.AddWithValue("@TiempoPac", tiempoPacFormatted);
-                cmd.Parameters.AddWithValue("@Observaciones", o.Observaciones);
-                cmd.Parameters.AddWithValue("@Agencia", o.Agencia);
-                cmd.Parameters.AddWithValue("@RucAgencia", o.RucAgencia);
-                cmd.Parameters.AddWithValue("@Operario", o.Propietario);
-                cmd.ExecuteNonQuery();
-                status = o.DocNum;
-                cn.Close();
+                    // Agregar el parámetro con la fecha ajustada
+                    cmd.Parameters.AddWithValue("@TiempoPac", tiempoPacFormatted);
+                    cmd.Parameters.AddWithValue("@Observaciones", o.Observaciones);
+                    cmd.Parameters.AddWithValue("@Agencia", o.Agencia);
+                    cmd.Parameters.AddWithValue("@RucAgencia", o.RucAgencia);
+                    cmd.Parameters.AddWithValue("@Operario", o.Propietario);
+
+                    // ✅ AGREGADO: Procesar detalles DetRRU0 (órdenes de devolución)
+                    if (o.DetRRU0 != null && o.DetRRU0.Count > 0)
+                    {
+                        SqlParameter tbDet = new SqlParameter("@Det", SqlDbType.Structured);
+                        tbDet.Value = RRU0_E.tbDetalle(o.DetRRU0);
+                        tbDet.TypeName = "al.TPRRU0";
+                        cmd.Parameters.AddWithValue("@Det", tbDet.Value);
+                    }
+
+                    // ✅ AGREGADO: Procesar detalles DetRRU01 si existen
+                    if (o.DetRRU01 != null && o.DetRRU01.Count > 0)
+                    {
+                        SqlParameter tbDet01 = new SqlParameter("@DetDoc", SqlDbType.Structured);
+                        tbDet01.Value = RRU01_E.tbDetalle(o.DetRRU01);
+                        tbDet01.TypeName = "al.TPRRU01";
+                        cmd.Parameters.AddWithValue("@DetDoc", tbDet01.Value);
+                    }
+
+                    // ✅ AGREGADO: Procesar detalles DetRRU1 (transferencias entre almacenes)
+                    if (o.DetRRU1 != null && o.DetRRU1.Count > 0)
+                    {
+                        SqlParameter tbDet1 = new SqlParameter("@Det1", SqlDbType.Structured);
+                        tbDet1.Value = RRU1_E.tbDetalle(o.DetRRU1);
+                        tbDet1.TypeName = "al.TPRRU1";
+                        cmd.Parameters.AddWithValue("@Det1", tbDet1.Value);
+
+                        // Detalles de productos (RRU11)
+                        SqlParameter tbDetProd = new SqlParameter("@DetProd", SqlDbType.Structured);
+                        List<RRU11_E> ListaRRU11 = new List<RRU11_E>();
+                        foreach (RRU1_E rru1 in o.DetRRU1)
+                        {
+                            if (rru1.ListaRRU11 != null && rru1.ListaRRU11.Count > 0)
+                            {
+                                foreach (RRU11_E rru11 in rru1.ListaRRU11)
+                                {
+                                    ListaRRU11.Add(rru11);
+                                }
+                            }
+                        }
+                        tbDetProd.Value = RRU11_E.tbRRU12(ListaRRU11);
+                        tbDetProd.TypeName = "al.TPRRU11";
+                        cmd.Parameters.AddWithValue("@DetProd", tbDetProd.Value);
+                    }
+                    
+                    cmd.ExecuteNonQuery();
+                    status = o.DocNum;
+
+                    tran.Commit();
+                    cn.Close();
+                }
+                catch (Exception e1)
+                {
+                    tran.Rollback(); cn.Close(); throw new Exception("Error en edición: " + e1.Message);
+                }
             }
-            catch { cn.Close(); }
+            catch (Exception e2) { cn.Close(); throw new Exception("Error en conexión: " + e2.Message); }
             return status;
         }
         public int AnularOrdenDeRuta(int DocEntry, string OpRegistro)
         {
             int DcNum = 0;
             ORRU_E orru = obtenerOrdenDeRuta(DocEntry);
-            if (orru.TipoRuta == "TA")
+  
+            // ✅ PERMITIR ANULAR TANTO TRANSFERENCIAS (TA) COMO DEVOLUCIONES (DE)
+            if (orru.TipoRuta == "TA" || orru.TipoRuta == "DE")
+      {
+              SqlConnection cn = new SqlConnection(uti.cadSql);
+        try
+       {
+  cn.Open();
+       SqlTransaction tran = cn.BeginTransaction();
+       try
             {
-                SqlConnection cn = new SqlConnection(uti.cadSql);
-                try
-                {
-                    cn.Open();
-                    SqlTransaction tran = cn.BeginTransaction();
-                    try
-                    {
-                        SqlCommand cmd = new SqlCommand("al.MANT_ORRU", cn);
-                        cmd.Transaction = tran;
-                        cmd.CommandType = CommandType.StoredProcedure;
-                        cmd.Parameters.AddWithValue("@TipoMantenimiento", "UA");
-                        cmd.Parameters.AddWithValue("@DocEntry", DocEntry).Direction = ParameterDirection.InputOutput;
-                        cmd.Parameters.AddWithValue("@DocNum", 0).Direction = ParameterDirection.Output;
-                        cmd.Parameters.AddWithValue("@Operario", OpRegistro);
-                        cmd.ExecuteNonQuery();
-                        DcNum = int.Parse(cmd.Parameters["@DocNum"].Value.ToString());
-                        tran.Commit();
-                        cn.Close();
-                    }
-                    catch (Exception e) { tran.Rollback(); cn.Close(); throw new Exception("Error : " + e.Message); }
-                }
+   SqlCommand cmd = new SqlCommand("al.MANT_ORRU", cn);
+                cmd.Transaction = tran;
+         cmd.CommandType = CommandType.StoredProcedure;
+   cmd.Parameters.AddWithValue("@TipoMantenimiento", "UA");
+         cmd.Parameters.AddWithValue("@DocEntry", DocEntry).Direction = ParameterDirection.InputOutput;
+        cmd.Parameters.AddWithValue("@DocNum", 0).Direction = ParameterDirection.Output;
+              cmd.Parameters.AddWithValue("@Operario", OpRegistro);
+             cmd.ExecuteNonQuery();
+              DcNum = int.Parse(cmd.Parameters["@DocNum"].Value.ToString());
+        tran.Commit();
+           cn.Close();
+   }
+      catch (Exception e) { tran.Rollback(); cn.Close(); throw new Exception("Error : " + e.Message); }
+  }
                 catch (Exception e2) { cn.Close(); throw new Exception("Error en conexion : " + e2.Message); }
             }
-            return DcNum;
+   return DcNum;
         }
         public void IniciarReparto(ORRU_E o)
         {
@@ -1096,7 +1164,7 @@ namespace Capa_Datos.Rutas_DAO.TablasSql
            INNER JOIN al.RRU0 T1 ON T0.DocEntry = T1.DocEntry 
            WHERE (SELECT TOP 1 FechaOperacion 
                   FROM al.CC_ORRU 
-                  WHERE Operacion = 'TERMINAR' 
+                   WHERE Operacion = 'TERMINAR' 
                         AND DocEntry = T1.DocEntry 
                   ORDER BY FechaOperacion DESC, HoraOperacion DESC) IN ('{FechaTerEn}') 
                  AND T1.Estado = 'ENTREGADO' 
@@ -1345,32 +1413,34 @@ namespace Capa_Datos.Rutas_DAO.TablasSql
 
             string fechaFormato = fechaParsed.ToString("yyyy-MM-dd");
 
-            // Sanitizar cardCode simple (si no puedes parametrizar en HANA). Mejor: usar parámetros en tu DBHelper.
+            // Sanitizar cardCode
             cardCode = cardCode.Replace("'", "''").Trim();
 
             string query = @"
-                SELECT 
-                    T0.""DocEntry"",
-                    T0.""DocNum"",
-                    T0.""CardCode"",
-                    T0.""CardName"",
-                    T0.""Address"",
-                    T0.""Comments"",
-                    T0.""JrnlMemo"",
-                    IFNULL(T0.""U_SYP_MDTD"", '') || '-' || IFNULL(T0.""U_SYP_MDSD"", '') || '-' || IFNULL(T0.""U_SYP_MDCD"", '') AS ""NumGuia"",
-                    T0.""U_SYP_MDMT"",
-                    T0.""U_COB_LUGAREN"",
-                    T0.""U_BPP_NUDOCCOND"",
-                    T0.""U_SYP_MDFN"",
-                    T0.""U_SYP_MDVC"",
-                    IFNULL(T0.""U_BPP_NUMBUL"", 0) AS ""Bultos"",
-                    IFNULL(T0.""DocTotal"", 0) AS ""DocTotal""
-                FROM " + uti.schemaHana + @"ORRR T0
-                WHERE T0.""CardCode"" = '" + cardCode + @"'
-                  AND T0.""DocDate"" = '" + fechaFormato + @"'
-                   AND T0.""CANCELED"" = 'N'
-                ORDER BY T0.""DocNum"" DESC";
-
+                        SELECT 
+                            T0.""DocEntry"",
+                            T0.""DocNum"",
+                            T0.""CardCode"",
+                            T0.""CardName"",
+                            T0.""Address"",
+                            T0.""Comments"",
+                            T0.""JrnlMemo"",
+                            IFNULL(T0.""U_SYP_MDTD"", '') || '-' || 
+                            IFNULL(T0.""U_SYP_MDSD"", '') || '-' || 
+                            IFNULL(T0.""U_SYP_MDCD"", '') AS ""NumGuia"",
+                            T0.""U_SYP_MDMT"",
+                            T0.""U_COB_LUGAREN"",
+                            T0.""U_BPP_NUDOCCOND"",
+                            T0.""U_SYP_MDFN"",
+                            T0.""U_SYP_MDVC"",
+                            IFNULL(T0.""U_BPP_NUMBUL"", 0) AS ""Bultos"",
+                            IFNULL(T0.""DocTotal"", 0) AS ""DocTotal"",
+                            T0.""U_BPP_FECINITRA""
+                        FROM " + uti.schemaHana + @"ORRR T0
+                        WHERE T0.""CardCode"" = '" + cardCode + @"'
+                          AND T0.""DocDate"" = '" + fechaFormato + @"'
+                          AND T0.""CANCELED"" = 'N'
+                        ORDER BY T0.""DocNum"" DESC";
             try
             {
                 using (var hdr = db.HanaExecuteReaderNoSp(query))
@@ -1393,7 +1463,13 @@ namespace Capa_Datos.Rutas_DAO.TablasSql
                             Conductor = Trunc(!hdr.IsDBNull(11) ? hdr.GetString(11) : "", 100),
                             Placa = Trunc(!hdr.IsDBNull(12) ? hdr.GetString(12) : "", 30),
                             Bultos = !hdr.IsDBNull(13) ? hdr.GetInt32(13) : 0,
-                            DocTotal = !hdr.IsDBNull(14) ? hdr.GetDecimal(14) : 0m
+                            DocTotal = !hdr.IsDBNull(14) ? hdr.GetDecimal(14) : 0m,
+                            // ✅ Convertir DateTime de HANA a formato ISO 8601 (YYYY-MM-DDTHH:MM:SS)
+                            U_BPP_FECINITRA = !hdr.IsDBNull(15) 
+                                      ? (hdr.GetValue(15) is DateTime dt 
+                                      ? dt.ToString("yyyy-MM-ddTHH:mm:ss")  // Formato para datetime-local
+                                      : hdr.GetString(15))  // Si ya viene como string
+                                      : ""
                         };
 
                         lista.Add(o);
@@ -1402,17 +1478,23 @@ namespace Capa_Datos.Rutas_DAO.TablasSql
             }
             catch (Exception ex)
             {
-                throw new Exception("Error al listar devoluciones (HANA ORRR): " + ex.Message, ex);
+                throw new Exception(
+                    "Error al listar devoluciones (HANA ORRR): " + ex.Message,
+                    ex
+                );
             }
 
             return lista;
 
             string Trunc(string val, int max)
             {
-                if (string.IsNullOrEmpty(val)) return "";
+                if (string.IsNullOrEmpty(val))
+                    return "";
+
                 return val.Length <= max ? val : val.Substring(0, max);
             }
         }
+
         public List<dynamic> ListarClientesPorFechaDesdeHana(string fecha)
         {
             var lista = new List<dynamic>();

@@ -147,7 +147,7 @@
         <div class="row mx-0">
             <a href="@Url.Action("NuevaHojaDeReparto", "Rutas",new {TipoRep="Re" })" class="btn btn-success ml-2">Hoja de reparto</a>
             <a href="@Url.Action("NuevaTransferenciaEntreAlmacenes", "Rutas",new {TipoRep="Re" })" class="btn btn-success ml-2">Orden entre almacenes</a>
-            <a href="@Url.Action("SolicitudDevolucion", "Rutas",new {TipoRep="Re" })" class="btn btn-success ml-2">Solicitud Devolución</a>
+            @*<a href="@Url.Action("SolicitudDevolucion", "Rutas",new {TipoRep="Re" })" class="btn btn-success ml-2">Solicitud Devolución</a>*@
             <button data-toggle="modal" href="#ModalGestion" class="btn btn-warning d-none d-lg-block d-xl-block ml-2"><span>Módulo Gestión</span></button>
             <button type="button" class="btn btn-warning d-none d-lg-block d-xl-block ml-2" data-toggle="modal" data-target="#exampleModal">ReporteTemp</button>
         </div>
@@ -255,6 +255,7 @@
                                     bool esCreado = estado == "CREADO";
 
                                     bool showIniciar = esCreado;
+
 
                                     // 1. Lógica Entrega (Amarillo): NO DEVOLUCIONES
                                     bool showEntrega = esEnviado && tieneCajas && !esDE;
