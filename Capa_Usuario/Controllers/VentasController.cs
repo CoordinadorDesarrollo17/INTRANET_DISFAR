@@ -3351,9 +3351,9 @@ namespace Capa_Usuario.Controllers
         {
             return Content(_ticketN.generaInfoListaClientes(Fecha));
         }
-        public ActionResult infoDirDestino(string CardCode, int docnum)
+        public ActionResult infoDirDestino(string CardCode, int docnum, DateTime? fechaTK)
         {
-            return Content(_ticketN.generaInfoListaDirDestinos(CardCode, docnum));
+            return Content(_ticketN.generaInfoListaDirDestinos(CardCode, docnum, fechaTK));
         }
         public ActionResult infoListaOrdenesDeVenta(string Fecha, string CardCode, int DocNum)
         {
