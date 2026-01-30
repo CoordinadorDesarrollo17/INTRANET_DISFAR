@@ -5,6 +5,25 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
     Dictionary<string, string> opcEstadoDoc = new Dictionary<string, string>() { { "A", "Anulado" }, { "I", "Anulado Interno" }, { "V", "Vigente" } };
 }
+<style>
+    .modal-header .close:focus,
+    .modal-header .close:active {
+        outline: none;
+        box-shadow: none;
+    }
+
+    .modal-header .close {
+        padding: 0.5rem;
+        outline: none;
+        box-shadow: none;
+    }
+
+        .modal-header .close span {
+            font-size: 3rem; 
+        }
+
+</style>
+
 <script>
     $(document).ready(function () { });
     function filtrar() {
@@ -29,8 +48,8 @@
 <div class="pt-3 bg-form-pestanas-cobefar">
     <div class="bg-white">
         <div class="mb-2 d-flex justify-content-end mr-2">
-            <button type="button" class="btn btn-success" onclick="exportarExcel()">
-                <i class="bi bi-file-earmark-excel"></i> Reporte Excel
+            <button type="button" class="btn btn-info text-white" onclick="abrirModalReporte()">
+                <i class="bi bi-file-earmark-bar-graph"></i> Reporte
             </button>
         </div>
         <form name="frm" id="frm">
@@ -166,9 +185,94 @@
     </div>
 </div>
 
+
+<div class="modal fade" id="modalReporteProtocolo" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title"><i class="bi bi-file-earmark-spreadsheet"></i> Reporte Entrada de Mercancías</h5>
+                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Cerrar">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            @using (Html.BeginForm("ExportarExcelEntradaMercancia", "DireccionTecnica", FormMethod.Get, new { id = "formReporteProtocolo" }))
+            {
+                <div class="modal-body">
+                    <div class="alert alert-light border" role="alert">
+                        <small class="text-muted"><i class="bi bi-info-circle"></i> El rango de fechas no puede exceder los días naturales del mes seleccionado.</small>
+                    </div>
+                    <div class="mb-3">
+                        <label for="txtOpCargaReporte" class="form-label fw-bold">Proveedor</label>
+                        <input type="text" class="form-control" name="CardName" id="CardName">
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="txtFechaInicioReporte" class="form-label fw-bold">Fecha Inicio*</label>
+                            <input type="date" class="form-control" name="DocDate" id="DocDate">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="txtFechaFinReporte" class="form-label fw-bold">Fecha Fin*</label>
+                            <input type="date" class="form-control" name="DocDateFin" id="DocDateFin">
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="txtOpCargaReporte" class="form-label fw-bold">Almacen</label>
+                        <select name="Almacen" class="form-control" id="Almacen">
+                            <option value="">Seleccione</option>
+                            @foreach (OWHS_E os in ViewBag.Almacenes)
+                            {
+                                if (ViewBag.Opdn.Almacen == os.WhsCode)
+                                {
+                                    <option value="@os.WhsCode" selected>@os.WhsName</option>
+                                }
+                                else
+                                {
+                                    <option value="@os.WhsCode">@os.WhsName</option>
+                                }
+                            }
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="txtOpCargaReporte" class="form-label fw-bold">Estado</label>
+                        <select name="sqlopdn.Estado" class="form-control">
+                            <option value="">Seleccione</option>
+                            @if (ViewBag.Opdn.sqlopdn != null && ViewBag.Opdn.sqlopdn.Estado == "REALIZADO")
+                            {
+                                <option value="REALIZADO" selected>REALIZADO</option>
+                            }
+                            else
+                            {
+                                <option value="REALIZADO">REALIZADO</option>
+                            }
+                            @if (ViewBag.Opdn.sqlopdn != null && ViewBag.Opdn.sqlopdn.Estado == "PENDIENTE")
+                            {
+                                <option value="PENDIENTE" selected>PENDIENTE</option>
+                            }
+                            else
+                            {
+                                <option value="PENDIENTE">PENDIENTE</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-success"><i class="bi bi-download"></i> Descargar Excel</button>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+
 <script>
-    function exportarExcel() {
-        var parametros = $("#frm").serialize();
-        window.location.href = "/DireccionTecnica/ExportarExcelEntradaMercancia?" + parametros;
-    }
+     function abrirModalReporte() {
+         const form = document.getElementById('formReporteProtocolo');
+         if (form) form.reset();
+         const hoy = new Date().toISOString().split('T')[0];
+         //document.getElementById('DocDate').value = hoy;
+         //document.getElementById('DocDateFin').value = hoy;
+         const modal = new bootstrap.Modal(document.getElementById('modalReporteProtocolo'));
+         modal.show();
+     }
 </script>

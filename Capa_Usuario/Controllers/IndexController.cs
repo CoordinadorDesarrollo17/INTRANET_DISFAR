@@ -367,7 +367,7 @@ namespace Capa_Usuario.Controllers
             return AccesoHelper.GestionarAccesoIndex(this, new AccessoHelper_E { OpeID = idOperation, action = "RegalosAplicados", controllerDestino = "AtencionCliente", usuario = (Usuario_E)Session["UsuarioId"] });
         }
         
-        public ActionResult ATC_HojaRuta(int idOperation = 2714)
+        public ActionResult ATC_HojaRuta(int idOperation = 6300)
         {
             return AccesoHelper.GestionarAccesoIndex(this, new AccessoHelper_E { OpeID = idOperation, action = "HojaRuta", controllerDestino = "AtencionCliente", usuario = (Usuario_E)Session["UsuarioId"] });
         }

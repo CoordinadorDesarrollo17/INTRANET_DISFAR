@@ -8,8 +8,8 @@
     List<string> Conductores = new List<string>(ViewBag.Conductores);
     List<string> Copilotos = new List<string>(ViewBag.ListaCopilotos);
 
-    string urlAction = Url.Action("ListadoRutas", "Rutas");
-    string tituloListado = "Listado de rutas";
+    string urlAction = Url.Action("HojaRuta", "AtencionCliente");
+    string tituloListado = "Listado de Devoluciones";
     string tituloTipoRep = "Registrar Solicitud de Devolución";
 }
 
@@ -196,8 +196,13 @@
             </div>
         </div>
 
-        <!-- Tercera fila: Copilotos, Bultos, Observaciones -->
+        <!-- Tercera fila: TiempoPac, Copilotos, Bultos, Observaciones -->
         <div class="row form-row-custom">
+            <div class="col-lg-2 col-md-3 col-sm-6">
+                <label for="TiempoPac" class="text-dark form-label-custom font-weight-bold">Tiempo Pactado:</label>
+                <input type="datetime-local" class="form-control border-success form-control-sm" 
+                       name="TiempoPac" id="TiempoPac" />
+            </div>
             <div class="col-lg-2 col-md-3 col-sm-6">
                 <label for="CopilDesc" class="text-dark form-label-custom font-weight-bold">Copiloto 1:</label>
                 @Html.EditorFor(model => model.CopilDesc, new { htmlAttributes = new { @class = "form-control border-success form-control-sm", @type = "search", @list = "ListaCopilotos", @autocomplete = "off" } })
@@ -490,20 +495,21 @@
                 "pageLength": 10,
                 "ordering": true,
                 "searching": true,
-                "columnDefs": [{ "visible": false, "targets": [2, 4, 11, 12, 13] }]
+                "columnDefs": [{ "visible": false, "targets": [2, 4, 11, 12, 13, 14] }]  // ✅ Columna 14 = U_BPP_FECINITRA
             });
         }
         var primerConductor = '', primerPlaca = '',
-            primerAlmacen = '';   // ✅ NUEVO
+            primerAlmacen = '', primerTiempoPac = '';   // ✅ NUEVO
 
         $.each(data, function (index, item) {
             if (index === 0) {
                 primerConductor = item.Conductor || '';
                 primerPlaca = item.Placa || '';
-                primerAlmacen = item.Agencia || '';  // ✅ NUEVO
+                primerAlmacen = item.Agencia || '';  
+                primerTiempoPac = item.U_BPP_FECINITRA || '';  // ✅ CAPTURAR DESDE HANA
             }
             var conductorPlaca = (item.Conductor || '') + ' / ' + (item.Placa || '');
-            var checkbox = '<input type="checkbox" class="cls-chkVerif" data-conductor="' + (item.Conductor || '') + '" data-placa="' + (item.Placa || '') + '" />';
+            var checkbox = '<input type="checkbox" class="cls-chkVerif" data-conductor="' + (item.Conductor || '') + '" data-placa="' + (item.Placa || '') + '" data-tiempopac="' + (item.U_BPP_FECINITRA || '') + '" />';  // ✅ Guardar en data-attribute
             tablaDetalleRuta.row.add([
                 checkbox,
                 (index + 1),
@@ -518,41 +524,48 @@
                 parseFloat(item.DocTotal || 0).toFixed(2),
                 item.Comments || '',
                 item.Address || '',
-                '0'
+                '0',
+                item.U_BPP_FECINITRA || ''  // ✅ Agregar como columna oculta
             ]);
         });
         tablaDetalleRuta.draw();
 
         // Establecer primer conductor y placa
-        if (primerConductor) $('#TransDesc').val(primerConductor);
-        if (primerPlaca) $('#Placa').val(primerPlaca).trigger('change');
+     if (primerConductor) $('#TransDesc').val(primerConductor);
+  if (primerPlaca) $('#Placa').val(primerPlaca).trigger('change');
 
-        // ✅ Seleccionar almacén POR CÓDIGO
+ // ✅ Seleccionar almacén POR CÓDIGO
         if (primerAlmacen) {
-            $("#AlmDestinoDesc option[almdestinocod='" + primerAlmacen + "']")
-                .prop("selected", true);
+        $("#AlmDestinoDesc option[almdestinocod='" + primerAlmacen + "']")
+   .prop("selected", true);
 
-            $("#AlmDestinoDesc").trigger('change');
+     $("#AlmDestinoDesc").trigger('change');
         }
 
+ // ✅ **LLENAR TIEMPOPAC DESDE HANA (U_BPP_FECINITRA)**
+        if (primerTiempoPac) {
+      $("#TiempoPac").val(primerTiempoPac);  // Ya viene en formato yyyy-MM-ddTHH:mm:ss
+}
 
         // Configurar evento de checkboxes
-        setTimeout(function () {
-            $('.cls-chkVerif').off('change').on('change', function () {
-                if ($(this).is(':checked')) {
-                    var conductor = $(this).data('conductor');
-                    var placa = $(this).data('placa');
-                    if (conductor) $('#TransDesc').val(conductor);
-                    if (placa) $('#Placa').val(placa).trigger('change');
-                }
+setTimeout(function () {
+$('.cls-chkVerif').off('change').on('change', function () {
+      if ($(this).is(':checked')) {
+     var conductor = $(this).data('conductor');
+              var placa = $(this).data('placa');
+           var tiempopac = $(this).data('tiempopac');  // ✅ CAPTURAR TIEMPOPAC
+        if (conductor) $('#TransDesc').val(conductor);
+            if (placa) $('#Placa').val(placa).trigger('change');
+      if (tiempopac) $('#TiempoPac').val(tiempopac);  // ✅ ACTUALIZAR TIEMPOPAC
+            }
             });
         }, 100);
 
         Swal.fire({
-            icon: 'success',
-            title: 'Órdenes cargadas',
-            text: data.length + ' solicitud(es) encontrada(s)',
-            timer: 2000,
+         icon: 'success',
+      title: 'Órdenes cargadas',
+     text: data.length + ' solicitud(es) encontrada(s)',
+       timer: 2000,
             showConfirmButton: false
         });
     }
@@ -698,49 +711,55 @@
         if ($("#Detalles tbody tr").length === 0) {
             Swal.fire('Sin detalles', 'Debe agregar al menos una orden al detalle antes de guardar.', 'warning');
             return false;
-        }
-        // Validar campos obligatorios
-        var fecha = $("#FechaSapTicket").val();
+ }
+  // Validar campos obligatorios
+  var fecha = $("#FechaSapTicket").val();
         var placa = $("#Placa").val();
         var conductor = $("#TransDesc").val();
         var almacenDestino = $("#AlmDestinoDesc").val();
-        var errores = [];
-        if (!fecha) {
-            $("#FechaSapTicket").addClass('bg-danger text-white');
-            errores.push('Fecha');
+        var tiempoPac = $("#TiempoPac").val();  // ✅ NUEVO
+ var errores = [];
+    if (!fecha) {
+        $("#FechaSapTicket").addClass('bg-danger text-white');
+         errores.push('Fecha');
         }
         if (!placa) {
-            $("#Placa").addClass('bg-danger text-white');
-            errores.push('Placa');
-        }
+     $("#Placa").addClass('bg-danger text-white');
+        errores.push('Placa');
+  }
         if (!conductor) {
-            $("#TransDesc").addClass('bg-danger text-white');
-            errores.push('Conductor');
-        }
+   $("#TransDesc").addClass('bg-danger text-white');
+     errores.push('Conductor');
+ }
         if (!almacenDestino) {
-            $("#AlmDestinoDesc").addClass('bg-danger text-white');
+      $("#AlmDestinoDesc").addClass('bg-danger text-white');
             errores.push('Almacén Destino');
         }
-        if (errores.length > 0) {
-            Swal.fire('Campos requeridos', 'Complete los siguientes campos: ' + errores.join(', '), 'error');
-            return false;
-        }
+  // ✅ VALIDAR TIEMPOPAC
+        if (!tiempoPac) {
+   $("#TiempoPac").addClass('bg-danger text-white');
+     errores.push('Tiempo Pactado');
+}
+  if (errores.length > 0) {
+         Swal.fire('Campos requeridos', 'Complete los siguientes campos: ' + errores.join(', '), 'error');
+  return false;
+  }
 
         // Confirmar envío
         Swal.fire({
-            title: '¿Confirmar registro?',
-            text: 'Se registrará la hoja de devolución con ' + $("#Detalles tbody tr").length + ' orden(es)',
-            icon: 'question',
-            showCancelButton: true,
-            confirmButtonColor: '#28a745',
+      title: '¿Confirmar registro?',
+       text: 'Se registrará la hoja de devolución con ' + $("#Detalles tbody tr").length + ' orden(es)',
+  icon: 'question',
+  showCancelButton: true,
+         confirmButtonColor: '#28a745',
             cancelButtonColor: '#d33',
-            confirmButtonText: 'Sí, guardar',
-            cancelButtonText: 'Cancelar'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                $("#form").submit();
+   confirmButtonText: 'Sí, guardar',
+       cancelButtonText: 'Cancelar'
+  }).then((result) => {
+if (result.isConfirmed) {
+    $("#form").submit();
             }
-        });
+ });
     }
 
     function enviarValSelect(idSelect, idDestino, atributo) {
