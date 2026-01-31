@@ -1947,6 +1947,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
         }
         public (string HtmlContent, string TipoVenta) GeneraInfoListaOrdenesDeVenta(string fecha, string cardCode, int docNum)
         {
+            //Prueba
             string info = string.Empty;
             int linea = 1;
             List<OrdenDeVenta_E> lista = ListarOrdenesdeVentaFinales(fecha, cardCode, docNum);
