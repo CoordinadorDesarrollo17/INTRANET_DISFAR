@@ -212,9 +212,12 @@
     function validacionDirDestino() {
         var CardCode = $("#CardCode").val();
         var Docnum = $("#DocNum").val(); // <-- Obtiene el valor del input DocNum
+        var fechaTK = $("#FechaSapTicket").val();
+
+        if (!fechaTK) { fechaTK = ""; }
         if (!CardCode) { CardCode = ""; }
         if (!Docnum) { Docnum = ""; }
-        var parametros = { "CardCode": CardCode, "DocNum": Docnum }; // <-- Agrega DocNum al objeto
+        var parametros = { "CardCode": CardCode, "DocNum": Docnum, "fechaTK": fechaTK }; // <-- Agrega DocNum al objeto
         $.ajax('/Ventas/infoDirDestino',
             {
                 data: parametros,
@@ -223,6 +226,7 @@
                 type: 'post',
             })
             .done(function (response) {
+                console.log("RESPUESTA",response);
                 $('#DirDestino').html(response);
                 // Selecciona automáticamente la primera opción válida
                 var $dirDestino = $('#DirDestino');
