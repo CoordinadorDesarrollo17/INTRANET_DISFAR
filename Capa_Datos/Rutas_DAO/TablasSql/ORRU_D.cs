@@ -1445,7 +1445,11 @@ namespace Capa_Datos.Rutas_DAO.TablasSql
                             T0.""DocNum"",
                             T0.""CardCode"",
                             T0.""CardName"",
-                            T0.""Address"",
+                            CASE 
+                                    WHEN UPPER(IFNULL(T0.""ShipToCode"",'')) = 'ENVIO 2'
+                                         THEN T0.""Address2""
+                                    ELSE T0.""Address""
+                                END AS ""DireccionEnvio"",
                             T0.""Comments"",
                             T0.""JrnlMemo"",
                             IFNULL(T0.""U_SYP_MDTD"", '') || '-' || 
