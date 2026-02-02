@@ -935,9 +935,17 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
             }
             tkD.EditarTicketSup(DocEntry, ticket);
         }
-        public (string HtmlContent, string TipoVenta) generaInfoListaOrdenesDeVenta(string fecha, string cardCode, int docNum)
+        public (string HtmlContent, string TipoVenta, string ErrorMessage) generaInfoListaOrdenesDeVenta(string fecha, string cardCode, int docNum)
         {
-            return tkD.GeneraInfoListaOrdenesDeVenta(fecha, cardCode, docNum);
+            try
+            {
+                var result = tkD.GeneraInfoListaOrdenesDeVenta(fecha, cardCode, docNum);
+                return (result.HtmlContent, result.TipoVenta, null);
+            }
+            catch (Exception ex)
+            {
+                return ("", "", ex.Message);
+            }
         }
         public string EstadoTicket(int docEntry)
         { return tkD.EstadoTicket(docEntry); }
