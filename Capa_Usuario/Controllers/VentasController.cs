@@ -3357,11 +3357,12 @@ namespace Capa_Usuario.Controllers
         }
         public ActionResult infoListaOrdenesDeVenta(string Fecha, string CardCode, int DocNum)
         {
-            var (htmlContent, tipoVenta) = _ticketN.generaInfoListaOrdenesDeVenta(Fecha, CardCode, DocNum);
+            var (htmlContent, tipoVenta, errorMessage) = _ticketN.generaInfoListaOrdenesDeVenta(Fecha, CardCode, DocNum);
             var response = new
             {
                 HtmlContent = htmlContent,
-                TipoVenta = tipoVenta
+                TipoVenta = tipoVenta,
+                ErrorMessage = errorMessage
             };
             return Json(response, JsonRequestBehavior.AllowGet);
         }
