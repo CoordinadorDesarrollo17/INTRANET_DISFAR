@@ -1579,7 +1579,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
             catch (Exception e) { status = 0; cn.Close(); throw new Exception("Error en revertir guias: " + e.Message); }
             return status;
         }
-        public int FacturarTicket(int DocEntry, Usuario_E u)
+        public int FacturarTicket(int DocEntry, Usuario_E u, bool omitirValidacionGuias = false)
         {
             int status = -1;
             ORTV_E t;
@@ -1595,6 +1595,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                 cmd.Parameters.AddWithValue("@DocEntry", DocEntry);
                 cmd.Parameters.AddWithValue("@DocNum", 0).Direction = ParameterDirection.Output;
                 cmd.Parameters.AddWithValue("@OpFacturacion", $"{u.Nombres} {u.Apellidos}");
+                cmd.Parameters.AddWithValue("@OmitirValidacionGuias", omitirValidacionGuias ? 1 : 0);
                 cmd.ExecuteNonQuery();
                 cn.Close();
                 status = int.Parse(cmd.Parameters["@DocNum"].Value.ToString());

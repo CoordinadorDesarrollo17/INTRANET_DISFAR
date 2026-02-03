@@ -737,7 +737,7 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
             if (!t.EstadoFacturacion.Equals("GRE EMITIDA")) { throw new Exception("No se puede revertir el proceso de guias"); }
             return tkD.RevertirGuiasTicket(DocEntry, operario);
         }
-        public int facturarTicket(int DocEntry, Usuario_E u)
+        public int facturarTicket(int DocEntry, Usuario_E u, bool omitirValidacionGuias = false)
         {
             Capa_Datos.Ventas_DAO.Tablas.OINV_D oinvD = new Capa_Datos.Ventas_DAO.Tablas.OINV_D();
             Capa_Negocio.ComprobantesContables_NEG.Comprobante_N compN = new Capa_Negocio.ComprobantesContables_NEG.Comprobante_N();
@@ -772,33 +772,38 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
             }
             // Validamos que las guias esten completas
             // Verificar si LugarDestino es "Centro" o "Arriola"
-            if (new[] { "Centro", "Arriola" }.Contains(t.LugarDestino))
+            // Validamos que las guias esten completas SOLO SI NO SE OMITE LA VALIDACIÓN
+            if (!omitirValidacionGuias)
             {
-                //Valida cantidad de guias igual a cantidad de OV
-                int totalOrdenesVenta = OrdenesSap.Count;
-                int totalGuiasEmitidas = compN.ObtenerEncabezadoGuiasTransferencia(t).Count();
-                // Si existe un ítem en Det2 que tenga AlmacenSalida = "14" ,
-                // se obvia la restricción de comparar las cantidades de guías y órdenes de venta.
-                bool tieneItemExcluido = t.Det2.Any(item =>
-                    item.AlmacenSalida == "14");
-                // Si no se encuentra un ítem que permita excluir, se valida la cantidad
-                if (!tieneItemExcluido && totalGuiasEmitidas != totalOrdenesVenta)
+                // Verificar si LugarDestino es "Centro" o "Arriola"
+                if (new[] { "Centro", "Arriola" }.Contains(t.LugarDestino))
                 {
-                    throw new Exception("La cantidad de guías emitidas no coincide con la cantidad de órdenes de venta.");
+                    //Valida cantidad de guias igual a cantidad de OV
+                    int totalOrdenesVenta = OrdenesSap.Count;
+                    int totalGuiasEmitidas = compN.ObtenerEncabezadoGuiasTransferencia(t).Count();
+                    // Si existe un ítem en Det2 que tenga AlmacenSalida = "14" ,
+                    // se obvia la restricción de comparar las cantidades de guías y órdenes de venta.
+                    bool tieneItemExcluido = t.Det2.Any(item =>
+                        item.AlmacenSalida == "14");
+                    // Si no se encuentra un ítem que permita excluir, se valida la cantidad
+                    if (!tieneItemExcluido && totalGuiasEmitidas != totalOrdenesVenta)
+                    {
+                        throw new Exception("La cantidad de guías emitidas no coincide con la cantidad de órdenes de venta.");
+                    }
+                }
+                else
+                {
+                    //Valida monto de entrega igual a monto de factura
+                    decimal sumEntregas = compN.ObtenerEncabezadoGuiasPorEntrega(OrdenesSap).Sum(x => x.DocTotal); // Trae Dato Max1099 de entrega lo inserta en variable DocTotal
+                    decimal sumFacturas = ComprobantesVinculados.Sum(x => x.Max1099);
+                    //if ((sumFacturas + sumNotasCredito) != sumEntregas ||
+                    //    sumFacturas  != sumEntregas
+                    //    ) { throw new Exception("Montos no coinciden"); }
                 }
             }
-            else
-            {
-                //Valida monto de entrega igual a monto de factura
-                decimal sumEntregas = compN.ObtenerEncabezadoGuiasPorEntrega(OrdenesSap).Sum(x => x.DocTotal); // Trae Dato Max1099 de entrega lo inserta en variable DocTotal
-                decimal sumFacturas = ComprobantesVinculados.Sum(x => x.Max1099);
-                //if ((sumFacturas + sumNotasCredito) != sumEntregas ||
-                //    sumFacturas  != sumEntregas
-                //    ) { throw new Exception("Montos no coinciden"); }
-            }
             if (t.Estado.Equals("CANCELADO") || t.Estado.Equals("ANULADO")) { throw new Exception("No puede facturar en este ticket."); }
-            if (!t.EstadoFacturacion.Equals("GRE EMITIDA")) { throw new Exception("El ticket no tiene guías emitidas"); }
-            return tkD.FacturarTicket(DocEntry, u);
+            if (!omitirValidacionGuias && !t.EstadoFacturacion.Equals("GRE EMITIDA")) { throw new Exception("El ticket no tiene guías emitidas"); }
+            return tkD.FacturarTicket(DocEntry, u, omitirValidacionGuias);
         }
         public int revertirFacturarTicket(int DocEntry, String operario)
         {
