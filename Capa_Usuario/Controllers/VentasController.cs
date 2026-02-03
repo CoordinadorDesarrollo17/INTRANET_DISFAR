@@ -967,7 +967,7 @@ namespace Capa_Usuario.Controllers
                 return resultadoAcceso;
             }
         }
-        public ActionResult FacturarTicketVenta(int DocEntry, ORTV_E ticketPost, int idOperation = 602)
+        public ActionResult FacturarTicketVenta(int DocEntry, ORTV_E ticketPost, bool omitirValidacionGuias = false, int idOperation = 602)
         {
             var resultadoAcceso = VerificarPermiso(idOperation);
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
@@ -992,20 +992,34 @@ namespace Capa_Usuario.Controllers
                 try
                 {
                     Usuario_E u = (Usuario_E)Session["UsuarioId"];
-                    int DocNum = _ticketN.facturarTicket(DocEntry, u);
+
+                    // VALIDACIÓN DE PERMISOS (solo Admin o Supervisor)
+                    if (omitirValidacionGuias)
+                    {
+                        if (u.IdRol != 1 && u.IdRol != 54) // 1=Admin, 6=Supervisor
+                        {
+                            datos.Mensaje = "❌ NO TIENE PERMISOS PARA FACTURAR SIN VALIDACIÓN DE GUÍAS";
+                            return RedirectToAction("ListadoTicketsFacturacion", datos);
+                        }
+                    }
+
+                    // ✅ Llamar al método pasando el parámetro
+                    int DocNum = _ticketN.facturarTicket(DocEntry, u, omitirValidacionGuias);
+
                     // Envío de correo automático en caso de clientes específicos
                     var ticketFacturado = new ORTV_N().ObtenerDatosTicketParaDocumentos(DocEntry);
                     var correosClientes = new Dictionary<string, string>
-                    {
-                        { "C20609641500", "Juancarloshuapayalazarte@gmail.com" },
-                        { "C20557398628", "distribuidoravgfarma@hotmail.com" },
-                        { "C20600765044", "eucelsrl@gmail.com" }
-                    };
-                    // Verificar si el CardCode existe en el diccionario
+                        {
+                            { "C20609641500", "Juancarloshuapayalazarte@gmail.com" },
+                            { "C20557398628", "distribuidoravgfarma@hotmail.com" },
+                            { "C20600765044", "eucelsrl@gmail.com" }
+                        };
+
                     if (DocNum > 0 && correosClientes.TryGetValue(ticketFacturado.CardCode, out string correoCliente))
                     {
                         EnviarCorreo(ticketFacturado.DocEntry, correoCliente);
                     }
+
                     return RedirectToAction("ListadoTicketsFacturacion", datos);
                 }
                 catch (Exception e)
@@ -3357,11 +3371,12 @@ namespace Capa_Usuario.Controllers
         }
         public ActionResult infoListaOrdenesDeVenta(string Fecha, string CardCode, int DocNum)
         {
-            var (htmlContent, tipoVenta) = _ticketN.generaInfoListaOrdenesDeVenta(Fecha, CardCode, DocNum);
+            var (htmlContent, tipoVenta, errorMessage) = _ticketN.generaInfoListaOrdenesDeVenta(Fecha, CardCode, DocNum);
             var response = new
             {
                 HtmlContent = htmlContent,
-                TipoVenta = tipoVenta
+                TipoVenta = tipoVenta,
+                ErrorMessage = errorMessage
             };
             return Json(response, JsonRequestBehavior.AllowGet);
         }

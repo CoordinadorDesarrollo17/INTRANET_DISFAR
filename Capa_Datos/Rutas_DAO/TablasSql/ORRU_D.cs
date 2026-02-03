@@ -618,15 +618,38 @@ namespace Capa_Datos.Rutas_DAO.TablasSql
                         if (o.DetRRU0 != null)
                         {
                             // cambio de estado ticket
-                            foreach (RRU0_E dr in RRU0_E.listaFinalDetalles(o.DetRRU0))
+                            if (o.DetRRU0 != null)
                             {
-                                ORTV_E tcv = ticketD.ObtenerDatosCompletosTicket(dr.DocEntryTicket);
-                                CC_ORTV_D ccORTV_D = new CC_ORTV_D();
-                                List<CC_ORTV_E> estadoPesado = ccORTV_D.ListarCC_ORTV(tcv.DocEntry, "PESAR");
-                                List<CC_ORTV_E> estadoEmpacado = ccORTV_D.ListarCC_ORTV(tcv.DocEntry, "FIN EMPACAR");
-                                if (o.TipoRuta == "AC" && tcv.Estado != "PESADO" && estadoPesado[0].FechaOperacion == null) { throw new Exception("El ticket no se encuentra pesado: " + tcv.DocNum); }
-                                if (o.TipoRuta != "AC" && tcv.Estado != "EMPACADO" && estadoEmpacado[0].FechaOperacion == null) { throw new Exception("El ticket no esta empacado " + tcv.DocNum); }
-                                ticketD.Preenviar(tcv.DocEntry, o.Propietario, tran, cn);
+                                // cambio de estado ticket
+                                foreach (RRU0_E dr in RRU0_E.listaFinalDetalles(o.DetRRU0))
+                                {
+                                    ORTV_E tcv = ticketD.ObtenerDatosCompletosTicket(dr.DocEntryTicket);
+                                    CC_ORTV_D ccORTV_D = new CC_ORTV_D();
+
+                                    // Si es devolución (TipoRuta == "DE") saltamos las validaciones de PESADO / EMPACADO
+                                    if (o.TipoRuta != "DE")
+                                    {
+                                        List<CC_ORTV_E> estadoPesado = ccORTV_D.ListarCC_ORTV(tcv.DocEntry, "PESAR");
+                                        List<CC_ORTV_E> estadoEmpacado = ccORTV_D.ListarCC_ORTV(tcv.DocEntry, "FIN EMPACAR");
+
+                                        if (o.TipoRuta == "AC")
+                                        {
+                                            // Validar que exista registro PESAR con FechaOperacion
+                                            bool pesadoValido = estadoPesado != null && estadoPesado.Count > 0 && estadoPesado[0].FechaOperacion != null;
+                                            if (tcv.Estado != "PESADO" && !pesadoValido)
+                                                throw new Exception("El ticket no se encuentra pesado: " + tcv.DocNum);
+                                        }
+                                        else
+                                        {
+                                            // Para otros tipos (no AC y no DE) validar EMPACADO
+                                            bool empacadoValido = estadoEmpacado != null && estadoEmpacado.Count > 0 && estadoEmpacado[0].FechaOperacion != null;
+                                            if (tcv.Estado != "EMPACADO" && !empacadoValido)
+                                                throw new Exception("El ticket no esta empacado " + tcv.DocNum);
+                                        }
+                                    }
+
+                                    ticketD.Preenviar(tcv.DocEntry, o.Propietario, tran, cn);
+                                }
                             }
                         }
 
@@ -1422,7 +1445,11 @@ namespace Capa_Datos.Rutas_DAO.TablasSql
                             T0.""DocNum"",
                             T0.""CardCode"",
                             T0.""CardName"",
-                            T0.""Address"",
+                            CASE 
+                                    WHEN UPPER(IFNULL(T0.""ShipToCode"",'')) = 'ENVIO 2'
+                                         THEN T0.""Address2""
+                                    ELSE T0.""Address""
+                                END AS ""DireccionEnvio"",
                             T0.""Comments"",
                             T0.""JrnlMemo"",
                             IFNULL(T0.""U_SYP_MDTD"", '') || '-' || 
