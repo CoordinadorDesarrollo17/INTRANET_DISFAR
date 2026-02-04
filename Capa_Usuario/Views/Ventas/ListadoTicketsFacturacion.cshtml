@@ -146,86 +146,38 @@
         }
     }
 
-// 🔹 VARIABLES GLOBALES PARA EL MODAL
-var docEntryActual = 0;
-var ticketPostActual = null;
+    // 🔹 VARIABLES GLOBALES PARA EL MODAL
+    var docEntryActual = 0;
+    var ticketPostActual = null;
 
-// 🔹 FUNCIÓN PARA ABRIR EL MODAL DE CONFIRMACIÓN
-function confirmarFacturar(DocEntry) {
-    docEntryActual = DocEntry;
-
-    // Obtener datos del ticket desde ViewBag (si están disponibles)
-    var docNum = "@(ViewBag.Ortv != null ? ViewBag.Ortv.DocNum : "")";
-    var estadoPago = "@(ViewBag.Ortv != null ? ViewBag.Ortv.EstadoPago : "")";
-    var tipoVenta = "@(ViewBag.Ortv != null ? ViewBag.Ortv.TipoVenta : "")";
-    var estado = "@(ViewBag.Ortv != null ? ViewBag.Ortv.Estado : "")";
-    var estadoFacturacion = "@(ViewBag.Ortv != null ? ViewBag.Ortv.EstadoFacturacion : "")";
-    var lugarDestino = "@(ViewBag.Ortv != null ? ViewBag.Ortv.LugarDestino : "")";
-
-    // Guardar datos en variable global
-    ticketPostActual = {
-        EstadoPago: estadoPago,
-        TipoVenta: tipoVenta,
-        Estado: estado,
-        EstadoFacturacion: estadoFacturacion,
-        LugarDestino: lugarDestino
-    };
-
-    // Mostrar número de ticket en el modal
-    $('#ticketNumFacturar').text(docNum || DocEntry);
-
-    // Resetear checkbox
-    $('#chkOmitirValidacionGuias').prop('checked', false);
-
-    // Abrir modal
-    $('#modalConfirmarFacturar').modal('show');
-}
-
-// 🔹 FUNCIÓN PARA EJECUTAR LA FACTURACIÓN CON EL CHECKBOX
-function ejecutarFacturacion() {
-    var omitirValidacion = $('#chkOmitirValidacionGuias').is(':checked') ? 'true' : 'false';
-
-    // Construir URL con todos los parámetros
-    var url = "@Url.Action("FacturarTicketVenta", "Ventas")" +
-       "?DocEntry=" + docEntryActual +
-  "&omitirValidacionGuias=" + omitirValidacion;
-
-    // Agregar parámetros del ticket si existen
-    if (ticketPostActual) {
-  url += "&EstadoPago=" + encodeURIComponent(ticketPostActual.EstadoPago || "");
-   url += "&TipoVenta=" + encodeURIComponent(ticketPostActual.TipoVenta || "");
-        url += "&Estado=" + encodeURIComponent(ticketPostActual.Estado || "");
-        url += "&EstadoFacturacion=" + encodeURIComponent(ticketPostActual.EstadoFacturacion || "");
-        url += "&LugarDestino=" + encodeURIComponent(ticketPostActual.LugarDestino || "");
+    // 🔹 FUNCIÓN PARA ABRIR EL MODAL DE CONFIRMACIÓN
+    function confirmarFacturar(DocEntry) {
+    window.location.href = '/Ventas/FacturarTicketVenta?DocEntry=' + DocEntry;
     }
 
-    // Redirigir al servidor
-  window.location.href = url;
-}
+    // 🔹 NUEVA FUNCIÓN: FACTURAR SIN GUÍAS (BOTÓN INDEPENDIENTE)
+    function confirmarFacturarSinGuias(DocEntry) {
+      Swal.fire({
+            title: '⚠️ Facturar sin guías',
+      html: '<p><strong>¿Desea facturar este ticket SIN VALIDAR GUÍAS?</strong></p>' +
+                  '<p class="text-warning">Esta opción es solo para casos especiales<br>(ej: cliente recoge en persona)</p>',
+         icon: 'warning',
+            showCancelButton: true,
+         confirmButtonColor: '#28a745',
+            cancelButtonColor: '#d33',
+     confirmButtonText: '✅ Sí, facturar sin guías',
+            cancelButtonText: '❌ Cancelar'
+        }).then((result) => {
+            if (result.isConfirmed) {
+           // Construir URL directamente con omitirValidacionGuias=true
+                var url = "@Url.Action("FacturarTicketVenta", "Ventas")" +
+          "?DocEntry=" + DocEntry +
+               "&omitirValidacionGuias=true";
 
-// 🔹 NUEVA FUNCIÓN: FACTURAR SIN GUÍAS (BOTÓN INDEPENDIENTE)
-function confirmarFacturarSinGuias(DocEntry) {
-  Swal.fire({
-        title: '⚠️ Facturar sin guías',
-  html: '<p><strong>¿Desea facturar este ticket SIN VALIDAR GUÍAS?</strong></p>' +
-              '<p class="text-warning">Esta opción es solo para casos especiales<br>(ej: cliente recoge en persona)</p>',
-     icon: 'warning',
-        showCancelButton: true,
-     confirmButtonColor: '#28a745',
-        cancelButtonColor: '#d33',
- confirmButtonText: '✅ Sí, facturar sin guías',
-        cancelButtonText: '❌ Cancelar'
-    }).then((result) => {
-        if (result.isConfirmed) {
-       // Construir URL directamente con omitirValidacionGuias=true
-            var url = "@Url.Action("FacturarTicketVenta", "Ventas")" +
-      "?DocEntry=" + DocEntry +
-           "&omitirValidacionGuias=true";
-            
-            window.location.href = url;
-        }
-    });
-}
+                window.location.href = url;
+            }
+        });
+    }
 
     function abrirModalFB(DocEntry) {
         var modalId = "ModalComprobantes" + DocEntry;
@@ -665,7 +617,7 @@ function confirmarFacturarSinGuias(DocEntry) {
 </script>
 
 <script>
-    $(document).ready(function ()); {
+    $(document).ready(function () {
         // Poblar el select de departamentos con los valores únicos de la tabla
         var departamentos = new Set();
         $('#tablaFacturacion tbody tr').each(function () {
@@ -691,7 +643,7 @@ function confirmarFacturarSinGuias(DocEntry) {
                 }
             });
         });
-    }
+    });
 </script>
 <div class="pt-4">
     <nav>
@@ -881,16 +833,17 @@ function confirmarFacturarSinGuias(DocEntry) {
                         { <input type="date" id="TiempoEntrega" name="TiempoEntrega" class="form-control-sm border" value="@Html.Raw(DateTime.Today)" onchange="filtrar();" />}
                     </th><!--10-->
                     <th>Persona de recojo </th><!--11-->
-                    <th>Direccion</th><!--11-->
-                    <th></th><!--12-->
-                    <th></th><!--13-->
-                    <th></th><!--14-->
-                    <th></th><!--15-->
-                    <th></th><!--16-->
-                    <th></th><!--17-->
-                    <th></th><!--18-->
-                    <th></th><!--19-->
-                    <th></th><!--20-->
+                    <th>Direccion</th><!--12-->
+                    <th></th><!--13 Emitir Guías-->
+                    <th></th><!--14 Revertir Guías-->
+                    <th></th><!--15 Facturar-->
+                    <th></th><!--16 Anular-->
+                    <th></th><!--17 Seguimiento-->
+                    <th></th><!--18 Ver Guías-->
+                    <th></th><!--19 Ver Facturas-->
+                    <th></th><!--20 Comprobantes-->
+                    <th></th><!--21 Imprimir-->
+                    <th></th><!--22 Observación-->
                     <th></th>
                 </tr>
             </thead>
@@ -1058,6 +1011,28 @@ function confirmarFacturarSinGuias(DocEntry) {
                         <td style="@styleEmitirGuias">
                             @if (item.ProductoPendiente == 0 && item.EstadoFacturacion == "GRE EMITIDA")
                             {
+                                <a href="@Url.Action("RevertirEmitirGuiasTicketVenta", "Ventas", new { DocEntry = item.DocEntry,
+                                 EstadoPago = ViewBag.Ortv.EstadoPago,
+                             TipoVenta = ViewBag.Ortv.TipoVenta,
+                             TiempoEntrega = ViewBag.Ortv.TiempoEntrega,
+                             Estado = ViewBag.Ortv.Estado,
+                             FechaSapTicket = ViewBag.Ortv.FechaSapTicket,
+                             CardName = ViewBag.Ortv.CardName,
+                             Vendedor = ViewBag.Ortv.Vendedor,
+                             Flete = ViewBag.Ortv.Flete,
+                             DescuentoNC = ViewBag.Ortv.DescuentoNC,
+                             EstadoFacturacion = ViewBag.Ortv.EstadoFacturacion,
+                             LugarDestino = ViewBag.Ortv.LugarDestino,
+                             Zona=ViewBag.Ortv.Zona ,
+                             zonaDistinta = ViewBag.Ortv.zonaDistinta
+                                     })" type="button" target="_self" class="btn btn-sm btn-light" data-toggle="tooltip" data-placement="top" title="Revertir emisión de guías">
+                                    <i class="icon icon-blocked text-danger"></i>
+                                </a>
+                            }
+                        </td>
+                        <td style="@styleEmitirGuias">
+                            @if (item.ProductoPendiente == 0 && item.EstadoFacturacion == "GRE EMITIDA")
+                            {
                                 @* ✅ BOTÓN ÚNICO CON MODAL Y CHECKBOX *@
                                 <a class="btn btn-sm btn-light" data-toggle="tooltip" data-placement="top" title="Facturar"
                                    href="javascript:void(0);" onclick="confirmarFacturar(@item.DocEntry)">
@@ -1172,38 +1147,6 @@ function confirmarFacturarSinGuias(DocEntry) {
     </div>
 </form>
 
-<!-- Modal de Confirmación para Facturar -->
-<div class="modal fade" id="modalConfirmarFacturar" tabindex="-1" role="dialog" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered" role="document">
-        <div class="modal-content">
-            <div class="modal-header bg-success text-white">
-                <h5 class="modal-title">⚠️ Confirmar Facturación</h5>
-                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <p><strong>¿Está seguro de facturar este ticket?</strong></p>
-                <p class="text-muted">Ticket: <span id="ticketNumFacturar"></span></p>
-
-                @* ✅ CHECKBOX PARA OMITIR VALIDACIÓN *@
-                <div class="form-check mt-3">
-                    <input class="form-check-input" type="checkbox" id="chkOmitirValidacionGuias" value="1">
-                    <label class="form-check-label text-warning font-weight-bold" for="chkOmitirValidacionGuias">
-                        🚨 Facturar sin validar guías (solo para casos especiales)
-                    </label>
-                    <small class="form-text text-muted">
-                        Usar solo si el cliente recoge en persona o no requiere guía.
-                    </small>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">❌ Cancelar</button>
-                <button type="button" class="btn btn-success" onclick="ejecutarFacturacion()">✅ Facturar</button>
-            </div>
-        </div>
-    </div>
-</div>
 
 <!-- Modal de documentos contables -->
 <div id="comprobantesModal" class="modal fade" tabindex="-1" role="dialog">
