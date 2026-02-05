@@ -152,27 +152,32 @@
 
     // 🔹 FUNCIÓN PARA ABRIR EL MODAL DE CONFIRMACIÓN
     function confirmarFacturar(DocEntry) {
-    window.location.href = '/Ventas/FacturarTicketVenta?DocEntry=' + DocEntry;
+        var params = $("#frm").serialize(); // ✅ Captura TODOS los filtros
+        window.location.href = '@Url.Action("FacturarTicketVenta", "Ventas")' +
+            '?DocEntry=' + DocEntry +
+            '&' + params; // ✅ Añade los filtros a la URL
     }
 
     // 🔹 NUEVA FUNCIÓN: FACTURAR SIN GUÍAS (BOTÓN INDEPENDIENTE)
     function confirmarFacturarSinGuias(DocEntry) {
-      Swal.fire({
+        Swal.fire({
             title: '⚠️ Facturar sin guías',
-      html: '<p><strong>¿Desea facturar este ticket SIN VALIDAR GUÍAS?</strong></p>' +
+            html: '<p><strong>¿Desea facturar este ticket SIN VALIDAR GUÍAS?</strong></p>' +
                   '<p class="text-warning">Esta opción es solo para casos especiales<br>(ej: cliente recoge en persona)</p>',
-         icon: 'warning',
+            icon: 'warning',
             showCancelButton: true,
-         confirmButtonColor: '#28a745',
+            confirmButtonColor: '#28a745',
             cancelButtonColor: '#d33',
-     confirmButtonText: '✅ Sí, facturar sin guías',
+            confirmButtonText: '✅ Sí, facturar sin guías',
             cancelButtonText: '❌ Cancelar'
         }).then((result) => {
             if (result.isConfirmed) {
-           // Construir URL directamente con omitirValidacionGuias=true
+                var params = $("#frm").serialize(); // ✅ Captura TODOS los filtros
+
                 var url = "@Url.Action("FacturarTicketVenta", "Ventas")" +
-          "?DocEntry=" + DocEntry +
-               "&omitirValidacionGuias=true";
+                    "?DocEntry=" + DocEntry +
+                    "&omitirValidacionGuias=true" +
+                    "&" + params; // ✅ Añade los filtros a la URL
 
                 window.location.href = url;
             }
@@ -845,6 +850,7 @@
                     <th></th><!--21 Imprimir-->
                     <th></th><!--22 Observación-->
                     <th></th>
+                    <th></th>
                 </tr>
             </thead>
             <tbody class="text-dark">
@@ -988,44 +994,45 @@
                             @if (item.hayFinVerificar && item.ProductoPendiente == 0 && item.EstadoFacturacion == "PENDIENTE")
                             {
                                 <a class="btn btn-sm btn-light" data-toggle="tooltip" data-placement="top" title="Emitir guías" href="@Url.Action("EmitirGuiasTicketVenta", "Ventas", new
-                                        {
-                                            DocEntry = item.DocEntry,
-                                            EstadoPago = ViewBag.Ortv.EstadoPago,
-                                            TipoVenta = ViewBag.Ortv.TipoVenta,
-                                            TiempoEntrega = ViewBag.Ortv.TiempoEntrega,
-                                            Estado = ViewBag.Ortv.Estado,
-                                            FechaSapTicket = ViewBag.Ortv.FechaSapTicket,
-                                            CardName = ViewBag.Ortv.CardName,
-                                            Vendedor = ViewBag.Ortv.Vendedor,
-                                            Flete = ViewBag.Ortv.Flete,
-                                            DescuentoNC = ViewBag.Ortv.DescuentoNC,
-                                            EstadoFacturacion = ViewBag.Ortv.EstadoFacturacion,
-                                            LugarDestino = ViewBag.Ortv.LugarDestino,
-                                            Zona = ViewBag.Ortv.Zona,
-                                            zonaDistinta = ViewBag.Ortv.zonaDistinta
-                                })">
+                                    {
+                                        DocEntry = item.DocEntry,
+                                        EstadoPago = ViewBag.Ortv.EstadoPago,
+                                        TipoVenta = ViewBag.Ortv.TipoVenta,
+                                        TiempoEntrega = ViewBag.Ortv.TiempoEntrega,
+                                        Estado = ViewBag.Ortv.Estado,
+                                        FechaSapTicket = ViewBag.Ortv.FechaSapTicket,
+                                        CardName = ViewBag.Ortv.CardName,
+                                        Vendedor = ViewBag.Ortv.Vendedor,
+                                        Flete = ViewBag.Ortv.Flete,
+                                        DescuentoNC = ViewBag.Ortv.DescuentoNC,
+                                        EstadoFacturacion = ViewBag.Ortv.EstadoFacturacion,
+                                        LugarDestino = ViewBag.Ortv.LugarDestino,
+                                        Zona = ViewBag.Ortv.Zona,
+                                        zonaDistinta = ViewBag.Ortv.zonaDistinta
+                            })">
                                     <i class="icon icon-file-text2 text-success"></i>
                                 </a>
                             }
                         </td>
                         <td style="@styleEmitirGuias">
+                        <td style="@styleEmitirGuias">
                             @if (item.ProductoPendiente == 0 && item.EstadoFacturacion == "GRE EMITIDA")
                             {
                                 <a href="@Url.Action("RevertirEmitirGuiasTicketVenta", "Ventas", new { DocEntry = item.DocEntry,
-                                 EstadoPago = ViewBag.Ortv.EstadoPago,
-                             TipoVenta = ViewBag.Ortv.TipoVenta,
-                             TiempoEntrega = ViewBag.Ortv.TiempoEntrega,
-                             Estado = ViewBag.Ortv.Estado,
-                             FechaSapTicket = ViewBag.Ortv.FechaSapTicket,
-                             CardName = ViewBag.Ortv.CardName,
-                             Vendedor = ViewBag.Ortv.Vendedor,
-                             Flete = ViewBag.Ortv.Flete,
-                             DescuentoNC = ViewBag.Ortv.DescuentoNC,
-                             EstadoFacturacion = ViewBag.Ortv.EstadoFacturacion,
-                             LugarDestino = ViewBag.Ortv.LugarDestino,
-                             Zona=ViewBag.Ortv.Zona ,
-                             zonaDistinta = ViewBag.Ortv.zonaDistinta
-                                     })" type="button" target="_self" class="btn btn-sm btn-light" data-toggle="tooltip" data-placement="top" title="Revertir emisión de guías">
+                                EstadoPago = ViewBag.Ortv.EstadoPago,
+                            TipoVenta = ViewBag.Ortv.TipoVenta,
+                            TiempoEntrega = ViewBag.Ortv.TiempoEntrega,
+                            Estado = ViewBag.Ortv.Estado,
+                            FechaSapTicket = ViewBag.Ortv.FechaSapTicket,
+                            CardName = ViewBag.Ortv.CardName,
+                            Vendedor = ViewBag.Ortv.Vendedor,
+                            Flete = ViewBag.Ortv.Flete,
+                            DescuentoNC = ViewBag.Ortv.DescuentoNC,
+                            EstadoFacturacion = ViewBag.Ortv.EstadoFacturacion,
+                            LugarDestino = ViewBag.Ortv.LugarDestino,
+                            Zona=ViewBag.Ortv.Zona ,
+                            zonaDistinta = ViewBag.Ortv.zonaDistinta
+                                    })" type="button" target="_self" class="btn btn-sm btn-light" data-toggle="tooltip" data-placement="top" title="Revertir emisión de guías">
                                     <i class="icon icon-blocked text-danger"></i>
                                 </a>
                             }

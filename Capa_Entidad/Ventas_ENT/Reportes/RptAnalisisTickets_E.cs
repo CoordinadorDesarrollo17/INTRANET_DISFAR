@@ -201,6 +201,8 @@ namespace Capa_Entidad.Ventas_ENT.Reportes
         public string HoraPagoTicket { get; set; }
         [DisplayName("Tipo Venta")]
         public string TipoVenta { get; set; }
+
+        public string Observaciones { get; set; }
     }
 
     public class RptFiltrosAnalisisTickets_E : RptAnalisisTickets_E
