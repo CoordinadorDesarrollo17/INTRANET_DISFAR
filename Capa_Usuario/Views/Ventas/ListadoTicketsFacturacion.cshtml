@@ -851,6 +851,7 @@
                     <th></th><!--22 Observación-->
                     <th></th>
                     <th></th>
+                    <th></th>
                 </tr>
             </thead>
             <tbody class="text-dark">
@@ -1047,14 +1048,7 @@
                                 </a>
                             }
 
-                            @* 🆕 BOTÓN INDEPENDIENTE: FACTURAR SIN GUÍAS *@
-                            @if (item.ProductoPendiente == 0 && (item.EstadoFacturacion == "PENDIENTE"))
-                            {
-                                <a class="btn btn-sm btn-warning ml-1" data-toggle="tooltip" data-placement="top" title="Facturar sin validar guías (casos especiales)"
-                                   href="javascript:void(0);" onclick="confirmarFacturarSinGuias(@item.DocEntry)">
-                                    <i class="icon icon-warning"></i>
-                                </a>
-                            }
+                           
                         </td>
                         <td style="@styleEmitirGuias">
                             @if (item.ProductoPendiente == 0 && item.EstadoFacturacion == "FACTURADO")
@@ -1145,6 +1139,19 @@
                                     </div>
                                 </div>
                             </div>
+                        </td>
+                        <td>
+                            @* 🆕 BOTÓN INDEPENDIENTE: FACTURAR SIN GUÍAS *@
+                            @if (item.ProductoPendiente == 0 && (item.EstadoFacturacion == "PENDIENTE"))
+                            {
+                                <a class="btn btn-sm btn-outline-warning ms-1"
+                                   data-bs-toggle="tooltip"
+                                   title="Facturar sin validar guías (casos especiales)"
+                                   onclick="confirmarFacturarSinGuias(@item.DocEntry)">
+                                    <i class="bi bi-exclamation-triangle"></i>
+                                </a>
+
+                            }
                         </td>
                         <td style="@styleEmitirGuias"></td>
                     </tr>
