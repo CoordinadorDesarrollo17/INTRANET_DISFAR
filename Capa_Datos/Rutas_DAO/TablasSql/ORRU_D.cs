@@ -27,29 +27,58 @@ namespace Capa_Datos.Rutas_DAO.TablasSql
             {
                 if (o != null)
                 {
-                    query = "select top 100 x.DocEntry,x.DocNum,x.TipoRuta,x.TransDesc,x.FechaDoc,x.Estado" +
-                        ",(select sum(cajas) from al.rru0 where DocEntry=x.DocEntry and Estado<>'LIBERADO')," +
-                        "(select sum(cajas) from al.rru1 where DocEntry=x.DocEntry and Estado<>'LIBERADO')" +
-                        ",x.TiempoPac from al.orru x where DocNum>0 ";
-                    if (o.DocNum > 0) { query += " and DocNum=" + o.DocNum; }
-                    if (o.TipoRuta != null) { query += " and TipoRuta='" + o.TipoRuta + "'"; }
-                    if (o.TransDesc != null) { query += " and TransDesc like '%" + o.TransDesc + "%'"; }
-                    if (o.FechaDoc != null) { query += " and FechaDoc='" + o.FechaDoc + "'"; }
-                    if (o.Estado != null) { query += " and Estado='" + o.Estado + "'"; }
-                    if (o.TiempoPac != null) { query += " and convert(date,TiempoPac) = '" + Convert.ToDateTime(o.TiempoPac).ToString("yyyy-MM-dd") + "'"; }
-                    query += " order by DocEntry desc";
+                    // ✅ USAR ISNULL para asegurar que siempre devuelva algo, incluso si Socio es NULL
+                    query = @"SELECT DISTINCT TOP 100 
+                        x.DocEntry,
+                        x.DocNum,
+                        x.TipoRuta,
+                        x.TransDesc,
+                        x.FechaDoc,
+                        x.Estado,
+                        (SELECT SUM(cajas) FROM al.rru0 WHERE DocEntry=x.DocEntry AND Estado<>'LIBERADO'),
+                        (SELECT SUM(cajas) FROM al.rru1 WHERE DocEntry=x.DocEntry AND Estado<>'LIBERADO'),
+                        x.TiempoPac,
+                        ISNULL((SELECT TOP 1 Socio FROM al.RRU0 WHERE DocEntry=x.DocEntry AND Socio IS NOT NULL ORDER BY Linea), '') AS ClienteNombre
+                      FROM al.orru x 
+                      WHERE DocNum>0 ";
+
+                    if (o.DocNum > 0) { query += " AND DocNum=" + o.DocNum; }
+                    if (o.TipoRuta != null) { query += " AND TipoRuta='" + o.TipoRuta.Replace("'", "''") + "'"; }
+                    if (o.TransDesc != null) { query += " AND TransDesc like '%" + o.TransDesc.Replace("'", "''") + "%'"; }
+                    if (o.FechaDoc != null) { query += " AND FechaDoc='" + o.FechaDoc + "'"; }
+                    if (o.Estado != null) { query += " AND Estado='" + o.Estado.Replace("'", "''") + "'"; }
+                    if (o.TiempoPac != null) { query += " AND CONVERT(date,TiempoPac) = '" + Convert.ToDateTime(o.TiempoPac).ToString("yyyy-MM-dd") + "'"; }
+
+                    // ✅ FILTRO POR CLIENTE - Busca en RRU0.Socio
+                    if (!string.IsNullOrWhiteSpace(o.CardName))
+                    {
+                        query += " AND EXISTS (SELECT 1 FROM al.RRU0 r WHERE r.DocEntry=x.DocEntry AND r.Socio LIKE '%" + o.CardName.Replace("'", "''") + "%')";
+                    }
+
+                    query += " ORDER BY x.DocEntry DESC";
                 }
                 else
                 {
-                    query = "select top 100 x.DocEntry,x.DocNum,x.TipoRuta,x.TransDesc,x.FechaDoc,x.Estado" +
-                        ",(select sum(cajas) from al.rru0 where DocEntry=x.DocEntry)," +
-                        "(select sum(cajas) from al.rru1 where DocEntry=x.DocEntry)" +
-                        ",x.TiempoPac  from al.orru x order by DocEntry desc";
+                    query = @"SELECT TOP 100 
+                        x.DocEntry,
+                        x.DocNum,
+                        x.TipoRuta,
+                        x.TransDesc,
+                        x.FechaDoc,
+                        x.Estado,
+                        (SELECT SUM(cajas) FROM al.rru0 WHERE DocEntry=x.DocEntry),
+                        (SELECT SUM(cajas) FROM al.rru1 WHERE DocEntry=x.DocEntry),
+                        x.TiempoPac,
+                        ISNULL((SELECT TOP 1 Socio FROM al.RRU0 WHERE DocEntry=x.DocEntry AND Socio IS NOT NULL ORDER BY Linea), '') AS ClienteNombre
+                      FROM al.orru x 
+                      ORDER BY DocEntry DESC";
                 }
+
                 cn.Open();
                 SqlCommand cmd = new SqlCommand(query, cn);
                 cmd.CommandType = CommandType.Text;
                 SqlDataReader dr = cmd.ExecuteReader();
+
                 while (dr.Read())
                 {
                     ORRU_E or = new ORRU_E();
@@ -62,6 +91,15 @@ namespace Capa_Datos.Rutas_DAO.TablasSql
                     if (!dr.IsDBNull(6)) { or.TotalCajas = dr.GetInt32(6); }
                     if (!dr.IsDBNull(7)) { or.TotalCajas += dr.GetInt32(7); }
                     if (!dr.IsDBNull(8)) { or.TiempoPac = dr.GetDateTime(8); }
+
+                    // ✅ Leer CardName (que viene del Socio de RRU0)
+                    if (!dr.IsDBNull(9))
+                    {
+                        string valorCliente = dr.GetString(9);
+                        // Solo asignar si no está vacío
+                        or.CardName = string.IsNullOrWhiteSpace(valorCliente) ? "" : valorCliente;
+                    }
+
                     lista.Add(or);
                 }
                 dr.Close();
@@ -1445,8 +1483,8 @@ namespace Capa_Datos.Rutas_DAO.TablasSql
                             T0.""DocNum"",
                             T0.""CardCode"",
                             T0.""CardName"",
-                            CASE 
-                                    WHEN UPPER(IFNULL(T0.""ShipToCode"",'')) = 'ENVIO 2'
+                            CASE
+                                    WHEN IFNULL(T0.""ShipToCode"", '') <> ''
                                          THEN T0.""Address2""
                                     ELSE T0.""Address""
                                 END AS ""DireccionEnvio"",
