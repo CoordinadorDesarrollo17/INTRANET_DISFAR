@@ -102,6 +102,17 @@
                         }
                     </th>
                     <th class="text-center">
+                        Cliente<br />
+                        @if (o != null && !string.IsNullOrEmpty(o.CardName))
+                        {
+                            <input class="form-control-sm border" type="text" name="CardName" onchange="filtrar();" value="@o.CardName" />
+                        }
+                        else
+                        {
+                            <input class="form-control-sm border" type="text" name="CardName" onchange="filtrar();" />
+                        }
+                    </th>
+                    <th class="text-center">
                         Conductor<br />
                         <select name="TransDesc" class="form-control-sm border" onchange="filtrar();">
                             <option value=""></option>
@@ -146,9 +157,14 @@
                         string estado = (item.Estado ?? "").Trim();
                         bool esCreado = estado == "CREADO";
                         bool esEnviado = estado == "ENVIADO";
-
+                        //string nombreCliente = item.CardName;
+                        //if (string.IsNullOrEmpty(nombreCliente) && item.DetRRU0 != null && item.DetRRU0.Any())
+                        //{
+                        //    nombreCliente = item.DetRRU0.First().Socio;
+                        //}
                         <tr>
                             <td class="text-center @if (ViewBag.DocNum == item.DocNum) { Write("bg-success"); }">@Html.DisplayFor(modelItem => item.DocNum)</td>
+                            <td class="text-center">@item.CardName</td>
                             <td class="text-center">@Html.DisplayFor(modelItem => item.TransDesc)</td>
                             <td class="text-center">
                                 @if (item.TiempoPac != null)

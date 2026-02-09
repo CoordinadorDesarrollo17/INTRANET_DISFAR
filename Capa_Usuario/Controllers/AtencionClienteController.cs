@@ -722,6 +722,16 @@ namespace Capa_Usuario.Controllers
                 filtro.TipoRuta = "DE";
 
                 var lista = orruN.Listar(filtro);
+
+                ////  CARGAR LOS DETALLES DetRRU0 PARA CADA RUTA
+                //foreach (var item in lista)
+                //{
+                //    var rutaCompleta = orruN.obtenerOrdenDeRuta(item.DocEntry);
+                //    item.DetRRU0 = rutaCompleta.DetRRU0;
+                //    item.CardCode = rutaCompleta.CardCode;
+                //    item.CardName = rutaCompleta.CardName;
+                //}
+
                 var usuarios = ousrN.ListaUsuarios(null);
                 var Conductores = usuarios != null ? usuarios.Select(u => u.Nombres + " " + u.Apellidos).Distinct().ToList() : new List<string>();
                 var listaVeh = ovehN.listaVeh(0, null);
