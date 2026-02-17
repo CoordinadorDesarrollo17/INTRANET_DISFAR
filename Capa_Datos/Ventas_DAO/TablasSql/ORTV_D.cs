@@ -3848,6 +3848,8 @@ AND YEAR(T0.FechaSapTicket) = (SELECT YEAR(GETDATE())) AND ((SELECT  Estado FROM
                     condWhere += t.EstadoPago != null ? $" AND t0.EstadoPago='{t.EstadoPago}'" : "";
                     condWhere += t.TipoVenta != null ? $" AND t0.TipoVenta='{t.TipoVenta}'" : "";
                     condWhere += t.TiempoEntrega != null ? $" AND CONVERT(varchar, t0.TiempoEntrega,121) = '{Convert.ToDateTime(t.TiempoEntrega).ToString("yyyy-MM-dd HH:mm:ss.fff")}'" : "";
+
+                    condWhere += t.EnvioAgencia != null ? $" AND EnvioAgencia ='{t.EnvioAgencia}'" : "";
                 }
             }
             string query = $"SELECT TOP 100 t0.DocEntry, t0.DocNum, t0.CardCode, t0.CardName, t0.Estado,t0.FechaSapTicket, (Select top 1 HoraOperacion from vt.CC_ORTV where DocEntry=t0.DocEntry " +

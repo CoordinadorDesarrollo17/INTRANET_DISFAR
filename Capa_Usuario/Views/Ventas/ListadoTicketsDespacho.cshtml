@@ -233,6 +233,14 @@
             <button class="btn btn-cobefar">Filtrar Tiempo Entrega</button>
         </div>
 
+        <div class="mx-2">
+            <select name="EnvioAgencia" id="TipoEnvio" class="form-control @bgEstadoFacturacion" onchange="filtrar();">
+                <option value="">Tipo Envio</option>
+                <option value="Terrestre" @{ if (e != null && e.EnvioAgencia == "Terrestre") { Write("selected"); }}>Envío Terrestre</option>
+                <option value="Aereo" @{ if (e != null && e.EnvioAgencia == "Aereo") { Write("selected"); }}>Envío Aéreo</option>
+            </select>
+        </div>
+
     </div>
 
     <div class="bg-white bg-form-cobefar">
