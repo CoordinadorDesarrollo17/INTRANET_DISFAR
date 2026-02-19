@@ -3891,13 +3891,41 @@ namespace Capa_Usuario.Controllers
             return Json(new { NroTicket = result });
         }
         //Registra impresion de documentos de un ticket para despacho (centro y arriola)
-        public JsonResult RegistrarImpresion(int docEntry, string area)
+        [HttpPost]
+        public JsonResult RegistrarImpresion(int docEntry, string area, string tipoDocumento = "")
         {
-            Usuario_E user = (Usuario_E)Session["UsuarioId"];
-            var operario = $"{user.Nombres} {user.Apellidos}";
-            ORTV_N ortvN = new ORTV_N();
-            var result = ortvN.RegistrarImpresionTicket(docEntry, operario, area);
-            return Json(new { Datos = result });
+            try
+            {
+                // ✅ CORRECTO: Usar Session["UsuarioId"] como en el resto del código
+                Usuario_E usuarioSesion = (Usuario_E)Session["UsuarioId"];
+
+                if (usuarioSesion == null)
+                {
+                    return Json(new { success = false, message = "No hay sesión activa" });
+                }
+
+                // ✅ Nombre completo del usuario
+                string nombreCompleto = $"{usuarioSesion.Nombres} {usuarioSesion.Apellidos}";
+
+                // ✅ Área con tipo de documento
+                string areaCompleta = string.IsNullOrEmpty(tipoDocumento)
+                    ? area
+                    : $"{area}_{tipoDocumento}"; // Ejemplo: "Facturacion_guia" o "Facturacion_factura"
+
+                ORTV_N ortvN = new ORTV_N();
+                int resultado = ortvN.RegistrarImpresionTicket(docEntry, nombreCompleto, areaCompleta);
+
+                return Json(new
+                {
+                    success = true,
+                    message = "Impresión registrada correctamente",
+                    tipoDocumento = tipoDocumento
+                });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
         }
         public void PreliminarLayoutOV_Ticket(int docEntry)
         {
