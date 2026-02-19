@@ -3476,7 +3476,11 @@ AND YEAR(T0.FechaSapTicket) = (SELECT YEAR(GETDATE())) AND ((SELECT  Estado FROM
             queryBuilder.AppendLine("   t0.PagoEnv, t0.TipoVenta, t0.EstadoFacturacion, t0.DescuentoNC, t0.Zona, t0.TiempoEntrega, t0.AlmProcedencia,");
             queryBuilder.AppendLine("   subBusquedaProducto.Estado AS EstadoBusquedaProducto,");
             queryBuilder.AppendLine("   CASE");
-            queryBuilder.AppendLine("       WHEN EXISTS (SELECT 1 FROM vt.CC_ORTV_print WHERE DocEntryTicket = t0.DocEntry AND Id_Usuario = 'Facturacion') THEN 1 ELSE 0 END AS ExisteEnCC_ORTV_print");
+            queryBuilder.AppendLine("       WHEN EXISTS (SELECT 1 FROM vt.CC_ORTV_print WHERE DocEntryTicket = t0.DocEntry AND Id_Usuario IN ('Facturacion', 'Facturacion_guia')) THEN 1 ELSE 0 END AS ExisteEnCC_ORTV_print,");
+            queryBuilder.AppendLine("   CASE");
+            queryBuilder.AppendLine("       WHEN (SELECT TOP 1 Id_Usuario FROM vt.CC_ORTV_print WHERE DocEntryTicket = t0.DocEntry ORDER BY FechaHoraImpresion DESC) = 'Facturacion_factura' THEN 1");
+            queryBuilder.AppendLine("       WHEN (SELECT TOP 1 Id_Usuario FROM vt.CC_ORTV_print WHERE DocEntryTicket = t0.DocEntry ORDER BY FechaHoraImpresion DESC) = 'Facturacion_guia' THEN 2");
+            queryBuilder.AppendLine("       ELSE 0 END AS TipoImpresion");
             queryBuilder.AppendLine("FROM vt.ORTV t0");
             if (!string.IsNullOrEmpty(joinObservacion))
                 queryBuilder.AppendLine(joinObservacion);
@@ -3537,7 +3541,7 @@ AND YEAR(T0.FechaSapTicket) = (SELECT YEAR(GETDATE())) AND ((SELECT  Estado FROM
                                 if (EstadoProductoPendiente == "PENDIENTE") { ticket.ProductoPendiente = 1; }
                                 else { ticket.ProductoPendiente = 0; }
                             }
-                            if (!dr.IsDBNull(20)) { ticket.Impreso = dr.GetInt32(20); }
+                            if (!dr.IsDBNull(21)) { ticket.TipoImpresion = dr.GetInt32(21); }
                             ticket.FechaSapTicket = (ticket.FechaSapTicket != null) ? Convert.ToDateTime(ticket.FechaSapTicket).ToString("dd/MM/yyyy") : null;
                             ticket.Det1 = obtenerDet1Ticket(ticket.DocEntry); if (ticket.Det1.Count == 0) { ticket.Det1 = null; }      //Datos de recojo
                             ticket.Det2 = obtenerDet2Ticket(ticket.DocEntry);

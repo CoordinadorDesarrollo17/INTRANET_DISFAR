@@ -555,17 +555,78 @@
         });
     }
 
-    function registrarImpresion(DocEntry) {
-        $.ajax({
-            url: '/Ventas/RegistrarImpresion?docEntry=' + DocEntry + '&area=Facturacion',
-            type: 'POST',
-            dataType: 'json'
-        }).done(function (response) {
-            location.reload();
-        }).fail(function (jqXHR, textStatus, errorThrown) {
-            console.log(jqXHR.status + textStatus + errorThrown);
+    // 🔹 Variables globales para el modal de impresión
+    var docEntryImpresion = 0;
+    var estadoImpresion = '';
+    var lugarDestinoImpresion = '';
+
+    // 🔹 Función para abrir el modal de impresión
+    function abrirModalImpresion(docEntry, estado, lugarDestino) {
+        docEntryImpresion = docEntry;
+        estadoImpresion = estado;
+        lugarDestinoImpresion = lugarDestino;
+
+        $('#modalImpresion').modal('show');
+    }
+
+    // 🔹 Función para imprimir el documento seleccionado
+    function imprimirDocumento(tipo) {
+        // Cerrar el modal
+        $('#modalImpresion').modal('hide');
+
+        // Mostrar mensaje de carga
+        Swal.fire({
+            title: 'Procesando...',
+            text: 'Registrando impresión de ' + tipo,
+            allowOutsideClick: false,
+            didOpen: () => {
+                Swal.showLoading();
+            }
         });
 
+        // Llamar al método del servidor
+        $.ajax({
+            url: '/Ventas/RegistrarImpresion',
+            type: 'POST',
+            data: {
+                docEntry: docEntryImpresion,
+                area: 'Facturacion',
+                tipoDocumento: tipo  // 'guia' o 'factura'
+            },
+            dataType: 'json',
+            success: function (response) {
+                Swal.close();
+
+                if (tipo === 'guia') {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Guía registrada',
+                        text: 'La impresión de la guía ha sido registrada correctamente',
+                        timer: 2000,
+                        showConfirmButton: false
+                    }).then(() => {
+                        location.reload();
+                    });
+                } else if (tipo === 'factura') {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Factura registrada',
+                        text: 'La impresión de la factura ha sido registrada correctamente',
+                        timer: 2000,
+                        showConfirmButton: false
+                    }).then(() => {
+                        location.reload();
+                    });
+                }
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'No se pudo registrar la impresión: ' + errorThrown
+                });
+            }
+        });
     }
 
     function guardarObservacion(docEntry) {
@@ -710,12 +771,12 @@
 
             <div class="mx-2">
                 <select name="EstadoFacturacion" id="EstadoFacturacion" class="form-control  @bgEstadoFacturacion" onchange="filtrar();">
-    <option value="">EstadoFacturacion</option>
-    <option value="PENDIENTE" @{ if (ticket != null && ticket.EstadoFacturacion == "PENDIENTE") { Write("selected"); } }>PENDIENTE</option>
-              <option value="GRE EMITIDA" @{ if (ticket != null && ticket.EstadoFacturacion == "GRE EMITIDA") { Write("selected"); } }>GRE EMITIDA</option>
-          <option value="FACTURADO" @{ if (ticket != null && ticket.EstadoFacturacion == "FACTURADO") { Write("selected"); } }>FACTURADO</option>
-            </select>
-   </div><!--4-->
+                    <option value="">EstadoFacturacion</option>
+                    <option value="PENDIENTE" @{ if (ticket != null && ticket.EstadoFacturacion == "PENDIENTE") { Write("selected"); } }>PENDIENTE</option>
+                    <option value="GRE EMITIDA" @{ if (ticket != null && ticket.EstadoFacturacion == "GRE EMITIDA") { Write("selected"); } }>GRE EMITIDA</option>
+                    <option value="FACTURADO" @{ if (ticket != null && ticket.EstadoFacturacion == "FACTURADO") { Write("selected"); } }>FACTURADO</option>
+                </select>
+            </div><!--4-->
 
             <div class="mx-2">
                 <select name="LugarDestino" id="LugarDestino" class="form-control @bgLugarDestino" onchange="clearZona(); modTabla(); filtrar();">
@@ -861,9 +922,16 @@
                     string styleImpreso = "";
                     string styleEmitirGuias = "";
 
-                    if (item.Impreso > 0)
+                    if (item.TipoImpresion > 0)
                     {
-                        styleImpreso = "bg-skyblue";
+                        if (item.TipoImpresion == 2) // Guía
+                        {
+                            styleImpreso = "bg-pink text-white";
+                        }
+                        else if (item.TipoImpresion == 1) // Factura
+                        {
+                            styleImpreso = "bg-skyblue text-white";
+                        }
                     }
 
                     if (item.Estado.Equals("ANULADO") || item.Estado.Equals("CANCELADO"))
@@ -1048,7 +1116,7 @@
                                 </a>
                             }
 
-                           
+
                         </td>
                         <td style="@styleEmitirGuias">
                             @if (item.ProductoPendiente == 0 && item.EstadoFacturacion == "FACTURADO")
@@ -1111,7 +1179,7 @@
                             }
                         </td>
                         <td style="@styleEmitirGuias">
-                            <a href="#" class="btn btn-light" data-toggle="tooltip" data-placement="top" title="Imprimir" onclick="registrarImpresion(@item.DocEntry);">
+                            <a href="#" class="btn btn-light" data-toggle="tooltip" data-placement="top" title="Imprimir" onclick="abrirModalImpresion(@item.DocEntry, '@item.Estado', '@item.LugarDestino');">
                                 <i class="icon-printer text-cobefar"></i>
                             </a>
                         </td>
@@ -1174,6 +1242,35 @@
             </div>
             <div id="modal-body-comprobantes" class="modal-body">
                 @*Contenido de modal llega desde function js*@
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Modal de Impresión -->
+<div id="modalImpresion" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-cobefar text-white">
+                <h5 class="modal-title"><strong>Seleccionar Tipo de Impresión</strong></h5>
+                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body text-center">
+                <p class="mb-4">¿Qué documento desea imprimir?</p>
+                <div class="btn-group-vertical w-100" role="group">
+                    <button type="button" class="btn btn-outline-primary btn-lg mb-2" onclick="imprimirDocumento('guia')">
+                        <i class="icon icon-file-text2"></i> Imprimir Guía
+                    </button>
+                    <button type="button" class="btn btn-outline-success btn-lg" onclick="imprimirDocumento('factura')">
+                        <i class="icon icon-file-text2"></i> Imprimir Factura
+                    </button>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
             </div>
         </div>
     </div>

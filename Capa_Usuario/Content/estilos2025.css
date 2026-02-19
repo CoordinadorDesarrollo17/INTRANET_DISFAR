@@ -32,9 +32,44 @@ th {
     color: white;
 }
 
-.bg-skyblue {
-    background-color: #ADD8E6;
+/* Rosa suave para Guía */
+.bg-pink {
+    background-color: #FFB6C1 !important; /* Rosa pastel suave */
+    color: #333 !important; /* Texto oscuro para mejor contraste */
+    border: 1px solid #FFB6C1 !important;
+    font-weight: bold !important; /* Texto en negrita */
 }
+
+    .bg-pink:hover {
+        background-color: #FF9EC7 !important; /* Rosa un poco más intenso en hover */
+        color: #000 !important;
+    }
+
+/* Celeste para Factura */
+.bg-skyblue {
+    background-color: #87CEEB !important; /* Celeste claro */
+    color: #333 !important; /* Texto oscuro */
+    border: 1px solid #87CEEB !important;
+    font-weight: bold !important; /* Texto en negrita */
+}
+
+    .bg-skyblue:hover {
+        background-color: #5DADE2 !important; /* Celeste más intenso en hover */
+        color: #000 !important;
+    }
+
+    /* Color de los iconos */
+    .bg-pink i,
+    .bg-skyblue i {
+        color: inherit !important; /* Heredar color del botón */
+        font-weight: bold !important;
+    }
+
+    /* Texto en negrita para botones */
+    .bg-pink span,
+    .bg-skyblue span {
+        font-weight: bold !important;
+    }
 
 td {
     padding: 5px;
