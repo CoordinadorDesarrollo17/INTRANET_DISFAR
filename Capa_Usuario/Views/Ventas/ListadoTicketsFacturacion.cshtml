@@ -569,7 +569,7 @@
         $('#modalImpresion').modal('show');
     }
 
-    // 🔹 Función para imprimir el documento seleccionado
+    /// 🔹 Función para imprimir el documento seleccionado
     function imprimirDocumento(tipo) {
         // Cerrar el modal
         $('#modalImpresion').modal('hide');
@@ -584,6 +584,9 @@
             }
         });
 
+        // ✅ CORRECCIÓN: Solo enviar "guia" cuando sea guía, vacío cuando sea factura
+        var tipoDocumento = (tipo === 'guia') ? 'guia' : '';
+
         // Llamar al método del servidor
         $.ajax({
             url: '/Ventas/RegistrarImpresion',
@@ -591,33 +594,25 @@
             data: {
                 docEntry: docEntryImpresion,
                 area: 'Facturacion',
-                tipoDocumento: tipo  // 'guia' o 'factura'
+                tipoDocumento: tipoDocumento  // ✅ "guia" o "" (vacío)
             },
             dataType: 'json',
             success: function (response) {
                 Swal.close();
 
-                if (tipo === 'guia') {
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Guía registrada',
-                        text: 'La impresión de la guía ha sido registrada correctamente',
-                        timer: 2000,
-                        showConfirmButton: false
-                    }).then(() => {
-                        location.reload();
-                    });
-                } else if (tipo === 'factura') {
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Factura registrada',
-                        text: 'La impresión de la factura ha sido registrada correctamente',
-                        timer: 2000,
-                        showConfirmButton: false
-                    }).then(() => {
-                        location.reload();
-                    });
-                }
+                var mensaje = tipo === 'guia'
+                    ? 'La impresión de la guía ha sido registrada correctamente'
+                    : 'La impresión de la factura ha sido registrada correctamente';
+
+                Swal.fire({
+                    icon: 'success',
+                    title: tipo === 'guia' ? 'Guía registrada' : 'Factura registrada',
+                    text: mensaje,
+                    timer: 2000,
+                    showConfirmButton: false
+                }).then(() => {
+                    location.reload();
+                });
             },
             error: function (jqXHR, textStatus, errorThrown) {
                 Swal.fire({
