@@ -3478,7 +3478,7 @@ AND YEAR(T0.FechaSapTicket) = (SELECT YEAR(GETDATE())) AND ((SELECT  Estado FROM
             queryBuilder.AppendLine("   CASE");
             queryBuilder.AppendLine("       WHEN EXISTS (SELECT 1 FROM vt.CC_ORTV_print WHERE DocEntryTicket = t0.DocEntry AND Id_Usuario IN ('Facturacion', 'Facturacion_guia')) THEN 1 ELSE 0 END AS ExisteEnCC_ORTV_print,");
             queryBuilder.AppendLine("   CASE");
-            queryBuilder.AppendLine("       WHEN (SELECT TOP 1 Id_Usuario FROM vt.CC_ORTV_print WHERE DocEntryTicket = t0.DocEntry ORDER BY FechaHoraImpresion DESC) = 'Facturacion_factura' THEN 1");
+            queryBuilder.AppendLine("       WHEN (SELECT TOP 1 Id_Usuario FROM vt.CC_ORTV_print WHERE DocEntryTicket = t0.DocEntry ORDER BY FechaHoraImpresion DESC) = 'Facturacion' THEN 1");
             queryBuilder.AppendLine("       WHEN (SELECT TOP 1 Id_Usuario FROM vt.CC_ORTV_print WHERE DocEntryTicket = t0.DocEntry ORDER BY FechaHoraImpresion DESC) = 'Facturacion_guia' THEN 2");
             queryBuilder.AppendLine("       ELSE 0 END AS TipoImpresion");
             queryBuilder.AppendLine("FROM vt.ORTV t0");

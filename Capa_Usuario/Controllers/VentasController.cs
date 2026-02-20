@@ -3910,7 +3910,7 @@ namespace Capa_Usuario.Controllers
                 // ✅ Área con tipo de documento
                 string areaCompleta = string.IsNullOrEmpty(tipoDocumento)
                     ? area
-                    : $"{area}_{tipoDocumento}"; // Ejemplo: "Facturacion_guia" o "Facturacion_factura"
+                    : $"{area}_{tipoDocumento}"; // Ejemplo: "Facturacion_guia" o "Facturacion"
 
                 ORTV_N ortvN = new ORTV_N();
                 int resultado = ortvN.RegistrarImpresionTicket(docEntry, nombreCompleto, areaCompleta);
