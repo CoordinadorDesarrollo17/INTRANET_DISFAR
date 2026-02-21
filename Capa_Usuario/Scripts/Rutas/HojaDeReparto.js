@@ -189,8 +189,8 @@ function agregarTicketsDetalle(esEdicion) {
 
             var direcciones = tr.find('input[id^="Direcciones"]').val();
             var montoFinal = tr.find('input[id^="MontoFinal"]').val();
-            var envio = tr.find('input[id^="Envio"]').val();
-
+            // Obtener el valor actual del select TipoEnvio
+            var envio = document.getElementById('TipoEnvio').value;
 
             agregarItem(docEntry, docNum, cardName, guias, conducyPlaca, cajas, obs, direcciones, montoFinal, envio, esEdicion);
 
@@ -806,7 +806,8 @@ function listarTickets(estado) {
                         fila.append('<td hidden><input id="Obs' + index + '" type="text" value="' + (item.Observaciones != null ? item.Observaciones : '') + '" readonly hidden/>' + (item.Observaciones != null ? item.Observaciones : '') + '</td>');
                         fila.append('<td hidden><input id="Direcciones' + index + '" type="text" value="' + (item.DirDestino != null ? item.DirDestino : '') + '" readonly hidden/>' + (item.DirDestino != null ? item.DirDestino : '') + '</td>');
                         fila.append('<td class="text-center border-end"><input id="MontoFinal' + index + '" type="text" value="' + item.MontoFinal.toFixed(2) + '" readonly hidden/>' + item.MontoFinal.toFixed(2) + '</td>');
-                        fila.append('<td hidden><input id="Envio' + index + '" type="text" value="' + item.GastoEnvio.toFixed(2) + '" readonly hidden/>' + item.GastoEnvio.toFixed(2) + '</td>');
+                        // Cambiar aquí: mostrar EnvioAgencia en la columna Envio
+                        fila.append('<td class="text-center border-end"><input id="Envio' + index + '" type="text" value="' + (item.EnvioAgencia != null ? item.EnvioAgencia : '') + '" readonly hidden/>' + (item.EnvioAgencia != null ? item.EnvioAgencia : '') + '</td>');
                         fila.append('<td class="text-center border-end"><input id="TipoVenta' + index + '" type="text" value="' + item.TipoVenta + '" readonly hidden/>' + item.TipoVenta + '</td>');
                         fila.append('<td class="text-center border-end">' + formatearFechaHora(item.TiempoEntrega) + '</td>');
                         fila.append('<td class="text-center border-end">' + (item.FechaPago != null ? item.FechaPago + '<br>' + item.HoraPago : 'PENDIENTE') + '</td>');
@@ -893,7 +894,8 @@ function listarTickets(estado) {
                         fila.append('<td hidden><input id="Obs' + index + '" type="text" value="' + (item.Observaciones != null ? item.Observaciones : '') + '" readonly hidden/>' + (item.Observaciones != null ? item.Observaciones : '') + '</td>');
                         fila.append('<td hidden><input id="Direcciones' + index + '" type="text" value="' + (item.DirDestino != null ? item.DirDestino : '') + '" readonly hidden/>' + (item.DirDestino != null ? item.DirDestino : '') + '</td>');
                         fila.append('<td class="text-center border-end"><input id="MontoFinal' + index + '" type="text" value="' + item.MontoFinal.toFixed(2) + '" readonly hidden/>' + item.MontoFinal.toFixed(2) + '</td>');
-                        fila.append('<td hidden><input id="Envio' + index + '" type="text" value="' + item.GastoEnvio.toFixed(2) + '" readonly hidden/>' + item.GastoEnvio.toFixed(2) + '</td>');
+                        // Cambiar aquí: mostrar EnvioAgencia en la columna Envio
+                        fila.append('<td class="text-center border-end"><input id="Envio' + index + '" type="text" value="' + (item.EnvioAgencia != null ? item.EnvioAgencia : '') + '" readonly hidden/>' + (item.EnvioAgencia != null ? item.EnvioAgencia : '') + '</td>');
                         fila.append('<td class="text-center border-end"><input id="TipoVenta' + index + '" type="text" value="' + item.TipoVenta + '" readonly hidden/>' + item.TipoVenta + '</td>');
                         fila.append('<td class="text-center border-end">' + formatearFechaHora(item.TiempoEntrega) + '</td>');
                         fila.append('<td class="text-center border-end">' + (item.FechaPago != null ? item.FechaPago + '<br>' + item.HoraPago : 'PENDIENTE') + '</td>');
