@@ -276,7 +276,7 @@ namespace Capa_Datos.Rutas_DAO.TablasSql
 
                 sb.Append("SELECT R0.DocEntry, R0.Linea, R0.DocEntryTicket, R0.DocNumTicket, R0.Guias, R0.Verificado, R0.Cajas, R0.Observaciones, R0.MontoFinal, R0.Envio, R0.Direcciones,");
                 sb.Append(" R0.Estado, R0.TempI1, R0.TempI2, R0.TempF1, R0.TempF2, R0.OpEntrega, R0.FechaEntrega, R0.HoraEntrega,");
-                sb.Append(" R0.Socio, VT.TipoVenta, VT.EstadoPago, TC.TipoPago, TC.estado, TC.MontoRecibidoEfectivo, TC.Id, TC.MontoRecibidoDeposito, R0.ConducYPlaca");
+                sb.Append(" R0.Socio, VT.TipoVenta, VT.EstadoPago, TC.TipoPago, TC.estado, TC.MontoRecibidoEfectivo, TC.Id, TC.MontoRecibidoDeposito, R0.ConducYPlaca, R0.EnvioAgencia");
                 sb.Append(" FROM al.RRU0 R0");
                 sb.Append(" LEFT JOIN vt.ORTV VT ON VT.DocEntry = R0.DocEntryTicket");
                 sb.Append(" LEFT JOIN cj.OTC TC ON TC.DocEntryTicket = R0.DocEntryTicket AND TC.Estado NOT IN ('ANULADO', 'RECHAZADO')");
@@ -321,6 +321,7 @@ namespace Capa_Datos.Rutas_DAO.TablasSql
                     if (!dr2.IsDBNull(25)) d.IdOTC = dr2.GetInt32(25);
                     if (!dr2.IsDBNull(26)) d.MontoRecibidoDeposito = dr2.GetDecimal(26);
                     if (!dr2.IsDBNull(27)) d.ConducYPlaca = dr2.GetString(27);
+                    if (!dr2.IsDBNull(28)) d.EnvioAgencia = dr2.GetString(28);
 
                     ORTV_D ortv = new ORTV_D();
                     d.Ticket = ortv.ObtenerDatosCompletosTicket(d.DocEntryTicket);

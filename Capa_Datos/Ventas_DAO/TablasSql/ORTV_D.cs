@@ -2702,7 +2702,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
             }
             return lista;
         }
-        public List<ORTV_E> ListarTicketsParaRepartos(ORTV_E filtro, string[] estados, out int cantidadTicketsNoEnviados, string departamento = null, string provincia = null, string distrito = null, string tipoEnvio = null)
+        public List<ORTV_E> ListarTicketsParaRepartos(ORTV_E   filtro, string[] estados, out int cantidadTicketsNoEnviados, string departamento = null, string provincia = null, string distrito = null, string tipoEnvio = null)
         {
             List<ORTV_E> lista = new List<ORTV_E>(); cantidadTicketsNoEnviados = 0;
             int cantidadElementos = estados.Count();
