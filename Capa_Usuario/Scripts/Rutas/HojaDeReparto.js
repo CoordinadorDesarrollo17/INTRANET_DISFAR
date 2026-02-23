@@ -9,13 +9,13 @@
 // Función principal para agregar líneas al detalle
 function agregarTicketsDetalle(esEdicion) {
     let tablaDeTicketsPorEnviar = $('#detalleRuta').DataTable();
-    var nrows = 0;
+    var nrows =0;
     $("#Detalles tr").each(function () {
         nrows++;
     });
     /* console.log(nrows);*/
     let checkboxesSeleccionados = tablaDeTicketsPorEnviar.rows({ page: 'all' }).nodes().to$().find('.cls-chkVerif:checked');
-    if (checkboxesSeleccionados.length > 0) {
+    if (checkboxesSeleccionados.length >0) {
         var tipoRuta = $('#TipoRuta').val();
         // VALIDACIÓN: Solo para VD (Domicilio) y VG (Agencia)
         if (tipoRuta === 'VD' || tipoRuta === 'VG') {
@@ -38,7 +38,7 @@ function agregarTicketsDetalle(esEdicion) {
                         });
 
                     // Si después de filtrar no quedan conductores, saltar
-                    if (conductores.length === 0) {
+                    if (conductores.length ===0) {
                         return; // continue
                     }
 
@@ -46,7 +46,7 @@ function agregarTicketsDetalle(esEdicion) {
                     var hayDiferenciasInternas = false;
                     var conductoresDiferentes = [];
 
-                    for (var i = 1; i < conductores.length; i++) {
+                    for (var i =1; i < conductores.length; i++) {
                         if (conductores[i] !== primerConductor) {
                             hayDiferenciasInternas = true;
                             if (conductoresDiferentes.indexOf(conductores[i]) === -1) {
@@ -56,7 +56,7 @@ function agregarTicketsDetalle(esEdicion) {
                     }
 
                     // ✅ Solo agregar a problemas si HAY conductores diferentes REALES
-                    if (hayDiferenciasInternas && conductoresDiferentes.length > 0) {
+                    if (hayDiferenciasInternas && conductoresDiferentes.length >0) {
                         ticketsConProblema.push({
                             docNum: docNum,
                             primerConductor: primerConductor,
@@ -66,7 +66,7 @@ function agregarTicketsDetalle(esEdicion) {
                 }
             });
 
-            if (ticketsConProblema.length > 0) {
+            if (ticketsConProblema.length >0) {
                 var mensaje = '<strong>ERROR:</strong> Los siguientes tickets tienen diferentes conductores/placas en sus guías:<br><br>';
 
                 ticketsConProblema.forEach(function (ticket) {
@@ -111,7 +111,7 @@ function agregarTicketsDetalle(esEdicion) {
 
                 // Iteramos sobre los docnum vinculados
 
-                for (var i = 0; i < valoresVinculados.length; i++) {
+                for (var i =0; i < valoresVinculados.length; i++) {
 
                     var docnum = valoresVinculados[i].trim();
 
@@ -136,7 +136,7 @@ function agregarTicketsDetalle(esEdicion) {
 
                     var tablaDetallesAgregados = $('#Detalles');
 
-                    if (tablaDetallesAgregados.find('tbody tr').length > 0) {
+                    if (tablaDetallesAgregados.find('tbody tr').length >0) {
 
                         // Recorrer todas las filas de la tabla
 
@@ -189,10 +189,12 @@ function agregarTicketsDetalle(esEdicion) {
 
             var direcciones = tr.find('input[id^="Direcciones"]').val();
             var montoFinal = tr.find('input[id^="MontoFinal"]').val();
-            // Obtener el valor actual del select TipoEnvio
-            var envio = document.getElementById('TipoEnvio').value;
+            // Obtener el valor actual del input Envio (costo antiguo)
+            var envio = tr.find('input[id^="Envio"]').val();
+            // Obtener el valor actual del input EnvioAgencia (nuevo campo)
+            var envioAgencia = tr.find('input[id^="EnvioAgencia"]').val();
 
-            agregarItem(docEntry, docNum, cardName, guias, conducyPlaca, cajas, obs, direcciones, montoFinal, envio, esEdicion);
+            agregarItem(docEntry, docNum, cardName, guias, conducyPlaca, cajas, obs, direcciones, montoFinal, envio, envioAgencia, esEdicion);
 
         });
 
@@ -207,7 +209,7 @@ function agregarTicketsDetalle(esEdicion) {
 
             scrollTop: $('#divDetalleRuta').offset().top
 
-        }, 1000);
+        },1000);
 
 
     }
@@ -226,7 +228,7 @@ function agregarTicketsDetalle(esEdicion) {
 
 // Función unificada que agrega un item al detalle principal
 
-function agregarItem(docEntry, docNum, cardName, guias, conducyPlaca, cajas, obs, direcciones, montoFinal, envio, esEdicion) {
+function agregarItem(docEntry, docNum, cardName, guias, conducyPlaca, cajas, obs, direcciones, montoFinal, envio, envioAgencia, esEdicion) {
 
     // Verificar si el campo ya existe
     if (validarUnicoCampoTabla(docEntry, "Detalles") == false) {
@@ -253,9 +255,9 @@ function agregarItem(docEntry, docNum, cardName, guias, conducyPlaca, cajas, obs
 
         var fila = "<tr>" +
 
-            "<td class='text-center border-end border-start'><input name='DetRRU0[" + contDet + "].Linea' type='text' value='" + (contDet + 1) + "' style='width:40px' class='form-control' readonly/></td>" +
+            "<td class='text-center border-end border-start'><input name='DetRRU0[" + contDet + "].Linea' type='text' value='" + (contDet +1) + "' style='width:40px' class='form-control' readonly/></td>" +
 
-            "<td hidden><input name='DetRRU0[" + contDet + "].DocEntryTicket' id='DocEntryTDet" + contDet + "' type='text' value='" + docEntry + "'  class='form-control'  readonly/></td>" +
+            "<td hidden><input name='DetRRU0[" + contDet + "].DocEntryTicket' id='DocEntryTDet" + contDet + "' type='text' value='" + docEntry + "' class='form-control' readonly/></td>" +
 
             "<td class='text-center border-end'><input name='DetRRU0[" + contDet + "].DocNumTicket' id='DocNumTDet" + contDet + "' type='text' value='" + docNum + "' style='width:110px' class='form-control' readonly/></td>" +
 
@@ -273,7 +275,11 @@ function agregarItem(docEntry, docNum, cardName, guias, conducyPlaca, cajas, obs
 
             "<td class='text-center border-end'><input name='DetRRU0[" + contDet + "].MontoFinal' type='text' value='" + montoFinal + "' class='form-control' readonly/></td>" +
 
+            // Envio (costo antiguo)
             "<td class='text-center border-end'><input name='DetRRU0[" + contDet + "].Envio' type='text' value='" + envio + "' class='form-control' readonly/></td>" +
+
+            // EnvioAgencia (nuevo campo)
+            "<td class='text-center border-end'><input name='DetRRU0[" + contDet + "].EnvioAgencia' type='text' value='" + envioAgencia + "' class='form-control' readonly/></td>" +
 
             "<td class='text-center border-end'><a href='SeguimientoDeTicket?DocEntry=" + docEntry + "' target='_blank' style='cursor:pointer' class='btn btn-outline-primary' onclick=window.open(this.href,this.target,'width=500,height=350,top=120,left=100,toolbar=no,location=no,status=no,menubar=no');><i class='bi bi-truck'></i></a></td>";
 
@@ -292,9 +298,9 @@ function agregarItem(docEntry, docNum, cardName, guias, conducyPlaca, cajas, obs
             }
 
 
-            fila += "<td colspan='2' class='text-center border-end' id='acc" + (contDet + 1) + "'>" +
+            fila += "<td colspan='2' class='text-center border-end' id='acc" + (contDet +1) + "'>" +
                 "<div class='d-flex justify-content-center gap-2'>" +
-                "<button type='button' class='btn btn-outline-success d-flex align-items-center gap-1' onclick='grabarLineaTabla(" + docEntryOrru + "," + (contDet + 1) + "," + docEntry + ")'><i class='bi bi-lock'></i> <span>Grabar</span></button>" +
+                "<button type='button' class='btn btn-outline-success d-flex align-items-center gap-1' onclick='grabarLineaTabla(" + docEntryOrru + "," + (contDet +1) + "," + docEntry + ")'><i class='bi bi-lock'></i> <span>Grabar</span></button>" +
                 "<button type='button' class='btn btn-outline-danger d-flex align-items-center gap-1' onclick='borrarLineaTabla(this)'><i class='bi bi-trash'></i></button>" +
                 "</div>" +
                 "</td>";
@@ -409,6 +415,10 @@ function borrarLineaTabla(dom) {
                 iden1 = $(htm).find("td:eq(10) input");
 
                 iden1.attr("name", "DetRRU0[" + i + "].Envio");
+
+                iden1 = $(htm).find("td:eq(11) input");
+
+                iden1.attr("name", "DetRRU0[" + i + "].EnvioAgencia");
 
                 i = i + 1;
 
@@ -725,199 +735,203 @@ function enviarValSelect(idi, idf, attrf) {
 
 var xhr;
 function listarTickets(estado) {
-    // Obtener valores de los filtros
-    var FechaSapTicket = $('#FechaSapTicket').val();
-    var TipoRuta = $('#TipoRuta').val();
-    var AlmOrigenCod = $('#AlmOrigenCod').val();
-    var Zona = $('#Zona').val();
-    var departamento = $('#Departamento').val();
-    var provincia = $('#Provincia').val();
-    var distrito = $('#Distrito').val();
-    var tipoEnvio = $('#TipoEnvio').val();
-    var proveedorTrans = $('#ProveedorTrans').val();
-    var tabla = $('#detalleRuta').DataTable();
+ // Obtener valores de los filtros
+ var FechaSapTicket = $('#FechaSapTicket').val();
+ var TipoRuta = $('#TipoRuta').val();
+ var AlmOrigenCod = $('#AlmOrigenCod').val();
+ var Zona = $('#Zona').val();
+ var departamento = $('#Departamento').val();
+ var provincia = $('#Provincia').val();
+ var distrito = $('#Distrito').val();
+ var tipoEnvio = $('#TipoEnvio').val();
+ var proveedorTrans = $('#ProveedorTrans').val();
+ var tabla = $('#detalleRuta').DataTable();
 
-    // Para rutas de tipo 'VG'
-    if (TipoRuta !== '' && TipoRuta === 'VG') {
-        if (FechaSapTicket !== '' && Zona !== '') {
-            if (xhr && xhr.readyState !== 4) xhr.abort();
+ // Para rutas de tipo 'VG'
+ if (TipoRuta !== '' && TipoRuta === 'VG') {
+ if (FechaSapTicket !== '' && Zona !== '') {
+ if (xhr && xhr.readyState !==4) xhr.abort();
 
-            Swal.fire({
-                title: 'Trayendo información de tickets',
-                text: 'Si cierra la ventana, la carga de datos seguirá en proceso.',
-                allowEscapeKey: false,
-                allowOutsideClick: false,
-                showCloseButton: false,
-                showConfirmButton: false,
-                timer: 3000
-            });
+ Swal.fire({
+ title: 'Trayendo información de tickets',
+ text: 'Si cierra la ventana, la carga de datos seguirá en proceso.',
+ allowEscapeKey: false,
+ allowOutsideClick: false,
+ showCloseButton: false,
+ showConfirmButton: false,
+ timer:3000
+ });
 
-            var parametros = {
-                "FechaSapTicket": FechaSapTicket,
-                "TipoRuta": TipoRuta,
-                "Zona": Zona,
-                "AlmOrigenCod": AlmOrigenCod,
-                "Departamento": departamento,
-                "Provincia": provincia,
-                "Distrito": distrito,
-                "TipoEnvio": tipoEnvio,
-                "ProvedorTransporte": proveedorTrans
-            };
+ var parametros = {
+ "FechaSapTicket": FechaSapTicket,
+ "TipoRuta": TipoRuta,
+ "Zona": Zona,
+ "AlmOrigenCod": AlmOrigenCod,
+ "Departamento": departamento,
+ "Provincia": provincia,
+ "Distrito": distrito,
+ "TipoEnvio": tipoEnvio,
+ "ProvedorTransporte": proveedorTrans
+ };
 
-            if (estado === 'CREADO') {
-                tabla.clear().destroy();
-            }
+ if (estado === 'CREADO') {
+ tabla.clear().destroy();
+ }
 
-            xhr = $.ajax({
-                url: '/Rutas/infoTicketsReparto',
-                data: parametros,
-                dataType: 'json',
-                cache: false,
-                type: 'post'
-            })
-                .done(function (response) {
-                    $("#btn-NoEnviados a").text('');
-                    $("#btn-NoEnviados").hide();
+ xhr = $.ajax({
+ url: '/Rutas/infoTicketsReparto',
+ data: parametros,
+ dataType: 'json',
+ cache: false,
+ type: 'post'
+ })
+ .done(function (response) {
+ $("#btn-NoEnviados a").text('');
+ $("#btn-NoEnviados").hide();
 
-                    if (estado === 'CREADO') {
-                        tabla = $('#detalleRuta').DataTable();
-                    } else {
-                        if (tabla.rows().count() > 0) tabla.clear().draw();
-                    }
+ if (estado === 'CREADO') {
+ tabla = $('#detalleRuta').DataTable();
+ } else {
+ if (tabla.rows().count() >0) tabla.clear().draw();
+ }
 
-                    var msjNoEnviados = "";
+ var msjNoEnviados = "";
 
-                    response.Resultado.forEach(function (item, index) {
-                        var fila = $('<tr>');
-                        fila.attr('id', 'fila' + index);
+ response.Resultado.forEach(function (item, index) {
+ var fila = $('<tr>');
+ fila.attr('id', 'fila' + index);
 
-                        var guiasFormateadas = item.Guias ? item.Guias.replace(/,/g, '<br>') : '';
-                        var conducyPlacaFormateada = item.ConducYPlaca ? item.ConducYPlaca.replace(/,/g, '<br>') : '';
+ var guiasFormateadas = item.Guias ? item.Guias.replace(/,/g, '<br>') : '';
+ var conducyPlacaFormateada = item.ConducYPlaca ? item.ConducYPlaca.replace(/,/g, '<br>') : '';
 
-                        fila.append('<td class="text-center border-start"><input type="checkbox" class="cls-chkVerif ml-3" id="check' + index + '" autocomplete="off"></td>');
-                        fila.append('<td class="text-center border-end"><input id="Linea' + index + '" type="text" value="' + (index + 1) + '" readonly hidden/>' + (index + 1) + '</td>');
-                        fila.append('<td hidden><input id="DocEntry' + index + '" type="text" value="' + item.DocEntry + '" readonly hidden/></td>');
-                        fila.append('<td class="text-center border-end"><input id="DocNum' + index + '" type="text" value="' + item.DocNum + '" hidden/>' + item.DocNum + '</td>');
-                        fila.append('<td hidden><input id="CardCode' + index + '" type="text" value="' + item.CardCode + '" hidden/></td>');
-                        fila.append('<td class="text-center border-end" style="width:250px"><input id="CardName' + index + '" type="text" value="' + item.CardName + '" hidden/>' + item.CardName + '</td>');
-                        fila.append('<td class="text-center border-end" style="width:450px"><input id="Guías' + index + '" type="text" value="' + item.Guias + '" readonly hidden/>' + guiasFormateadas + '</td>');
-                        fila.append('<td class="text-center border-end" style="width:350px"><input id="ConducYPlaca' + index + '" type="text" value="' + (item.ConducYPlaca != null ? item.ConducYPlaca : '') + '" readonly hidden/><span>' + (conducyPlacaFormateada || '') + '</span></td>');
-                        fila.append('<td class="text-center border-end"><input id="Cajas' + index + '" type="text" value="' + item.Cajas + '" readonly hidden/>' + item.Cajas + '</td>');
-                        fila.append('<td hidden><input id="Obs' + index + '" type="text" value="' + (item.Observaciones != null ? item.Observaciones : '') + '" readonly hidden/>' + (item.Observaciones != null ? item.Observaciones : '') + '</td>');
-                        fila.append('<td hidden><input id="Direcciones' + index + '" type="text" value="' + (item.DirDestino != null ? item.DirDestino : '') + '" readonly hidden/>' + (item.DirDestino != null ? item.DirDestino : '') + '</td>');
-                        fila.append('<td class="text-center border-end"><input id="MontoFinal' + index + '" type="text" value="' + item.MontoFinal.toFixed(2) + '" readonly hidden/>' + item.MontoFinal.toFixed(2) + '</td>');
-                        // Cambiar aquí: mostrar EnvioAgencia en la columna Envio
-                        fila.append('<td class="text-center border-end"><input id="Envio' + index + '" type="text" value="' + (item.EnvioAgencia != null ? item.EnvioAgencia : '') + '" readonly hidden/>' + (item.EnvioAgencia != null ? item.EnvioAgencia : '') + '</td>');
-                        fila.append('<td class="text-center border-end"><input id="TipoVenta' + index + '" type="text" value="' + item.TipoVenta + '" readonly hidden/>' + item.TipoVenta + '</td>');
-                        fila.append('<td class="text-center border-end">' + formatearFechaHora(item.TiempoEntrega) + '</td>');
-                        fila.append('<td class="text-center border-end">' + (item.FechaPago != null ? item.FechaPago + '<br>' + item.HoraPago : 'PENDIENTE') + '</td>');
-                        fila.append('<td hidden><input id="Vinculados' + index + '" type="text" value="' + (item.Vinculados != null ? item.Vinculados : '') + '" readonly hidden/></td>');
+ fila.append('<td class="text-center border-start"><input type="checkbox" class="cls-chkVerif ml-3" id="check' + index + '" autocomplete="off"></td>');
+ fila.append('<td class="text-center border-end"><input id="Linea' + index + '" type="text" value="' + (index +1) + '" readonly hidden/>' + (index +1) + '</td>');
+ fila.append('<td hidden><input id="DocEntry' + index + '" type="text" value="' + item.DocEntry + '" readonly hidden/></td>');
+ fila.append('<td class="text-center border-end"><input id="DocNum' + index + '" type="text" value="' + item.DocNum + '" hidden/>' + item.DocNum + '</td>');
+ fila.append('<td hidden><input id="CardCode' + index + '" type="text" value="' + item.CardCode + '" hidden/></td>');
+ fila.append('<td class="text-center border-end" style="width:250px"><input id="CardName' + index + '" type="text" value="' + item.CardName + '" hidden/>' + item.CardName + '</td>');
+ fila.append('<td class="text-center border-end" style="width:450px"><input id="Guías' + index + '" type="text" value="' + item.Guias + '" readonly hidden/>' + guiasFormateadas + '</td>');
+ fila.append('<td class="text-center border-end" style="width:350px"><input id="ConducYPlaca' + index + '" type="text" value="' + (item.ConducYPlaca != null ? item.ConducYPlaca : '') + '" readonly hidden/><span>' + (conducyPlacaFormateada || '') + '</span></td>');
+ fila.append('<td class="text-center border-end"><input id="Cajas' + index + '" type="text" value="' + item.Cajas + '" readonly hidden/>' + item.Cajas + '</td>');
+ fila.append('<td hidden><input id="Obs' + index + '" type="text" value="' + (item.Observaciones != null ? item.Observaciones : '') + '" readonly hidden/>' + (item.Observaciones != null ? item.Observaciones : '') + '</td>');
+ fila.append('<td hidden><input id="Direcciones' + index + '" type="text" value="' + (item.DirDestino != null ? item.DirDestino : '') + '" readonly hidden/>' + (item.DirDestino != null ? item.DirDestino : '') + '</td>');
+ fila.append('<td class="text-center border-end"><input id="MontoFinal' + index + '" type="text" value="' + item.MontoFinal.toFixed(2) + '" readonly hidden/>' + item.MontoFinal.toFixed(2) + '</td>');
+ // Mantener Envio (costo antiguo)
+ fila.append('<td class="text-center border-end"><input id="Envio' + index + '" type="text" value="' + (item.GastoEnvio != null ? item.GastoEnvio : '') + '" readonly hidden/>' + (item.GastoEnvio != null ? item.GastoEnvio : '') + '</td>');
+ // Nueva columna EnvioAgencia
+ fila.append('<td class="text-center border-end"><input id="EnvioAgencia' + index + '" type="text" value="' + (item.EnvioAgencia != null ? item.EnvioAgencia : '') + '" readonly hidden/>' + (item.EnvioAgencia != null ? item.EnvioAgencia : '') + '</td>');
+ fila.append('<td class="text-center border-end"><input id="TipoVenta' + index + '" type="text" value="' + item.TipoVenta + '" readonly hidden/>' + item.TipoVenta + '</td>');
+ fila.append('<td class="text-center border-end">' + formatearFechaHora(item.TiempoEntrega) + '</td>');
+ fila.append('<td class="text-center border-end">' + (item.FechaPago != null ? item.FechaPago + '<br>' + item.HoraPago : 'PENDIENTE') + '</td>');
+ fila.append('<td hidden><input id="Vinculados' + index + '" type="text" value="' + (item.Vinculados != null ? item.Vinculados : '') + '" readonly hidden/></td>');
 
-                        tabla.row.add(fila);
-                    });
+ tabla.row.add(fila);
+ });
 
-                    tabla.draw();
+ tabla.draw();
 
-                    if (response.CantidadTicketsNoEnviados != 0) {
-                        msjNoEnviados = "Tiene " + response.CantidadTicketsNoEnviados + " tickets pendiente de envio";
-                        $("#btn-NoEnviados a").text(msjNoEnviados);
-                        $("#btn-NoEnviados").show();
-                    }
-                    Swal.close();
-                })
-                .fail(function () {
-                    Swal.fire('Error', 'Hubo un problema al cargar los datos', 'error');
-                });
-        }
-    }
-    // Para rutas diferentes a 'VG'
-    else if (TipoRuta !== '' && TipoRuta !== 'VG') {
-        if (FechaSapTicket !== '' && Zona !== '' && AlmOrigenCod !== '') {
-            if (xhr && xhr.readyState !== 4) xhr.abort();
+ if (response.CantidadTicketsNoEnviados !=0) {
+ msjNoEnviados = "Tiene " + response.CantidadTicketsNoEnviados + " tickets pendiente de envio";
+ $("#btn-NoEnviados a").text(msjNoEnviados);
+ $("#btn-NoEnviados").show();
+ }
+ Swal.close();
+ })
+ .fail(function () {
+ Swal.fire('Error', 'Hubo un problema al cargar los datos', 'error');
+ });
+ }
+ }
+ // Para rutas diferentes a 'VG'
+ else if (TipoRuta !== '' && TipoRuta !== 'VG') {
+ if (FechaSapTicket !== '' && Zona !== '' && AlmOrigenCod !== '') {
+ if (xhr && xhr.readyState !==4) xhr.abort();
 
-            Swal.fire({
-                title: 'Trayendo información de tickets',
-                text: 'Si cierra la ventana, la carga de datos seguirá en proceso.',
-                allowEscapeKey: false,
-                allowOutsideClick: false,
-                showCloseButton: false,
-                showConfirmButton: false,
-                timer: 3000
-            });
+ Swal.fire({
+ title: 'Trayendo información de tickets',
+ text: 'Si cierra la ventana, la carga de datos seguirá en proceso.',
+ allowEscapeKey: false,
+ allowOutsideClick: false,
+ showCloseButton: false,
+ showConfirmButton: false,
+ timer:3000
+ });
 
-            var parametros = {
-                "FechaSapTicket": FechaSapTicket,
-                "TipoRuta": TipoRuta,
-                "Zona": Zona,
-                "AlmOrigenCod": AlmOrigenCod
-            };
+ var parametros = {
+ "FechaSapTicket": FechaSapTicket,
+ "TipoRuta": TipoRuta,
+ "Zona": Zona,
+ "AlmOrigenCod": AlmOrigenCod
+ };
 
-            if (estado === 'CREADO') {
-                tabla.clear().destroy();
-            }
+ if (estado === 'CREADO') {
+ tabla.clear().destroy();
+ }
 
-            xhr = $.ajax({
-                url: '/Rutas/infoTicketsReparto',
-                data: parametros,
-                dataType: 'json',
-                cache: false,
-                type: 'post'
-            })
-                .done(function (response) {
-                    $("#btn-NoEnviados a").text('');
-                    $("#btn-NoEnviados").hide();
+ xhr = $.ajax({
+ url: '/Rutas/infoTicketsReparto',
+ data: parametros,
+ dataType: 'json',
+ cache: false,
+ type: 'post'
+ })
+ .done(function (response) {
+ $("#btn-NoEnviados a").text('');
+ $("#btn-NoEnviados").hide();
 
-                    if (estado === 'CREADO') {
-                        tabla = $('#detalleRuta').DataTable();
-                    } else {
-                        if (tabla.rows().count() > 0) tabla.clear().draw();
-                    }
+ if (estado === 'CREADO') {
+ tabla = $('#detalleRuta').DataTable();
+ } else {
+ if (tabla.rows().count() >0) tabla.clear().draw();
+ }
 
-                    var msjNoEnviados = "";
+ var msjNoEnviados = "";
 
-                    response.Resultado.forEach(function (item, index) {
-                        var fila = $('<tr>');
-                        fila.attr('id', 'fila' + index);
+ response.Resultado.forEach(function (item, index) {
+ var fila = $('<tr>');
+ fila.attr('id', 'fila' + index);
 
-                        var guiasFormateadas = item.Guias ? item.Guias.replace(/,/g, '<br>') : '';
-                        var conducyPlacaFormateada = item.ConducYPlaca ? item.ConducYPlaca.replace(/,/g, '<br>') : '';
+ var guiasFormateadas = item.Guias ? item.Guias.replace(/,/g, '<br>') : '';
+ var conducyPlacaFormateada = item.ConducYPlaca ? item.ConducYPlaca.replace(/,/g, '<br>') : '';
 
-                        fila.append('<td class="text-center border-start"><input type="checkbox" class="cls-chkVerif ml-3" id="check' + index + '" autocomplete="off"></td>');
-                        fila.append('<td class="text-center border-end"><input id="Linea' + index + '" type="text" value="' + (index + 1) + '" readonly hidden/>' + (index + 1) + '</td>');
-                        fila.append('<td hidden><input id="DocEntry' + index + '" type="text" value="' + item.DocEntry + '" readonly hidden/></td>');
-                        fila.append('<td class="text-center border-end"><input id="DocNum' + index + '" type="text" value="' + item.DocNum + '" hidden/>' + item.DocNum + '</td>');
-                        fila.append('<td hidden><input id="CardCode' + index + '" type="text" value="' + item.CardCode + '" hidden/></td>');
-                        fila.append('<td class="text-center border-end" style="width:250px"><input id="CardName' + index + '" type="text" value="' + item.CardName + '" hidden/>' + item.CardName + '</td>');
-                        fila.append('<td class="text-center border-end" style="width:450px"><input id="Guías' + index + '" type="text" value="' + item.Guias + '" readonly hidden/>' + guiasFormateadas + '</td>');
-                        fila.append('<td class="text-center border-end" style="width:350px"><input id="ConducYPlaca' + index + '" type="text" value="' + (item.ConducYPlaca != null ? item.ConducYPlaca : '') + '" readonly hidden/><span>' + (conducyPlacaFormateada || '') + '</span></td>');
-                        fila.append('<td class="text-center border-end"><input id="Cajas' + index + '" type="text" value="' + item.Cajas + '" readonly hidden/>' + item.Cajas + '</td>');
-                        fila.append('<td hidden><input id="Obs' + index + '" type="text" value="' + (item.Observaciones != null ? item.Observaciones : '') + '" readonly hidden/>' + (item.Observaciones != null ? item.Observaciones : '') + '</td>');
-                        fila.append('<td hidden><input id="Direcciones' + index + '" type="text" value="' + (item.DirDestino != null ? item.DirDestino : '') + '" readonly hidden/>' + (item.DirDestino != null ? item.DirDestino : '') + '</td>');
-                        fila.append('<td class="text-center border-end"><input id="MontoFinal' + index + '" type="text" value="' + item.MontoFinal.toFixed(2) + '" readonly hidden/>' + item.MontoFinal.toFixed(2) + '</td>');
-                        // Cambiar aquí: mostrar EnvioAgencia en la columna Envio
-                        fila.append('<td class="text-center border-end"><input id="Envio' + index + '" type="text" value="' + (item.EnvioAgencia != null ? item.EnvioAgencia : '') + '" readonly hidden/>' + (item.EnvioAgencia != null ? item.EnvioAgencia : '') + '</td>');
-                        fila.append('<td class="text-center border-end"><input id="TipoVenta' + index + '" type="text" value="' + item.TipoVenta + '" readonly hidden/>' + item.TipoVenta + '</td>');
-                        fila.append('<td class="text-center border-end">' + formatearFechaHora(item.TiempoEntrega) + '</td>');
-                        fila.append('<td class="text-center border-end">' + (item.FechaPago != null ? item.FechaPago + '<br>' + item.HoraPago : 'PENDIENTE') + '</td>');
-                        fila.append('<td hidden><input id="Vinculados' + index + '" type="text" value="' + (item.Vinculados != null ? item.Vinculados : '') + '" readonly hidden/></td>');
+ fila.append('<td class="text-center border-start"><input type="checkbox" class="cls-chkVerif ml-3" id="check' + index + '" autocomplete="off"></td>');
+ fila.append('<td class="text-center border-end"><input id="Linea' + index + '" type="text" value="' + (index +1) + '" readonly hidden/>' + (index +1) + '</td>');
+ fila.append('<td hidden><input id="DocEntry' + index + '" type="text" value="' + item.DocEntry + '" readonly hidden/></td>');
+ fila.append('<td class="text-center border-end"><input id="DocNum' + index + '" type="text" value="' + item.DocNum + '" hidden/>' + item.DocNum + '</td>');
+ fila.append('<td hidden><input id="CardCode' + index + '" type="text" value="' + item.CardCode + '" hidden/></td>');
+ fila.append('<td class="text-center border-end" style="width:250px"><input id="CardName' + index + '" type="text" value="' + item.CardName + '" hidden/>' + item.CardName + '</td>');
+ fila.append('<td class="text-center border-end" style="width:450px"><input id="Guías' + index + '" type="text" value="' + item.Guias + '" readonly hidden/>' + guiasFormateadas + '</td>');
+ fila.append('<td class="text-center border-end" style="width:350px"><input id="ConducYPlaca' + index + '" type="text" value="' + (item.ConducYPlaca != null ? item.ConducYPlaca : '') + '" readonly hidden/><span>' + (conducyPlacaFormateada || '') + '</span></td>');
+ fila.append('<td class="text-center border-end"><input id="Cajas' + index + '" type="text" value="' + item.Cajas + '" readonly hidden/>' + item.Cajas + '</td>');
+ fila.append('<td hidden><input id="Obs' + index + '" type="text" value="' + (item.Observaciones != null ? item.Observaciones : '') + '" readonly hidden/>' + (item.Observaciones != null ? item.Observaciones : '') + '</td>');
+ fila.append('<td hidden><input id="Direcciones' + index + '" type="text" value="' + (item.DirDestino != null ? item.DirDestino : '') + '" readonly hidden/>' + (item.DirDestino != null ? item.DirDestino : '') + '</td>');
+ fila.append('<td class="text-center border-end"><input id="MontoFinal' + index + '" type="text" value="' + item.MontoFinal.toFixed(2) + '" readonly hidden/>' + item.MontoFinal.toFixed(2) + '</td>');
+ // Mantener Envio (costo antiguo)
+ fila.append('<td class="text-center border-end"><input id="Envio' + index + '" type="text" value="' + (item.GastoEnvio != null ? item.GastoEnvio : '') + '" readonly hidden/>' + (item.GastoEnvio != null ? item.GastoEnvio : '') + '</td>');
+ // Nueva columna EnvioAgencia
+ fila.append('<td class="text-center border-end"><input id="EnvioAgencia' + index + '" type="text" value="' + (item.EnvioAgencia != null ? item.EnvioAgencia : '') + '" readonly hidden/>' + (item.EnvioAgencia != null ? item.EnvioAgencia : '') + '</td>');
+ fila.append('<td class="text-center border-end"><input id="TipoVenta' + index + '" type="text" value="' + item.TipoVenta + '" readonly hidden/>' + item.TipoVenta + '</td>');
+ fila.append('<td class="text-center border-end">' + formatearFechaHora(item.TiempoEntrega) + '</td>');
+ fila.append('<td class="text-center border-end">' + (item.FechaPago != null ? item.FechaPago + '<br>' + item.HoraPago : 'PENDIENTE') + '</td>');
+ fila.append('<td hidden><input id="Vinculados' + index + '" type="text" value="' + (item.Vinculados != null ? item.Vinculados : '') + '" readonly hidden/></td>');
 
-                        tabla.row.add(fila);
-                    });
+ tabla.row.add(fila);
+ });
 
-                    tabla.draw();
+ tabla.draw();
 
-                    if (response.CantidadTicketsNoEnviados != 0) {
-                        msjNoEnviados = "Tiene " + response.CantidadTicketsNoEnviados + " tickets pendiente de envio";
-                        $("#btn-NoEnviados a").text(msjNoEnviados);
-                        $("#btn-NoEnviados").show();
-                    }
-                    Swal.close();
-                })
-                .fail(function () {
-                    Swal.fire('Error', 'Hubo un problema al cargar los datos', 'error');
-                });
-        }
-    }
+ if (response.CantidadTicketsNoEnviados !=0) {
+ msjNoEnviados = "Tiene " + response.CantidadTicketsNoEnviados + " tickets pendiente de envio";
+ $("#btn-NoEnviados a").text(msjNoEnviados);
+ $("#btn-NoEnviados").show();
+ }
+ Swal.close();
+ })
+ .fail(function () {
+ Swal.fire('Error', 'Hubo un problema al cargar los datos', 'error');
+ });
+ }
+ }
 }
 
 function seleccionarVerif() {
