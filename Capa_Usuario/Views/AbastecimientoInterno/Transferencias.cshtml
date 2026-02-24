@@ -209,7 +209,19 @@
 @section Scripts{
     <script>
 		// Declaración de variables
-        const articulos = @Html.Raw(Json.Encode(ViewBag.Articulos));
+        //const articulos = @Html.Raw(Json.Encode(ViewBag.Articulos));
+        let articulos = [];
+
+        document.addEventListener("DOMContentLoaded", async function () {
+            try {
+                const response = await fetch('@Url.Action("ObtenerArticulos", "AbastecimientoInterno")');
+                articulos = await response.json();
+                console.log("Artículos cargados:", articulos.length);
+            } catch (error) {
+                console.error("Error cargando artículos:", error);
+            }
+        });
+
         let opcionesArticulos = '';
         let opcionesLotes = '';
 

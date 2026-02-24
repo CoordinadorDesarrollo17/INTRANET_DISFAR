@@ -893,20 +893,6 @@ namespace Capa_Usuario.Controllers
             {
                 ViewBag.Masters = _masterN.ListarMasters();
 
-                ViewBag.Articulos = _ubicacionesLotesMasterN.BuscarArticulos()
-                     .GroupBy(x => new { x.ItemCode, x.BatchNum })
-                     .Select(g => g.First())
-                    .OrderBy(x => x.ItemCode)
-                    .ToList();
-
-                //var filtros = new DetalleTransferenciaReserva_E { AtendidoReserva = 1, Validado = 1 };
-                //var (helper, lista) = new DetalleTransferenciaReserva_N().ObtenerDetalleTransferenciaReserva(filtros);
-                //ViewBag.Articulos = helper.Icono == "success" ? lista
-                //    .GroupBy(x => new { x.ItemCode, x.BatchNum })
-                //    .Select(g => g.First())
-                //    .OrderBy(x => x.ItemCode)
-                //    .ToList() : new List<DetalleTransferenciaReserva_E>();
-
                 return View();
             }
             else
@@ -914,6 +900,31 @@ namespace Capa_Usuario.Controllers
                 return resultadoAcceso;
             }
         }
+        public JsonResult ObtenerArticulos(int idOperation = 3300)
+        {
+            var resultadoAcceso = VerificarPermiso(idOperation);
+
+            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult
+                && statusCodeResult.StatusCode == 200)
+            {
+                var articulos = _ubicacionesLotesMasterN.BuscarArticulos()
+                     .GroupBy(x => new { x.ItemCode, x.BatchNum })
+                     .Select(g => g.First())
+                    .OrderBy(x => x.ItemCode)
+                    .ToList();
+
+                return new JsonResult
+                {
+                    Data = articulos,
+                    JsonRequestBehavior = JsonRequestBehavior.AllowGet,
+                    MaxJsonLength = int.MaxValue
+                };
+            }
+
+            Response.StatusCode = 403;
+            return Json(new { error = "No autorizado" }, JsonRequestBehavior.AllowGet);
+        }
+
         public JsonResult BuscarSolicitudDeTraslado(int docNum, int idOperation = 3301)
         {
             try
