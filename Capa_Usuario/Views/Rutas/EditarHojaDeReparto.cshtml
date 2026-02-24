@@ -282,7 +282,7 @@
                             <th hidden>Obs.</th>
                             <th hidden>Direcciones</th>
                             <th class="text-center border-end">Monto final</th>
-                            <th hidden>Envio</th>
+                            <th class="text-center border-end">Envio</th>
                             <th class="text-center border-end">Tipo de venta</th>
                             <th class="text-center border-end">Tiempo de entrega</th>
                             <th class="text-center border-end">Tiempo de pago</th>
@@ -314,6 +314,7 @@
                         <th class="text-center border-end">Direcciones</th>
                         <th class="text-center border-end">MontoFinal</th>
                         <th class="text-center border-end">Envio</th>
+                        <th class="text-center border-end">EnvioAgencia</th>
                         <th class="text-center border-end"></th><!--Boton seguimiento-->
                         <th class="text-center border-end"></th> <!--Boton liberar-->
                     </tr>
@@ -335,6 +336,9 @@
                             <td class="text-center border-end"><textarea name='DetRRU0[@(det.Linea - 1)].Direcciones' class="form-control border-success" readonly>@det.Direcciones</textarea></td>
                             <td class="text-center border-end"><input name='DetRRU0[@(det.Linea - 1)].MontoFinal' type='hidden' class="form-control border-success" value='@det.MontoFinal' readonly />@det.MontoFinal</td>
                             <td class="text-center border-end"><input name='DetRRU0[@(det.Linea - 1)].Envio' type='hidden' class="form-control border-success" value='@det.Envio' readonly />@det.Envio</td>
+                            <td class="text-center border-end">
+                                <input name='DetRRU0[@(det.Linea - 1)].EnvioAgencia' type='hidden' class="form-control border-success" value='@det.EnvioAgencia' readonly />@det.EnvioAgencia
+                            </td>
                             <td class="text-center border-end"><a href='SeguimientoDeTicket?DocEntry=@det.DocEntryTicket' target='_blank' class="btn btn-outline-primary" style='cursor:pointer' onclick="window.open(this.href,this.target,'width=500,height=350,top=120,left=100,toolbar=no,location=no,status=no,menubar=no');"><i class="bi bi-truck"></i></a></td>
                             <td class="text-center border-end">
                                 <button type="button" class="btn btn-outline-danger d-flex align-items-center gap-1"

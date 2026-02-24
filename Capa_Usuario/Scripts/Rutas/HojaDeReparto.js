@@ -9,13 +9,13 @@
 // Función principal para agregar líneas al detalle
 function agregarTicketsDetalle(esEdicion) {
     let tablaDeTicketsPorEnviar = $('#detalleRuta').DataTable();
-    var nrows = 0;
+    var nrows =0;
     $("#Detalles tr").each(function () {
         nrows++;
     });
     /* console.log(nrows);*/
     let checkboxesSeleccionados = tablaDeTicketsPorEnviar.rows({ page: 'all' }).nodes().to$().find('.cls-chkVerif:checked');
-    if (checkboxesSeleccionados.length > 0) {
+    if (checkboxesSeleccionados.length >0) {
         var tipoRuta = $('#TipoRuta').val();
         // VALIDACIÓN: Solo para VD (Domicilio) y VG (Agencia)
         if (tipoRuta === 'VD' || tipoRuta === 'VG') {
@@ -38,7 +38,7 @@ function agregarTicketsDetalle(esEdicion) {
                         });
 
                     // Si después de filtrar no quedan conductores, saltar
-                    if (conductores.length === 0) {
+                    if (conductores.length ===0) {
                         return; // continue
                     }
 
@@ -46,7 +46,7 @@ function agregarTicketsDetalle(esEdicion) {
                     var hayDiferenciasInternas = false;
                     var conductoresDiferentes = [];
 
-                    for (var i = 1; i < conductores.length; i++) {
+                    for (var i =1; i < conductores.length; i++) {
                         if (conductores[i] !== primerConductor) {
                             hayDiferenciasInternas = true;
                             if (conductoresDiferentes.indexOf(conductores[i]) === -1) {
@@ -56,7 +56,7 @@ function agregarTicketsDetalle(esEdicion) {
                     }
 
                     // ✅ Solo agregar a problemas si HAY conductores diferentes REALES
-                    if (hayDiferenciasInternas && conductoresDiferentes.length > 0) {
+                    if (hayDiferenciasInternas && conductoresDiferentes.length >0) {
                         ticketsConProblema.push({
                             docNum: docNum,
                             primerConductor: primerConductor,
@@ -66,7 +66,7 @@ function agregarTicketsDetalle(esEdicion) {
                 }
             });
 
-            if (ticketsConProblema.length > 0) {
+            if (ticketsConProblema.length >0) {
                 var mensaje = '<strong>ERROR:</strong> Los siguientes tickets tienen diferentes conductores/placas en sus guías:<br><br>';
 
                 ticketsConProblema.forEach(function (ticket) {
@@ -111,7 +111,7 @@ function agregarTicketsDetalle(esEdicion) {
 
                 // Iteramos sobre los docnum vinculados
 
-                for (var i = 0; i < valoresVinculados.length; i++) {
+                for (var i =0; i < valoresVinculados.length; i++) {
 
                     var docnum = valoresVinculados[i].trim();
 
@@ -136,7 +136,7 @@ function agregarTicketsDetalle(esEdicion) {
 
                     var tablaDetallesAgregados = $('#Detalles');
 
-                    if (tablaDetallesAgregados.find('tbody tr').length > 0) {
+                    if (tablaDetallesAgregados.find('tbody tr').length >0) {
 
                         // Recorrer todas las filas de la tabla
 
@@ -189,10 +189,12 @@ function agregarTicketsDetalle(esEdicion) {
 
             var direcciones = tr.find('input[id^="Direcciones"]').val();
             var montoFinal = tr.find('input[id^="MontoFinal"]').val();
+            // Obtener el valor actual del input Envio (costo antiguo)
             var envio = tr.find('input[id^="Envio"]').val();
+            // Obtener el valor actual del input EnvioAgencia (nuevo campo)
+            var envioAgencia = tr.find('input[id^="EnvioAgencia"]').val();
 
-
-            agregarItem(docEntry, docNum, cardName, guias, conducyPlaca, cajas, obs, direcciones, montoFinal, envio, esEdicion);
+            agregarItem(docEntry, docNum, cardName, guias, conducyPlaca, cajas, obs, direcciones, montoFinal, envio, envioAgencia, esEdicion);
 
         });
 
@@ -207,7 +209,7 @@ function agregarTicketsDetalle(esEdicion) {
 
             scrollTop: $('#divDetalleRuta').offset().top
 
-        }, 1000);
+        },1000);
 
 
     }
@@ -226,7 +228,7 @@ function agregarTicketsDetalle(esEdicion) {
 
 // Función unificada que agrega un item al detalle principal
 
-function agregarItem(docEntry, docNum, cardName, guias, conducyPlaca, cajas, obs, direcciones, montoFinal, envio, esEdicion) {
+function agregarItem(docEntry, docNum, cardName, guias, conducyPlaca, cajas, obs, direcciones, montoFinal, envio, envioAgencia, esEdicion) {
 
     // Verificar si el campo ya existe
     if (validarUnicoCampoTabla(docEntry, "Detalles") == false) {
@@ -253,9 +255,9 @@ function agregarItem(docEntry, docNum, cardName, guias, conducyPlaca, cajas, obs
 
         var fila = "<tr>" +
 
-            "<td class='text-center border-end border-start'><input name='DetRRU0[" + contDet + "].Linea' type='text' value='" + (contDet + 1) + "' style='width:40px' class='form-control' readonly/></td>" +
+            "<td class='text-center border-end border-start'><input name='DetRRU0[" + contDet + "].Linea' type='text' value='" + (contDet +1) + "' style='width:40px' class='form-control' readonly/></td>" +
 
-            "<td hidden><input name='DetRRU0[" + contDet + "].DocEntryTicket' id='DocEntryTDet" + contDet + "' type='text' value='" + docEntry + "'  class='form-control'  readonly/></td>" +
+            "<td hidden><input name='DetRRU0[" + contDet + "].DocEntryTicket' id='DocEntryTDet" + contDet + "' type='text' value='" + docEntry + "' class='form-control' readonly/></td>" +
 
             "<td class='text-center border-end'><input name='DetRRU0[" + contDet + "].DocNumTicket' id='DocNumTDet" + contDet + "' type='text' value='" + docNum + "' style='width:110px' class='form-control' readonly/></td>" +
 
@@ -273,7 +275,11 @@ function agregarItem(docEntry, docNum, cardName, guias, conducyPlaca, cajas, obs
 
             "<td class='text-center border-end'><input name='DetRRU0[" + contDet + "].MontoFinal' type='text' value='" + montoFinal + "' class='form-control' readonly/></td>" +
 
+            // Envio (costo antiguo)
             "<td class='text-center border-end'><input name='DetRRU0[" + contDet + "].Envio' type='text' value='" + envio + "' class='form-control' readonly/></td>" +
+
+            // EnvioAgencia (nuevo campo)
+            "<td class='text-center border-end'><input name='DetRRU0[" + contDet + "].EnvioAgencia' type='text' value='" + envioAgencia + "' class='form-control' readonly/></td>" +
 
             "<td class='text-center border-end'><a href='SeguimientoDeTicket?DocEntry=" + docEntry + "' target='_blank' style='cursor:pointer' class='btn btn-outline-primary' onclick=window.open(this.href,this.target,'width=500,height=350,top=120,left=100,toolbar=no,location=no,status=no,menubar=no');><i class='bi bi-truck'></i></a></td>";
 
@@ -292,9 +298,9 @@ function agregarItem(docEntry, docNum, cardName, guias, conducyPlaca, cajas, obs
             }
 
 
-            fila += "<td colspan='2' class='text-center border-end' id='acc" + (contDet + 1) + "'>" +
+            fila += "<td colspan='2' class='text-center border-end' id='acc" + (contDet +1) + "'>" +
                 "<div class='d-flex justify-content-center gap-2'>" +
-                "<button type='button' class='btn btn-outline-success d-flex align-items-center gap-1' onclick='grabarLineaTabla(" + docEntryOrru + "," + (contDet + 1) + "," + docEntry + ")'><i class='bi bi-lock'></i> <span>Grabar</span></button>" +
+                "<button type='button' class='btn btn-outline-success d-flex align-items-center gap-1' onclick='grabarLineaTabla(" + docEntryOrru + "," + (contDet +1) + "," + docEntry + ")'><i class='bi bi-lock'></i> <span>Grabar</span></button>" +
                 "<button type='button' class='btn btn-outline-danger d-flex align-items-center gap-1' onclick='borrarLineaTabla(this)'><i class='bi bi-trash'></i></button>" +
                 "</div>" +
                 "</td>";
@@ -409,6 +415,10 @@ function borrarLineaTabla(dom) {
                 iden1 = $(htm).find("td:eq(10) input");
 
                 iden1.attr("name", "DetRRU0[" + i + "].Envio");
+
+                iden1 = $(htm).find("td:eq(11) input");
+
+                iden1.attr("name", "DetRRU0[" + i + "].EnvioAgencia");
 
                 i = i + 1;
 
@@ -787,6 +797,7 @@ function listarTickets(estado) {
 
                     var msjNoEnviados = "";
 
+
                     response.Resultado.forEach(function (item, index) {
                         var fila = $('<tr>');
                         fila.attr('id', 'fila' + index);
@@ -807,6 +818,7 @@ function listarTickets(estado) {
                         fila.append('<td hidden><input id="Direcciones' + index + '" type="text" value="' + (item.DirDestino != null ? item.DirDestino : '') + '" readonly hidden/>' + (item.DirDestino != null ? item.DirDestino : '') + '</td>');
                         fila.append('<td class="text-center border-end"><input id="MontoFinal' + index + '" type="text" value="' + item.MontoFinal.toFixed(2) + '" readonly hidden/>' + item.MontoFinal.toFixed(2) + '</td>');
                         fila.append('<td hidden><input id="Envio' + index + '" type="text" value="' + item.GastoEnvio.toFixed(2) + '" readonly hidden/>' + item.GastoEnvio.toFixed(2) + '</td>');
+                        fila.append('<td class="text-center border-end"><input id="EnvioAgencia' + index + '" type="text" value="' + (item.EnvioAgencia != null ? item.EnvioAgencia : '') + '" readonly hidden/>' + (item.EnvioAgencia != null ? item.EnvioAgencia : '') + '</td>');
                         fila.append('<td class="text-center border-end"><input id="TipoVenta' + index + '" type="text" value="' + item.TipoVenta + '" readonly hidden/>' + item.TipoVenta + '</td>');
                         fila.append('<td class="text-center border-end">' + formatearFechaHora(item.TiempoEntrega) + '</td>');
                         fila.append('<td class="text-center border-end">' + (item.FechaPago != null ? item.FechaPago + '<br>' + item.HoraPago : 'PENDIENTE') + '</td>');
@@ -894,6 +906,8 @@ function listarTickets(estado) {
                         fila.append('<td hidden><input id="Direcciones' + index + '" type="text" value="' + (item.DirDestino != null ? item.DirDestino : '') + '" readonly hidden/>' + (item.DirDestino != null ? item.DirDestino : '') + '</td>');
                         fila.append('<td class="text-center border-end"><input id="MontoFinal' + index + '" type="text" value="' + item.MontoFinal.toFixed(2) + '" readonly hidden/>' + item.MontoFinal.toFixed(2) + '</td>');
                         fila.append('<td hidden><input id="Envio' + index + '" type="text" value="' + item.GastoEnvio.toFixed(2) + '" readonly hidden/>' + item.GastoEnvio.toFixed(2) + '</td>');
+                        fila.append('<td class="text-center border-end"><input id="EnvioAgencia' + index + '" type="text" value="' + (item.EnvioAgencia != null ? item.EnvioAgencia : '') + '" readonly hidden/>' + (item.EnvioAgencia != null ? item.EnvioAgencia : '') + '</td>');
+
                         fila.append('<td class="text-center border-end"><input id="TipoVenta' + index + '" type="text" value="' + item.TipoVenta + '" readonly hidden/>' + item.TipoVenta + '</td>');
                         fila.append('<td class="text-center border-end">' + formatearFechaHora(item.TiempoEntrega) + '</td>');
                         fila.append('<td class="text-center border-end">' + (item.FechaPago != null ? item.FechaPago + '<br>' + item.HoraPago : 'PENDIENTE') + '</td>');
@@ -917,6 +931,7 @@ function listarTickets(estado) {
         }
     }
 }
+
 
 function seleccionarVerif() {
     let chk = $('#chk_verifTodos').is(':checked');

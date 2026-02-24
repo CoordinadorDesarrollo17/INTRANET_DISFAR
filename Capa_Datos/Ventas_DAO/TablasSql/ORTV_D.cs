@@ -2702,7 +2702,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
             }
             return lista;
         }
-        public List<ORTV_E> ListarTicketsParaRepartos(ORTV_E filtro, string[] estados, out int cantidadTicketsNoEnviados, string departamento = null, string provincia = null, string distrito = null, string tipoEnvio = null)
+        public List<ORTV_E> ListarTicketsParaRepartos(ORTV_E   filtro, string[] estados, out int cantidadTicketsNoEnviados, string departamento = null, string provincia = null, string distrito = null, string tipoEnvio = null)
         {
             List<ORTV_E> lista = new List<ORTV_E>(); cantidadTicketsNoEnviados = 0;
             int cantidadElementos = estados.Count();
@@ -2749,7 +2749,13 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                     if (!dr.IsDBNull(15)) o.FechaPago = dr.GetString(15);
                     if (!dr.IsDBNull(16)) o.HoraPago = dr.GetString(16);
                     if (!dr.IsDBNull(17)) o.TiempoEntrega = dr.GetDateTime(17);
-                    if (!dr.IsDBNull(18)) { o.Vinculados = dr.GetString(18); }
+
+                    // ESTA ES LA NUEVA POSICIÓN
+                    if (!dr.IsDBNull(18)) { o.EnvioAgencia = dr.GetString(18); }
+
+                    // Vinculados ahora pasa a ser el 19
+                    if (!dr.IsDBNull(19)) { o.Vinculados = dr.GetString(19); }
+
                     if (o.LugarDestino == "Domicilio")
                     {
                         o.Guias = GuiasTicket(o.DocEntry);
@@ -2773,6 +2779,16 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                             o.Guias = owtrD.GuiasTicketTransferencia(o.DocNum, "01", o.CardCode);
                             o.ConducYPlaca = owtrD.ConducyPlacaTicketTransferencia(o.DocNum, "01", o.CardCode);
                         }
+                    }
+                    try
+                    {
+                        int colIndex = dr.GetOrdinal("EnvioAgencia"); // El nombre debe ser EXACTO al del SQL
+                        if (!dr.IsDBNull(colIndex)) { o.EnvioAgencia = dr.GetString(colIndex); }
+                    }
+                    catch (IndexOutOfRangeException)
+                    {
+                        // Esto te avisará si el SP no está devolviendo la columna "EnvioAgencia"
+                        o.EnvioAgencia = "Columna no encontrada en SP";
                     }
                     lista.Add(o);
                 }

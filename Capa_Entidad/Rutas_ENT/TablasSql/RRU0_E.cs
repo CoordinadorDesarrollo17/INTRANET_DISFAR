@@ -50,9 +50,10 @@ namespace Capa_Entidad.Rutas_ENT.TablasSql
 		public string TipoPagoTC { get; set; }					// Tickets a cuadrar
 		public decimal MontoRecibidoEfectivo { get; set; }		// Tickets a cuadrar
 		public int IdOTC { get; set; }							// Tickets a cuadrar
-		public decimal MontoRecibidoDeposito { get; set; }			// Tickets a cuadrar
+		public decimal MontoRecibidoDeposito { get; set; }          // Tickets a cuadrar
+        public string EnvioAgencia { get; set; }
 
-		public static List<RRU0_E> listaFinalDetalles(List<RRU0_E> dt)
+        public static List<RRU0_E> listaFinalDetalles(List<RRU0_E> dt)
 		{
 			List<RRU0_E> lista = new List<RRU0_E>();
 			int linea = 1;
@@ -101,6 +102,7 @@ namespace Capa_Entidad.Rutas_ENT.TablasSql
 			tb.Columns.Add("FechaEntrega", typeof(string));
 			tb.Columns.Add("HoraEntrega", typeof(string));
             tb.Columns.Add("ConducYPlaca", typeof(string));
+			tb.Columns.Add("EnvioAgencia", typeof(string));
 
 
             foreach (RRU0_E reg in listaFinalDetalles(dt))
@@ -130,7 +132,8 @@ namespace Capa_Entidad.Rutas_ENT.TablasSql
 					reg.OpEntrega, 
 					reg.FechaEntrega,
 					reg.HoraEntrega, 
-					reg.ConducYPlaca);
+					reg.ConducYPlaca,
+					reg.EnvioAgencia);
 			}
 			return tb;
 		}
