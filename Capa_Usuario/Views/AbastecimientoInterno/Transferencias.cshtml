@@ -1171,20 +1171,20 @@
 		}
 		function calcularCantidadMasterSaldo(valorSelectMaster, data) {
 			if (isNaN(Number(valorSelectMaster)) || Number(valorSelectMaster) === 0) {
-				document.querySelector(`#${data.idcantmaster}`).value = 0
-				document.querySelector(`#${data.idcantsaldo}`).value = 0
+                document.querySelector('[id="' + data.idcantmaster + '"]').value = 0;
+                document.querySelector('[id="' + data.idcantsaldo + '"]').value = 0;
 				Swal.fire("La unidad MASTER seleccionada no es válida.")
 				return;
 			}
-			let quantityUnidades = document.querySelector(`#${data.idquantityunidades}`).value
+            let quantityUnidades = document.querySelector('[id="' + data.idquantityunidades + '"]').value;
 			if (Number(quantityUnidades) > Number(data.cantidadtotal)) {
 				Swal.fire('La cantidad ingresada no debe superar el stock de unidades.')
 				return;
 			}
 			let cantidadMaster = Math.floor(Number(quantityUnidades) / Number(valorSelectMaster))
 			let cantidadSaldo = Number(quantityUnidades) % Number(valorSelectMaster)
-			document.querySelector(`#${data.idcantmaster}`).value = cantidadMaster
-			document.querySelector(`#${data.idcantsaldo}`).value = cantidadSaldo
+            document.querySelector('[id="' + data.idcantmaster + '"]').value = cantidadMaster;
+            document.querySelector('[id="' + data.idcantsaldo + '"]').value = cantidadSaldo;
 		}
 		document.addEventListener('DOMContentLoaded', function () {
             permitirSoloNumeros('DocNum');
