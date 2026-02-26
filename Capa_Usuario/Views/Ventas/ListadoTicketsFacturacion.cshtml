@@ -569,41 +569,29 @@
         $('#modalImpresion').modal('show');
     }
 
-    /// 🔹 Función para imprimir el documento seleccionado
-    function imprimirDocumento(tipo) {
-        // Cerrar el modal
-        $('#modalImpresion').modal('hide');
-
-        // Mostrar mensaje de carga
+    function registrarImpresion(docEntry, tipo) {
         Swal.fire({
             title: 'Procesando...',
-            text: 'Registrando impresión de ' + tipo,
+            text: 'Registrando impresión de ' + (tipo === 'guia' ? 'guía' : 'factura'),
             allowOutsideClick: false,
             didOpen: () => {
                 Swal.showLoading();
             }
         });
-
-        // ✅ CORRECCIÓN: Solo enviar "guia" cuando sea guía, vacío cuando sea factura
-        var tipoDocumento = (tipo === 'guia') ? 'guia' : '';
-
-        // Llamar al método del servidor
         $.ajax({
             url: '/Ventas/RegistrarImpresion',
             type: 'POST',
             data: {
-                docEntry: docEntryImpresion,
+                docEntry: docEntry,
                 area: 'Facturacion',
-                tipoDocumento: tipoDocumento  // ✅ "guia" o "" (vacío)
+                tipoDocumento: (tipo === 'guia' ? 'guia' : '')
             },
             dataType: 'json',
             success: function (response) {
                 Swal.close();
-
                 var mensaje = tipo === 'guia'
                     ? 'La impresión de la guía ha sido registrada correctamente'
                     : 'La impresión de la factura ha sido registrada correctamente';
-
                 Swal.fire({
                     icon: 'success',
                     title: tipo === 'guia' ? 'Guía registrada' : 'Factura registrada',
@@ -913,20 +901,34 @@
             <tbody class="text-dark">
                 @foreach (var item in Model)
                 {
+                    bool facturaImpresa = (item.TipoImpresion == 1 || item.TipoImpresion == 3);
+                    bool guiaImpresa = (item.TipoImpresion == 2 || item.TipoImpresion == 3);
+
                     string style = "";
                     string styleImpreso = "";
                     string styleEmitirGuias = "";
 
-                    if (item.TipoImpresion > 0)
+                    // Si SOLO está la Factura (1) -> Fila Azul
+                    if (item.TipoImpresion == 1)
                     {
-                        if (item.TipoImpresion == 2) // Guía
-                        {
-                            styleImpreso = "bg-pink text-white";
-                        }
-                        else if (item.TipoImpresion == 1) // Factura
-                        {
-                            styleImpreso = "bg-skyblue text-white";
-                        }
+                        styleImpreso = "bg-skyblue text-white";
+                    }
+                    // Si SOLO está la Guía (2) -> Fila Rosada
+                    else if (item.TipoImpresion == 2)
+                    {
+                        styleImpreso = "bg-pink text-white"; // Usa tu clase CSS real para rosado
+                    }
+                    // Si AMBOS están impresos (3) -> TÚ DECIDES QUÉ COLOR TENDRÁ LA FILA
+                    else if (item.TipoImpresion == 3)
+                    {
+                        // OPCIÓN A: Que la fila se vuelva Verde (Recomendado para indicar "Completado")
+                        //styleImpreso = "bg-success text-white";
+
+                        // OPCIÓN B: Que se quede Azul (Si prefieres que el azul domine)
+                         styleImpreso = "bg-skyblue text-white"; 
+
+                        // OPCIÓN C: Que vuelva a ser Blanca (Si quieres que solo los botones indiquen el estado)
+                        // styleImpreso = ""; 
                     }
 
                     if (item.Estado.Equals("ANULADO") || item.Estado.Equals("CANCELADO"))
@@ -1174,9 +1176,23 @@
                             }
                         </td>
                         <td style="@styleEmitirGuias">
-                            <a href="#" class="btn btn-light" data-toggle="tooltip" data-placement="top" title="Imprimir" onclick="abrirModalImpresion(@item.DocEntry, '@item.Estado', '@item.LugarDestino');">
-                                <i class="icon-printer text-cobefar"></i>
-                            </a>
+                            <div style="display: flex; gap: 8px; justify-content: center;">
+
+                                <!-- Botón Factura -->
+                                <a href="#" class="btn @(facturaImpresa ? "btn-dark" : "btn-light")"
+                                   data-toggle="tooltip" data-placement="top" title="Imprimir Factura"
+                                   onclick="registrarImpresion(@item.DocEntry, 'factura');">
+                                    <i class="icon-printer @(facturaImpresa ? "text-light" : "text-cobefar")"></i>
+                                </a>
+
+                                <!-- Botón Guía -->
+                                <a href="#" class="btn @(guiaImpresa ? "btn-dark" : "btn-light")"
+                                   data-toggle="tooltip" data-placement="top" title="Imprimir Guía de Remisión"
+                                   onclick="registrarImpresion(@item.DocEntry, 'guia');">
+                                    <i class="icon-printer" style="color: @(guiaImpresa ? "#fff" : "#e75480");"></i>
+                                </a>
+
+                            </div>
                         </td>
                         <td style="@styleEmitirGuias">
                             <a href="#" class="btn btn-light" data-toggle="tooltip" data-placement="top" title="Observación" onclick="cargarObservacion(@item.DocEntry); $('#modalObservacion_@item.DocEntry').modal('show'); return false;">
@@ -1243,30 +1259,3 @@
 </div>
 
 
-<!-- Modal de Impresión -->
-<div id="modalImpresion" class="modal fade" tabindex="-1" role="dialog">
-    <div class="modal-dialog modal-dialog-centered" role="document">
-        <div class="modal-content">
-            <div class="modal-header bg-cobefar text-white">
-                <h5 class="modal-title"><strong>Seleccionar Tipo de Impresión</strong></h5>
-                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body text-center">
-                <p class="mb-4">¿Qué documento desea imprimir?</p>
-                <div class="btn-group-vertical w-100" role="group">
-                    <button type="button" class="btn btn-outline-primary btn-lg mb-2" onclick="imprimirDocumento('guia')">
-                        <i class="icon icon-file-text2"></i> Imprimir Guía
-                    </button>
-                    <button type="button" class="btn btn-outline-success btn-lg" onclick="imprimirDocumento('factura')">
-                        <i class="icon icon-file-text2"></i> Imprimir Factura
-                    </button>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
-            </div>
-        </div>
-    </div>
-</div>
