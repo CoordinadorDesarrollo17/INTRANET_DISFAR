@@ -1185,12 +1185,15 @@
                                     <i class="icon-printer @(facturaImpresa ? "text-light" : "text-cobefar")"></i>
                                 </a>
 
-                                <!-- Botón Guía -->
-                                <a href="#" class="btn @(guiaImpresa ? "btn-dark" : "btn-light")"
-                                   data-toggle="tooltip" data-placement="top" title="Imprimir Guía de Remisión"
-                                   onclick="registrarImpresion(@item.DocEntry, 'guia');">
-                                    <i class="icon-printer" style="color: @(guiaImpresa ? "#fff" : "#e75480");"></i>
-                                </a>
+                                <!-- Botón Guía solo si EstadoFacturacion es FACTURADO -->
+                                @if (item.EstadoFacturacion == "FACTURADO")
+                                {
+                                    <a href="#" class="btn @(guiaImpresa ? "btn-dark" : "btn-light")"
+                                       data-toggle="tooltip" data-placement="top" title="Imprimir Guía de Remisión"
+                                       onclick="registrarImpresion(@item.DocEntry, 'guia');">
+                                        <i class="icon-printer" style="color: @(guiaImpresa ? "#fff" : "#e75480");"></i>
+                                    </a>
+                                }
 
                             </div>
                         </td>
@@ -1244,6 +1247,44 @@
 <!-- Modal de documentos contables -->
 <div id="comprobantesModal" class="modal fade" tabindex="-1" role="dialog">
     <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
+        Actualmente tengo una tabla de auditoría llamada CC_ORTV_pint, donde se registra cada impresión realizada. Campos principales:
+        DocEntryTicket
+        FechaHoraImpresion
+        Id_Usuario
+        UsuarioImpresion
+        En el campo Id_Usuario se guardan valores textuales como:
+        'Facturacion'
+        'Facturacion_guia'
+        (pueden existir más en el futuro)
+        Contexto del flujo actual:
+        Existe una primera impresión obligatoria de Factura realizada por el área de Facturación.
+        Después de esa primera impresión, el documento pasa a Operaciones.
+        Solo cuando EstadoFacturacion = 'Facturado' se habilita la opción de Imprimir Guía de Remisión.
+        Operaciones puede imprimir:
+        La factura nuevamente (reimpresión).
+        La guía de remisión.
+        Problema a resolver:
+        En la vista principal (que ya tiene más de 22 columnas) no quiero agregar más columnas visibles. Quiero manejar el estado de impresión únicamente de forma visual, cambiando colores en los botones según los registros existentes en CC_ORTV_pint.
+        La lógica esperada sería:
+        Si existe un registro con Id_Usuario = 'Facturacion' → significa que ya hubo primera impresión de factura.
+        Si existen múltiples registros con Id_Usuario = 'Facturacion' → considerar reimpresión.
+        Si existe un registro con Id_Usuario = 'Facturacion_guia' → guía ya fue impresa.
+        La guía solo puede habilitarse si EstadoFacturacion = 'Facturado'.
+        Necesito analizar:
+        Si puedo reutilizar la lógica actual del backend que ya inserta en CC_ORTV_pint.
+        O si es mejor crear un nuevo método/backend que:
+        Consulte por DocEntryTicket.
+        Determine si existe primera impresión, reimpresión o impresión de guía.
+        Devuelva un estado calculado para pintar dinámicamente los botones.
+        Cómo estructurar la lógica para que:
+        No se rompa el flujo actual.
+        Sea escalable si se agregan nuevos tipos de impresión.
+        Se mantenga trazabilidad real sin agregar columnas visibles en la tabla.
+        Objetivo final:
+        Controlar visualmente:
+        Primera impresión de factura.
+        Reimpresión de factura por Operaciones.
+        Impresión de guía.
         <div class="modal-content">
             <div class="modal-header bg-headerModals text-light">
                 <h5 class="modal-title"><strong>Documentos de ticket</strong></h5>
