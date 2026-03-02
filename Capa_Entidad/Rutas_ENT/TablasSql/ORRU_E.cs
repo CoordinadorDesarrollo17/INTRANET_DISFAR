@@ -228,6 +228,7 @@ namespace Capa_Entidad.Rutas_ENT.TablasSql
         }
         public class RptRutasExcel
         {
+            public string RazonSocial { get; set; }
             public string Guias { get; set; }
             public string Factura { get; set; }
             public int OrdenCompra { get; set; }
