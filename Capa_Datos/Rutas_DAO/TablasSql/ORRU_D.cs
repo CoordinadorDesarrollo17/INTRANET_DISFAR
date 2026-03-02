@@ -1646,7 +1646,8 @@ namespace Capa_Datos.Rutas_DAO.TablasSql
             T0.Cajas,
 	        T1.NombrePer,
 	        T1.DocPer,
-	        T1.TelfPer
+	        T1.TelfPer,
+            T5.CardName
         FROM al.RRU0 T0
         LEFT OUTER JOIN vt.RTV6 T3 ON T3.DocEntry = T0.DocEntryTicket
         LEFT OUTER JOIN vt.RTV3 T4 ON T4.DocEntry = T0.DocEntryTicket
@@ -1657,7 +1658,7 @@ namespace Capa_Datos.Rutas_DAO.TablasSql
             T0.Guias,
             T0.DocNumTicket,
             T5.CardCode,
-            T4.Calle,
+T4.Calle,
             T4.Departamento,
             T4.Provincia,
             T4.Distrito,
@@ -1665,7 +1666,9 @@ namespace Capa_Datos.Rutas_DAO.TablasSql
             T0.Cajas,
 	        T1.NombrePer,
 	        T1.DocPer,
-	        T1.TelfPer
+	        T1.TelfPer,
+T5.CardName        
+
         ";
 
             try
@@ -1691,6 +1694,7 @@ namespace Capa_Datos.Rutas_DAO.TablasSql
                             if (!dr.IsDBNull(8)) item.PersonaRecojo = dr.GetString(8);
                             if (!dr.IsDBNull(9)) item.Documento = dr.GetString(9);
                             if (!dr.IsDBNull(10)) item.Telefono = dr.GetString(10);
+                            if (!dr.IsDBNull(11)) item.RazonSocial = dr.GetString(11);
                             lista.Add(item);
                         }
                     }
