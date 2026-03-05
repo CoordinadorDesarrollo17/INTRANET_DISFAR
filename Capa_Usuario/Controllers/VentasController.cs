@@ -3892,42 +3892,13 @@ namespace Capa_Usuario.Controllers
         }
         //Registra impresion de documentos de un ticket para despacho (centro y arriola)
         [HttpPost]
-        public JsonResult RegistrarImpresion(int docEntry, string area, string tipoDocumento = "")
+        public JsonResult RegistrarImpresion(int docEntry, string area)
         {
-            try
-            {
-                Usuario_E usuarioSesion = (Usuario_E)Session["UsuarioId"];
-                if (usuarioSesion == null) return Json(new { success = false, message = "No hay sesión activa" });
-
-                string nombreCompleto = $"{usuarioSesion.Nombres} {usuarioSesion.Apellidos}";
-                string areaCompleta = string.IsNullOrEmpty(tipoDocumento) ? area : $"{area}_{tipoDocumento}";
-
-                ORTV_N ortvN = new ORTV_N();
-                int resultado = ortvN.RegistrarImpresionTicket(docEntry, nombreCompleto, areaCompleta);
-
-                // --- INICIO DE LA MEJORA ---
-                var ticket = ortvN.ObtenerDatosCompletosTicket(docEntry);
-                int estadoActual = ticket.TipoImpresion; // Leemos qué estado tiene antes de modificar
-
-                if (areaCompleta == "Facturacion")
-                {
-                    // Si ya tenía la Guía (2), pasa a tener Ambos (3). Si no, es Solo Factura (1).
-                    ticket.TipoImpresion = (estadoActual == 2 || estadoActual == 3) ? 3 : 1;
-                }
-                else if (areaCompleta == "Facturacion_guia")
-                {
-                    // Si ya tenía la Factura (1), pasa a tener Ambos (3). Si no, es Solo Guía (2).
-                    ticket.TipoImpresion = (estadoActual == 1 || estadoActual == 3) ? 3 : 2;
-                }
-                ortvN.Editar(docEntry, ticket); // Guarda el cambio
-                                                // --- FIN DE LA MEJORA ---
-
-                return Json(new { success = true, message = "Impresión registrada correctamente", tipoDocumento = tipoDocumento });
-            }
-            catch (Exception ex)
-            {
-                return Json(new { success = false, message = ex.Message });
-            }
+            Usuario_E user = (Usuario_E)Session["UsuarioId"];
+            var operario = $"{user.Nombres} {user.Apellidos}";
+            ORTV_N ortvN = new ORTV_N();
+            var result = ortvN.RegistrarImpresionTicket(docEntry, operario, area);
+            return Json(new { Datos = result });
         }
         public void PreliminarLayoutOV_Ticket(int docEntry)
         {

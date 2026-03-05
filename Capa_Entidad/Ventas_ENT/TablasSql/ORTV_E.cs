@@ -96,7 +96,8 @@ namespace Capa_Entidad.Ventas_ENT.TablasSql
         public string DetOpe { get; set; }
         public decimal PesoTotal { get; set; }
         public int Impreso { get; set; }
-        public int TipoImpresion { get; set; } // 0=No impreso, 1=Factura, 2=Guía        public string OpImpresion { get; set; }
+        public int ImpresoGuia { get; set; }
+        public string OpImpresion { get; set; }
 
         /**** LISTADO TICKETS RECEPCIÓN ****/
         public string HoraRecibir { get; set; }

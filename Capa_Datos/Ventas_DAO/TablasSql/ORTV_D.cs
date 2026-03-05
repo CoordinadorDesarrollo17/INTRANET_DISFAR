@@ -3494,9 +3494,7 @@ AND YEAR(T0.FechaSapTicket) = (SELECT YEAR(GETDATE())) AND ((SELECT  Estado FROM
             queryBuilder.AppendLine("   CASE");
             queryBuilder.AppendLine("       WHEN EXISTS (SELECT 1 FROM vt.CC_ORTV_print WHERE DocEntryTicket = t0.DocEntry AND Id_Usuario IN ('Facturacion', 'Facturacion_guia')) THEN 1 ELSE 0 END AS ExisteEnCC_ORTV_print,");
             queryBuilder.AppendLine("   CASE");
-            queryBuilder.AppendLine("       WHEN (SELECT TOP 1 Id_Usuario FROM vt.CC_ORTV_print WHERE DocEntryTicket = t0.DocEntry ORDER BY FechaHoraImpresion DESC) = 'Facturacion' THEN 1");
-            queryBuilder.AppendLine("       WHEN (SELECT TOP 1 Id_Usuario FROM vt.CC_ORTV_print WHERE DocEntryTicket = t0.DocEntry ORDER BY FechaHoraImpresion DESC) = 'Facturacion_guia' THEN 2");
-            queryBuilder.AppendLine("       ELSE 0 END AS TipoImpresion");
+            queryBuilder.AppendLine("       WHEN EXISTS (SELECT 1 FROM vt.CC_ORTV_print WHERE DocEntryTicket = t0.DocEntry AND Id_Usuario = 'Facturacion') THEN 1 ELSE 0 END AS ExisteEnCC_ORTV_print");
             queryBuilder.AppendLine("FROM vt.ORTV t0");
             if (!string.IsNullOrEmpty(joinObservacion))
                 queryBuilder.AppendLine(joinObservacion);
@@ -3557,7 +3555,7 @@ AND YEAR(T0.FechaSapTicket) = (SELECT YEAR(GETDATE())) AND ((SELECT  Estado FROM
                                 if (EstadoProductoPendiente == "PENDIENTE") { ticket.ProductoPendiente = 1; }
                                 else { ticket.ProductoPendiente = 0; }
                             }
-                            if (!dr.IsDBNull(21)) { ticket.TipoImpresion = dr.GetInt32(21); }
+                            if (!dr.IsDBNull(21)) { ticket.Impreso = dr.GetInt32(20); }
                             ticket.FechaSapTicket = (ticket.FechaSapTicket != null) ? Convert.ToDateTime(ticket.FechaSapTicket).ToString("dd/MM/yyyy") : null;
                             ticket.Det1 = obtenerDet1Ticket(ticket.DocEntry); if (ticket.Det1.Count == 0) { ticket.Det1 = null; }      //Datos de recojo
                             ticket.Det2 = obtenerDet2Ticket(ticket.DocEntry);
@@ -3872,10 +3870,61 @@ AND YEAR(T0.FechaSapTicket) = (SELECT YEAR(GETDATE())) AND ((SELECT  Estado FROM
                     condWhere += t.EnvioAgencia != null ? $" AND EnvioAgencia ='{t.EnvioAgencia}'" : "";
                 }
             }
-            string query = $"SELECT TOP 100 t0.DocEntry, t0.DocNum, t0.CardCode, t0.CardName, t0.Estado,t0.FechaSapTicket, (Select top 1 HoraOperacion from vt.CC_ORTV where DocEntry=t0.DocEntry " +
-                $" and Operacion='REGISTRAR' order by FechaOperacion,HoraOperacion desc ) as 'HoraAbierto',t0.LugarDestino,t0.Flete,t0.Vendedor,t0.EstadoPago,t0.EstadoGasto," +
-                $" T0.PagoEnv,t0.TipoVenta ,t0.EstadoFacturacion,t0.DescuentoNC,t0.TiempoEntrega ,CASE WHEN EXISTS (SELECT * FROM vt.CC_ORTV_print WHERE DocEntryTicket = t0.DocEntry and Id_Usuario = 'DespachoCentroArriola') THEN 1 ELSE 0 END,T0.MontoFinal, " +
-                $" T0.Cajas , T0.Zona, T0.AlmProcedencia FROM vt.ORTV t0  WHERE 1=1 {condWhere} ORDER BY t0.DocNum desc";
+            string query = $@"
+            SELECT TOP 100 
+                t0.DocEntry,
+                t0.DocNum,
+                t0.CardCode,
+                t0.CardName,
+                t0.Estado,
+                t0.FechaSapTicket,
+
+                (SELECT TOP 1 HoraOperacion 
+                    FROM vt.CC_ORTV 
+                    WHERE DocEntry = t0.DocEntry 
+                    AND Operacion = 'REGISTRAR' 
+                    ORDER BY FechaOperacion, HoraOperacion DESC
+                ) AS HoraAbierto,
+
+                t0.LugarDestino,
+                t0.Flete,
+                t0.Vendedor,
+                t0.EstadoPago,
+                t0.EstadoGasto,
+                T0.PagoEnv,
+                t0.TipoVenta,
+                t0.EstadoFacturacion,
+                t0.DescuentoNC,
+                t0.TiempoEntrega,
+
+                CASE 
+                    WHEN EXISTS (
+                        SELECT 1 
+                        FROM vt.CC_ORTV_print 
+                        WHERE DocEntryTicket = t0.DocEntry 
+                        AND Id_Usuario = 'DespachoCentroArriola'
+                    ) 
+                    THEN 1 ELSE 0 
+                END AS Impreso,
+
+                CASE 
+                    WHEN EXISTS (
+                        SELECT 1 
+                        FROM vt.CC_ORTV_print 
+                        WHERE DocEntryTicket = t0.DocEntry 
+                        AND Id_Usuario = 'DespachoCentroArriola_guia'
+                    ) 
+                    THEN 1 ELSE 0 
+                END AS ImpresoGuia,
+
+                T0.MontoFinal,
+                T0.Cajas,
+                T0.Zona,
+                T0.AlmProcedencia
+
+            FROM vt.ORTV t0  
+            WHERE 1=1 {condWhere}
+            ORDER BY t0.DocNum DESC";
             using (SqlConnection cn = new SqlConnection(uti.cadSql))
             {
                 SqlCommand cmd = new SqlCommand(query, cn);
@@ -3906,12 +3955,15 @@ AND YEAR(T0.FechaSapTicket) = (SELECT YEAR(GETDATE())) AND ((SELECT  Estado FROM
                             if (!dr.IsDBNull(15)) { ticket.DescuentoNC = dr.GetDecimal(15); }
                             if (!dr.IsDBNull(16)) { ticket.TiempoEntrega = dr.GetDateTime(16); }
                             if (!dr.IsDBNull(17)) { ticket.Impreso = dr.GetInt32(17); }
-                            if (!dr.IsDBNull(18)) { ticket.MontoFinal = dr.GetDecimal(18); }
-                            if (!dr.IsDBNull(19)) { ticket.Cajas = dr.GetInt32(19); }
-                            if (!dr.IsDBNull(20)) { ticket.Zona = dr.GetString(20); }
-                            if (!dr.IsDBNull(21)) ticket.AlmProcedencia = dr.GetString(21);
+                            if (!dr.IsDBNull(18)) { ticket.ImpresoGuia = dr.GetInt32(18); }
+                            if (!dr.IsDBNull(19)) { ticket.MontoFinal = dr.GetDecimal(19); }
+                            if (!dr.IsDBNull(20)) { ticket.Cajas = dr.GetInt32(20); }
+                            if (!dr.IsDBNull(21)) { ticket.Zona = dr.GetString(21); }
+                            if (!dr.IsDBNull(22)) { ticket.AlmProcedencia = dr.GetString(22); }
 
                             ticket.FechaSapTicket = (ticket.FechaSapTicket != null) ? Convert.ToDateTime(ticket.FechaSapTicket).ToString("dd/MM/yyyy") : null;
+                            ticket.Det3 = obtenerDet3Ticket(ticket.DocEntry);
+
                             lista.Add(ticket);
                         }
                     }

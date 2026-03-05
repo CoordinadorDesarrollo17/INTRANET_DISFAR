@@ -200,7 +200,7 @@
     </nav>
 </div>
 
-<form name="frm" id="frm">
+<form name="frm" id="frm">g
     <div class="border-cabecera-seccion bg-cobefar-degradado-1 pb-2">
         <div class="px-3 pt-3"><h3 class="titulo-seccion">LISTADO TICKETS DE DESPACHO</h3></div>
     </div>
@@ -371,7 +371,8 @@
                     <th class="text-center">
                         Tiempo Entrega
                     </th>
-                    <th class="text-center">ALM. Origen</th>
+                    @*<th class="text-center">ALM. Origen</th>*@
+                    <th>Direccion</th>
                     <th></th>
                     <th></th>
                     <th></th>
@@ -382,10 +383,14 @@
                 @foreach (var item in Model)
                 {
                     string styleImpreso = "";
+
                     if (item.Impreso > 0)
                     {
                         styleImpreso = "bg-skyblue";
-
+                    }
+                    else if (item.ImpresoGuia > 0)
+                    {
+                        styleImpreso = "bg-pink";
                     }
 
                     bool verCheck = false;
@@ -480,7 +485,18 @@
                             }
                         </td>
                         <td class="text-center">@Convert.ToDateTime(item.TiempoEntrega).ToString("dd/MM/yyyy HH:mm:ss")</td>
-                        <td class="text-center">@item.AlmProcedencia</td>
+                        @*<td class="text-center">@item.AlmProcedencia</td>*@
+                        <td>
+                            @if (item.Det3 != null && item.Det3.Count > 0)
+                            {
+                                var distrito = item.Det3[0].Distrito ?? "";
+                                var provincia = item.Det3[0].Provincia ?? "";
+                                var departamento = item.Det3[0].Departamento ?? "";
+                                @(distrito + (string.IsNullOrEmpty(distrito) ? "" : "-") +
+                                provincia + (string.IsNullOrEmpty(provincia) ? "" : "-") +
+                                departamento)
+                            }
+                        </td>
                         <td>
                             @if (condPesar && verBtnPesar)
                             {
@@ -535,6 +551,12 @@
                             {
                                 <a href="#" class="btn  btn-light" data-toggle="tooltip" data-placement="top" title="Imprimir" onclick="registrarImpresion(@item.DocEntry);">
                                     <i class="icon-printer text-orange"></i>
+                                </a>
+
+                                <!-- GUIA -->
+                                <a href="#" class="btn btn-light" data-toggle="tooltip" title="Imprimir Guía"
+                                   onclick="registrarImpresionGuia(@item.DocEntry);">
+                                    <i class="icon-printer text-pink"></i>
                                 </a>
                             }
                         </td>
@@ -806,6 +828,15 @@
 
     }
 
+    function registrarImpresionGuia(DocEntry) {
+        $.ajax({
+            url: '/Ventas/RegistrarImpresion?docEntry=' + DocEntry + '&area=DespachoCentroArriola_guia',
+            type: 'POST',
+            dataType: 'json'
+        }).done(function (response) {
+            location.reload();
+        });
+    }
         // Función para descargar comprobantes contables
     function descargarComprobante(DocEntry, Tipo) {
     const btn = document.querySelector(`[data-docentry="${DocEntry}"][data-tipo="${Tipo}"]`);
