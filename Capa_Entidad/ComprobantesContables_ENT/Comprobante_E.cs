@@ -20,7 +20,6 @@ namespace Capa_Entidad.ComprobantesContables_ENT
         [DisplayName("Fecha Traslado")]
         public string U_BPP_FECINITRA { get; set; }
         public int Impreso { get; set; }
-        public string TipoDocumentoImpreso { get; set; }
         public string Operario { get; set; }
         public string FechaOperación { get; set; }
         public string HoraOperación { get; set; }

@@ -555,61 +555,17 @@
         });
     }
 
-    // 🔹 Variables globales para el modal de impresión
-    var docEntryImpresion = 0;
-    var estadoImpresion = '';
-    var lugarDestinoImpresion = '';
-
-    // 🔹 Función para abrir el modal de impresión
-    function abrirModalImpresion(docEntry, estado, lugarDestino) {
-        docEntryImpresion = docEntry;
-        estadoImpresion = estado;
-        lugarDestinoImpresion = lugarDestino;
-
-        $('#modalImpresion').modal('show');
-    }
-
-    function registrarImpresion(docEntry, tipo) {
-        Swal.fire({
-            title: 'Procesando...',
-            text: 'Registrando impresión de ' + (tipo === 'guia' ? 'guía' : 'factura'),
-            allowOutsideClick: false,
-            didOpen: () => {
-                Swal.showLoading();
-            }
-        });
+    function registrarImpresion(DocEntry) {
         $.ajax({
-            url: '/Ventas/RegistrarImpresion',
+            url: '/Ventas/RegistrarImpresion?docEntry=' + DocEntry + '&area=Facturacion',
             type: 'POST',
-            data: {
-                docEntry: docEntry,
-                area: 'Facturacion',
-                tipoDocumento: (tipo === 'guia' ? 'guia' : '')
-            },
-            dataType: 'json',
-            success: function (response) {
-                Swal.close();
-                var mensaje = tipo === 'guia'
-                    ? 'La impresión de la guía ha sido registrada correctamente'
-                    : 'La impresión de la factura ha sido registrada correctamente';
-                Swal.fire({
-                    icon: 'success',
-                    title: tipo === 'guia' ? 'Guía registrada' : 'Factura registrada',
-                    text: mensaje,
-                    timer: 2000,
-                    showConfirmButton: false
-                }).then(() => {
-                    location.reload();
-                });
-            },
-            error: function (jqXHR, textStatus, errorThrown) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: 'No se pudo registrar la impresión: ' + errorThrown
-                });
-            }
+            dataType: 'json'
+        }).done(function (response) {
+            location.reload();
+        }).fail(function (jqXHR, textStatus, errorThrown) {
+            console.log(jqXHR.status + textStatus + errorThrown);
         });
+
     }
 
     function guardarObservacion(docEntry) {
@@ -882,7 +838,7 @@
                         { <input type="date" id="TiempoEntrega" name="TiempoEntrega" class="form-control-sm border" value="@Html.Raw(DateTime.Today)" onchange="filtrar();" />}
                     </th><!--10-->
                     <th>Persona de recojo </th><!--11-->
-                    <th>Direccion</th><!--12-->
+                    <!--<th>Direccion</th>--><!--12-->
                     <th></th><!--13 Emitir Guías-->
                     <th></th><!--14 Revertir Guías-->
                     <th></th><!--15 Facturar-->
@@ -901,34 +857,13 @@
             <tbody class="text-dark">
                 @foreach (var item in Model)
                 {
-                    bool facturaImpresa = (item.TipoImpresion == 1 || item.TipoImpresion == 3);
-                    bool guiaImpresa = (item.TipoImpresion == 2 || item.TipoImpresion == 3);
-
                     string style = "";
                     string styleImpreso = "";
                     string styleEmitirGuias = "";
-
-                    // Si SOLO está la Factura (1) -> Fila Azul
-                    if (item.TipoImpresion == 1)
+                    
+                    if (item.Impreso > 0)
                     {
-                        styleImpreso = "bg-skyblue text-white";
-                    }
-                    // Si SOLO está la Guía (2) -> Fila Rosada
-                    else if (item.TipoImpresion == 2)
-                    {
-                        styleImpreso = "bg-pink text-white"; // Usa tu clase CSS real para rosado
-                    }
-                    // Si AMBOS están impresos (3) -> TÚ DECIDES QUÉ COLOR TENDRÁ LA FILA
-                    else if (item.TipoImpresion == 3)
-                    {
-                        // OPCIÓN A: Que la fila se vuelva Verde (Recomendado para indicar "Completado")
-                        //styleImpreso = "bg-success text-white";
-
-                        // OPCIÓN B: Que se quede Azul (Si prefieres que el azul domine)
-                         styleImpreso = "bg-skyblue text-white"; 
-
-                        // OPCIÓN C: Que vuelva a ser Blanca (Si quieres que solo los botones indiquen el estado)
-                        // styleImpreso = ""; 
+                        styleImpreso = "bg-skyblue";
                     }
 
                     if (item.Estado.Equals("ANULADO") || item.Estado.Equals("CANCELADO"))
@@ -1045,7 +980,7 @@
                                 }
                             }
                         </td><!--11-->
-                        <td>
+                        @*<td>
                             @if (item.Det3 != null && item.Det3.Count > 0)
                             {
                                 var distrito = item.Det3[0].Distrito ?? "";
@@ -1055,7 +990,7 @@
                                 provincia + (string.IsNullOrEmpty(provincia) ? "" : "-") +
                                 departamento)
                             }
-                        </td>
+                        </td>*@
                         <td style="@styleEmitirGuias">
                             @if (item.hayFinVerificar && item.ProductoPendiente == 0 && item.EstadoFacturacion == "PENDIENTE")
                             {
@@ -1176,26 +1111,9 @@
                             }
                         </td>
                         <td style="@styleEmitirGuias">
-                            <div style="display: flex; gap: 8px; justify-content: center;">
-
-                                <!-- Botón Factura -->
-                                <a href="#" class="btn @(facturaImpresa ? "btn-dark" : "btn-light")"
-                                   data-toggle="tooltip" data-placement="top" title="Imprimir Factura"
-                                   onclick="registrarImpresion(@item.DocEntry, 'factura');">
-                                    <i class="icon-printer @(facturaImpresa ? "text-light" : "text-cobefar")"></i>
-                                </a>
-
-                                <!-- Botón Guía solo si EstadoFacturacion es FACTURADO -->
-                                @if (item.EstadoFacturacion == "FACTURADO")
-                                {
-                                    <a href="#" class="btn @(guiaImpresa ? "btn-dark" : "btn-light")"
-                                       data-toggle="tooltip" data-placement="top" title="Imprimir Guía de Remisión"
-                                       onclick="registrarImpresion(@item.DocEntry, 'guia');">
-                                        <i class="icon-printer" style="color: @(guiaImpresa ? "#fff" : "#e75480");"></i>
-                                    </a>
-                                }
-
-                            </div>
+                            <a href="#" class="btn btn-light" data-toggle="tooltip" data-placement="top" title="Imprimir" onclick="registrarImpresion(@item.DocEntry);">
+                                <i class="icon-printer text-cobefar"></i>
+                            </a>
                         </td>
                         <td style="@styleEmitirGuias">
                             <a href="#" class="btn btn-light" data-toggle="tooltip" data-placement="top" title="Observación" onclick="cargarObservacion(@item.DocEntry); $('#modalObservacion_@item.DocEntry').modal('show'); return false;">
@@ -1260,5 +1178,3 @@
         </div>
     </div>
 </div>
-
-
