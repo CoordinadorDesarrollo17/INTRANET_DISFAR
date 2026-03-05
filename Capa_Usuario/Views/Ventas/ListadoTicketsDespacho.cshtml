@@ -245,8 +245,8 @@
 
     <div class="bg-white bg-form-cobefar">
 
-        <table class="table table-light table-sm table-hover cls-dataTable50" cellspacing="0" width="100%">
-            <thead class="bg-cobefar-6">
+        <table class="table table-light table-sm table-hover cls-dataTable50 no-auto-dt" cellspacing="0" width="100%">
+          <thead class="bg-cobefar-6">
                 <tr>
                     <th class="text-center">
                         @Html.DisplayNameFor(model => model.DocNum)
@@ -325,7 +325,8 @@
                             <option value="CONO ESTE2" @{ if (e != null && e.Zona == "CONO ESTE2") { Write("selected"); }}>CONO ESTE2</option>
                             <option value="CONO CENTRO" @{ if (e != null && e.Zona == "CONO CENTRO") { Write("selected"); }}>CONO CENTRO</option>
                             <option value="PREVENTA" @{ if (e != null && e.Zona == "PREVENTA") { Write("selected"); }}>PREVENTA</option>
-                            <option value="ARRIOLA" @{ if (e != null && e.Zona == "ARRIOLA") { Write("selected"); }}>ARRIOLA</option>
+                            <option value="ARRIOLA" @{
+                              if (e != null && e.Zona == "ARRIOLA") { Write("selected"); }}>ARRIOLA</option>
                             <option value="AGENCIA" @{ if (e != null && e.Zona == "AGENCIA") { Write("selected"); }}>AGENCIA</option>
                             <option value="CONO AGENCIA" @{ if (e != null && e.Zona == "CONO AGENCIA") { Write("selected"); }}>CONO AGENCIA</option>
                             <option value="CONO ARRIOLA" @{ if (e != null && e.Zona == "AGENCIA") { Write("selected"); }}>CONO ARRIOLA</option>
@@ -373,15 +374,18 @@
                     </th>
                     @*<th class="text-center">ALM. Origen</th>*@
                     <th>Direccion</th>
-                    <th></th>
-                    <th></th>
-                    <th></th>
-                    <th></th>
+                    <th>Acciones</th>
+                    <th>Ver Guías</th>
+                    <th>Ver Docs</th>
+                    <th>Seguimiento</th>
+                    <th>Imprimir</th>
                 </tr>
             </thead>
             <tbody>
                 @foreach (var item in Model)
                 {
+                    string styleEmitirGuias = "";
+
                     string styleImpreso = "";
 
                     if (item.Impreso > 0)
@@ -532,6 +536,14 @@
                                 </a>
                             }
                         </td>
+                        <td style="@styleEmitirGuias">
+                            @if (item.EstadoFacturacion == "GRE EMITIDA" || item.EstadoFacturacion == "FACTURADO")
+                            {
+                                <button type="button" class="btn btn-sm btn-light" onclick="abrirModalGuias(@item.DocEntry)" data-toggle="tooltip" data-placement="top" title="Ver Guías">
+                                    <span class="text-orange">Guia</span>
+                                </button>
+                            }
+                        </td>
                         <td>
                             @if (item.EstadoFacturacion != null && (item.EstadoFacturacion.Equals("GRE EMITIDA") || item.EstadoFacturacion.Equals("FACTURADO")))
                             {
@@ -586,6 +598,7 @@
     if ('@ViewBag.Mensaje' != "") {
         Swal.fire('@ViewBag.Mensaje');
     }
+
     function abrirModalDocumentos(DocEntry,estado,lugarDestino) {
         var modalId = "ModalComprobantes" + DocEntry;
 
@@ -881,7 +894,111 @@
             }
         });
     }
+    function buscarGuias(DocEntry, callback) {
+        if (DocEntry !== '') {
+            var parametros = { "DocEntry": DocEntry };
 
+            $.ajax({
+                url: '/Ventas/buscarGuias',
+                data: parametros,
+                dataType: 'json',
+                cache: false,
+                type: 'post'
+            })
+                .done(function (response) {
+                    var tableHtml = "<div class='table-responsive w-100'><table  border='2' style='width: 100 %; border-color:green;text-align:center;' class='w-100'><thead><tr><th class='text-dark text-center'>Correlativo</th><th class='text-dark text-center'>Fecha Cont</th><th class='text-dark text-center'>Fecha Ini Traslado</th></tr></thead><tbody>";
+                    //recorrer response para agregarlo a la table
+                    response.forEach(function (obj) {
+
+                        tableHtml += '<tr><td>' + obj.NumAtCard + '</td><td>' + obj.DocDate + '</td><td>' + obj.FechaTrasl + '</td></tr>';
+                    });
+
+                    tableHtml += '</tbody></table></div>';
+                    // Llama al callback  pasa el Html
+                    callback(tableHtml);
+                });
+        }
+    }
+
+    function abrirModalGuias(DocEntry) {
+        var modalId = "ModalGuias" + DocEntry;
+
+     // Verificar si el modal ya existe
+        if ($("#" + modalId).length > 0) {
+            // Si el modal ya existe, simplemente ábrelo
+            $("#" + modalId).modal('show');
+       return; // Salir de la función
+        }
+
+        // Si el modal no existe, crear uno nuevo
+ buscarGuias(DocEntry, function (htmlTableDocumentos) {
+          var docNum = DocEntry + 2000000000;
+          var modalHtml = "<div class='modal' id='" + modalId + "' tabindex='-1' role='dialog' aria-labelledby='" + modalId + "Label' aria-hidden='true'>" +
+         "<div class='modal-dialog modal-dialog-centered modal-lg' role='document'>" +
+        "<div class='modal-content'>" +
+      "<div class='modal-header bg-cobefar text-white'>" +
+                "<h5 class='modal-title' id='" + modalId + "Label'>GUÍAS DE REMISIÓN <br>NroTicket : " + docNum + "</h5>" +
+      "<button type='button' class='close' data-dismiss='modal' aria-label='Close'>" +
+        "<span aria-hidden='true'>&times;</span>" +
+                "</button>" +
+      "</div>" +
+                "<div class='modal-body'>" +
+        htmlTableDocumentos +
+        "</div>" +
+      "<div class='modal-footer'>" +
+         "<button type='button' class='btn btn-secondary' data-dismiss='modal'>Cerrar</button>" +
+     "</div>" +
+  "</div>" +
+     "</div>" +
+ "</div>";
+       $("body").append(modalHtml);
+
+        // Una vez que se ha agregado el HTML del modal al cuerpo del documento, ábrelo
+      $("#" + modalId).modal('show');
+        });
+}
+
+    // 🔹 FUNCIÓN PARA INICIALIZAR O REINICIALIZAR DATATABLES
+    function inicializarDataTable() {
+        var tabla = $('.cls-dataTable50.no-auto-dt');
+        
+        // Si ya está inicializada, destruirla primero
+ if ($.fn.DataTable.isDataTable(tabla)) {
+        tabla.DataTable().destroy();
+        }
+        
+        // Inicializar DataTables
+        tabla.DataTable({
+   "searching": true,
+            "ordering": false,
+       "scrollX": true,
+ "autoWidth": false,
+            pageLength: 50,
+            lengthMenu: [50, 100, 150],
+       "columnDefs": [
+        { "orderable": false, "targets": "_all" },
+       { "searchable": false, "targets": [14, 15, 16, 17, 18] } // Columnas de botones
+     ],
+            "language": {
+      "info": "Mostrando _START_ a _END_ de _TOTAL_ registros",
+       "infoEmpty": "No hay registros disponibles",
+  "infoFiltered": "(filtrado de _MAX_ registros totales)",
+          "lengthMenu": "Mostrar _MENU_ registros por página",
+ "search": "Buscar:",
+    "loadingRecords": "Cargando...",
+                "processing": "Procesando...",
+      "zeroRecords": "No se encontraron registros"
+            }
+        });
+    }
+
+    // 🔹 INICIALIZAR DATATABLES AL CARGAR LA PÁGINA
+    $(document).ready(function () {
+   setTimeout(function() {
+  inicializarDataTable();
+        }, 100);
+    });
 </script>
+
 
 
