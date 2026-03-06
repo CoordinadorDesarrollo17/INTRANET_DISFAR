@@ -26,6 +26,8 @@ namespace Capa_Entidad.ReportesDigemid_ENT
 
         // Campos extras
         public string ComentarioOrganoleptico { get; set; }
+        public string ItemName { get; set; }
+
 
     }
 }

@@ -15,6 +15,7 @@ namespace Capa_Entidad.ReportesDigemid_ENT
         public string T2_ItemCode { get; set; }
         public string T2_Dscription { get; set; }
         public decimal T3_Quantity { get; set; }
+        public string ItemName { get; set; }
         public string T8_FrgnName { get; set; }
         public string Concentracion { get; set; }
         public string FormaPresentacion { get; set; }
