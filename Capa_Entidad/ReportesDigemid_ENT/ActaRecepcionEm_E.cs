@@ -23,6 +23,7 @@ namespace Capa_Entidad.ReportesDigemid_ENT
         public string NroFactura { get; set; }
         public string Comentario { get; set; }
         public string Comentario2 { get; set; }
+        public string ItemName { get; set; }
 
     }
 }

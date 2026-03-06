@@ -28,5 +28,6 @@ namespace Capa_Entidad.ReportesDigemid_ENT
         public string TaxOfficeAlmacenDestino { get; set; }
         public string AlmacenEnvio { get; set; }
         public string AlmacenDestino { get; set; }
+        public string T8_ItemName { get; set; }
     }
 }
