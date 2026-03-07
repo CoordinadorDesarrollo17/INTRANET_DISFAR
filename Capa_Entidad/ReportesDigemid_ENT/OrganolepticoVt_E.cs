@@ -26,5 +26,6 @@ namespace Capa_Entidad.ReportesDigemid_ENT
         public string CondicionAl { get; set; }
         public string TaxOfficeAlmacen { get; set; }
         public string Almacen { get; set; }
+        public string ItemName { get; set; }
     }
 }
