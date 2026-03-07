@@ -206,7 +206,8 @@ namespace Capa_Datos.ReportesDigemid_DAO
                         AlmOrigen = (hdr.IsDBNull(15)) ? string.Empty : hdr.GetString(15),
                         TaxOfficeOrigen = (hdr.IsDBNull(16)) ? string.Empty : hdr.GetString(16),
                         AlmDestino = (hdr.IsDBNull(17)) ? string.Empty : hdr.GetString(17),
-                        TaxOfficeDestino = (hdr.IsDBNull(18)) ? string.Empty : hdr.GetString(18)
+                        TaxOfficeDestino = (hdr.IsDBNull(18)) ? string.Empty : hdr.GetString(18),
+                        ItemName = (hdr.IsDBNull(19)) ? string.Empty : hdr.GetString(19)
                     };
 
                     lista.Add(a);

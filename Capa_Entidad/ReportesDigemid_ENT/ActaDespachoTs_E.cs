@@ -27,5 +27,7 @@ namespace Capa_Entidad.ReportesDigemid_ENT
         public string TaxOfficeOrigen { get; set; }
         public string CodAlmDestino { get; set; }
         public string TaxOfficeDestino { get; set; }
+        public string ItemName { get; set; }
+
     }
 }
