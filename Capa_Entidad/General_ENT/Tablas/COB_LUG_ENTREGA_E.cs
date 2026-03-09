@@ -8,6 +8,7 @@ namespace Capa_Entidad.General_ENT.Tablas
 {
     public class COB_LUG_ENTREGA_E
     {
+        //COMENTARIO DE PRUEBA
         public string Code { get; set; }
         public string Name { get; set; }
     }
