@@ -50,7 +50,7 @@ namespace Capa_Usuario.Controllers
                     break;
                 case "G":
                     documentos.AddRange(
-                        (obj.LugarDestino.Equals("Domicilio") || obj.LugarDestino.Equals("Agencia"))
+                        (obj.LugarDestino.Equals("LOCAL") || obj.LugarDestino.Equals("EXTERNO"))
                         ? compN.ObtenerEncabezadoGuiasPorEntrega(listDocEntrySap)
                         : compN.ObtenerEncabezadoGuiasTransferencia(obj)
                     );
@@ -228,7 +228,7 @@ namespace Capa_Usuario.Controllers
                     }
 
                     // 2. PDF modificado (agencia)
-                    if (ortvE.LugarDestino != null && ortvE.LugarDestino.Contains("Agencia"))
+                    if (ortvE.LugarDestino != null && ortvE.LugarDestino.Contains("EXTERNO"))
                     {
                         var parametrosGuiaAgencia = new
                         {

@@ -137,10 +137,9 @@
                         <br />
                         <select name="LugarDestino" id="LugarDestino" class="form-control select_filtro-table" onchange="filtrar();">
                             <option value=""></option>
-                            <option value="Arriola" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.LugarDestino == "Arriola") { Write("selected"); } }>Arriola</option>
-                            <option value="Agencia" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.LugarDestino == "Agencia") { Write("selected"); } }>Agencia</option>
-                            <option value="Domicilio" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.LugarDestino == "Domicilio") { Write("selected"); } }>Domicilio</option>
-                            <option value="Centro" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.LugarDestino == "Centro") { Write("selected"); } }>Centro</option>
+                            <option value="LOCAL" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.LugarDestino == "LOCAL") { Write("selected"); } }>LOCAL</option>
+                            <option value="EXTERNO" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.LugarDestino == "EXTERNO") { Write("selected"); } }>EXTERNO</option>
+                           
                         </select>
                     </th>
                     <th class="text-center">
@@ -717,7 +716,7 @@
         }
 
         // Lógica para botones de documentos adicionales
-        if (lugarDestino === "Agencia" && ["PICKEANDO", "VERIFICANDO", "EMPACANDO", "EMPACADO", "PESADO", "PREENVIO", "ENVIADO", "ENTREGADO"].includes(estado)) {
+        if (lugarDestino === "EXTERNO" && ["PICKEANDO", "VERIFICANDO", "EMPACANDO", "EMPACADO", "PESADO", "PREENVIO", "ENVIADO", "ENTREGADO"].includes(estado)) {
 
             html += '<button type="button" onclick="pdfRotulo(\'' + encodeURIComponent(docEntry) + '\')" class="btn btn-light text-danger" data-toggle="tooltip" data-placement="top" title="Descargar Rotulado">';
             html += '<i class="icon icon-file-pdf"><span class="text-dark small"> Rótulo </span></i>';

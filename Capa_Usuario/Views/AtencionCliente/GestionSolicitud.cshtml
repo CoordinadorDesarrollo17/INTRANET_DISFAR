@@ -160,11 +160,8 @@
                             LugarDestino<br />
                             <select name='DetORTV[LugarDestino]' class="form-control-sm border" onchange="filtrar();">
                                 <option value="">Seleccione</option>
-                                <option value="Arriola" @(f.DetORTV != null && f.DetORTV["LugarDestino"] == "Arriola" ? "selected" : "")>Arriola</option>
-                                <option value="Domicilio" @(f.DetORTV != null && f.DetORTV["LugarDestino"] == "Domicilio" ? "selected" : "")>Domicilio</option>
-                                <option value="Centro" @(f.DetORTV != null && f.DetORTV["LugarDestino"] == "Centro" ? "selected" : "")>Centro</option>
-                                <option value="Agencia" @(f.DetORTV != null && f.DetORTV["LugarDestino"] == "Agencia" ? "selected" : "")>Agencia</option>
-                                <option value="Agencia Courier" @(f.DetORTV != null && f.DetORTV["LugarDestino"] == "Agencia Courier" ? "selected" : "")>Agencia Courier</option>
+                                <option value="LOCAL" @(f.DetORTV != null && f.DetORTV["LugarDestino"] == "LOCAL" ? "selected" : "")>LOCAL</option>
+                                <option value="EXTERNO" @(f.DetORTV != null && f.DetORTV["LugarDestino"] == "EXTERNO" ? "selected" : "")>EXTERNO</option>
                             </select>
                         </th>
                         <th class="text-center border-end">

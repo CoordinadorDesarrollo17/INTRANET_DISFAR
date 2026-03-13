@@ -40,15 +40,14 @@ namespace Capa_Datos
 
             // HANA Database Configuration
             this.cadHana = "Server=172.16.55.36:30015;UserName=B1ADMIN;Password=Passw0rd;";
-            this.schemaHana = "\"B1H_COBEFAR_2018\".";
-            //this.schemaHana = "\"BASE_01_06_2025\".";
-            //this.schemaHana = "\"BASE_28_06_2025\".";
+            this.schemaHana = "\"BASE_28_12_2025\".";
 
-            this.BDsql = Environment.GetEnvironmentVariable("NOMBRE_BD_PRINCIPAL", EnvironmentVariableTarget.Machine);
-            this.cadSql = Environment.GetEnvironmentVariable("PROYECTO_INTRANET", EnvironmentVariableTarget.Machine);
-            this.cadSql2 = Environment.GetEnvironmentVariable("BD_Operaciones", EnvironmentVariableTarget.Machine);
-            CadSql3 = Environment.GetEnvironmentVariable("BD_DT", EnvironmentVariableTarget.Machine);
-            CadSql4 = Environment.GetEnvironmentVariable("BD_DOCUMENTOS_REGULATORIOS", EnvironmentVariableTarget.Machine);
+
+            this.BDsql = Environment.GetEnvironmentVariable("NOMBRE_BD_PRINCIPAL_DISFAR", EnvironmentVariableTarget.Machine);
+            this.cadSql = Environment.GetEnvironmentVariable("PROYECTO_INTRANET_DISFAR", EnvironmentVariableTarget.Machine);
+            this.cadSql2 = Environment.GetEnvironmentVariable("BD_Operaciones_DISFAR", EnvironmentVariableTarget.Machine);
+            CadSql3 = Environment.GetEnvironmentVariable("BD_DT_DISFAR", EnvironmentVariableTarget.Machine);
+            CadSql4 = Environment.GetEnvironmentVariable("BD_DOCUMENTOS_REGULATORIOS_DISFAR", EnvironmentVariableTarget.Machine);
             this.serverSophos = Environment.GetEnvironmentVariable("SOPHOS", EnvironmentVariableTarget.Machine);
                                              
             // CORREO 

@@ -108,11 +108,9 @@
             <div class="mx-2">
                 <select name="LugarDestino" id="LugarDestino" class="form-control @bgLugarDestino" onchange="filtrar();">
                     <option value="">LugarDestino</option>
-                    <option value="Arriola" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.LugarDestino == "Arriola") { Write("selected"); } }>Arriola</option>
-                    <option value="Agencia" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.LugarDestino == "Agencia") { Write("selected"); } }>Agencia</option>
-                    <option value="Agencia Courier" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.LugarDestino == "Agencia Courier") { Write("selected"); } }>Agencia Courier</option>
-                    <option value="Domicilio" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.LugarDestino == "Domicilio") { Write("selected"); } }>Domicilio</option>
-                    <option value="Centro" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.LugarDestino == "Centro") { Write("selected"); } }>Centro</option>
+                    <option value="LOCAL" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.LugarDestino == "LOCAL") { Write("selected"); } }>LOCAL</option>
+                    <option value="EXTERNO" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.LugarDestino == "EXTERNO") { Write("selected"); } }>EXTERNO</option>
+               
                 </select>
             </div>
 
@@ -249,7 +247,7 @@
                             </td>
                         }
                         <td>
-                            @if (item.Det1 != null && item.LugarDestino == "Agencia")
+                            @if (item.Det1 != null && item.LugarDestino == "EXTERNO")
                             {
                                 if (item.Det1.Count >= 1)
                                 {

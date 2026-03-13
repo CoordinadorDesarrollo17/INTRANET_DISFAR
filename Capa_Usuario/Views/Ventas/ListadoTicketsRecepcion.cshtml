@@ -110,10 +110,9 @@
                 <div class="col-md-2 col-sm-6 mb-2">
                     <select name="LugarDestino" id="LugarDestino" class="form-control form-control-sm">
                         <option value="">Lugar de Destino</option>
-                        <option value="Arriola" @(ViewBag.Ortv?.LugarDestino == "Arriola" ? "selected" : "")>Arriola</option>
-                        <option value="Agencia" @(ViewBag.Ortv?.LugarDestino == "Agencia" ? "selected" : "")>Agencia</option>
-                        <option value="Domicilio" @(ViewBag.Ortv?.LugarDestino == "Domicilio" ? "selected" : "")>Domicilio</option>
-                        <option value="Centro" @(ViewBag.Ortv?.LugarDestino == "Centro" ? "selected" : "")>Centro</option>
+                        <option value="LOCAL" @(ViewBag.Ortv?.LugarDestino == "LOCAL" ? "selected" : "")>LOCAL</option>
+                        <option value="EXTERNO" @(ViewBag.Ortv?.LugarDestino == "EXTERNO" ? "selected" : "")>EXTERNO</option>
+                  
                     </select>
                 </div>
                 <div class="col-md-3 col-sm-6 mb-2">

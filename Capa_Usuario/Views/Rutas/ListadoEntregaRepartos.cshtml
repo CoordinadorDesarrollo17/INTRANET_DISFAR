@@ -221,7 +221,7 @@
                                                 <td>S/ @m.MontoFinal</td>
                                             </tr>
 
-                                            @if (m.Ticket.LugarDestino == "Domicilio")
+                                            @if (m.Ticket.LugarDestino == "LOCAL")
                                             {
                                                 bool mostrarEntregarLiberar = false;
 
@@ -289,7 +289,7 @@
                                                     }
                                                 }
                                             }
-                                            else if (m.Ticket.LugarDestino == "Arriola" || m.Ticket.LugarDestino == "Centro" || m.Ticket.LugarDestino == "Agencia")
+                                            else if (m.Ticket.LugarDestino == "Arriola" || m.Ticket.LugarDestino == "Centro" || m.Ticket.LugarDestino == "EXTERNO")
                                             {
                                                 bool mostrarEntregar = false, mostrarLiberar = false;
                                                 if (m.Estado.Equals("ENVIADO")) { mostrarEntregar = true; mostrarLiberar = true; }

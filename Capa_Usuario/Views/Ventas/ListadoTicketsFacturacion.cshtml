@@ -110,7 +110,7 @@
 
     function cambiarLugarDestino(selectElement) {
         if (selectElement.value === "true") {
-            $('#LugarDestino').val('Domicilio');
+            $('#LugarDestino').val('LOCAL');
         }
     }
     function activarFiltroObservacion() {
@@ -121,14 +121,14 @@
     function modTabla() {
         var LugarDestino = $("#LugarDestino").val();
         if (LugarDestino != null && LugarDestino != "") {
-            if (LugarDestino === "Agencia" || LugarDestino === "Agencia Courier") {
+            if (LugarDestino === "EXTERNO" || LugarDestino === "Agencia Courier") {
                 //Muestra la persona de recojo
                 $("#tablaFacturacion tr td:nth-child(11)").show();
                 $("#tablaFacturacion th:nth-child(11)").show();
                 //Oculta zona
                 $("#tablaFacturacion tr td:nth-child(5)").hide();
                 $("#tablaFacturacion th:nth-child(5)").hide();
-            } else if (LugarDestino === "Domicilio") {
+            } else if (LugarDestino === "LOCAL") {
                 //Oculta la
                 $("#tablaFacturacion tr td:nth-child(11)").hide();
                 $("#tablaFacturacion th:nth-child(11)").hide();
@@ -720,10 +720,9 @@
             <div class="mx-2">
                 <select name="LugarDestino" id="LugarDestino" class="form-control @bgLugarDestino" onchange="clearZona(); modTabla(); filtrar();">
                     <option value="">LugarDestino</option>
-                    <option value="Arriola" @{ if (ticket != null && ticket.LugarDestino == "Arriola") { Write("selected"); } }>Arriola</option>
-                    <option value="Agencia" @{ if (ticket != null && ticket.LugarDestino == "Agencia") { Write("selected"); } }>Agencia</option>
-                    <option value="Domicilio" @{ if (ticket != null && ticket.LugarDestino == "Domicilio") { Write("selected"); } }>Domicilio</option>
-                    <option value="Centro" @{ if (ticket != null && ticket.LugarDestino == "Centro") { Write("selected"); }}>Centro</option>
+                    <option value="LOCAL" @{ if (ticket != null && ticket.LugarDestino == "LOCAL") { Write("selected"); } }>LOCAL</option>
+                    <option value="EXTERNO" @{ if (ticket != null && ticket.LugarDestino == "EXTERNO") { Write("selected"); } }>EXTERNO</option>
+              
                 </select>
             </div><!--5-->
 

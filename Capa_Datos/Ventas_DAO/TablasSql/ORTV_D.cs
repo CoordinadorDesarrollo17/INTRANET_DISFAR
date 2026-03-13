@@ -579,7 +579,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
         {
             var zonasDestino = new Dictionary<string, string>
             {
-                { "Agencia", "AGENCIA" },
+                { "EXTERNO", "EXTERNO" },
                 { "Centro", "CONO CENTRO" },
                 { "Arriola", "ARRIOLA" },
                 { "Domicilio", zona }
@@ -1065,7 +1065,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
             else if (Estado.Equals("FIN EMPACAR"))
             {
                 TipoMantenimiento = "USEM"; // update seguimiento fin empacado
-                if (ticket.Det5 != null && ticket.Det5.Count >= 1 && ticket.LugarDestino == "Agencia")
+                if (ticket.Det5 != null && ticket.Det5.Count >= 1 && ticket.LugarDestino == "EXTERNO")
                 {
                     ticket.Det5[0].RegEstado = "Entregado";
                 }
@@ -1228,7 +1228,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                 cn.Open();
                 switch (ticket.LugarDestino)
                 {
-                    case "Agencia":
+                    case "EXTERNO":
                     case "Agencia Courier":
                         ZonaTk = "AGENCIA";
                         break;
@@ -1238,7 +1238,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                     case "Arriola":
                         ZonaTk = "ARRIOLA";
                         break;
-                    case "Domicilio":
+                    case "LOCAL":
                         ZonaTk = ticket.Zona;
                         break;
                 }
@@ -1260,7 +1260,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                     cmd.Parameters.AddWithValue("@LugarDestino", ticket.LugarDestino);
                     cmd.Parameters.AddWithValue("@Referencia", ticket.Referencia);
                     cmd.Parameters.AddWithValue("@AlmProcedencia", ticket.AlmProcedencia);
-                    if (ticket.LugarDestino.Equals("Agencia") || ticket.LugarDestino.Equals("Agencia Courier"))
+                    if (ticket.LugarDestino.Equals("EXTERNO") || ticket.LugarDestino.Equals("Agencia Courier"))
                     {
                         cmd.Parameters.AddWithValue("@Agencia", ticket.Agencia);
                         cmd.Parameters.AddWithValue("@EnvioAgencia", ticket.EnvioAgencia);
@@ -1939,7 +1939,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
             string Persona = ""; string Documento = ""; string telefono = "";
             int docEntry = DocEntryTicket(docNum);
             var tk = ObtenerTicketVenta(docEntry);
-            if (tk.LugarDestino.Equals("Domicilio") || tk.LugarDestino.Equals("Agencia"))
+            if (tk.LugarDestino.Equals("LOCAL") || tk.LugarDestino.Equals("EXTERNO"))
             {
                 List<RTV1_E> rtv1 = obtenerDet1Ticket(docEntry);
                 Persona = rtv1[0].NombrePer;
@@ -2177,7 +2177,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                 throw new Exception("Error entrega: El ticket " + ortvE.DocNum + " no está enviado");
             }
             // Para las rutas hacia agencia con regalo siempre pasa a ENTREGADO internamente
-            if (ortvE.LugarDestino == "Agencia" && ortvE.Det5 != null && ortvE.Det5.Count >= 1)
+            if (ortvE.LugarDestino == "EXTERNO" && ortvE.Det5 != null && ortvE.Det5.Count >= 1)
             {
                 if (ortvE.Det5[0].IdReg > 0 && ortvE.Det5[0].RegCant > 0)
                 {
@@ -2756,12 +2756,12 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                     // Vinculados ahora pasa a ser el 19
                     if (!dr.IsDBNull(19)) { o.Vinculados = dr.GetString(19); }
 
-                    if (o.LugarDestino == "Domicilio")
+                    if (o.LugarDestino == "LOCAL")
                     {
                         o.Guias = GuiasTicket(o.DocEntry);
                         o.ConducYPlaca = ConducyPlacaTicket(o.DocEntry); // Conductor y placa
                     }
-                    else if  (o.LugarDestino == "Agencia")
+                    else if  (o.LugarDestino == "EXTERNO")
                     {
                         o.Guias = GuiasTicket(o.DocEntry);
                         o.ConducYPlaca = ConducProvedor(o.DocEntry); 
@@ -3561,7 +3561,7 @@ AND YEAR(T0.FechaSapTicket) = (SELECT YEAR(GETDATE())) AND ((SELECT  Estado FROM
                             ticket.Det2 = obtenerDet2Ticket(ticket.DocEntry);
                             ticket.Det3 = obtenerDet3Ticket(ticket.DocEntry);
 
-                            var validLugarDestino = new List<string> { "Domicilio", "Agencia" };
+                            var validLugarDestino = new List<string> { "LOCAL", "EXTERNO" };
                             if (validLugarDestino.Contains(ticket.LugarDestino))
                             {
                                 //Verificar si la zona es diferente a la de orden de venta.
@@ -3626,7 +3626,7 @@ AND YEAR(T0.FechaSapTicket) = (SELECT YEAR(GETDATE())) AND ((SELECT  Estado FROM
                     {
                         condWhere += $" AND t0.Visible in ('PI','SI') AND t0.Presupuesto in ('NO') AND t0.Estado in ('ABIERTO','RECIBIDO') ";
                         condWhere += t.AlmProcedencia != null ? $" AND ((t0.LugarDestino IN ('Centro', 'Arriola') AND t0.AlmProcedencia IN ('{t.AlmProcedencia}')) " +
-                            $" OR (t0.LugarDestino IN ('Domicilio', 'Agencia') AND (SELECT TOP 1 T2.AlmacenSalida FROM vt.RTV2 T2 WHERE T2.AlmacenSalida NOT IN ('07') AND T2.DocEntry = t0.DocEntry) IN ('{t.AlmProcedencia}')))" : "";
+                            $" OR (t0.LugarDestino IN ('LOCAL', 'EXTERNO') AND (SELECT TOP 1 T2.AlmacenSalida FROM vt.RTV2 T2 WHERE T2.AlmacenSalida NOT IN ('07') AND T2.DocEntry = t0.DocEntry) IN ('{t.AlmProcedencia}')))" : "";
                         orderby = "t0.Estado ,t0.FechaSapTicket desc";
                     }
                 }
@@ -3637,7 +3637,7 @@ AND YEAR(T0.FechaSapTicket) = (SELECT YEAR(GETDATE())) AND ((SELECT  Estado FROM
                         condWhere += $" AND t0.Visible in ('PI','SI') AND t0.Presupuesto in ('NO') ";
                     }
                     condWhere += t.AlmProcedencia != null ? $" AND ((t0.LugarDestino IN ('Centro', 'Arriola') AND t0.AlmProcedencia IN ('{t.AlmProcedencia}')) " +
-                            $" OR (t0.LugarDestino IN ('Domicilio', 'Agencia') AND (SELECT TOP 1 T2.AlmacenSalida FROM vt.RTV2 T2 WHERE T2.AlmacenSalida NOT IN ('07') AND T2.DocEntry = t0.DocEntry) IN ('{t.AlmProcedencia}')))" : "";
+                            $" OR (t0.LugarDestino IN ('LOCAL', 'EXTERNO') AND (SELECT TOP 1 T2.AlmacenSalida FROM vt.RTV2 T2 WHERE T2.AlmacenSalida NOT IN ('07') AND T2.DocEntry = t0.DocEntry) IN ('{t.AlmProcedencia}')))" : "";
                     condWhere += t.DocNum > 0 ? $" AND t0.DocNum like '%{t.DocNum}%'" : "";
                     condWhere += t.FechaSapTicket != null ? $" AND t0.FechaSapTicket='{t.FechaSapTicket}'" : "";
                     condWhere += t.CardName != null ? $" AND t0.CardName like '%{t.CardName}%'" : "";

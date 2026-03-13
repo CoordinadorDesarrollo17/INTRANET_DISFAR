@@ -508,7 +508,7 @@ namespace Capa_Datos.ComprobantesContables_ENT
         public List<Comprobante_E> ObtenerEncabezadoFacturas(int DocEntryOrden, string LugarDestino)
         {
             string query = string.Empty;
-            if ((LugarDestino.Equals("Domicilio") || LugarDestino.Equals("Agencia")) && ObtenerDocTotal(DocEntryOrden) > 0)
+            if ((LugarDestino.Equals("LOCAL") || LugarDestino.Equals("EXTERNO")) && ObtenerDocTotal(DocEntryOrden) > 0)
             {
                 //Consulta las entregas en tabla ODLN -- factura costo 0 no tienen entregas
                 query = $" SELECT DISTINCT 'OINV',T4.\"U_SYP_MDTD\",T4.\"U_SYP_MDSD\",T4.\"U_SYP_MDCD\",to_char(T4.\"DocDate\",'YYYY-MM-DD'),to_char(T4.\"U_BPP_FECINITRA\",'YYYY-MM-DD'),'F',T4.\"DocTotal\",T5.\"Gross\" FROM {uti.schemaHana}ODLN T0 INNER JOIN {uti.schemaHana}DLN1 T1 ON T1.\"DocEntry\" = T0.\"DocEntry\" INNER JOIN {uti.schemaHana}RDR1 T2 ON T2.\"DocEntry\" = T1.\"BaseEntry\" AND T2.\"ObjType\" = T1.\"BaseType\" AND T2.\"LineNum\" = T1.\"BaseLine\" AND T2.\"DocEntry\" = {DocEntryOrden} INNER JOIN {uti.schemaHana}INV1 T3 ON T3.\"BaseEntry\" = T1.\"DocEntry\" AND T3.\"BaseType\" = T1.\"ObjType\" AND T3.\"BaseLine\" = T1.\"LineNum\" INNER JOIN {uti.schemaHana}OINV T4 ON T4.\"DocEntry\" = T3.\"DocEntry\" AND T4.\"CANCELED\" = 'N' LEFT JOIN {uti.schemaHana}INV9 T5 ON  T4.\"DocEntry\" = T5.\"DocEntry\" WHERE T0.\"CANCELED\" = 'N'";

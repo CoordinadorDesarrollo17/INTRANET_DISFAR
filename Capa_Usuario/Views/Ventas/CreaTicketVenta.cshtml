@@ -214,8 +214,8 @@
     function validarLugarDestino(valorIngresado) {
         let arrCampos = [];
         let result = false;
-
-        if (valorIngresado == 'Agencia' || valorIngresado == 'Agencia Courier') {
+        console.log(valorIngresado);
+        if (valorIngresado == 'EXTERNO' || valorIngresado == 'Agencia Courier') {
             arrCampos.push(determinarCamposTab('EnvioAgencia', 'select', 'Seleccionar Modo de envío'));          // Modo de envío
             arrCampos.push(determinarCamposTab('Agencia', 'txt', 'Ingresar Agencia'));                                   // Agencia
             arrCampos.push(determinarCamposTab('DirDestino', 'select', 'Seleccionar DirDestino'));                     // DirDestino
@@ -224,7 +224,7 @@
                 arrCampos.push(determinarCamposTab('DirDestino2', 'txt', 'Seleccionar DirDestino2'));                     // DirDestino2
             }*/
 
-        } else if (valorIngresado == 'Domicilio') {
+        } else if (valorIngresado == 'LOCAL') {
             arrCampos.push(determinarCamposTab('DirDestino', 'select', 'Seleccionar DirDestino'));                     // DirDestino
         }
 
@@ -353,6 +353,7 @@
     function enviarFormulario() {
         var tipoVenta;
         var tipoVentaInput = $('#TipoVentaInput');
+        var tipoVentaInput = $('#TipoVentaInput');
         var tipoVentaSelect = $('#TipoVentaSelect');
         var solicitudesReclamo = $("#SolicitudesReclamoSeleccionadas").val();
         if (window.hayReclamos && (!solicitudesReclamo || solicitudesReclamo.trim() === "")) {
@@ -378,7 +379,7 @@
 
         var mensaje = '<div class="my-swal-text">';
          // Si el lugarDestino es otros diferente a 'Agencia'
-        if (lugarDestino !== 'Agencia') {
+        if (lugarDestino !== 'EXTERNO') {
             mensaje += 'Tipo de Venta: <strong>' + tipoVenta + '</strong><br>Lugar de Destino: <strong>' + lugarDestino + '</strong><br>Coordinaciones: <strong>' + coordinaciones + '</strong><br>T.E: <strong>' + te + '</strong></div>';
         } else {
         // Si el lugarDestino es 'Agencia'
@@ -520,11 +521,8 @@
                             <select name="LugarDestino" id="LugarDestino" class="form-control bg-cobefar text-white"
                                     onchange="muestraCampo(); mostrarOficinas(); mostrarTableTicketsVinculados($('#selectVinculado').val()); validarLugarDestino(this.value); limpiarAlmProcedencia(this.value);">
                                 <option value="">Seleccione</option>
-                                <option value="Arriola" @{ if (Model.LugarDestino == "Arriola") { Write("selected"); } }>Para Arriola</option>
-                                <option value="Agencia" @{ if (Model.LugarDestino == "Agencia") { Write("selected"); } }>Para Agencia</option>
-                                <option value="Domicilio" @{ if (Model.LugarDestino == "Domicilio") { Write("selected"); } }>Para Domicilio</option>
-                                <option value="Centro" @{ if (Model.LugarDestino == "Centro") { Write("selected"); } }>Para Centro</option>
-                                <option value="Agencia Courier" @{ if (Model.LugarDestino == "Agencia Courier") { Write("selected"); } }>Para Agencia Courier</option>
+                                <option value="LOCAL" @{ if (Model.LugarDestino == "LOCAL") { Write("selected"); } }>LOCAL</option>
+                                <option value="EXTERNO" @{ if (Model.LugarDestino == "EXTERNO") { Write("selected"); } }>EXTERNO</option>
                             </select>
                         </div>
 

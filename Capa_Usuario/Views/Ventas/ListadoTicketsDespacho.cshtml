@@ -200,7 +200,7 @@
     </nav>
 </div>
 
-<form name="frm" id="frm">g
+<form name="frm" id="frm">
     <div class="border-cabecera-seccion bg-cobefar-degradado-1 pb-2">
         <div class="px-3 pt-3"><h3 class="titulo-seccion">LISTADO TICKETS DE DESPACHO</h3></div>
     </div>
@@ -305,12 +305,9 @@
                         <br />
                         <select name="LugarDestino" id="LugarDestino" class="form-control select_filtro-table" style="width: 100px" onchange="filtrar();">
                             <option value=""></option>
-                            <option value="Arriola" @{ if (e != null && e.LugarDestino == "Arriola") { Write("selected"); } }>Arriola</option>
-                            <option value="Agencia" @{ if (e != null && e.LugarDestino == "Agencia") { Write("selected"); } }>Agencia</option>
-                            <option value="Domicilio" @{ if (e != null && e.LugarDestino == "Domicilio") { Write("selected"); } }>Domicilio</option>
-                            <option value="Centro" @{ if (e != null && e.LugarDestino == "Centro") { Write("selected"); } }>Centro</option>
-                            <option value="Agencia Courier" @{ if (e != null && e.LugarDestino == "Agencia Courier") { Write("selected"); } }>Agencia Courier</option>
-                        </select>
+                            <option value="LOCAL" @{ if (e != null && e.LugarDestino == "LOCAL") { Write("selected"); } }>LOCAL</option>
+                            <option value="EXTERNO" @{ if (e != null && e.LugarDestino == "EXTERNO") { Write("selected"); } }>EXTERNO</option>
+                     </select>
                     </th>
                     <th class="text-center">
                         Zona
@@ -615,7 +612,7 @@
             html += '</button><br />';
         }
         // Condiciones para el botón de "Descargar Rotulado" y otros documentos
-        if (lugarDestino === "Agencia" && ["PICKEANDO", "VERIFICANDO", "EMPACANDO", "EMPACADO", "PESADO", "PREENVIO", "ENVIADO", "ENTREGADO"].includes(estado)) {
+        if (lugarDestino === "EXTERNO" && ["PICKEANDO", "VERIFICANDO", "EMPACANDO", "EMPACADO", "PESADO", "PREENVIO", "ENVIADO", "ENTREGADO"].includes(estado)) {
             html += '<button type="button" onclick="pdfRotulo(\'' + encodeURIComponent(DocEntry) + '\')" class="btn btn-light text-danger" data-toggle="tooltip" data-placement="top" title="Descargar Rotulado">';
             html += '<i class="icon icon-file-pdf"><span class="text-dark small"> Rótulo </span></i>';
             html += '</button><br />';

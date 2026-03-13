@@ -133,7 +133,7 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
             if (ticket.MontoTotal <= 0) { throw new Exception("No puede registrar un monto total en cero o negativo."); }
             if (ticket.MontoFinal <= 0) { throw new Exception("No se puede registrar un monto final en cero o negativo."); }
             if (string.IsNullOrEmpty(ticket.TiempoEntrega.ToString()) || ticket.TiempoEntrega == null) { throw new Exception("Debe llenar el tiempo de entrega."); }
-            if (!string.IsNullOrEmpty(ticket.Zona) && ticket.Zona.Equals("AGENCIA") && !ticket.LugarDestino.Equals("Agencia")) { throw new Exception("Debe seleccionar Lugar destino Agencia"); }
+            if (!string.IsNullOrEmpty(ticket.Zona) && ticket.Zona.Equals("AGENCIA") && !ticket.LugarDestino.Equals("EXTERNO")) { throw new Exception("Debe seleccionar Lugar destino Externo"); }
             // Busca el regalo correspondiente en la lista de regalos del cliente
             var regaloCliente = regalo.Det.FirstOrDefault(r => r.IdReg == ticket.Det5[0].IdReg);
 
@@ -172,14 +172,14 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
         {
             switch (ticket.LugarDestino)
             {
-                case "Agencia":
+                case "EXTERNO":
                 case "Agencia Courier":
                     ValidarAgencia(ticket);
                     break;
                 case "Arriola":
                     ValidarArriola(ticket);
                     break;
-                case "Domicilio":
+                case "LOCAL":
                     ValidarDomicilio(ticket);
                     break;
                 case "Centro":

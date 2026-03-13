@@ -62,10 +62,10 @@ namespace Capa_Negocio.Rutas_NEG.TablasSql
                 if (string.IsNullOrWhiteSpace(o.VehiculoCod)) { throw new Exception("Debe elegir un vehiculo"); }
                 if (string.IsNullOrWhiteSpace(o.CopilDesc)) { throw new Exception("El documento debe tener copiloto 1"); }
             }
-            if (o.TipoRuta == "VG")
-            {
-                if (string.IsNullOrWhiteSpace(o.ProvDesc)) { throw new Exception("Debe elegir un conductor o proveedor de envío"); }
-            }
+            //if (o.TipoRuta == "VG")
+            //{
+            //    if (string.IsNullOrWhiteSpace(o.ProvDesc)) { throw new Exception("Debe elegir un conductor o proveedor de envío"); }
+            //}
             //Validaciones para cualquier tipo de ruta
             if (o.FechaCont == null) { throw new Exception("No eligió FechaContabilizacion"); }
 
@@ -157,15 +157,15 @@ namespace Capa_Negocio.Rutas_NEG.TablasSql
                         {
                             if (t.Estado != "EMPACADO" && t.Estado != "PESADO") { throw new Exception("Ticket en linea " + d.Linea + " no puede ser agregado, estado diferente a EMPACADO o PESADO"); }
                         }
-                        if (t.LugarDestino == "Agencia" || t.LugarDestino == "Agencia Courier" || t.LugarDestino == "Domicilio")
+                        if (t.LugarDestino == "EXTERNO" || t.LugarDestino == "Agencia Courier" || t.LugarDestino == "LOCAL")
                         {
                             if (t.TipoVenta == "Normal")
                             {
-                                if (t.EstadoPago != "PAGADO") { throw new Exception("El ticket normal de Agencia  o Domicilio debe estar pagado en linea " + d.Linea); }
+                                if (t.EstadoPago != "PAGADO") { throw new Exception("El ticket normal de Externo  o Local debe estar pagado en linea " + d.Linea); }
                             }
                         }
                         //buscar vinculados solo en caso de Domicilio para validar que todos son enviados juntos en la misma hoja de ruta.
-                        if (t.LugarDestino == "Domicilio")
+                        if (t.LugarDestino == "LOCAL")
                         {
                             var listTicketsVinculados = new Capa_Negocio.Ventas_NEG.TablasSql.ORTV_N().BuscarVinculados(t.DocEntry, t.DocNum);
                             foreach (string DocNumVinculado in listTicketsVinculados)

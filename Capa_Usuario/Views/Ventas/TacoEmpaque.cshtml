@@ -12,11 +12,11 @@
     {
         tipoEntrega = "TRANSF - ALMACEN N°1";
     }
-    else if (Model != null && (Model.LugarDestino == "Agencia" || Model.LugarDestino == "Agencia Courier"))
+    else if (Model != null && (Model.LugarDestino == "EXTERNO" || Model.LugarDestino == "Agencia Courier"))
     {
         tipoEntrega = "PRESENCIAL - PROVINCIA";
     }
-    else if (Model != null && Model.LugarDestino == "Domicilio")
+    else if (Model != null && Model.LugarDestino == "LOCAL")
     {
         tipoEntrega = "DOMICILIO";
 

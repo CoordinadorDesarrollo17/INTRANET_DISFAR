@@ -41,12 +41,9 @@
                     Lugar Destino<br />
                     <select id="LugarDestino" name="LugarDestino" class="form-control-sm border" onchange="$('#frm').submit();">
                         <option value="">Seleccione</option>
-                        <option value="Arriola">Arriola</option>
-                        <option value="Agencia">Agencia</option>
-                        <option value="Agencia Courier">Agencia Courier</option>
-                        <option value="Domicilio">Domicilio</option>
-                        <option value="Centro">Centro</option>
-                        <option value="Arriola07">Arriola07</option>
+                        <option value="LOCAL">LOCAL</option>
+                        <option value="EXTERNO">EXTERNO</option>
+                       
                     </select>
                 </th>
                 <th class="text-center">
@@ -144,7 +141,7 @@
                             }
                         </td>
                         <td class="text-center">
-                            @if (item.Estado == "ENTREGADO" && (item.LugarDestino == "Agencia" || item.LugarDestino == "Agencia Courier"))
+                            @if (item.Estado == "ENTREGADO" && (item.LugarDestino == "EXTERNO" || item.LugarDestino == "Agencia Courier"))
                             {
                                 <a href="@Url.Action( "EvidenciaReparto", "Rutas", new { DocEntry = item.DocEntry , TipoRuta="Ventas"} )" class="btn btn-sm btn-primary">
                                     <i title="Evidencia" class="icon-image"></i>

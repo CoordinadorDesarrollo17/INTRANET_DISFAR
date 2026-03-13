@@ -236,10 +236,9 @@ function enviarDatosTicketReemplazo() {
                                     <label for="LugarDestino" class="form-label">Lugar de Destino</label>
                                     <select id="LugarDestino" name="LugarDestino" class="form-select">
                                         <option value=""></option>
-                                        <option value="Arriola" @{ if (a.LugarDestino == "Arriola") { Write("selected"); } }>Arriola</option>
-                                        <option value="Agencia" @{ if (a.LugarDestino == "Agencia") { Write("selected"); } }>Agencia</option>
-                                        <option value="Domicilio" @{ if (a.LugarDestino == "Domicilio") { Write("selected"); } }>Domicilio</option>
-                                        <option value="Centro" @{ if (a.LugarDestino == "Centro") { Write("selected"); } }>Centro</option>
+                                        <option value="LOCAL" @{ if (a.LugarDestino == "LOCAL") { Write("selected"); } }>LOCAL</option>
+                                        <option value="EXTERNO" @{ if (a.LugarDestino == "EXTERNO") { Write("selected"); } }>EXTERNO</option>
+                            
                                     </select>
                                 </div>
                                 <div class="col-md-4">

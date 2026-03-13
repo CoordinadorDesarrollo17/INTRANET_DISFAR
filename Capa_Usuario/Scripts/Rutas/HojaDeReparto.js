@@ -4,6 +4,31 @@
 
     enviarValSelect('AlmOrigenDesc', 'AlmOrigenCod', 'almorigencod');
     enviarValSelect('AlmOrigenDesc', 'AlmOrigenDesc2', 'almorigendesc2');
+
+    $('#DivModalidadTraslado').hide();
+    $('#ProvedorDiv').hide();
+    $('#ModalidadTraslado').change(function () {
+
+        var modalidad = $(this).val();
+
+        if (modalidad == "PVD") { // PRIVADO
+            $('#Conductor').show();
+            $('#PlacaDiv').show();
+            $('#ProvedorDiv').hide();
+        }
+        else if (modalidad == "PCO") { // PUBLICO
+            $('#Conductor').hide();
+            $('#PlacaDiv').hide();
+            $('#ProvedorDiv').show();
+        }
+        else {
+            // Si no selecciona nada
+            $('#Conductor').hide();
+            $('#PlacaDiv').hide();
+            $('#ProvedorDiv').hide();
+        }
+       
+    });
 });
 
 // Función principal para agregar líneas al detalle
@@ -600,9 +625,13 @@ function validarTipoRuta(tipo, estado) {
 
         $('#Copiloto1').hide();
         $('#Copiloto2').hide();
+
+        $('#DivModalidadTraslado').show();
+        
+
         $('#Conductor').hide();
         $('#PlacaDiv').hide();
-
+       
         //limpiar valores de almacen destino
 
         $('#AlmDestinoDesc option[value=" "]').prop('selected', true);
@@ -617,13 +646,14 @@ function validarTipoRuta(tipo, estado) {
 
         if (estado !== "CREADO") {
 
-            $('#Zona option[value="AGENCIA"]').prop('selected', true);
+            $('#Zona option[value="EXTERNO"]').prop('selected', true);
 
         }
 
-        buscarConductorYPlaca('AGENCIA');
+        buscarConductorYPlaca('EXTERNO');
 
     } else {
+        $('#DivModalidadTraslado').hide();
 
         $('#div_almacen-destino').show();
 

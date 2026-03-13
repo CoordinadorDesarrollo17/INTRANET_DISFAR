@@ -1173,14 +1173,14 @@ namespace Capa_Usuario.Controllers
 
             if (TipoRuta == "VD")
             {
-                ortvE.LugarDestino = "Domicilio";
+                ortvE.LugarDestino = "LOCAL";
                 if(Zona == "CONO AGENCIA") { ortvE.LugEntrega = " "; }
                 else
                 ortvE.LugEntrega = AlmOrigenCod;
             }
             else if (TipoRuta == "VG")
             {
-                ortvE.LugarDestino = "Agencia";
+                ortvE.LugarDestino = "EXTERNO";
                 ortvE.LugEntrega = " ";
             }
             else if (TipoRuta == "VC")
@@ -1207,10 +1207,10 @@ namespace Capa_Usuario.Controllers
             string[] estados = { "EMPACADO", "PESADO" };
             ORTV_N ortvN = new ORTV_N();
             ORTV_E ortvE = new ORTV_E { FechaSapTicket = FechaSapTicket, Zona = Zona };
-            if (TipoRuta == "VD") { ortvE.LugarDestino = "Domicilio"; ortvE.LugEntrega = AlmOrigenCod; }
+            if (TipoRuta == "VD") { ortvE.LugarDestino = "LOCAL"; ortvE.LugEntrega = AlmOrigenCod; }
             else if (TipoRuta == "VG")
             {
-                ortvE.LugarDestino = "Agencia";
+                ortvE.LugarDestino = "EXTERNO";
                 ortvE.LugEntrega = "";
             }
             else if (TipoRuta == "AC")
