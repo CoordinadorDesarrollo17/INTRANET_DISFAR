@@ -646,11 +646,11 @@ function validarTipoRuta(tipo, estado) {
 
         if (estado !== "CREADO") {
 
-            $('#Zona option[value="EXTERNO"]').prop('selected', true);
+            $('#Zona option[value="AGENCIA"]').prop('selected', true);
 
         }
 
-        buscarConductorYPlaca('EXTERNO');
+        buscarConductorYPlaca('AGENCIA');
 
     } else {
         $('#DivModalidadTraslado').hide();

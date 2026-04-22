@@ -319,15 +319,17 @@ a {
     }
 
 .bg-cobefar-5 {
-    background-color: #46AD80 !important;
+    background-color: #96d228 !important;
 }
 
 .bg-cobefar-6 {
-    background-color: #006450 !important;
+    font-weight: bold;
+    background-color: #96d228 !important;
 }
 
 .bg-cobefar-degradado-1 {
-    background: linear-gradient(to right, #000 0%,#009879 100%)
+    background-color: #002369;
+    /* background: linear-gradient(to right, #d9d9d9 0%, #002369 100%);*/
 }
 
 .table .thead-cobefar th {
@@ -361,21 +363,21 @@ a {
 /* Botones */
 .btn-cobefar {
     color: #fff; /* Texto blanco */
-    background-color: #26653D; /* Color de fondo */
-    border-color: #26653D; /* Color del borde */
+    background-color: #002369; /* Color de fondo */
+    border-color: #002369; /* Color del borde */
 }
 
     .btn-cobefar:hover {
         color: #fff; /* Texto blanco */
-        background-color: #1f5432; /* Color de fondo más oscuro al pasar el cursor */
-        border-color: #1f5432; /* Color del borde más oscuro al pasar el cursor */
+        background-color: #1a3d85; /* Color de fondo más oscuro al pasar el cursor */
+        border-color: #1a3d85; /* Color del borde más oscuro al pasar el cursor */
     }
 
     .btn-cobefar:focus,
     .btn-cobefar.focus {
         color: #fff;
-        background-color: #1f5432;
-        border-color: #1f5432;
+        background-color: #1a3d85;
+        border-color: #1a3d85;
         box-shadow: 0 0 0 0.25rem rgba(38, 101, 61, 0.5); /* Sombra para enfoque */
     }
 

@@ -579,7 +579,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
         {
             var zonasDestino = new Dictionary<string, string>
             {
-                { "EXTERNO", "EXTERNO" },
+                { "EXTERNO", "AGENCIA" },
                 { "Centro", "CONO CENTRO" },
                 { "Arriola", "ARRIOLA" },
                 { "Domicilio", zona }

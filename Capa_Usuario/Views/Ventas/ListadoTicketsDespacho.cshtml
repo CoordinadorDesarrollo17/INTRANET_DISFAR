@@ -9,7 +9,7 @@
     String almacenUsuario = (String)ViewBag.almacenUsuario;
     int idRolUsuario = (int)ViewBag.idRolUsuario;
 
-    String bgEstadoFacturacion = "bg-cobefar-6 text-white";
+    String bgEstadoFacturacion = "bg-cobefar-5 text-white";
 
     if (e.EstadoFacturacion != "" && e.EstadoFacturacion != null)
     {
@@ -230,7 +230,7 @@
                 <input type="text" name="TiempoEntrega" class="form-control cls-dateTimeDespacho border-success" style="width: 200px" autocomplete="off" placeholder="Abrir calendario..." />
             }
 
-            <button class="btn btn-cobefar">Filtrar Tiempo Entrega</button>
+            <button class="btn @bgEstadoFacturacion">Filtrar Tiempo Entrega</button>
         </div>
 
         <div class="mx-2">
