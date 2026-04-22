@@ -375,9 +375,6 @@
     <Content Include="imagenes\picking.png" />
     <Content Include="imagenes\verificar.png" />
     <Content Include="libman.json" />
-    <None Include="Properties\PublishProfiles\CustomProfile.pubxml" />
-    <None Include="Properties\PublishProfiles\FolderProfile.pubxml" />
-    <None Include="Properties\PublishProfiles\FolderProfile1.pubxml" />
     <Content Include="imagenes\index\cobefar %281%29.jpg" />
     <Content Include="imagenes\index\cobefar %2810%29.jpg" />
     <Content Include="imagenes\index\cobefar %2811%29.jpg" />
@@ -1067,6 +1064,7 @@
     <Folder Include="ComprobantesRepartos\" />
     <Folder Include="EXCEL\" />
     <Folder Include="PDF\" />
+    <Folder Include="Properties\PublishProfiles\" />
   </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Connected Services\" />
