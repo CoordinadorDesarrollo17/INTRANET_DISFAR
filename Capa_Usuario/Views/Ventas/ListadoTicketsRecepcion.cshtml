@@ -80,6 +80,37 @@
         initSlim('#LugarDestino');
         initSlim('#AlmProcedencia');
     });
+
+    function openPreliminar(docEntry) {
+        var url = '@Url.Action("PreliminarLayoutOV_Ticket", "Ventas")' + '?DocEntry=' + docEntry;
+        bloquearBotonesImprimir();
+        window.open(url, '_blank', 'noopener,noreferrer');
+        darVisibilidadTicket(docEntry);
+    }
+
+    function bloquearBotonesImprimir() {
+        document.querySelectorAll('#boton_imprimir').forEach(boton => {
+            boton.setAttribute('disabled', true);
+        });
+    }
+
+    function darVisibilidadTicket(DocEntry) {
+        $.ajax({
+            url: '/Ventas/CambiarVisibilidadTicket?docEntry=' + DocEntry + '&proceso=PI',
+            type: 'POST',
+            dataType: 'json'
+        }).done(function (response) {
+            desbloquearBotonesImprimir();
+        }).fail(function (jqXHR, textStatus, errorThrown) {
+            console.log(jqXHR.status + textStatus + errorThrown);
+        });
+    }
+
+    function desbloquearBotonesImprimir() {
+        document.querySelectorAll('#boton_imprimir').forEach(boton => {
+            boton.removeAttribute('disabled');
+        });
+    }
 </script>
 
 <div class="pt-4">
@@ -112,6 +143,7 @@
                         <option value="">Lugar de Destino</option>
                         <option value="LOCAL" @(ViewBag.Ortv?.LugarDestino == "LOCAL" ? "selected" : "")>LOCAL</option>
                         <option value="EXTERNO" @(ViewBag.Ortv?.LugarDestino == "EXTERNO" ? "selected" : "")>EXTERNO</option>
+                        <option value="RECOJO" @(ViewBag.Ortv?.LugarDestino == "RECOJO" ? "selected" : "")>RECOJO</option>
                   
                     </select>
                 </div>
@@ -186,6 +218,7 @@
                             <th class="bg-danger text-center text-white border-end">Anular<br /> Recibir</th>
                             <th class="text-center text-white border-end">PDF</th>
                             <th class="text-center text-white border-end">Cancelar</th>
+                            <th class="text-center text-white border-end">Imprimir</th>
                             <th class="text-center text-white border-end">Seguimiento</th>
                         </tr>
                     </thead>
@@ -248,6 +281,14 @@
                                     @if ((item.Estado == "RECIBIDO" || item.Estado == "PICKEANDO" || item.Estado == "VERIFICANDO" || item.Estado == "EMPACANDO") && (ViewBag.IdRol == 1 || ViewBag.IdRol == 5))
                                     {
                                         <a href="#" class="btn btn-sm btn-light" onclick="cancelarTicket(@item.DocEntry);" title="Cancelar"><i class="bi bi-x-lg text-danger"></i></a>
+                                    }
+                                </td>
+                                <td class="text-center">
+                                    @if (item.Estado == "ABIERTO")
+                                    {
+                                        <button onclick="openPreliminar(@item.DocEntry)" id="boton_imprimir" class="btn btn-light text-primary">
+                                            <i class="bi bi-printer"></i>
+                                        </button>
                                     }
                                 </td>
                                 <td class="text-center border-end">

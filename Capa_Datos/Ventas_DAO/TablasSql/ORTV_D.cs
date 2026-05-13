@@ -3624,7 +3624,7 @@ AND YEAR(T0.FechaSapTicket) = (SELECT YEAR(GETDATE())) AND ((SELECT  Estado FROM
                     //51 operario almacen verificador
                     if (user.IdRol == 5 || user.IdRol == 4 || user.IdRol == 51)
                     {
-                        condWhere += $" AND t0.Visible in ('PI','SI') AND t0.Presupuesto in ('NO') AND t0.Estado in ('ABIERTO','RECIBIDO') ";
+                        condWhere += $" /*AND t0.Visible in ('PI','SI')*/ AND t0.Presupuesto in ('NO') AND t0.Estado in ('ABIERTO','RECIBIDO') ";
                         condWhere += t.AlmProcedencia != null ? $" AND ((t0.LugarDestino IN ('Centro', 'Arriola') AND t0.AlmProcedencia IN ('{t.AlmProcedencia}')) " +
                             $" OR (t0.LugarDestino IN ('LOCAL', 'EXTERNO') AND (SELECT TOP 1 T2.AlmacenSalida FROM vt.RTV2 T2 WHERE T2.AlmacenSalida NOT IN ('07') AND T2.DocEntry = t0.DocEntry) IN ('{t.AlmProcedencia}')))" : "";
                         orderby = "t0.Estado ,t0.FechaSapTicket desc";
