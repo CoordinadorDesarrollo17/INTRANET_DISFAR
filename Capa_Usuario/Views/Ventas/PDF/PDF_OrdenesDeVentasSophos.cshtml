@@ -74,7 +74,7 @@
                     <td class="titulo-celda-sinbold" style="width: 50%;">@Model[0].Fecha</td>
                     <td class="titulo-celda text-left" style="width: 10%; ">ALMACÉN:</td>
                     <td class="titulo-celda" style="width: 30%;">
-                        @if (new List<string> { "01", "09" }.Contains(Model[0].Almacen)) { Write(ViewBag.AlmProcedencia); }
+                        @if (new List<string> { "09" }.Contains(Model[0].Almacen)) { Write(ViewBag.AlmProcedencia); }
                         else { Write(Model[0].Almacen); }
                     </td>
                 </tr>
