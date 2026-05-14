@@ -722,6 +722,7 @@
                     <option value="">LugarDestino</option>
                     <option value="LOCAL" @{ if (ticket != null && ticket.LugarDestino == "LOCAL") { Write("selected"); } }>LOCAL</option>
                     <option value="EXTERNO" @{ if (ticket != null && ticket.LugarDestino == "EXTERNO") { Write("selected"); } }>EXTERNO</option>
+                    <option value="RECOJO" @{ if (ticket != null && ticket.LugarDestino == "RECOJO") { Write("selected"); } }>RECOJO</option>
               
                 </select>
             </div><!--5-->

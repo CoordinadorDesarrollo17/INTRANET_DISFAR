@@ -356,7 +356,7 @@ function enviarDatosTicketReemplazo() {
                     <th></th>
                     <th></th>
                     <th></th>
-                    <th></th>
+                    @*<th></th>*@
                     <th></th>
                     <th></th>
                 </tr>
@@ -431,14 +431,14 @@ function enviarDatosTicketReemplazo() {
                                 </a>
                             }
                         </td>
-                        <td class="text-center">
+                        @*<td class="text-center">
                             @if (item.Estado == "ABIERTO")
                             {
                                 <button onclick="openPreliminar(@item.DocEntry)" id="boton_imprimir" class="btn btn-light text-primary">
                                     <i class="bi bi-printer"></i>
                                 </button>
                             }
-                        </td>
+                        </td>*@
                         <td class="text-center">
                             @if (item.Estado != "SEPARADO")
                             {

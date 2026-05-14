@@ -8,7 +8,7 @@
     {
         tipoEntrega = "PRESENCIAL - LIMA";
     }
-    else if (Model != null && Model.LugarDestino == "Centro")
+    else if (Model != null && Model.LugarDestino == "RECOJO")
     {
         tipoEntrega = "TRANSF - ALMACEN N°1";
     }
@@ -137,10 +137,25 @@
                 <td colspan="4">
                     <strong>Fecha Entrega</strong>
                     @{
-                        // Convertimos TiempoEntrega en String para luego separarlo en por el espacio y así tener en un índice la fecha y en el otro índice la hora
-                        string[] subF = Model.TiempoEntrega.ToString().Split(' ');
+                        string fechaEntrega = "";
+                        string horaEntrega = "";
+
+                        if (Model.TiempoEntrega != null)
+                        {
+                            string[] partes = Model.TiempoEntrega.ToString().Split(' ');
+
+                            if (partes.Length > 0)
+                            {
+                                fechaEntrega = partes[0];
+                            }
+
+                            if (partes.Length > 1)
+                            {
+                                horaEntrega = partes[1];
+                            }
+                        }
                     }
-                    <br />@subF[0]
+                    <br />@fechaEntrega
                 </td>
                 <td colspan="4" class="v-top" style="border-bottom-style: hidden;">
                     <strong>Cajas:</strong>
@@ -151,15 +166,13 @@
                     <span><strong>Hora Embalaje</strong></span>
                     <br />@Html.DisplayFor(model => model.HoraEmpacado)
                 </td>
+                
+
                 <td colspan="4">
                     <span>
                         <strong>Hora Entrega</strong>
                     </span>
-                    @{
-                        // Convertimos TiempoEntrega en String para luego separarlo en por el espacio y así tener en un índice la fecha y en el otro índice la hora
-                        string[] subH = Model.TiempoEntrega.ToString().Split(' ');
-                    }
-                    <br />@subH[1]
+                    <br />@horaEntrega
                 </td>
                 <td colspan="4" class="text-center v-top" style="border-top-style: hidden;">
                     <span style="font-weight: bold; text-align: center;font-size:20px">@Html.DisplayFor(model => model.Cajas)</span>
