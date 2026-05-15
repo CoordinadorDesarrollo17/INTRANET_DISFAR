@@ -3975,26 +3975,26 @@ namespace Capa_Usuario.Controllers
             // Depende de LugarDestino del ticket
             if (lista != null && lista.Count > 0 && lista[0].Almacen != "ALM07" && (string.IsNullOrEmpty(almProcedencia) || almProcedencia == "16"))
             {
-                var ubicacionesPorItem = new Dictionary<string, string[]>(); // Caché
+                //var ubicacionesPorItem = new Dictionary<string, string[]>(); // Caché
 
                 foreach (var ordr in lista)
                 {
-                    if (!ubicacionesPorItem.ContainsKey(ordr.ItemCode))
-                    {
-                        var ubicaciones = _ubicacionesLotesN.ListarUbicaciones(new Capa_Entidad.AbastecimientoInterno_ENT.TablasSql.UbicacionesLotes_E
-                        {
-                            ItemCode = ordr.ItemCode,
-                            Almacen = "PICKING"
-                        })
-                        .Select(u => u.CodigoUbicacion)
-                        .Where(c => !string.IsNullOrWhiteSpace(c))
-                        .ToArray();
+                    //if (!ubicacionesPorItem.ContainsKey(ordr.ItemCode))
+                    //{
+                    //    var ubicaciones = _ubicacionesLotesN.ListarUbicaciones(new Capa_Entidad.AbastecimientoInterno_ENT.TablasSql.UbicacionesLotes_E
+                    //    {
+                    //        ItemCode = ordr.ItemCode,
+                    //        Almacen = "PICKING"
+                    //    })
+                    //    .Select(u => u.CodigoUbicacion)
+                    //    .Where(c => !string.IsNullOrWhiteSpace(c))
+                    //    .ToArray();
 
-                        ubicacionesPorItem[ordr.ItemCode] = ubicaciones;
-                    }
+                    //    ubicacionesPorItem[ordr.ItemCode] = ubicaciones;
+                    //}
 
-                    // Siempre asignar (cada línea debe tener su copia)
-                    ordr.Ubicaciones = ubicacionesPorItem[ordr.ItemCode];
+                    //// Siempre asignar (cada línea debe tener su copia)
+                    //ordr.Ubicaciones = ubicacionesPorItem[ordr.ItemCode];
 
                     // Calcular la suma de la unidades vendidas por itemcode
                     ordr.TotalNumUnidVend = lista

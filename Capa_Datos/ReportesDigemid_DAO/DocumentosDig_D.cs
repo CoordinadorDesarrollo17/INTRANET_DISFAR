@@ -430,6 +430,7 @@ namespace Capa_Datos.ReportesDigemid_DAO
                     if (!hdr2.IsDBNull(19)) { o.Comentarios = hdr2.GetString(19); }
                     if (!hdr2.IsDBNull(20)) { o.DocTotal = hdr2.GetDecimal(20); }
                     if (!hdr2.IsDBNull(21)) { o.Almacen = hdr2.GetString(21); }
+                    if (!hdr2.IsDBNull(22)) { o.Ubicaciones = new string[] { hdr2.GetString(22) }; }
                     if (!hdr2.IsDBNull(23)) { o.RegSanit = hdr2.GetString(23); }
                     if (!hdr2.IsDBNull(24)) { o.ItemCode = hdr2.GetString(24); }
 
