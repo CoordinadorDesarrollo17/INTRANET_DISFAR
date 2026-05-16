@@ -84,7 +84,7 @@ namespace Capa_Datos.DireccionTecnica_DAO.Reportes
             switch (f.WhsCode)
             {
                 case "01":
-                    procedureName = "COBE_KARDEX303_" + loteCondition;
+                    procedureName = "DISFAR_KARDEX303_" + loteCondition;
                     break;
                 case "02":
                     procedureName = "COBE_KARDEX502_" + loteCondition;
