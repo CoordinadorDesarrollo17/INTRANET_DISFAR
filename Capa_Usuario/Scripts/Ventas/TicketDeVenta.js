@@ -372,6 +372,19 @@ function clienteRegalos() {
     window.open("/Ventas/ReporteClienteRegalos?CardCode=" + $("#CardCode").val(), null, 'width=800,height=450,top=100,left=100,toolbar=no,location=no,status=no,menubar=no')
 }
 function muestraCampo() {
+
+    if ($("#LugarDestino").val() == 'RECOJO') {
+        $('#divNombrePer').hide();
+        $('#divTelfPer').hide();
+        $('#divTipoDocPer').hide();
+        $('#divDocPer').hide();
+    } else {
+        $('#divNombrePer').show();
+        $('#divTelfPer').show();
+        $('#divTipoDocPer').show();
+        $('#divDocPer').show();
+    }
+
     if ($("#LugarDestino").val() == 'EXTERNO' || $("#LugarDestino").val() == 'Agencia Courier') {
         $("#CamposAgDom").show(); $("#CamposAgencia").show(); $("#Referencia").val(""); $("#Zona").val("AGENCIA")
     }

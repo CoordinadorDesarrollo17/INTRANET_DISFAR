@@ -175,25 +175,30 @@
 
     function validarTabDetPedido() {
         let arrCampos = [];
-        if ($('#LugarDestino').val() == 'Arriola' || $('#LugarDestino').val() == 'Centro') {
+
+        if ($('#LugarDestino').val() == 'RECOJO') {
             arrCampos.push(true);
-            $('#NombrePer').removeClass('bg-danger text-white');
-            $('#TelfPer').removeClass('bg-danger text-white');
-            $('#DocPer').removeClass('bg-danger text-white');
-            $('#TipoDocPer').removeClass('bg-danger');
-            $('#TipoDocPer').addClass('bg-cobefar');
-        } else {
-            arrCampos.push(determinarCamposTab('NombrePer', 'txt', 'Ingresar Nombres'));                          // Nombres
-            arrCampos.push(determinarCamposTab('TelfPer', 'txt', 'Ingresar Teléfono'));                                 // Teléfono
-            arrCampos.push(determinarCamposTab('TipoDocPer', 'select', 'Seleccionar Tipo de Doc'));          // Tipo de Doc
-            arrCampos.push(determinarCamposTab('DocPer', 'txt', 'Ingresar Nro Doc'));                                 // Nro Doc
         }
+        else { 
+            if ($('#LugarDestino').val() == 'Arriola' || $('#LugarDestino').val() == 'Centro') {
+                arrCampos.push(true);
+                $('#NombrePer').removeClass('bg-danger text-white');
+                $('#TelfPer').removeClass('bg-danger text-white');
+                $('#DocPer').removeClass('bg-danger text-white');
+                $('#TipoDocPer').removeClass('bg-danger');
+                $('#TipoDocPer').addClass('bg-cobefar');
+            } else {
+                arrCampos.push(determinarCamposTab('NombrePer', 'txt', 'Ingresar Nombres'));                          // Nombres
+                arrCampos.push(determinarCamposTab('TelfPer', 'txt', 'Ingresar Teléfono'));                                 // Teléfono
+                arrCampos.push(determinarCamposTab('TipoDocPer', 'select', 'Seleccionar Tipo de Doc'));          // Tipo de Doc
+                arrCampos.push(determinarCamposTab('DocPer', 'txt', 'Ingresar Nro Doc'));                                 // Nro Doc
+            }
 
-        if (!arrCampos.includes(true)) {
-            if ($('#LugarDestino').val() == "") { Swal.fire('Por favor seleccione LugarDestino'); }
-            else { Swal.fire('Por favor llenar los campos sombreados de color rojo en Datos Pedido'); }
+            if (!arrCampos.includes(true)) {
+                if ($('#LugarDestino').val() == "") { Swal.fire('Por favor seleccione LugarDestino'); }
+                else { Swal.fire('Por favor llenar los campos sombreados de color rojo en Datos Pedido'); }
+            }
         }
-
         habilitarPestana('nav-det-pedidos-tab', 'div_det-pedidos', arrCampos);
         //}
     }
@@ -676,17 +681,17 @@
                     <input type="hidden" name="Det1[0].Linea" value="1" />
                     <input type="hidden" name="Det1[0].DocEntry" value="@Model.DocEntry" />
                     <div class="row mt-4">
-                        <div class="col-lg-5">
+                        <div class="col-lg-5" id="divNombrePer">
                             <label for="NombrePer" class="text-dark form-label font-weight-bold font-18">Nombres:</label>
                             <input type="text" id="NombrePer" name="Det1[0].NombrePer" class="form-control border-success" />
                         </div>
 
-                        <div class="col-lg-2">
+                        <div class="col-lg-2" id="divTelfPer">
                             <label for="TelfPer" class="text-dark form-label font-weight-bold font-18">Teléfono:</label>
                             <input type="number" id="TelfPer" name="Det1[0].TelfPer" class="form-control text-center border-success" />
                         </div>
 
-                        <div class="col-lg-3">
+                        <div class="col-lg-3" id="divTipoDocPer">
                             <label for="TipoDocPer" class="text-dark form-label font-weight-bold font-18">Tipo de Doc:</label>
                             <select name="Det1[0].TipoDocPer" id="TipoDocPer" class="form-control bg-cobefar text-white">
                                 <option value="">Seleccione</option>
@@ -696,7 +701,7 @@
                             </select>
                         </div>
 
-                        <div class="col-lg-2">
+                        <div class="col-lg-2" id="divDocPer">
                             <label for="DocPer" class="text-dark form-label font-weight-bold font-18">Nro Doc:</label>
                             <input type="text" id="DocPer" name="Det1[0].DocPer" class="form-control text-center border-success" />
                         </div>
