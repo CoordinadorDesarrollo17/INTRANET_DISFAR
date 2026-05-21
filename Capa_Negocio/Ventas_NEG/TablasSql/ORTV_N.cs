@@ -172,14 +172,14 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
         {
             switch (ticket.LugarDestino)
             {
-                case "EXTERNO":
+                case "PROVINCIA":
                 case "Agencia Courier":
                     ValidarAgencia(ticket);
                     break;
                 //case "RECOJO":
                 //    ValidarArriola(ticket);
                 //    break;
-                case "LOCAL":
+                case "DOMICILILIO":
                     ValidarDomicilio(ticket);
                     break;
                 case "RECOJO":

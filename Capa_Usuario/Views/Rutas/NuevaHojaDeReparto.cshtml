@@ -123,10 +123,10 @@
                     <label for="TipoRuta" class="text-dark form-label font-weight-bold font-18">Tipo de ruta:</label>
                     <select name="TipoRuta" id="TipoRuta" class="form-control form-select border-success" onchange="validarTipoRuta(this.value,'');listarTickets('');">
                         <option value="">Seleccione</option>
-                        <option value="VD">LOCAL</option>
+                        <option value="VD">DOMICILIO</option>
                         @if (ViewBag.TipoRep == "Re")
                         {
-                            <option value="VG">EXTERNO</option>
+                            <option value="VG">PROVINCIA</option>
                         }
                     </select>
                 </div>
@@ -173,7 +173,7 @@
                     <input type="hidden" id="AlmOrigenDesc2" name="AlmOrigenDesc2" value="" />
                     <select name="AlmOrigenDesc" id="AlmOrigenDesc" class="form-control form-select border-success" onchange="enviarValSelect('AlmOrigenDesc', 'AlmOrigenCod', 'almorigencod'); enviarValSelect('AlmOrigenDesc', 'AlmOrigenDesc2', 'almorigendesc2'); listarTickets('')">
                         <option value="">Seleccione</option>
-                        @foreach (var l in lstOriDest.Where(x => x.WhsCode == "16" || x.WhsCode == "ALM07" || x.WhsCode == "03"))
+                        @foreach (var l in lstOriDest.Where(x => x.WhsCode == "01" || x.WhsCode == "02" || x.WhsCode == "04"))
                         {
                             <option value="@l.WhsName" almorigencod="@l.WhsCode" almorigendesc2="@(l.Street+" "+l.StreetNo+" "+l.Building+" "+l.Block+" "+l.City+" "+l.County)" selected>
                                 @l.WhsName
@@ -189,7 +189,7 @@
                             onchange="enviarValSelect('AlmDestinoDesc', 'AlmDestinoCod','almdestinocod');enviarValSelect('AlmDestinoDesc', 'AlmDestinoDesc2','almdestinodesc2');">
                         <option value="">Seleccione</option>
                         <option value="DOMICILIOS" almdestinocod="08" almdestinodesc2="">DOMICILIOS</option>
-                        @foreach (var l in lstOriDest.Where(x => x.WhsCode == "09" || x.WhsCode == "01"))
+                        @foreach (var l in lstOriDest.Where(x => x.WhsCode == "01" || x.WhsCode == "04"))
                         {
                             <option value="@l.WhsName" almdestinocod="@l.WhsCode" almdestinodesc2="@(l.Street+" "+l.StreetNo+" "+l.Building+" "+l.Block+" "+l.City+" "+l.County)">
                                 @l.WhsName

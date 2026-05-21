@@ -105,7 +105,7 @@ namespace Capa_Datos.ReportesDigemid_DAO
         public List<OrganolepticoVt_E> ConsultarOrganolepticoVt(int DocEntry)
         {
             List<OrganolepticoVt_E> lista = new List<OrganolepticoVt_E>();
-            string query = "call " + uti.schemaHana + "DIEGO_COBEFAR_ORGA_VTAS(" + DocEntry + ")";
+            string query = "call " + uti.schemaHana + "DISFAR_ORGA_VTAS(" + DocEntry + ")";
             try
             {
                 HanaDataReader hdr = db.HanaExecuteReaderNoSp(query);

@@ -89,24 +89,24 @@ namespace Capa_Datos.DireccionTecnica_DAO.Reportes
                 case "02":
                     procedureName = "COBE_KARDEX502_" + loteCondition;
                     break;
-                case "03":
+                case "00":
                     procedureName = "COBE_KARDEX_ALM03_" + loteCondition;
                     break;
-                case "04":
+                case "DEV01":
                     procedureName = "COBE_KARDEX_ALM04_" + loteCondition;
                     break;
-                case "05":
-                    procedureName = "COBE_KARDEX_ALM05_" + loteCondition;
-                    break;
-                case "09":
-                    procedureName = "COBE_KARDEX_ALM06_" + loteCondition;
-                    break;
-                case "ALM07":
-                    procedureName = "COBE_KARDEX_ALM07_" + loteCondition;
-                    break;
-                case "16":      // Almacén N° 8
-                    procedureName = "COBE_KARDEX_ALM08_" + loteCondition;
-                    break;
+                //case "05":
+                //    procedureName = "COBE_KARDEX_ALM05_" + loteCondition;
+                //    break;
+                //case "09":
+                //    procedureName = "COBE_KARDEX_ALM06_" + loteCondition;
+                //    break;
+                //case "ALM07":
+                //    procedureName = "COBE_KARDEX_ALM07_" + loteCondition;
+                //    break;
+                //case "16":      // Almacén N° 8
+                //    procedureName = "COBE_KARDEX_ALM08_" + loteCondition;
+                //    break;
             }
 
             return $"{baseCall}{procedureName}('{f.FecIni}', '{f.FecFin}', '{f.ItemCode}'{(string.IsNullOrWhiteSpace(f.Lote) ? "" : $", '{f.Lote}'")})";

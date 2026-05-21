@@ -137,8 +137,9 @@
                         <br />
                         <select name="LugarDestino" id="LugarDestino" class="form-control select_filtro-table" onchange="filtrar();">
                             <option value=""></option>
-                            <option value="LOCAL" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.LugarDestino == "LOCAL") { Write("selected"); } }>LOCAL</option>
-                            <option value="EXTERNO" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.LugarDestino == "EXTERNO") { Write("selected"); } }>EXTERNO</option>
+                            <option value="DOMICILIO" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.LugarDestino == "DOMICILIO") { Write("selected"); } }>DOMICILIO</option>
+                            <option value="PROVINCIA" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.LugarDestino == "PROVINCIA") { Write("selected"); } }>PROVINCIA</option>
+                            <option value="RECOJO" @{ if (ViewBag.Ortv != null && ViewBag.Ortv.LugarDestino == "RECOJO") { Write("selected"); } }>RECOJO</option>
                            
                         </select>
                     </th>

@@ -7,7 +7,13 @@
     bool verDetalleReparto = !string.IsNullOrWhiteSpace(ViewBag.DescTipoPago) && ViewBag.IdOTC > 0;
     bool verPagosParciales = ((decimal)ViewBag.MontoRecibidoEfectivo + (decimal)ViewBag.MontoRecibidoDeposito + (decimal)ViewBag.TotalPagosParciales < Model.MontoFinal) || (decimal)ViewBag.TotalPagosParciales > 0;
     bool permisoCaja = ViewBag.IdRol == 1 || ViewBag.IdRol == 8 || ViewBag.IdRol == 9;
-    bool verBotonesPagarAnular = ViewBag.TipoPago == "PCE" || ((ViewBag.TipoPago == "SP" || ViewBag.TipoPago == "PCD" || ViewBag.TipoPago == "PMI") && ViewBag.EstadoContraEntrega == "AUTORIZADO") || ((ViewBag.TipoPago == "PCD" || ViewBag.TipoPago == "PMI") && ViewBag.EstadoContraEntrega == "VALIDADO");
+    //bool verBotonesPagarAnular = ViewBag.TipoPago == "SP" || ViewBag.TipoPago == "PCE" || ((ViewBag.TipoPago == "PCD" || ViewBag.TipoPago == "PMI") && ViewBag.EstadoContraEntrega == "AUTORIZADO") || ((ViewBag.TipoPago == "PCD" || ViewBag.TipoPago == "PMI") && ViewBag.EstadoContraEntrega == "VALIDADO");
+
+    bool verBotonesPagarAnular =
+    ViewBag.TipoPago == "SP" ||
+    ViewBag.TipoPago == "PCE" ||
+    ((ViewBag.TipoPago == "PCD" || ViewBag.TipoPago == "PMI") &&
+     (ViewBag.EstadoContraEntrega == "AUTORIZADO" || ViewBag.EstadoContraEntrega == "VALIDADO" || ViewBag.EstadoContraEntrega == "PENDIENTE"));
 }
 
 <style>
@@ -31,37 +37,8 @@
         });
     }
     function ConfirGastoEnv() {
-        // Obtener solo los campos necesarios para evitar enviar todo el formulario
-        var formData = {
-            DocEntryTicket: parseInt($('#DocEntryTicket').val()),
-            PagoEnv: $('#PagoEnv').val(),
-            DetOpe: $('input[name=" "]').val() || '', 
-            DocNum: $('#DocNum').val(),
-            CardCode: $('#CardCode').val(),
-            GastoEnvio: $('#GastoEnvio').val()
-        };
-
-        // Enviar por POST usando AJAX
-        $.ajax({
-            url: '/Caja/ConfGastEnvio',
-            type: 'POST',
-            data: formData,
-            success: function (response) {
-                // Recargar la página para ver los cambios
-                location.reload();
-            },
-            error: function (xhr, status, error) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: xhr.responseText || 'Ocurrió un error al confirmar el gasto de envío'
-                });
-                console.error('Error:', error);
-            }
-        });
-
-        // Cerrar el modal
-        $('#Modal').modal('hide');
+        var o = $("#form").serialize();
+        $(location).attr('href', "/Caja/ConfGastEnvio?" + o);
     }
 </script>
 
@@ -108,7 +85,7 @@
     </nav>
     @using (Html.BeginForm("PagarTicketVenta", "Caja", FormMethod.Post, new { id = "form" }))
     {
-        
+
         <div class="tab-content" id="nav-tabContent">
             @if (permisoCaja)
             {
@@ -124,9 +101,8 @@
                             <div class="col-xl-4 col-lg-4">
                                 <label for="FormaPago" class="text-dark form-label font-weight-bold font-18">Forma de Pago:</label>
                                 <select name="FormaPago" class="form-control bg-cobefar text-white">
-                                    <option value="DEPOSITO" @{ if (Model.FormaPago != null && Model.FormaPago.Equals("DEPOSITO")) { Write("selected"); } }>DEPÓSITO</option>
-                                    <option value="EFECTIVO" @{ if (Model.FormaPago != null && Model.FormaPago == "EFECTIVO") { Write("selected"); } }>EFECTIVO</option>
-                                    <option value="EFE/CAPON" @{ if (Model.FormaPago != null && Model.FormaPago.Equals("EFE/CAPON")) { Write("selected"); } }>EFE/CAPON</option>
+                                    <option value="Contra Entrega: Depósito" @{ if (Model.FormaPago != null && Model.FormaPago.Equals("Contra Entrega: Depósito")) { Write("selected"); } }>DEPÓSITO</option>
+                                    <option value="Contra Entrega: Efectivo" @{ if (Model.FormaPago != null && Model.FormaPago == "Contra Entrega: Efectivo") { Write("selected"); } }>EFECTIVO</option>
                                 </select>
                             </div>
 
@@ -180,7 +156,7 @@
                         <div class="row mt-4">
                             <div class="col-xl-8 col-lg-8">
                                 <div class="d-flex">
-                                    <input type="text" class="form-control border-success" name=" " placeholder="Texto Confirmación" />
+                                    <input type="text" class="form-control border-success" name="DetOpe" placeholder="Texto Confirmación" />
                                     @if (Model.EstadoGasto != "CONFIRMADO")
                                     {
                                         <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#Modal">
@@ -225,6 +201,7 @@
 
                                 }
                             </div>
+
                         </div>
                     </div>
                 </div>
@@ -550,17 +527,6 @@
                                                     <span class="carousel-control-next-icon" aria-hidden="true"></span>
                                                     <span class="sr-only">Next</span>
                                                 </a>
-
-
-                                            </div>
-
-
-                                            <div class="mt-3 text-center">
-                                                <strong>Datos registro de evidencia:</strong>
-                                                <span>@ViewBag.DatosRegistro</span>
-                                                <br />
-                                                <strong>Validación solicitada por:</strong>
-                                                <span>@ViewBag.UsuarioValidacion</span>
                                             </div>
                                         }
                                     </div>

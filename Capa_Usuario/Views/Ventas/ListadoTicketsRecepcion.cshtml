@@ -141,8 +141,8 @@
                 <div class="col-md-2 col-sm-6 mb-2">
                     <select name="LugarDestino" id="LugarDestino" class="form-control form-control-sm">
                         <option value="">Lugar de Destino</option>
-                        <option value="LOCAL" @(ViewBag.Ortv?.LugarDestino == "LOCAL" ? "selected" : "")>LOCAL</option>
-                        <option value="EXTERNO" @(ViewBag.Ortv?.LugarDestino == "EXTERNO" ? "selected" : "")>EXTERNO</option>
+                        <option value="LOCAL" @(ViewBag.Ortv?.LugarDestino == "DOMICILIO" ? "selected" : "")>DOMICILIO</option>
+                        <option value="EXTERNO" @(ViewBag.Ortv?.LugarDestino == "PROVINCIA" ? "selected" : "")>PROVINCIA</option>
                         <option value="RECOJO" @(ViewBag.Ortv?.LugarDestino == "RECOJO" ? "selected" : "")>RECOJO</option>
                   
                     </select>
@@ -150,9 +150,9 @@
                 <div class="col-md-3 col-sm-6 mb-2">
                     <select name="AlmProcedencia" id="AlmProcedencia" class="form-control form-control-sm">
                         <option value="">Almacén de procedencia</option>
-                        <option value="16" @(ViewBag.Ortv?.AlmProcedencia == "16" ? "selected" : "")>ALMACÉN Nº5</option>
-                        <option value="ALM07" @(ViewBag.Ortv?.AlmProcedencia == "ALM07" ? "selected" : "")>ALMACÉN Nº3</option>
-                        <option value="03" @(ViewBag.Ortv?.AlmProcedencia == "03" ? "selected" : "")>ALMACÉN Nº1</option>
+                        <option value="16" @(ViewBag.Ortv?.AlmProcedencia == "01" ? "selected" : "")>ALMACÉN Nº1</option>
+                        @*<option value="ALM07" @(ViewBag.Ortv?.AlmProcedencia == "ALM07" ? "selected" : "")>ALMACÉN Nº3</option>*@
+                        <option value="03" @(ViewBag.Ortv?.AlmProcedencia == "04" ? "selected" : "")>ALMACÉN Nº2</option>
                     </select>
                 </div>
             </div>

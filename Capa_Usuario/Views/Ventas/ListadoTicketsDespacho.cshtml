@@ -305,8 +305,9 @@
                         <br />
                         <select name="LugarDestino" id="LugarDestino" class="form-control select_filtro-table" style="width: 100px" onchange="filtrar();">
                             <option value=""></option>
-                            <option value="LOCAL" @{ if (e != null && e.LugarDestino == "LOCAL") { Write("selected"); } }>LOCAL</option>
-                            <option value="EXTERNO" @{ if (e != null && e.LugarDestino == "EXTERNO") { Write("selected"); } }>EXTERNO</option>
+                            <option value="LOCAL" @{ if (e != null && e.LugarDestino == "DOMICILIO") { Write("selected"); } }>DOMICILIO</option>
+                            <option value="EXTERNO" @{ if (e != null && e.LugarDestino == "PROVINCIA") { Write("selected"); } }>PROVINCIA</option>
+                            <option value="EXTERNO" @{ if (e != null && e.LugarDestino == "RECOJO") { Write("selected"); } }>RECOJO</option>
                      </select>
                     </th>
                     <th class="text-center">

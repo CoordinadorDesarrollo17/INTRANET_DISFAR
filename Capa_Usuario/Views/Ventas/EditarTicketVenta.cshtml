@@ -282,7 +282,7 @@
                             <label for="Embalaje" class="text-dark form-label font-weight-bold font-18">Embalaje:</label>
                             <select name="Embalaje" id="Embalaje" class="form-control  bg-cobefar text-white border-success">
                                 <option value="">Seleccione</option>
-                                <option value="CL" @{ if (Model.Embalaje == "CL") { Write("selected"); } }>Caja Lima</option>
+                                <option value="CL" @{ if (Model.Embalaje == "CL") { Write("selected"); } }>Caja Local</option>
                                 <option value="CP" @{ if (Model.Embalaje == "CP") { Write("selected"); } }>Caja Provincia</option>
                             </select>
                         </div>
@@ -292,8 +292,8 @@
                             <select name="LugarDestino" id="LugarDestino" class="form-control bg-cobefar text-white border-success"
                                     onchange="muestraCampo(); mostrarOficinas(); mostrarTableTicketsVinculados($('#selectVinculado').val()); validarLugarDestino(this.value);  limpiarAlmProcedencia(this.value);">
                                 <option value="">Seleccione</option>
-                                <option value="LOCAL" @{ if (Model.LugarDestino == "LOCAL") { Write("selected"); } }>LOCAL</option>
-                                <option value="EXTERNO" @{ if (Model.LugarDestino == "EXTERNO") { Write("selected"); } }>EXTERNO</option>
+                                <option value="LOCAL" @{ if (Model.LugarDestino == "DOMICILIO") { Write("selected"); } }>DOMICILIO</option>
+                                <option value="EXTERNO" @{ if (Model.LugarDestino == "´PROVINCIA") { Write("selected"); } }>PROVINCIA</option>
                                 <option value="RECOJO" @{ if (Model.LugarDestino == "RECOJO") { Write("selected"); } }>RECOJO</option>
                             </select>
                         </div>

@@ -4,19 +4,19 @@
     Layout = null;
 
     string tipoEntrega = string.Empty;
-    if (Model != null && Model.LugarDestino == "Arriola")
+    if (Model != null && Model.LugarDestino == "RECOJO")
     {
         tipoEntrega = "PRESENCIAL - LIMA";
     }
-    else if (Model != null && Model.LugarDestino == "RECOJO")
-    {
-        tipoEntrega = "TRANSF - ALMACEN N°1";
-    }
-    else if (Model != null && (Model.LugarDestino == "EXTERNO" || Model.LugarDestino == "Agencia Courier"))
+    //else if (Model != null && Model.LugarDestino == "RECOJO")
+    //{
+    //    tipoEntrega = "TRANSF - ALMACEN N°1";
+    //}
+    else if (Model != null && (Model.LugarDestino == "PROVINCIA" || Model.LugarDestino == "Agencia Courier"))
     {
         tipoEntrega = "PRESENCIAL - PROVINCIA";
     }
-    else if (Model != null && Model.LugarDestino == "LOCAL")
+    else if (Model != null && Model.LugarDestino == "DOMICILIO")
     {
         tipoEntrega = "DOMICILIO";
 
