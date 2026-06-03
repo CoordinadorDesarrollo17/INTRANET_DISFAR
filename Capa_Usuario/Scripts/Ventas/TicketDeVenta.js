@@ -216,7 +216,7 @@ function reporteLibroSaldo(estado) {
 function mostrarTableTicketsVinculados(valor) {
     var LugarDestino = $("#LugarDestino").val();
     //mostrar el llenado de tickets vinculados si la eleccion es SI
-    if (valor == "SI" && (LugarDestino === "LOCAL" || LugarDestino === "EXTERNO")) { $("#divVinculados").show(); }
+    if (valor == "SI" && (LugarDestino === "DOMICILIO" || LugarDestino === "PROVINCIA")) { $("#divVinculados").show(); }
     else { $("#selectVinculado").val('NO'); $("#divVinculados").hide(); $("#DetallesVinculados  tbody").html(''); cont = 0; }
 }
 function buscarTicketAVincular(DocNum) {
@@ -261,7 +261,7 @@ function buscarTicketAVincular(DocNum) {
                                 DireccionEnvio = response.Det3[1].Calle;
                             }
                             if (response.Det2.length > 0) {
-                                if (response.LugarDestino === 'LOCAL') {
+                                if (response.LugarDestino === 'DOMICILIO') {
                                     if (response.Det2[0].AlmacenSalida === almacenSalida) {
                                         if (DireccionEnvio === DireccionActual) {
                                             if ((response.Zona && response.Zona.trim().toLowerCase() === Zona.trim().toLowerCase()) || (!response.Zona && !Zona.trim())) {
@@ -277,7 +277,7 @@ function buscarTicketAVincular(DocNum) {
                                         swal.fire("Error: almacén de salida distintos para envio a domicilio.");
                                     }
                                 }
-                                else if (response.LugarDestino === 'EXTERNO') {
+                                else if (response.LugarDestino === 'PROVINCIA') {
                                     if ((response.Zona && response.Zona.trim().toLowerCase() === Zona.trim().toLowerCase()) || (!response.Zona && !Zona.trim()) &&
                                         (response.Referencia && response.Referencia.trim().toLowerCase() === Referencia.trim().toLowerCase()) || (!response.Referencia && !Referencia.trim())) {
 
@@ -385,10 +385,10 @@ function muestraCampo() {
         $('#divDocPer').show();
     }
 
-    if ($("#LugarDestino").val() == 'EXTERNO' || $("#LugarDestino").val() == 'Agencia Courier') {
+    if ($("#LugarDestino").val() == 'PROVINCIA' || $("#LugarDestino").val() == 'Agencia Courier') {
         $("#CamposAgDom").show(); $("#CamposAgencia").show(); $("#Referencia").val(""); $("#Zona").val("AGENCIA")
     }
-    else if ($("#LugarDestino").val() == 'LOCAL') {
+    else if ($("#LugarDestino").val() == 'DOMICILIO') {
         $("#Agencia").val(""); $("#EnvioAgencia").val(""); $("#Referencia").val("");
         $("#CamposAgDom").show(); $("#CamposAgencia").hide();
         var zonaDefault = $("#DirDestino option:selected").attr("Zona") || "";

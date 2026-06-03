@@ -36,13 +36,13 @@
         $("#DirDestino2").prop('readonly', true);
     }
 
-    if ("@(Model.LugarDestino)" != 'EXTERNO' &&
+    if ("@(Model.LugarDestino)" != 'PROVINCIA' &&
         "@(Model.LugarDestino)" != 'Agencia Courier') {
         $("#CamposAgencia").hide();
     }
 
-    if ("@(Model.LugarDestino)" == 'EXTERNO' ||
-        "@(Model.LugarDestino)" == 'LOCAL' ||
+    if ("@(Model.LugarDestino)" == 'PROVINCIA' ||
+        "@(Model.LugarDestino)" == 'DOMICILIO' ||
         "@(Model.LugarDestino)" == 'Agencia Courier') {
         $("#CamposAgDom").show();
     } else {
@@ -50,7 +50,7 @@
       }
       //considerar la vinculacion de tickets para que sea visible la tabla
       var vinculado = $("#VinculacionTicket").val(); var LugarDestino = $("#LugarDestino").val();
-      if (vinculado === "SI" && (LugarDestino === 'LOCAL' || LugarDestino === 'EXTERNO')) { $("#divVinculados").show(); }
+      if (vinculado === "SI" && (LugarDestino === 'DOMICILIO' || LugarDestino === 'PROVINCIA')) { $("#divVinculados").show(); }
       else { $("#divVinculados").hide(); }
 
       //Zona pachacamac y lima
@@ -82,7 +82,7 @@
     function mostrarTableTicketsVinculados(valor) {
         var LugarDestino = $("#LugarDestino").val();
         //mostrar el llenado de tickets vinculados si la eleccion es SI
-        if (valor == "SI" && (LugarDestino === "LOCAL" || LugarDestino === "EXTERNO")) { $("#divVinculados").show(); }
+        if (valor == "SI" && (LugarDestino === "DOMICILIO" || LugarDestino === "PROVINCIA")) { $("#divVinculados").show(); }
         else { $("#selectVinculado").val('NO'); $("#divVinculados").hide(); $("#DetallesVinculados  tbody").html(''); contUser = 0; }
     }
     function buscarTicketAVincular(DocNum) {
@@ -127,7 +127,7 @@
                                     DireccionEnvio = response.Det3[1].Calle;
                                 }
                                 if (response.Det2.length > 0) {
-                                    if (response.LugarDestino === 'LOCAL') {
+                                    if (response.LugarDestino === 'DOMICILIO') {
                                         if (response.Det2[0].AlmacenSalida === almacenSalida) {
                                             if (DireccionEnvio === DireccionActual) {
                                                 if ((response.Zona && response.Zona.trim().toLowerCase() === Zona.trim().toLowerCase()) || (!response.Zona && !Zona.trim())) {
@@ -143,7 +143,7 @@
                                             swal.fire("Error: almacén de salida distintos para envio a domicilio.");
                                         }
                                     }
-                                    else if (response.LugarDestino === 'EXTERNO') {
+                                    else if (response.LugarDestino === 'PROVINCIA') {
                                         if ((response.Zona && response.Zona.trim().toLowerCase() === Zona.trim().toLowerCase()) || (!response.Zona && !Zona.trim()) &&
                                             (response.Referencia && response.Referencia.trim().toLowerCase() === Referencia.trim().toLowerCase()) || (!response.Referencia && !Referencia.trim())) {
 
@@ -260,10 +260,10 @@
 
     }
     function muestraCampo() {
-        if ($("#LugarDestino").val() == 'EXTERNO' || $("#LugarDestino").val() == 'Agencia Courier') {
+        if ($("#LugarDestino").val() == 'PROVINCIA' || $("#LugarDestino").val() == 'Agencia Courier') {
             $("#CamposAgDom").show(); $("#CamposAgencia").show(); $("#Zona").val("AGENCIA")
         }
-        else if ($("#LugarDestino").val() == 'LOCAL') {
+        else if ($("#LugarDestino").val() == 'DOMICILIO') {
             $("#Agencia").val(""); $("#EnvioAgencia").val(""); //$("#Referencia").val("");
             $("#CamposAgDom").show(); $("#CamposAgencia").hide();
             var zonaDefault = $("#DirDestino option:selected").attr("Zona") || "";
@@ -295,7 +295,7 @@
         //validar que si existe DirDestino2 la zona debe ser solo de esta ultima Direccion
         if (idf === "Zona") {
             if ($("#Departamento2").val() == "" && $("#DirDestino2").val() == "") {
-                if ($("#LugarDestino").val() === "LOCAL" || $("#LugarDestino").val() === "EXTERNO") {
+                if ($("#LugarDestino").val() === "DOMICILIO" || $("#LugarDestino").val() === "PROVINCIA") {
                     $("#" + idf).val($("#" + idi + " option:selected").attr(attrf));
                 }
             }

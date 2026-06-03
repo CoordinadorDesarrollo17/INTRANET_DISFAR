@@ -220,7 +220,7 @@
         let arrCampos = [];
         let result = false;
         console.log(valorIngresado);
-        if (valorIngresado == 'EXTERNO' || valorIngresado == 'Agencia Courier') {
+        if (valorIngresado == 'PROVINCIA' || valorIngresado == 'Agencia Courier') {
             arrCampos.push(determinarCamposTab('EnvioAgencia', 'select', 'Seleccionar Modo de envío'));          // Modo de envío
             arrCampos.push(determinarCamposTab('Agencia', 'txt', 'Ingresar Agencia'));                                   // Agencia
             arrCampos.push(determinarCamposTab('DirDestino', 'select', 'Seleccionar DirDestino'));                     // DirDestino
@@ -229,7 +229,7 @@
                 arrCampos.push(determinarCamposTab('DirDestino2', 'txt', 'Seleccionar DirDestino2'));                     // DirDestino2
             }*/
 
-        } else if (valorIngresado == 'LOCAL') {
+        } else if (valorIngresado == 'DOMICILIO') {
             arrCampos.push(determinarCamposTab('DirDestino', 'select', 'Seleccionar DirDestino'));                     // DirDestino
         }
 
@@ -384,7 +384,7 @@
 
         var mensaje = '<div class="my-swal-text">';
          // Si el lugarDestino es otros diferente a 'Agencia'
-        if (lugarDestino !== 'EXTERNO') {
+        if (lugarDestino !== 'PROVINCIA') {
             mensaje += 'Tipo de Venta: <strong>' + tipoVenta + '</strong><br>Lugar de Destino: <strong>' + lugarDestino + '</strong><br>Coordinaciones: <strong>' + coordinaciones + '</strong><br>T.E: <strong>' + te + '</strong></div>';
         } else {
         // Si el lugarDestino es 'Agencia'
@@ -526,8 +526,8 @@
                             <select name="LugarDestino" id="LugarDestino" class="form-control bg-cobefar text-white"
                                     onchange="muestraCampo(); mostrarOficinas(); mostrarTableTicketsVinculados($('#selectVinculado').val()); validarLugarDestino(this.value); limpiarAlmProcedencia(this.value);">
                                 <option value="">Seleccione</option>
-                                <option value="LOCAL" @{ if (Model.LugarDestino == "DOMICILIO") { Write("selected"); } }>DOMICILIO</option>
-                                <option value="EXTERNO" @{ if (Model.LugarDestino == "PROVINCIA") { Write("selected"); } }>PROVINCIA</option>
+                                <option value="DOMICILIO" @{ if (Model.LugarDestino == "DOMICILIO") { Write("selected"); } }>DOMICILIO</option>
+                                <option value="PROVINCIA" @{ if (Model.LugarDestino == "PROVINCIA") { Write("selected"); } }>PROVINCIA</option>
                                 <option value="RECOJO" @{ if (Model.LugarDestino == "RECOJO") { Write("selected"); } }>RECOJO</option>
 
                             </select>

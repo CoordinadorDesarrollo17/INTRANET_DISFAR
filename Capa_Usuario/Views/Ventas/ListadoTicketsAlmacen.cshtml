@@ -717,7 +717,7 @@
         }
 
         // Lógica para botones de documentos adicionales
-        if (lugarDestino === "EXTERNO" && ["PICKEANDO", "VERIFICANDO", "EMPACANDO", "EMPACADO", "PESADO", "PREENVIO", "ENVIADO", "ENTREGADO"].includes(estado)) {
+        if (lugarDestino === "PROVINCIA" && ["PICKEANDO", "VERIFICANDO", "EMPACANDO", "EMPACADO", "PESADO", "PREENVIO", "ENVIADO", "ENTREGADO"].includes(estado)) {
 
             html += '<button type="button" onclick="pdfRotulo(\'' + encodeURIComponent(docEntry) + '\')" class="btn btn-light text-danger" data-toggle="tooltip" data-placement="top" title="Descargar Rotulado">';
             html += '<i class="icon icon-file-pdf"><span class="text-dark small"> Rótulo </span></i>';

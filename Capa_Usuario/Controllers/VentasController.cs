@@ -70,7 +70,7 @@ namespace Capa_Usuario.Controllers
             {
                 Dictionary<string, string> opcionesColor = new Dictionary<string, string>()
                 {
-                    { "Arriola", "#FF6800" }, { "Centro", "#0AC5EA" }, { "LOCAL", "#F7F30E" }, { "EXTERNO", "#F7F30E" }, { "Agencia Courier", "#F7F30E" },
+                    { "Arriola", "#FF6800" }, { "Centro", "#0AC5EA" }, { "DOMICILIO", "#F7F30E" }, { "PROVINCIA", "#F7F30E" }, { "Agencia Courier", "#F7F30E" },
                 };
                 colorTicket = opcionesColor[LugarDestino];
             }
@@ -1134,7 +1134,7 @@ namespace Capa_Usuario.Controllers
                     }
                     break;
                 case "G":
-                    if (obj.LugarDestino.Equals("LOCAL") || obj.LugarDestino.Equals("EXTERNO"))
+                    if (obj.LugarDestino.Equals("DOMICILIO") || obj.LugarDestino.Equals("PROVINCIA"))
                     {
                         documentos.AddRange(compN.ObtenerEncabezadoGuiasPorEntrega(listDocEntrySap));
                     }
@@ -1971,7 +1971,7 @@ namespace Capa_Usuario.Controllers
                     var usuariosDistinct = listaUsuarios.Select(x => $"{x.Nombres} {x.Apellidos}").Distinct().ToList();
                     ViewBag.ListaUsuarios = usuariosDistinct;
                     var mensaje = "Ticket terminó packing";
-                    if (ticket.LugarDestino.Equals("EXTERNO"))
+                    if (ticket.LugarDestino.Equals("PROVINCIA"))
                     {
                         return RedirectToAction("ListadoTicketsAlmacen", new { DocNum = DocNum, Mensaje = mensaje, DescargarPDF = 0, NumTicket = DocEntry, LugarDestino = ticketPost.LugarDestino });
                     }
@@ -3336,7 +3336,7 @@ namespace Capa_Usuario.Controllers
                         {
                             t.TiempoEntrega = Convert.ToDateTime(t.TiempoEntrega).AddMinutes(30);
                         }
-                        else if (t.LugarDestino == "LOCAL" || t.LugarDestino == "EXTERNO")
+                        else if (t.LugarDestino == "DOMICILIO" || t.LugarDestino == "PROVINCIA")
                         {
                             t.TiempoEntrega = Convert.ToDateTime(t.TiempoEntrega).AddMinutes(15);
                         }

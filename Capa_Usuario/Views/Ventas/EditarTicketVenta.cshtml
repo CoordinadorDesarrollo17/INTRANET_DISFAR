@@ -27,10 +27,10 @@
         }
         //solo para Agencia, Agencia courier o Domicilio se ocultan o muestran
         //los div que contienen sus datos
-        if ("@(Model.LugarDestino)" == 'EXTERNO'||"@(Model.LugarDestino)" == 'Agencia Courier' ) {
+        if ("@(Model.LugarDestino)" == 'PROVINCIA'||"@(Model.LugarDestino)" == 'Agencia Courier' ) {
             $("#CamposAgDom").show(); $("#CamposAgencia").show();
         }
-        else if ("@(Model.LugarDestino)" == 'LOCAL') {
+        else if ("@(Model.LugarDestino)" == 'DOMICILIO') {
             $("#CamposAgDom").show(); $("#CamposAgencia").hide();
         }
         else {
@@ -39,7 +39,7 @@
 
         //considerar la vinculacion de tickets para que sea visible la tabla
         var vinculado = $("#VinculacionTicket").val(); var LugarDestino = $("#LugarDestino").val();
-        if (vinculado === "SI" && (LugarDestino === 'LOCAL' || LugarDestino === 'EXTERNO')) { $("#divVinculados").show(); }
+        if (vinculado === "SI" && (LugarDestino === 'DOMICILIO' || LugarDestino === 'PROVINCIA')) { $("#divVinculados").show(); }
         else { $("#divVinculados").hide(); }
 
         //Zona pachacamac y lima
@@ -87,7 +87,7 @@
         var tipoenvio = $("#EnvioAgencia").val();
         var referencia = $("#Referencia").val();
         var mensaje = '<div class="my-swal-text">Tipo de Venta: <strong>' + tipoVenta + '</strong><br>Lugar de Destino: <strong>' + lugarDestino + '</strong><br>Coordinaciones: <strong>' + coordinaciones + '</strong><br>T.E: <strong>' + te + '</strong></div>';
-        if (lugarDestino === 'EXTERNO') {
+        if (lugarDestino === 'PROVINCIA') {
 
             mensaje = '<div class="my-swal-text">Tipo de Venta: <strong>' + tipoVenta + '</strong><br>Lugar de Destino: <strong>' + lugarDestino + '</strong><br>Coordinaciones: <strong>' + coordinaciones + '</strong><br>T.E: <strong>' + te +  '</strong><br>Modo de envio: <strong>' + tipoenvio + '</strong><br>Referencia: <strong>' + referencia + '</strong></div>';
         }
@@ -292,8 +292,8 @@
                             <select name="LugarDestino" id="LugarDestino" class="form-control bg-cobefar text-white border-success"
                                     onchange="muestraCampo(); mostrarOficinas(); mostrarTableTicketsVinculados($('#selectVinculado').val()); validarLugarDestino(this.value);  limpiarAlmProcedencia(this.value);">
                                 <option value="">Seleccione</option>
-                                <option value="LOCAL" @{ if (Model.LugarDestino == "DOMICILIO") { Write("selected"); } }>DOMICILIO</option>
-                                <option value="EXTERNO" @{ if (Model.LugarDestino == "´PROVINCIA") { Write("selected"); } }>PROVINCIA</option>
+                                <option value="DOMICILIO" @{ if (Model.LugarDestino == "DOMICILIO") { Write("selected"); } }>DOMICILIO</option>
+                                <option value="PROVINCIA" @{ if (Model.LugarDestino == "´PROVINCIA") { Write("selected"); } }>PROVINCIA</option>
                                 <option value="RECOJO" @{ if (Model.LugarDestino == "RECOJO") { Write("selected"); } }>RECOJO</option>
                             </select>
                         </div>
