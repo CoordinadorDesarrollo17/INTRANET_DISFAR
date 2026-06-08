@@ -582,7 +582,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                 { "PROVINCIA", "AGENCIA" },
                 { "Centro", "CONO CENTRO" },
                 { "Arriola", "ARRIOLA" },
-                { "Domicilio", zona }
+                { "DOMICILIO", zona }
             };
             // Si el lugarDestino está en el diccionario, devuelve su valor; de lo contrario, devuelve una cadena vacía
             return zonasDestino.TryGetValue(lugarDestino, out var resultado) ? resultado : string.Empty;
