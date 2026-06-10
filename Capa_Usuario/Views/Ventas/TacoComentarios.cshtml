@@ -7,11 +7,11 @@
     {
         fondo = "#90FBED";
     }
-    else if (Model.LugarDestino == "EXTERNO" || Model.LugarDestino == "Agencia Courier")
+    else if (Model.LugarDestino == "PROVINCIA" || Model.LugarDestino == "Agencia Courier")
     {
         fondo = "#F3FF00";
     }
-    else if (Model.LugarDestino == "LOCAL")
+    else if (Model.LugarDestino == "DOMICILIO")
     {
         fondo = "#FFFFFF";
     }
@@ -41,7 +41,7 @@
         <tr style="background:@fondo">
             <td>
                 <strong>@Html.DisplayNameFor(model => model.LugarDestino): </strong>
-                @if (Model.LugarDestino.ToUpper() == "EXTERNO" || Model.LugarDestino.ToUpper() == "AGENCIA COURIER")
+                @if (Model.LugarDestino.ToUpper() == "PROVINCIA" || Model.LugarDestino.ToUpper() == "AGENCIA COURIER")
                 {
                     <text>PROVINCIA</text>
                 }
@@ -133,7 +133,7 @@
         {
             if (!string.IsNullOrWhiteSpace(Model.Det3[1].Calle) && Model.Det3[1].Calle.Length > 0)
             {
-                if (Model.LugarDestino == "EXTERNO" || Model.LugarDestino == "Agencia Courier")
+                if (Model.LugarDestino == "PROVINCIA" || Model.LugarDestino == "Agencia Courier")
                 {
                     if (Model.EnvioAgencia == "Oficina de agencia")
                     {
@@ -184,7 +184,7 @@
         }
         else if (!string.IsNullOrWhiteSpace(Model.DirDestino) && Model.DirDestino.Length > 0)
         {
-            if (Model.LugarDestino == "EXTERNO" || Model.LugarDestino == "Agencia Courier")
+            if (Model.LugarDestino == "PROVINCIA" || Model.LugarDestino == "Agencia Courier")
             {
                 if (Model.EnvioAgencia == "Oficina de agencia")
                 {

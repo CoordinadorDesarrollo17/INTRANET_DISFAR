@@ -110,7 +110,7 @@
 
     function cambiarLugarDestino(selectElement) {
         if (selectElement.value === "true") {
-            $('#LugarDestino').val('LOCAL');
+            $('#LugarDestino').val('DOMICILIO');
         }
     }
     function activarFiltroObservacion() {
@@ -121,14 +121,14 @@
     function modTabla() {
         var LugarDestino = $("#LugarDestino").val();
         if (LugarDestino != null && LugarDestino != "") {
-            if (LugarDestino === "EXTERNO" || LugarDestino === "Agencia Courier") {
+            if (LugarDestino === "PROVINCIA" || LugarDestino === "Agencia Courier") {
                 //Muestra la persona de recojo
                 $("#tablaFacturacion tr td:nth-child(11)").show();
                 $("#tablaFacturacion th:nth-child(11)").show();
                 //Oculta zona
                 $("#tablaFacturacion tr td:nth-child(5)").hide();
                 $("#tablaFacturacion th:nth-child(5)").hide();
-            } else if (LugarDestino === "LOCAL") {
+            } else if (LugarDestino === "DOMICILIO") {
                 //Oculta la
                 $("#tablaFacturacion tr td:nth-child(11)").hide();
                 $("#tablaFacturacion th:nth-child(11)").hide();
@@ -720,8 +720,8 @@
             <div class="mx-2">
                 <select name="LugarDestino" id="LugarDestino" class="form-control @bgLugarDestino" onchange="clearZona(); modTabla(); filtrar();">
                     <option value="">LugarDestino</option>
-                    <option value="LOCAL" @{ if (ticket != null && ticket.LugarDestino == "DOMICILIO") { Write("selected"); } }>DOMICILIO</option>
-                    <option value="EXTERNO" @{ if (ticket != null && ticket.LugarDestino == "PROVINCIA") { Write("selected"); } }>PROVINCIA</option>
+                    <option value="DOMICILIO" @{ if (ticket != null && ticket.LugarDestino == "DOMICILIO") { Write("selected"); } }>DOMICILIO</option>
+                    <option value="PROVINCIA" @{ if (ticket != null && ticket.LugarDestino == "PROVINCIA") { Write("selected"); } }>PROVINCIA</option>
                     <option value="RECOJO" @{ if (ticket != null && ticket.LugarDestino == "RECOJO") { Write("selected"); } }>RECOJO</option>
               
                 </select>

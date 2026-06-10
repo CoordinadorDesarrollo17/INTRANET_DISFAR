@@ -76,11 +76,11 @@ namespace Capa_Negocio.Rutas_NEG.TablasSql
             {
                 if (t.Estado != "EMPACADO" && t.Estado != "PESADO") { throw new Exception("El ticket debe estar Empacado o Pesado"); }
             }
-            if (t.LugarDestino.Equals("EXTERNO") || t.LugarDestino.Equals("Agencia Courier") || t.LugarDestino.Equals("LOCAL"))
+            if (t.LugarDestino.Equals("PROVINCIA") || t.LugarDestino.Equals("Agencia Courier") || t.LugarDestino.Equals("DOMICILIO"))
             {
                 if (t.TipoVenta == "Normal")
                 {
-                    if (t.EstadoPago != "PAGADO") { throw new Exception("El ticket normal de Externo  o Local debe estar pagado "); }
+                    if (t.EstadoPago != "PAGADO") { throw new Exception("El ticket normal de provincia o domicilio debe estar pagado "); }
                 }
             }
             if (string.IsNullOrWhiteSpace(t.EstadoFacturacion) || t.EstadoFacturacion.Equals("PENDIENTE")) { throw new Exception("El ticket no tiene guía emitida, retirar de la tabla."); }
@@ -126,7 +126,7 @@ namespace Capa_Negocio.Rutas_NEG.TablasSql
             ORTV_E ortvE = ortvN.ObtenerDatosCompletosTicket(rru0E.DocEntryTicket);
             if (orruE.Estado != "ENVIADO") { throw new Exception("El reparto no se encuentra ENVIADO"); }
             if (rru0E.Estado != "ENVIADO") { throw new Exception("Solo puedes entregar detalle Enviado"); }
-            if (ortvE.Det5 != null && ortvE.Det5.Count > 0 && ortvE.Det5[0].RegCant > 0 && ortvE.LugarDestino == "LOCAL")
+            if (ortvE.Det5 != null && ortvE.Det5.Count > 0 && ortvE.Det5[0].RegCant > 0 && ortvE.LugarDestino == "DOMICILIO")
             {
                 if (o.Ticket.Det5[0].RegEstado != "Entregado") { throw new Exception("Debe entregar regalo"); }
             }

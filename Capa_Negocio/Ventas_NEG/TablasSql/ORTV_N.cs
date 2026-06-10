@@ -179,7 +179,7 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
                 //case "RECOJO":
                 //    ValidarArriola(ticket);
                 //    break;
-                case "DOMICILILIO":
+                case "DOMICILIO":
                     ValidarDomicilio(ticket);
                     break;
                 case "RECOJO":

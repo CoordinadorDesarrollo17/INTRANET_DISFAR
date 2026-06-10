@@ -141,8 +141,8 @@
                 <div class="col-md-2 col-sm-6 mb-2">
                     <select name="LugarDestino" id="LugarDestino" class="form-control form-control-sm">
                         <option value="">Lugar de Destino</option>
-                        <option value="LOCAL" @(ViewBag.Ortv?.LugarDestino == "DOMICILIO" ? "selected" : "")>DOMICILIO</option>
-                        <option value="EXTERNO" @(ViewBag.Ortv?.LugarDestino == "PROVINCIA" ? "selected" : "")>PROVINCIA</option>
+                        <option value="DOMICILIO" @(ViewBag.Ortv?.LugarDestino == "DOMICILIO" ? "selected" : "")>DOMICILIO</option>
+                        <option value="PROVINCIA" @(ViewBag.Ortv?.LugarDestino == "PROVINCIA" ? "selected" : "")>PROVINCIA</option>
                         <option value="RECOJO" @(ViewBag.Ortv?.LugarDestino == "RECOJO" ? "selected" : "")>RECOJO</option>
                   
                     </select>
