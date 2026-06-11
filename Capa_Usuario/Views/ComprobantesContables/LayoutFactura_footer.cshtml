@@ -1,0 +1,48 @@
+﻿@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>LayoutFactura_Footer</title>
+    <style>
+        * {
+            font-family: 'Verdana', sans-serif;
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            margin: 0;
+            padding: 0 10px;
+            color: #333;
+            font-size: 10px;
+        }
+    </style>
+</head>
+<body>
+    <table style="width:100%; border-collapse:collapse; padding: 6px 0;">
+        <tr>
+            <!-- QR -->
+            <td style="width:15%; vertical-align:middle;">
+      
+            </td>
+            <!-- Texto central -->
+            <td style="text-align:center; vertical-align:middle; font-size:10px; color:#333; line-height:1.8;">
+                Operador de Servicios Electrónicos<br />
+                según Resolución N° 034-005-0008776<br />
+                <br />
+                Representación impresa de la factura electrónica, consulte en www.efact.pe<br />
+                Autorizado mediante la Resolución de intendencia N° 0340050004177/SUNAT
+            </td>
+            <!-- Logo efact + verificado SUNAT -->
+            <td style="width:20%; text-align:center; vertical-align:middle;">
+                <img src="~/imagenes/logo_efact.png" width="80" /><br />
+                <img src="~/imagenes/verificado_sunat.png" width="70" style="margin-top:6px;" />
+            </td>
+        </tr>
+    </table>
+</body>
+</html>

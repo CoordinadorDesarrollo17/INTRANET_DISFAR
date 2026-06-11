@@ -54,6 +54,7 @@ namespace Capa_Entidad.ReportesDigemid_ENT.Reportes
         public string Almacen { get; set; }
         public string PtoPartida { get; set; }
         public string DirEnvio { get; set; }
+        public string Observacion { get; set; }
         // metodos del layout
         public decimal cantVta()
         {

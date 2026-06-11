@@ -160,13 +160,15 @@ namespace Capa_Usuario.Controllers
                         DocNumTicket = docNum
                     };
                     string _headerUrlFactura = Url.Action("LayoutFactura_header", "ComprobantesContables", parametrosFactura, "http");
+                    string _footerUrlFactura = Url.Action("LayoutFactura_footer", "ComprobantesContables", null, "http");
                     pdfResult = new ActionAsPdf("LayoutFactura", new { NumAtCard = parametrosFactura.NumAtCard })
                     {
                         FileName = fileName,
                         PageOrientation = Rotativa.Options.Orientation.Portrait,
-                        CustomSwitches = "--header-html " + _headerUrlFactura + " --header-spacing 0 ",
+                        CustomSwitches = "--header-html " + _headerUrlFactura + " --header-spacing 0 " +
+                         "--footer-html " + _footerUrlFactura + " --footer-spacing 0 ",
                         PageSize = Rotativa.Options.Size.A4,
-                        PageMargins = new Rotativa.Options.Margins(65, 10, 20, 10)
+                        PageMargins = new Rotativa.Options.Margins(55, 10, 30, 10)
                     };
                     break;
                 case "ND":
@@ -196,13 +198,15 @@ namespace Capa_Usuario.Controllers
                         agencia = false
                     };
                     string _headerUrlGuia = Url.Action("LayoutGuia_header", "ComprobantesContables", parametrosGuia, "http");
+                    string _footerUrlGuia = Url.Action("LayoutGuia_footer", "ComprobantesContables", null, "http");
                     pdfResult = new ActionAsPdf("LayoutGuia", parametrosGuia)
                     {
                         FileName = fileName,
                         PageOrientation = Rotativa.Options.Orientation.Portrait,
-                        CustomSwitches = "--header-html " + _headerUrlGuia + " --header-spacing 0 ",
+                        CustomSwitches = "--header-html " + _headerUrlGuia + " --header-spacing 0 " +
+                         "--footer-html " + _footerUrlGuia + " --footer-spacing 0 ",
                         PageSize = Rotativa.Options.Size.A4,
-                        PageMargins = new Rotativa.Options.Margins(65, 10, 20, 10)
+                        PageMargins = new Rotativa.Options.Margins(55, 10, 30, 10)
                     };
 
                     var pdfBytesGuia = pdfResult.BuildFile(ControllerContext);
@@ -402,6 +406,14 @@ namespace Capa_Usuario.Controllers
             ViewBag.Tipo = Tipo;
             ViewBag.DocNumTicket = DocNumTicket;
             return View(factura);
+        }
+        public ActionResult LayoutGuia_footer()
+        {
+            return View();
+        }
+        public ActionResult LayoutFactura_footer()
+        {   
+            return View();
         }
         public ActionResult LayoutFactura(string NumAtCard)
         {
