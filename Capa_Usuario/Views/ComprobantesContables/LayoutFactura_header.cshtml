@@ -1,102 +1,96 @@
 ﻿@model IEnumerable<Capa_Entidad.ReportesDigemid_ENT.Reportes.ComprobanteDePago_E>
-
 @{
     Layout = null;
     var Cab = Model.ToList()[0];
+    //var partes = Cab.DirPagar.Split('-');
+    //var direccion = partes[0].Trim();
+    //var ciudad = partes.Length > 1 ? string.Join("-", partes.Skip(1)).Trim() : "";
 }
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LayoutFactura</title>
+    <title>LayoutFactura_Header</title>
     <style>
         * {
             font-family: 'Verdana', sans-serif;
-            font-size: 10px;
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
         }
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
+        body {
+            margin: 5px 20px;
+            color: #333;
+            font-size: 11px;
+            color: #333;
         }
 
-        td, th {
-            padding: 3.5px;
+
+        /* ── DATOS CLIENTE ── */
+        .border-box {
+            border: 1px solid #b0bfc6;
+            border-radius: 12px;
+            padding: 7px 12px;
         }
     </style>
 </head>
 <body>
-    <div>
-        <table border="0">
-            <tr>
-                <td style="font-size: 9px; text-align: left; position: relative;">
-                    <img style="float:left" src="~/imagenes/logoventa2.jpg" width="230" height="80" /><br />
-                    www.cobefar.com.pe<br /><br />
-                    <strong>N° TICKET:</strong> @ViewBag.DocNumTicket
-                    <!-- Imagen superpuesta en la esquina superior derecha -->
-                    <img src="~/imagenes/index/encabezado/bpa.jpg" width="45" height="40" style="position: absolute; top: 5px; right: 0;" />
-                </td>
-                <td style="text-align:left;font-size:9px; max-width:300px;">
-                    <strong>Dom. Fiscal:</strong> Cal.Carlos Pedemonte Nro. 145b Int. 2pis <br />
-                    Urb. Lotización Ex Fundo El Pino  Lima - Lima - San Luis<br />
-                    <strong>Almacén:</strong> Av. Nicolás Arriola N°2955-2963, 2do. Piso <br />
-                    Urb. Mercurio - San Luis - Lima - Lima<br />
-                    <strong>Almacén:</strong> Jr. Antonio Miroquezada N° 806 Int. 303<br />
-                    Lima - Lima - Lima<br />
-                    <strong>Almacén:</strong> Jr. Antonio Miroquezada N° 806 Int. 502<br />
-                    Lima - Lima - Lima<br />
-                    <strong>Teléfono:</strong> 428-1248<br />
-                    <strong>Email:</strong> cobefar.ventas@gmail.com
-                </td>
-                <td>
-                    <div style="border: 2px solid green; vertical-align: top; padding: 5px; border-radius: 15px;font-size: 19px !important; text-align: center;">
-                        <div style="margin: 10px 0;"></div>
-                        <div style="font-size: 19px !important; text-align: center;">R.U.C. 20600546041</div>
-                        <div style="margin: 25px 0;"></div>
+    <table style="width:100%;">
+        <tr>
+            <!-- Logo -->
+            <td style="width:60%; vertical-align:top;">
+                <img src="~/imagenes/Logo - Disfar Oriente.png" width="180" height="100"
+                     style="float:left; margin-right:15px;" />
+                <div style="font-size:12px; color:#1F4E79; font-weight:bold; margin-top:5px;">
+                    DISFAR ORIENTE S.A.C.
+                </div>
+                <div style="font-size:9.5px; color:#555; line-height:1.4; margin-top:4px;">
+                    PJ. PROGRESO NRO. 118 (ALT CUADRA 2 VIA
+                    DEEVITAMIENTO)-MORALES-SAN MARTÍN SAN MARTÍN<br /><br />
+                    Morales - San Martín - San Martín
+                </div>
+            </td>
+            <!-- Caja RUC -->
+            <td style="width:40%; vertical-align:top;">
+                <div style="border:2px solid #1F4E79; border-radius:15px; padding:15px; text-align:center;">
+                    <div style="font-size:12px; color:#333; margin-bottom:8px;">RUC: 20615244156</div>
+                    <div style="font-size:13px; font-weight:bold; color:#1F4E79; margin-bottom:8px; line-height:1.2;">
                         @if (ViewBag.Tipo == "F")
-                        {
-                            <strong style="font-size: 19px !important; text-align: center;">FACTURA ELECTRÓNICA</strong>
-                        }
-                        else
-                        {
-                            <strong style="font-size: 19px !important; text-align: center;">BOLETA ELECTRÓNICA</strong>
-                        }
-                        <div style="margin: 25px 0;"></div>
-                        <div style="font-size: 19px !important; text-align: center;">N° @Cab.SerieDoc-@Cab.CorreDoc</div>
-                        <div style="margin: 10px 0;"></div>
+                        {<text>FACTURA ELECTRÓNICA</text> }
+                    else
+                    { <text>BOLETA ELECTRÓNICA</text>}
                     </div>
-                </td>
+                    <div style="font-size:12px; color:#333;">N° @Cab.SerieDoc-@Cab.CorreDoc</div>
+                </div>
+            </td>
+        </tr>
+    </table>
+
+
+    <!-- ══ DATOS CLIENTE ══ -->
+    <div class="border-box">
+        <table style="table-layout:fixed; width:100%;">
+            <tr>
+                <td style="width:70px; font-weight:bold; padding:4px 0;">Cliente:</td>
+                <td style="width:65%; padding:4px 0; word-wrap:break-word; white-space:normal;">@Cab.NombreSocio</td>
+                <td style="width:55px; font-weight:bold; padding:4px 0;">Moneda:</td>
+                <td style="padding:4px 0;">SOLES</td>
+            </tr>
+            <tr>
+                <td style="font-weight:bold; padding:4px 0;">RUC:</td>
+                <td style="padding:4px 0;">@Cab.Ruc</td>
+                <td style="font-weight:bold; padding:4px 0;">IGV:</td>
+                <td style="padding:4px 0;">18.00 %</td>
+            </tr>
+            <tr>
+                <td style="font-weight:bold; padding:4px 0;">Dirección:</td>
+                <td style="padding:4px 0; word-wrap:break-word; white-space:normal;" colspan="3">@Cab.DirPagar</td>
             </tr>
         </table>
-        <div style="width: 65%; display: inline-block; border: 2px solid green; vertical-align: top; padding: 5px; border-radius: 15px;margin-bottom:15px">
-            <table style="text-align:left" border="0">
-                <tr>
-                    <td>Cliente:</td>
-                    <td><text>@Cab.NombreSocio</text></td>
-                </tr>
-                <tr>
-                    <td>Dirección:</td>
-                    <td colspan="3" width="400px">@Cab.DirPagar</td>
-                </tr>
-                <tr>
-                    <td>R.U.C.:</td>
-                    <td colspan="3">@Cab.Ruc</td>
-                </tr>
-                <tr>
-                    <td>NRO O/C:</td>
-                    <td colspan="3">@Cab.NroOCCliente</td>
-                </tr>
-            </table>
-        </div>
-        <div style="width: 30%; display: inline-block; text-align:left;">
-            <br />
-            <table>
-                <tr><td>FECHA DE EMISIÓN: @Cab.Fecha</td></tr>
-                <tr><td>MONEDA: Soles</td></tr>
-                <tr><td>ALMÁCEN: @Cab.Almacen</td></tr>
-            </table>
-        </div>
     </div>
+    <div style="height: 6px;"></div>
+
 </body>
 </html>

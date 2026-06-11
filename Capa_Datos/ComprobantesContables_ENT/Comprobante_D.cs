@@ -373,12 +373,34 @@ namespace Capa_Datos.ComprobantesContables_ENT
 
                         lista.Add(c);
                     }
-
+                    if (lista.Count() >0)
+                    {
+                        lista[0].Observacion = ObtenerDatosxDocEntry(lista[0].DocEntry);
+                    } 
                 }
                 hdr.Close();
             }
             catch (Exception e) { throw new Exception(e.Message); }
             return lista;
+        }
+        public string ObtenerDatosxDocEntry(int DocEntry)
+        {
+            string resultado = string.Empty;
+            try
+            {
+                var query = $"SELECT \"Comments\" FROM {uti.schemaHana}OINV WHERE \"DocEntry\" = '{DocEntry}'";
+                HanaDataReader hdr = db.HanaExecuteReaderNoSp(query);
+                if (hdr.HasRows && hdr.Read())
+                {
+                    if (!hdr.IsDBNull(0)) { resultado = hdr.GetValue(0).ToString(); }       
+                }
+                hdr.Close();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            return resultado;
         }
         public List<ComprobanteDePago_E> ObtenerCabeceraFactura(string NumAtCard) // devuelve la factura solo con los requeridos para la cabecera
         {
