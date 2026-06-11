@@ -57,6 +57,8 @@ namespace Capa_Entidad.ComprobantesContables_ENT
         public string TipoComprobantePago { get; set; }
         public string NroComprobantePago { get; set; }
         public string Um { get; set; }
+        public string Observacion { get; set; }
+
         // metodos del layout
         public decimal cantVta()
         {

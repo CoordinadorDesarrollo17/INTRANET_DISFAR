@@ -32,7 +32,7 @@
             font-size: 11px;
             font-weight: bold;
             color: #444;
-            margin-top: 15px;
+            margin-top: 5px;
             margin-bottom: 5px;
             text-transform: uppercase;
         }
@@ -154,8 +154,9 @@
     </table>
 
     <div style="margin-top: 15px; font-size: 10px; color: #555;">
-        <strong>OBSERVACIONES</strong><br />
-        <span style="color:#777;">@(string.IsNullOrWhiteSpace(ViewBag.NroCajas?.ToString()) ? "FDS" : "Nro. de Cajas: " + ViewBag.NroCajas)</span>
+        @*<strong>OBSERVACIONES</strong><br />*@
+        @*<span style="color:#777;">@(string.IsNullOrWhiteSpace(ViewBag.NroCajas?.ToString()) ? "FDS" : "Nro. de Cajas: " + ViewBag.NroCajas)</span>*@
+        @*<span style="color:#777;">@Cab.Observacion</span>*@
     </div>
 
 </body>
