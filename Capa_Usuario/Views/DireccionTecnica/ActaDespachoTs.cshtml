@@ -14,13 +14,13 @@
 
 <table border=0 style="font-size:12px">
     <tr>
-        <td><img width="120" height="50" src="~/imagenes/logoventa2.jpg" /></td>
+        <td><img width="120" height="50" src="~/imagenes/Logo - Disfar Oriente.png" /></td>
         <td colspan="2" width="560"></td>
         <td colspan="2">
             <table width="100%">
                 <tr class="conBorde">
-                    <td width="100" style="text-align: center;"><strong>F/ALM-001</strong></td>
-                    <td style="text-align:center;" width="30"><strong>V2</strong></td>
+                    <td width="100" style="text-align: center;"><strong>REG-012-00</strong></td>
+                    <td style="text-align:center;" width="30"><strong>V1</strong></td>
                 </tr>
             </table>
         </td>
@@ -118,20 +118,14 @@
 <table border="0" style="font-size:9px;text-align:center" width="900">
     <tr>
         <td width="400" align="center" valign="bottom">
-            <div style="border-bottom: solid 1px black; width: 80%; margin: 0 auto;">
-                @if (ViewBag.FirmaResponsable != null)
-                {
-                    <img src="@ViewBag.FirmaResponsable" width="150" />
-                }
-                else
-                {
-                    <br /><br /><br /><br />}
+            <div style="border-bottom: solid 1px black; width: 150px; margin: 0 auto;">
+                <img src="~/imagenes/FirmaJulioRoman.png" width="150" />
             </div>
         </td>
 
         <td width="100"></td>
 
-        <td width="400" align="center" valign="bottom">
+        @*<td width="400" align="center" valign="bottom">
             <div style="border-bottom: solid 1px black; width: 80%; margin: 0 auto;">
                 @if (ViewBag.PersonaEntrega != null)
                 {
@@ -141,20 +135,20 @@
                 {
                     <br /><br /><br /><br />}
             </div>
-        </td>
+        </td>*@
     </tr>
     <tr>
         <td align="center" valign="top">
-            ENTREGADO POR:<br />
+            JEFE DE ALMACEN:<br />
             (FIRMA Y SELLO)
         </td>
-        <td></td>
+        @*<td></td>
         <td align="center" valign="top">
             RECIBIDO POR:
-        </td>
+        </td>*@
     </tr>
 
-    <tr>
+    @*<tr>
         <td colspan="3">
             <table width="50%" style="margin: auto; padding-top: 20px">
                 <tr>
@@ -162,5 +156,5 @@
                 </tr>
             </table>
         </td>
-    </tr>
+    </tr>*@
 </table>
