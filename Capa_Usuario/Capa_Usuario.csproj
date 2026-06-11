@@ -366,6 +366,7 @@
     <Content Include="Content\css\bootstrap.css.map" />
     <Content Include="Content\css\bootstrap.min.css.map" />
     <Content Include="Content\estilos.less" />
+    <Content Include="imagenes\FirmaJulioRoman.png" />
     <Content Include="imagenes\index\ReportesDigemid\cargando.gif" />
     <Content Include="Content\img\checkAzul.png" />
     <Content Include="Content\img\escudo_nacional.png" />
