@@ -9,181 +9,154 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LayoutGuia</title>
+    <title>LayoutGuia - Cuerpo</title>
     <style>
         * {
-            font-family: 'Verdana', sans-serif;
-            font-size: 12px;
+            font-family: 'Arial', 'Verdana', sans-serif;
+            box-sizing: border-box;
         }
-        .page-break {
-            page-break-before: always;
+
+        body {
+            margin: 0;
+            padding: 10px;
+            color: #333;
+            font-size: 11px;
         }
+
         table {
-            border-collapse: collapse;
             width: 100%;
+            border-collapse: collapse;
         }
 
-        td, th {
-            padding: 5px;
+        .section-title {
+            font-size: 11px;
+            font-weight: bold;
+            color: #444;
+            margin-top: 15px;
+            margin-bottom: 5px;
+            text-transform: uppercase;
         }
 
-        .bordered-table {
-            border-collapse: collapse;
-            width: 100%;
-            border-spacing: 0;
+        .border-box {
+            border: 1px solid #b0bfc6;
+            border-radius: 6px;
+            padding: 10px;
+            margin-bottom: 12px;
+            background-color: #ffffff;
         }
+
+        /* Tabla de Ítems */
+        .items-table {
+            width: 100%;
+            margin-top: 15px;
+            margin-bottom: 15px;
+        }
+
+            .items-table th {
+                background-color: #0a3a60;
+                color: white;
+                font-weight: bold;
+                font-size: 10px;
+                padding: 6px;
+                border: 1px solid #0a3a60;
+                text-align: center;
+            }
+
+            .items-table td {
+                padding: 6px;
+                border: 1px solid #b0bfc6;
+                text-align: center;
+                font-size: 11px;
+            }
     </style>
 </head>
 <body>
-    <div>
-        @if (ViewBag.Tipo == "T")
-        {
-            <div style="border:1px black solid">
-                <table style="text-align:left" border="0">
-                    <tr>
-                        <td style="width:100px"><strong>Motivo de traslado : </strong></td>
-                        <td>
-                            @(Cab.Motivo_Trasl == "01" ? "Venta" : "Traslado entre establecimiento de la misma empresa")
-                        </td>
-                        <td style="width:150px"><strong>Direc. Punto partida : </strong></td>
-                        <td>@Cab.DirSalida<br /></td>
-                    </tr>
-                    <tr>
-                        <td style="width:100px"><strong>Modalidad de traslado :</strong></td>
-                        <td>@(Cab.Modalidad_Trasl == "01" ? "Transporte Público" : "Transporte Privado")</td>
-                        <td style="width:150px"><strong>Direc. Punto llegada : </strong></td>
-                        <td>@Cab.DirLlegada</td>
-                    </tr>
-                </table>
-            </div>
-        }
-        else if (ViewBag.Tipo == "E")
-        {
-            <div style="border:1px black solid">
-                <table style="text-align:left" border="0">
-                    <tr>
-                        <td style="width:100px"><strong>Motivo de traslado :</strong> </td>
-                        <td>
-                            @(Cab.Motivo_Trasl == "01" ? "Venta" : "Traslado entre establecimiento de la misma empresa")
-                        </td>
-                        <td style="width:150px"><strong>Direc. Punto partida :</strong> </td>
-                        <td>@Cab.DirSalida</td>
-                    </tr>
-                    <tr>
-                        <td style="width:100px"><strong>Modalidad de traslado : </strong> </td>
-                        <td>
-                            @(Cab.Modalidad_Trasl == "01" ? "Transporte Público" : "Transporte Privado")
-                        </td>
-                        <td style="width:150px"><strong>Direc. Punto llegada :</strong> </td>
-                        <td>@Cab.DirCliente</td>
-                    </tr>
-                </table>
-            </div>
-        }
-    <div style="border:1px black solid;margin:20px 0 20px 0;">
-        <table style="text-align:left" border="0">
-            <tr><td colspan="3"><strong>DATOS DEL CONDUCTOR Y UNIDAD DE TRANSPORTE:</strong></td></tr>
+
+    <div class="section-title">Detalle de la Guía:</div>
+    <div class="border-box">
+        <table style="vertical-align: top;">
             <tr>
-                <td><strong>Conductor :</strong> </td>
-                <td>@Cab.Conductor</td>
-                <td><strong>Marca : </strong></td>
-                <td>@Cab.Marca</td>
-            </tr>
-            <tr>
-                <td><strong>DNI : </strong></td>
-                <td>@Cab.DNI_Conduc</td>
-                <td><strong>Placa : </strong></td>
-                <td>@Cab.Placa</td>
-            </tr>
-            <tr>
-                <td><strong>Licencia : </strong> </td>
-                <td>@Cab.Licencia</td>
-                <td><strong>RUC : </strong></td>
-                @if (Cab.Modalidad_Trasl =="01")
-                {
-                    <td>@Cab.RucTransportista</td>
-                }
-            </tr>
-            <tr>
-                <td colspan="2"></td>
-                <td><strong>Razón social :</strong></td>
-                @if (Cab.Modalidad_Trasl == "01")
-                {
-                    <td>@Cab.NomTransportista</td>
-                }
-                <td></td>
+                <td style="width: 50%; padding-right: 15px; border-right: 1px dashed #b0bfc6; line-height: 1.7;">
+                    <strong>Tipo de Transportista:</strong> @(Cab.Modalidad_Trasl == "01" ? "PÚBLICO" : "PRIVADO")<br />
+                    <strong>transportista:</strong> @(Cab.Modalidad_Trasl == "01" ? Cab.NomTransportista : "-")<br />
+                    <strong>Und. de Medida:</strong> KGM<br />
+                    <strong>Peso Bruto:</strong> @(ViewBag.PesoTicket == "0" || string.IsNullOrWhiteSpace(ViewBag.PesoTicket) ? "0.00" : ViewBag.PesoTicket)<br />
+                    <strong>Motivo:</strong> @(Cab.Motivo_Trasl == "01" ? "VENTA" : "TRASLADO ENTRE ESTABLECIMIENTOS DE LA MISMA EMPRESA")
+                </td>
+                <td style="width: 50%; padding-left: 15px; line-height: 1.5;">
+                    <strong style="color:#0a3a60;">PUNTO DE PARTIDA:</strong><br />
+                    <span style="color:#555;">@Cab.DirSalida</span><br /><br />
+                    <strong style="color:#0a3a60;">PUNTO DE LLEGADA:</strong><br />
+                    <span style="color:#555;">@(ViewBag.Tipo == "T" ? Cab.DirLlegada : Cab.DirCliente)</span>
+                </td>
             </tr>
         </table>
     </div>
 
-        <table border="1" style="font-size:11px;">
-            @*@{*@
+    <div class="border-box" style="margin-top: 15px;">
+        <table style="line-height: 1.6; vertical-align: top;">
             <tr>
-                <th style="width: 60px;">CANT.</th>
-                <th style="width: 400px;">DESCRIPCION</th>
-                <th style="width: 50px;">LAB.</th>
-                <th style="width: 50px;">LOTE</th>
-                <th style="width: 70px;">FECHA<br /> VC.</th>
-                <th style="width: 60px;">UNID.</th>
+                <td style="width: 33%; border-right: 1px solid #e0e0e0; padding-right: 5px;">
+                    <strong style="color: #555; display:block; margin-bottom:4px;">DATOS DEL CONDUCTOR:</strong>
+                    <strong>N° de documento:</strong> @Cab.DNI_Conduc<br />
+                    <strong>N° de licencia:</strong> @Cab.Licencia<br />
+                    <strong>Nombres y apellidos:</strong> @Cab.Conductor
+                </td>
+                <td style="width: 33%; border-right: 1px solid #e0e0e0; padding-left: 10px; padding-right: 5px;">
+                    <strong style="color: #555; display:block; margin-bottom:4px;">DATOS DEL VEHÍCULO:</strong>
+                    <strong>Marca:</strong> @Cab.Marca<br />
+                    <strong>Placa:</strong> @Cab.Placa
+                </td>
+                <td style="width: 34%; padding-left: 10px;">
+                    <strong style="color: #555; display:block; margin-bottom:4px;">DATOS DEL TRANSPORTISTA:</strong>
+                    @if (Cab.Modalidad_Trasl == "01")
+                    {
+                        <strong>RUC:</strong> @Cab.RucTransportista<br />
+                        <strong>Razón Social:</strong> @Cab.NomTransportista
+                    }
+                    else
+                    {
+                        <span>-</span>
+                    }
+                </td>
             </tr>
+        </table>
+    </div>
+
+    <table class="items-table">
+        <thead>
+            <tr>
+                <th style="width: 6%;">ITEM</th>
+                <th style="width: 10%;">CANTIDAD</th>
+                <th style="width: 12%;">UNIDAD</th>
+                <th style="width: 14%;">CÓDIGO</th>
+                <th style="width: 38%;">DESCRIPCIÓN</th>
+                <th style="width: 10%;">LOTE</th>
+                <th style="width: 10%;">F. V</th>
+            </tr>
+        </thead>
+        <tbody>
+            @{ int index = 1; }
             @foreach (var item in Model)
             {
-                <tr style="text-align:center; page-break-inside: avoid;">
-                    <td style="width: 60px;">
-                        @Math.Round(item.cantVta(), 0)
-                        @item.UM()
-                    </td>
-                    <td style="width: 400px; text-align:left !important;">
-                        @Html.DisplayFor(modelItem => item.DescripcionArticulo)
-                    </td>
-                    <td style="width: 50px;">
-                        @Html.DisplayFor(modelItem => item.Laboratorio)
-                    </td>
-                    <td style="width: 50px;">
-                        @Html.DisplayFor(modelItem => item.LoteNum)
-                    </td>
-                    <td style="width: 70px;">
-                        @Html.DisplayFor(modelItem => item.VctoLote)
-                    </td>
-                    <td style="width: 60px;">
-                        @Html.DisplayFor(modelItem => item.UniMedida)
-                    </td>
+                <tr style="page-break-inside: avoid;">
+                    <td>@index</td>
+                    <td>@Math.Round(item.cantVta(), 0)</td>
+                    <td>@Html.DisplayFor(modelItem => item.UniMedida)</td>
+                    <td>@Html.DisplayFor(modelItem => item.ItemCode)</td>
+                    <td style="text-align: left;">@Html.DisplayFor(modelItem => item.DescripcionArticulo)</td>
+                    <td>@Html.DisplayFor(modelItem => item.LoteNum)</td>
+                    <td>@Html.DisplayFor(modelItem => item.VctoLote)</td>
                 </tr>
+                index++;
             }
+        </tbody>
+    </table>
 
-        </table>
-        <table style="font-size:11px;margin-top:20px;" border="0">
-    <tr>
-        @if (ViewBag.Tipo == "T")
-        {
-            <td style="vertical-align:top; width:100%; text-align:left;">
-                <span>Peso: @(ViewBag.PesoTicket == "0" || string.IsNullOrWhiteSpace(ViewBag.PesoTicket) ? "No se registró peso" : ViewBag.PesoTicket + "Kg.")</span><br />
-                <span>Nro. de Cajas: @ViewBag.NroCajas</span>
-            </td>
-        }
-        else if (ViewBag.Tipo == "E")
-        {
-            <td style="vertical-align:top; width:50%; text-align:left;">
-                <strong>Encargado de recojo :</strong><br />
-                <span>Nombre: @ViewBag.PersonaRecojo.Item1</span><br />
-                <span>Documento: @ViewBag.PersonaRecojo.Item2</span><br />
-                <span>Telefono: @ViewBag.PersonaRecojo.Item3</span><br /><br />
-            </td>
-            <td style="vertical-align:top; width:50%; text-align:right;">
-                @if (ViewBag.PesoTicket != "0" && !string.IsNullOrWhiteSpace(ViewBag.PesoTicket))
-                {
-                    <span>Peso: @(ViewBag.PesoTicket + "Kg.")</span><br />
-                }
-                <span>Nro. de Cajas: @ViewBag.NroCajas</span>
-            </td>
-        }
-    </tr>
-</table>
+    <div style="margin-top: 15px; font-size: 10px; color: #555;">
+        <strong>OBSERVACIONES</strong><br />
+        <span style="color:#777;">@(string.IsNullOrWhiteSpace(ViewBag.NroCajas?.ToString()) ? "FDS" : "Nro. de Cajas: " + ViewBag.NroCajas)</span>
     </div>
+
 </body>
 </html>
-
-
-
-
-

@@ -9,113 +9,93 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LayoutGuia</title>
+    <title>LayoutGuia - Header</title>
     <style>
         * {
-            font-family: 'Verdana', sans-serif;
-        }
-       
-        table {
-            border-collapse: collapse;
-            width: 100%;
+            font-family: 'Arial', 'Verdana', sans-serif;
+            box-sizing: border-box;
         }
 
-        td, th {
-            padding: 5px;
+        body {
+            margin: 0;
+            padding: 10px;
+            color: #333;
+            font-size: 11px;
         }
-     
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .border-box {
+            border: 1px solid #b0bfc6;
+            border-radius: 10px;
+            padding: 10px;
+            margin-top: 15px;
+        }
     </style>
 </head>
-<body style="margin-top: 0;">
-    <div>
-        <table border="0">
-            <tr>
-                
-            </tr>
-            <tr>
+<body>
 
-                <td style="font-size: 10px; text-align: left; position: relative;">
-                    <img style="float:left" src="~/imagenes/logoventa2.jpg" width="230" height="80" /><br />
-                    www.cobefar.com.pe<br /><br />
-                    <strong>N° TICKET:</strong> @ViewBag.DocNumTicket
-                    <img src="~/imagenes/index/encabezado/bpa.jpg" width="45" height="40" style="position: absolute; top: 5px; right: 0;" />
-                </td>
-                <td style="text-align:left; font-size:10px; max-width:300px;">
-                    @if (ViewBag.Agencia is true)
-                    {
-                        <div style="border:2px solid #006400; border-radius:10px; height:90px; font-size:34px; font-weight:bold; color:#006400; width:100%; text-align:center; line-height:90px;">
-                            CARGO
-                        </div>
-                    }
-                    else
-                    {
-                        <div>
-                            <strong>Dom. Fiscal:</strong> Cal.Carlos Pedemonte Nro. 145b Int. 2pis<br />
-                            Urb.Lotización Ex Fundo El Pino Lima - Lima - San Luis<br />
-                            <strong>Almacén:</strong> Av.Nicolás Arriola N°2955 - 2963, 2do.Piso<br />
-                            Urb.Mercurio - San Luis - Lima - Lima<br />
-                            <strong>Almacén:</strong> Jr.Antonio Miroquezada N° 806 Int. 303<br />
-                            Lima - Lima - Lima<br />
-                            <strong>Almacén:</strong> Jr.Antonio Miroquezada N° 806 Int. 502<br />
-                            Lima - Lima - Lima<br />
-                            <strong>Teléfono:</strong> 428 - 1248<br />
-                            <strong>Email:</strong> cobefar.ventas@gmail.com
-                        </div>
-                    }
-                </td>
-                    <td style="font-size: 20px !important; text-align: center;">
-                        <div style="border: 2px solid green; vertical-align: top; padding: 5px; border-radius: 15px;">
-                            <div style="height:10px;"></div> R.U.C. 20600546041   <div style="height:25px;"></div>
-                            <strong>GUÍA DE REMISIÓN </strong><br />
-                            <strong>ELECTRÓNICA REMITENTE</strong><div style="height:25px;"></div>
-                            @Cab.NumAtCard <div style="height:10px;">
-                            </div>
-                        </div>
-                    </td>
+    <table>
+        <tr>
+            <td style="width: 60%; vertical-align: top;">
+                <img src="~/imagenes/Logo - Disfar Oriente.png" width="160" height="55" style="float: left; margin-right: 15px;" />
+                <div style="font-size: 11px; color: #0a3a60; font-weight: bold; margin-top: 5px;">DISFAR ORIENTE S.A.C.</div>
+                <div style="font-size: 9px; color: #555; line-height: 1.3; margin-top: 3px;">
+                    PJ. PROGRESO NRO. 118 (ALT CUADRA 2 VIA DEEVITAMIENTO)-MORALES-SAN MARTÍN SAN MARTÍN<br />
+                    <span style="color: #777;">Morales - San Martín - San Martín</span>
+                </div>
+            </td>
+            <td style="width: 40%; vertical-align: top;">
+                <div style="border: 2px solid #0a3a60; border-radius: 15px; padding: 12px; text-align: center;">
+                    <div style="font-size: 11px; color: #333; margin-bottom: 5px; font-weight: bold;">RUC: 20615244156</div>
+                    <div style="font-size: 11px; font-weight: bold; color: #0a3a60; margin-bottom: 5px; line-height: 1.2;">
+                        GUÍA DE REMISIÓN REMITENTE<br />ELECTRÓNICA
+                    </div>
+                    <div style="font-size: 11px; color: #333;">Nro. @Cab.NumAtCard</div>
+                </div>
+            </td>
+        </tr>
+    </table>
+
+    <div class="border-box">
+        <table style="line-height: 1.6;">
+            @if (ViewBag.Tipo == "T")
+            {
+                <tr>
+                    <td style="width: 12%; font-weight: bold;">Cliente:</td>
+                    <td style="width: 48%;">@Cab.NombreBD</td>
+                    <td style="width: 18%; font-weight: bold;">Fecha de emisión:</td>
+                    <td style="width: 22%;">@Cab.DocDate</td>
                 </tr>
+                <tr>
+                    <td style="font-weight: bold;">RUC:</td>
+                    <td>@Cab.RucBD</td>
+                    <td style="font-weight: bold;">Fecha de Traslado:</td>
+                    <td>@Cab.FechaTrasl</td>
+                </tr>
+            }
+            else if (ViewBag.Tipo == "E")
+            {
+                <tr>
+                    <td style="width: 12%; font-weight: bold;">Cliente:</td>
+                    <td style="width: 48%;">@Cab.CardName</td>
+                    <td style="width: 18%; font-weight: bold;">Fecha de emisión:</td>
+                    <td style="width: 22%;">@Cab.DocDate</td>
+                </tr>
+                <tr>
+                    <td style="font-weight: bold;">RUC:</td>
+                    <td>
+                        @(Cab.CardCode != null && Cab.CardCode.Length == 12 ? Cab.CardCode.Substring(1, 11) : Cab.CardCode)
+                    </td>
+                    <td style="width: 18%; font-weight: bold;">Fecha de Traslado:</td>
+                    <td>@Cab.FechaTrasl</td>
+                </tr>
+            }
         </table>
-        @if (ViewBag.Tipo == "T")
-        {
-            <div style="width: 100%; display: inline-block; border: 2px solid green; vertical-align: top; padding: 5px; border-radius: 15px; margin: 15px 0px 15px 0px; box-sizing: border-box; ">
-                <table style="font-size:12px; width:auto;">
-                    <tr>
-                        <td>Destinatario : @Cab.NombreBD</td>
-                        <td>Fecha de emisión : @Cab.DocDate</td>
-                    </tr>
-                    <tr>
-                        <td>R.U.C. : @Cab.RucBD</td>
-                        <td>Fecha de traslado : @Cab.FechaTrasl</td>
-                    </tr>
-                </table>
-            </div>
-      
-        }
-        else if (ViewBag.Tipo == "E")
-        {
-            <div style="width: 100%; display: inline-block; border: 2px solid green; vertical-align: top; padding: 5px; border-radius: 15px; margin: 15px 0px 15px 0px; box-sizing: border-box; ">
-                <table style="font-size:12px;text-align:left" border="0">
-                    <tr>
-                        <td>Destinatario : @Cab.CardName</td>
-                        <td>Fecha de emisión : @Cab.DocDate</td>
-                    </tr>
-                    <tr>
-                        <td>
-                            R.U.C. :  @if (Cab.CardCode != null && Cab.CardCode.Length == 12)
-                            {@Cab.CardCode.Substring(1, 11)}
-                        else
-                        {@Cab.CardCode}
-                        </td>
-                      
-                        <td>Fecha de traslado : @Cab.FechaTrasl</td>
-                    </tr>
-                </table>
-            </div>
-         
-        }
     </div>
 
 </body>
 </html>
-
-
-
