@@ -15,8 +15,8 @@
                 <td colspan="2" width="180" align=right>
                     <table width="100%" style="font-size:12px;">
                         <tr>
-                            <td width="100" style="text-align: center; border: 1px solid"><strong>REG-009-00</strong></td>
-                            <td style="text-align: center; border: 1px solid" width="30"><strong>V1</strong></td>
+                            <td width="100" style="text-align: center;"><strong>REG-009-00</strong></td>
+                            @*<td style="text-align: center; border: 1px solid" width="30"><strong>V1</strong></td>*@
                         </tr>
                     </table>
                 </td>
@@ -213,38 +213,22 @@
                 <td colspan=4 height="35"></td>
             </tr>
             <tr>
-                <td align="center" style="border-bottom: solid 1px">
-                    @if (ViewBag.Firma != null)
-                    {<img src="@ViewBag.Firma" width="150" />}
-                </td>
-                <td></td>
-                <td></td>
-                <td align="center" style="border-bottom: solid 1px"><img src="@ViewBag.FirmaDT" width="150" /></td>
+                <td colspan="4" height="35"></td>
             </tr>
+
             <tr>
-                <td align=center>
-                    Elaborado por: @if (ViewBag.QuimicoFarmaceuticoAsistente != null)
-                    { Write(ViewBag.QuimicoFarmaceuticoAsistente); }
+                <td colspan="4" align="center">
+                    <div style="border-bottom: solid 1px black; width:150px; margin:auto;">
+                        <br /><br /><br />
+                    </div>
                 </td>
-                <td></td>
-                <td></td>
-                <td align=center>V°B° Director Técnico</td>
             </tr>
+
             <tr>
-                <td align=center>Químico Farmaceutico Asistente</td>
-                <td></td>
-                <td></td>
-                <td align=center></td>
-            </tr>
-            @*<tr>
-                <td colspan="4">
-                    <table width="50%" style="margin: auto; padding-top: 20px">
-                        <tr>
-                            <td style="color: black; border: solid 1px; border-color: gray; font-size: 11px;text-align: center">Prohibido reproducir sin autorización de DROGUERÍA COBEFAR</td>
-                        </tr>
-                    </table>
+                <td colspan="4" align="center">
+                    V°B° Director Técnico
                 </td>
-            </tr>*@
+            </tr>
         </table>
     </div>
 }
