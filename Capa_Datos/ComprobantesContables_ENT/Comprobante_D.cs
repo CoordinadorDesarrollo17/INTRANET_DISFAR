@@ -300,6 +300,7 @@ namespace Capa_Datos.ComprobantesContables_ENT
                                 if (!hdr.IsDBNull(28)) { c.NroComprobantePago = hdr.GetString(28); }
                                 if (!hdr.IsDBNull(29)) { c.RucTransportista = hdr.GetString(29); }
                                 if (!hdr.IsDBNull(30)) { c.NomTransportista = hdr.GetString(30); }
+                                if (!hdr.IsDBNull(31)) { c.ItemCode = hdr.GetString(31); }
                                 lista.Add(c);
                             }
 

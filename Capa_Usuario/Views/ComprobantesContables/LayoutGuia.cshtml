@@ -78,7 +78,7 @@
             <tr>
                 <td style="width: 50%; padding-right: 15px; border-right: 1px dashed #b0bfc6; line-height: 1.7;">
                     <strong>Tipo de Transportista:</strong> @(Cab.Modalidad_Trasl == "01" ? "PÚBLICO" : "PRIVADO")<br />
-                    <strong>transportista:</strong> @(Cab.Modalidad_Trasl == "01" ? Cab.NomTransportista : "-")<br />
+                    <strong>Transportista:</strong> @(Cab.Modalidad_Trasl == "01" ? Cab.NomTransportista : "-")<br />
                     <strong>Und. de Medida:</strong> KGM<br />
                     <strong>Peso Bruto:</strong> @(ViewBag.PesoTicket == "0" || string.IsNullOrWhiteSpace(ViewBag.PesoTicket) ? "0.00" : ViewBag.PesoTicket)<br />
                     <strong>Motivo:</strong> @(Cab.Motivo_Trasl == "01" ? "VENTA" : "TRASLADO ENTRE ESTABLECIMIENTOS DE LA MISMA EMPRESA")

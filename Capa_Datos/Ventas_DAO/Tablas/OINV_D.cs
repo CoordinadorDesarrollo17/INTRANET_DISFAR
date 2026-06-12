@@ -471,6 +471,7 @@ namespace Capa_Datos.Ventas_DAO.Tablas
                             if (!hdr.IsDBNull(29)) { c.Moneda = hdr.GetString(29); }
                             if (!hdr.IsDBNull(30)) { c.MonedaLetras = hdr.GetString(30); }
                             if (!hdr.IsDBNull(31)) { c.Telefonos = hdr.GetString(31); }
+                            if (!hdr.IsDBNull(42)) { c.ItemCode = hdr.GetString(42); }
                             if (!hdr.IsDBNull(43)) { c.DescripcionLinea = hdr.GetString(43); }
                             if (!hdr.IsDBNull(44)) { c.Um = hdr.GetString(44); }
                             if (!hdr.IsDBNull(45)) { c.Cantidad = Math.Round(hdr.GetDecimal(45), 2); }
@@ -482,8 +483,14 @@ namespace Capa_Datos.Ventas_DAO.Tablas
                             if (!hdr.IsDBNull(67)) { c.Impuesto = Math.Round(hdr.GetDecimal(67), 2); }
                             if (!hdr.IsDBNull(68)) { c.DocTotal = Math.Round(hdr.GetDecimal(68), 2); }
                             if (!hdr.IsDBNull(72)) { c.ImpuestoPorcentaje = Math.Round(hdr.GetDecimal(72), 0); }
+
+                            if (!hdr.IsDBNull(74)) { c.LoteNum =hdr.GetString(74); }
+                            if (!hdr.IsDBNull(75)) { c.CantidadL = Math.Round(hdr.GetDecimal(75), 0); }                         
+
                             if (!hdr.IsDBNull(80)) { c.CodigoGasto = hdr.GetString(80); }
                             if (!hdr.IsDBNull(81)) { c.TipoDocumentoSAP = hdr.GetString(81); }
+
+                            if (!hdr.IsDBNull(84)) { c.FechaVencimiento = hdr.GetDateTime(84).ToString("dd/MM/yyyy"); }
 
                             lista.Add(c);
                         }

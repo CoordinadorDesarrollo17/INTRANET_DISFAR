@@ -160,7 +160,7 @@ namespace Capa_Usuario.Controllers
                         DocNumTicket = docNum
                     };
                     string _headerUrlFactura = Url.Action("LayoutFactura_header", "ComprobantesContables", parametrosFactura, "http");
-                    string _footerUrlFactura = Url.Action("LayoutFactura_footer", "ComprobantesContables", null, "http");
+                    string _footerUrlFactura = Url.Action("LayoutFactura_footer", "ComprobantesContables", parametrosFactura, "http");
                     pdfResult = new ActionAsPdf("LayoutFactura", new { NumAtCard = parametrosFactura.NumAtCard })
                     {
                         FileName = fileName,
@@ -176,16 +176,19 @@ namespace Capa_Usuario.Controllers
                     var parametrosNotaCredito = new
                     {
                         NumAtCard,
-                        DocNumTicket = docNum
+                        DocNumTicket = docNum,
+                        Tipo
                     };
                     string _headerUrlNotaCredito = Url.Action("LayoutNotaCreditoDebito_header", "ComprobantesContables", parametrosNotaCredito, "http");
+                    string _footerUrlNotaCredito = Url.Action("LayoutNotaCreditoDebito_footer", "ComprobantesContables", parametrosNotaCredito, "http");
                     pdfResult = new ActionAsPdf("LayoutNotaCreditoDebito", new { NumAtCard = NumAtCard })
                     {
                         FileName = fileName,
                         PageOrientation = Rotativa.Options.Orientation.Portrait,
-                        CustomSwitches = "--header-html " + _headerUrlNotaCredito + " --header-spacing 0 ",
+                        CustomSwitches = "--header-html " + _headerUrlNotaCredito + " --header-spacing 0 " +
+                         "--footer-html " + _footerUrlNotaCredito + " --footer-spacing 0 ",
                         PageSize = Rotativa.Options.Size.A4,
-                        PageMargins = new Rotativa.Options.Margins(70, 10, 20, 10)
+                        PageMargins = new Rotativa.Options.Margins(55, 10, 30, 10)
                     };
                     break;
                 case "G":
@@ -231,48 +234,48 @@ namespace Capa_Usuario.Controllers
                         }
                     }
 
-                    // 2. PDF modificado (agencia)
-                    if (ortvE.LugarDestino != null && ortvE.LugarDestino.Contains("PROVINCIA"))
-                    {
-                        var parametrosGuiaAgencia = new
-                        {
-                            NumAtCard,
-                            DocNumTicket = docNum,
-                            Tabla = documento.TablaSAP,
-                            agencia = true
-                        };
-                        string _headerUrlGuiaAgencia = Url.Action("LayoutGuia_header", "ComprobantesContables", parametrosGuiaAgencia, "http");
-                        var pdfResultAgencia = new ActionAsPdf("LayoutGuia", parametrosGuiaAgencia)
-                        {
-                            FileName = fileName,
-                            PageOrientation = Rotativa.Options.Orientation.Portrait,
-                            CustomSwitches = "--header-html " + _headerUrlGuiaAgencia + " --header-spacing 0 ",
-                            PageSize = Rotativa.Options.Size.A4,
-                            PageMargins = new Rotativa.Options.Margins(65, 10, 20, 10)
-                        };
+                    // 2. PDF modificado (agencia) //comentamos esta parte, esto es del cargo
+                    //if (ortvE.LugarDestino != null && ortvE.LugarDestino.Contains("PROVINCIA"))
+                    //{
+                    //    var parametrosGuiaAgencia = new
+                    //    {
+                    //        NumAtCard,
+                    //        DocNumTicket = docNum,
+                    //        Tabla = documento.TablaSAP,
+                    //        agencia = true
+                    //    };
+                    //    string _headerUrlGuiaAgencia = Url.Action("LayoutGuia_header", "ComprobantesContables", parametrosGuiaAgencia, "http");
+                    //    var pdfResultAgencia = new ActionAsPdf("LayoutGuia", parametrosGuiaAgencia)
+                    //    {
+                    //        FileName = fileName,
+                    //        PageOrientation = Rotativa.Options.Orientation.Portrait,
+                    //        CustomSwitches = "--header-html " + _headerUrlGuiaAgencia + " --header-spacing 0 ",
+                    //        PageSize = Rotativa.Options.Size.A4,
+                    //        PageMargins = new Rotativa.Options.Margins(65, 10, 20, 10)
+                    //    };
 
-                        var pdfBytesGuiaAgencia = pdfResultAgencia.BuildFile(ControllerContext);
-                        using (var pdfStreamAgencia = new MemoryStream(pdfBytesGuiaAgencia))
-                        using (var pdfReaderAgencia = new PdfReader(pdfStreamAgencia))
-                        using (var paginatedPdfStreamAgencia = new MemoryStream())
-                        {
-                            using (PdfStamper stamper = new PdfStamper(pdfReaderAgencia, paginatedPdfStreamAgencia))
-                            {
-                                int totalPages = pdfReaderAgencia.NumberOfPages;
-                                for (int i = 1; i <= totalPages; i++)
-                                {
-                                    PdfContentByte content = stamper.GetUnderContent(i);
-                                    iTextSharp.text.Font font = FontFactory.GetFont("Helvetica", BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 8);
-                                    Phrase phrase = new Phrase($"Página {i} de {totalPages}", font);
-                                    ColumnText.ShowTextAligned(content, Element.ALIGN_RIGHT, phrase, 570, 30, 0);
-                                }
-                            }
-                            using (var paginatedPdfReaderAgencia = new PdfReader(paginatedPdfStreamAgencia.ToArray()))
-                            {
-                                copy.AddDocument(paginatedPdfReaderAgencia);
-                            }
-                        }
-                    }
+                    //    var pdfBytesGuiaAgencia = pdfResultAgencia.BuildFile(ControllerContext);
+                    //    using (var pdfStreamAgencia = new MemoryStream(pdfBytesGuiaAgencia))
+                    //    using (var pdfReaderAgencia = new PdfReader(pdfStreamAgencia))
+                    //    using (var paginatedPdfStreamAgencia = new MemoryStream())
+                    //    {
+                    //        using (PdfStamper stamper = new PdfStamper(pdfReaderAgencia, paginatedPdfStreamAgencia))
+                    //        {
+                    //            int totalPages = pdfReaderAgencia.NumberOfPages;
+                    //            for (int i = 1; i <= totalPages; i++)
+                    //            {
+                    //                PdfContentByte content = stamper.GetUnderContent(i);
+                    //                iTextSharp.text.Font font = FontFactory.GetFont("Helvetica", BaseFont.CP1250, BaseFont.NOT_EMBEDDED, 8);
+                    //                Phrase phrase = new Phrase($"Página {i} de {totalPages}", font);
+                    //                ColumnText.ShowTextAligned(content, Element.ALIGN_RIGHT, phrase, 570, 30, 0);
+                    //            }
+                    //        }
+                    //        using (var paginatedPdfReaderAgencia = new PdfReader(paginatedPdfStreamAgencia.ToArray()))
+                    //        {
+                    //            copy.AddDocument(paginatedPdfReaderAgencia);
+                    //        }
+                    //    }
+                    //}
                     return; // <-- IMPORTANTE: salir del método para evitar el bloque final
             }
             var pdfBytes = pdfResult.BuildFile(ControllerContext);
@@ -353,7 +356,8 @@ namespace Capa_Usuario.Controllers
                         DirPagar = cabeceraNota.DirPagar,
                         Ruc = cabeceraNota.Ruc,
                         DocDate = cabeceraNota.DocDate,
-                        MonedaLetras = cabeceraNota.MonedaLetras
+                        MonedaLetras = cabeceraNota.MonedaLetras,
+                        Motivo = cabeceraNota.Motivo
                     });
                 }
                 //Solo si estamos buscando el detalle de la nota se debe ingresar a otros metodos:
@@ -407,12 +411,13 @@ namespace Capa_Usuario.Controllers
             ViewBag.DocNumTicket = DocNumTicket;
             return View(factura);
         }
-        public ActionResult LayoutGuia_footer()
+        public ActionResult LayoutGuia_footer(string Tipo)
         {
             return View();
         }
-        public ActionResult LayoutFactura_footer()
-        {   
+        public ActionResult LayoutFactura_footer(string NumAtCard, string Tipo, int DocNumTicket)
+        {
+            ViewBag.Tipo = Tipo;
             return View();
         }
         public ActionResult LayoutFactura(string NumAtCard)
@@ -426,6 +431,12 @@ namespace Capa_Usuario.Controllers
             ViewBag.DocNumTicket = DocNumTicket;
             ViewBag.Tipo = tipo;
             return View(nota);
+        }
+
+        public ActionResult LayoutNotaCreditoDebito_footer(string numAtCard, string DocNumTicket,string Tipo)
+        {
+            ViewBag.Tipo = Tipo;
+            return View();
         }
         public ActionResult LayoutNotaCreditoDebito(string numAtCard)
         {

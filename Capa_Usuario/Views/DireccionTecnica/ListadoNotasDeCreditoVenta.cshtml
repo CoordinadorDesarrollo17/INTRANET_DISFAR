@@ -116,13 +116,14 @@
                         </td>
                         <td class="text-center">
                             <!-- Botón para descargar PDF -->
-                            <button type="button"
+                            @*<button type="button"
                                     onclick="descargarNotaCredito(@item.DocEntry, '@item.NumAtCard')"
                                     class="btn btn-sm btn-light"
                                     data-toggle="tooltip"
                                     title="Descargar PDF">
                                 <i class="icon-download text-danger"></i>
-                            </button>
+                            </button>*@
+                            <a href="@Url.Action("GenerarPDFNotaCredito", "DireccionTecnica", new { NumAtCard = item.NumAtCard})" target="_blank" class="btn btn-sm btn-light mx-2" title="Descargar PDF"><i class="icon-download text-danger"></i></a>
                         </td>
                     </tr>
                 }

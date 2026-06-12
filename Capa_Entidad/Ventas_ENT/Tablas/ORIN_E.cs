@@ -26,5 +26,6 @@ namespace Capa_Entidad.Ventas_ENT.Tablas
         public string DirPagar { get; set; }
         public string Ruc { get; set; }
         public string MonedaLetras { get; set; }
+        public string Motivo { get; set; }
     }
 }
