@@ -123,6 +123,7 @@
             padding: 8px;
             font-size: 11px;
             margin-top: 30px;
+            margin-bottom: 30px;
         }
     </style>
 </head>
@@ -131,7 +132,7 @@
     <table style="margin-bottom: 20px;">
         <tr>
             <td style="width: 60%; vertical-align: top;">
-                <img src="~\imagenes\Logo - Disfar Oriente.png" width="180" height="60" style="float: left; margin-right: 15px;" />
+                <img src="~/imagenes/Logo - Disfar Oriente.png" width="180" height="100" style="float: left; margin-right: 15px;" />
                 <div style="font-size: 12px; color: #0a3a60; font-weight: bold; margin-top: 5px;">DISFAR ORIENTE S.A.C.</div>
                 <div style="font-size: 9.5px; color: #555; line-height: 1.4; margin-top: 4px;">
                     PJ. PROGRESO NRO. 118 (ALT CUADRA 2 VIA DEEVITAMIENTO)-MORALES-SAN MARTÍN SAN MARTÍN<br />
@@ -248,7 +249,7 @@
                 foreach (var item in Model)
                 {
                     <tr>
-                        <td></td>
+                        <td>@item.ItemCode</td>
                         <td>@Math.Round(item.cantVta(), 0)</td>
                         <td>@item.F_UM()</td>
                         <td style="text-align: left;">@Html.DisplayFor(modelItem => item.Descripcion)</td>
@@ -264,84 +265,63 @@
         </tbody>
     </table>
 
-    <div class="totals-container">
-        <div style="width: 50%; float: left; font-weight: bold; color: #555; padding-top: 5px;">
-            OBSERVACIONES
-        </div>
-        <div style="width: 50%; float: right;">
-            <table class="totals-table">
-                @if (esConcepto05)
-                {
-                    var valorNeto = Cab.TotalFactura(Cab.Sum_Topgratuita(Model.ToList())) - Cab.Impuesto;
-                    var precioTotal = Cab.TotalFactura(Cab.Sum_Topgratuita(Model.ToList()));
-
-                    <tr>
-                        <td class="totals-label">OP. GRAVADAS</td>
-                        <td class="totals-value">S/ @Math.Round(valorNeto, 2).ToString("F2")</td>
-                    </tr>
-                    <tr>
-                        <td class="totals-label">OP. INAFECTAS</td>
-                        <td class="totals-value">S/ 0.00</td>
-                    </tr>
-                    <tr>
-                        <td class="totals-label">OP. EXONERADAS</td>
-                        <td class="totals-value">S/ 0.00</td>
-                    </tr>
-                    <tr>
-                        <td class="totals-label">TOTAL OP. GRATUITAS</td>
-                        <td class="totals-value">S/ 0.00</td>
-                    </tr>
-                    <tr>
-                        <td class="totals-label">DSCTOS. TOTALES</td>
-                        <td class="totals-value">S/ 0.00</td>
-                    </tr>
-                    <tr>
-                        <td class="totals-label">IGV</td>
-                        <td class="totals-value">S/ @Math.Round(Cab.Impuesto, 2).ToString("F2")</td>
-                    </tr>
-                    <tr>
-                        <td class="totals-label-final">TOTAL</td>
-                        <td class="totals-value-final">S/ @Math.Round(precioTotal, 2).ToString("F2")</td>
-                    </tr>
-                }
-                else
-                {
-                    <tr>
-                        <td class="totals-label">OP. GRAVADAS</td>
-                        <td class="totals-value">S/ @Math.Round(Cab.Tgrabado(Cab.Sum_Topgratuita(Model.ToList()), Cab.Sum_Tinafecto(Model.ToList())), 2).ToString("F2")</td>
-                    </tr>
-                    <tr>
-                        <td class="totals-label">OP. INAFECTAS</td>
-                        <td class="totals-value">S/ @Cab.F_Tinafecto(Cab.Sum_Tinafecto(Model.ToList()))</td>
-                    </tr>
-                    <tr>
-                        <td class="totals-label">OP. EXONERADAS</td>
-                        <td class="totals-value">S/ 0.00</td>
-                    </tr>
-                    <tr>
-                        <td class="totals-label">TOTAL OP. GRATUITAS</td>
-                        <td class="totals-value">S/ @Cab.F_Topgratuita(Cab.Sum_Topgratuita(Model.ToList()))</td>
-                    </tr>
-                    <tr>
-                        <td class="totals-label">DSCTOS. TOTALES</td>
-                        <td class="totals-value">S/ 0.00</td>
-                    </tr>
-                    <tr>
-                        <td class="totals-label">IGV</td>
-                        <td class="totals-value">S/ @Math.Round(Cab.Impuesto, 2).ToString("F2")</td>
-                    </tr>
-                    <tr>
-                        <td class="totals-label-final">TOTAL</td>
-                        <td class="totals-value-final">S/ @Math.Round(Cab.TotalFactura(Cab.Sum_Topgratuita(Model.ToList())), 2).ToString("F2")</td>
-                    </tr>
-                }
-            </table>
-        </div>
-    </div>
+    <table style="width:100%; margin-top:5px; margin-bottom:10px; border-collapse:collapse; page-break-inside:avoid;">
+        <tr>
+            @*<td style="vertical-align:top; padding-top:5px; font-weight:bold; color:#555;">
+                    OBSERVACIONES
+                </td>*@
+            <td style="width:290px; vertical-align:top;">
+                <table class="totals-table">
+                    @if (esConcepto05)
+                    {
+                        var valorNeto = Cab.TotalFactura(Cab.Sum_Topgratuita(Model.ToList())) - Cab.Impuesto;
+                        var precioTotal = Cab.TotalFactura(Cab.Sum_Topgratuita(Model.ToList()));
+                        <tr><td class="totals-label">OP. GRAVADAS</td>        <td class="totals-value">S/ @Math.Round(valorNeto, 2).ToString("F2")</td></tr>
+                        <tr><td class="totals-label">OP. INAFECTAS</td>       <td class="totals-value">S/ 0.00</td></tr>
+                        <tr><td class="totals-label">OP. EXONERADAS</td>      <td class="totals-value">S/ 0.00</td></tr>
+                        <tr><td class="totals-label">TOTAL OP. GRATUITAS</td> <td class="totals-value">S/ 0.00</td></tr>
+                        <tr><td class="totals-label">DSCTOS. TOTALES</td>     <td class="totals-value">S/ 0.00</td></tr>
+                        <tr><td class="totals-label">IGV</td>                 <td class="totals-value">S/ @Math.Round(Cab.Impuesto, 2).ToString("F2")</td></tr>
+                        <tr><td class="totals-label-final">TOTAL</td>         <td class="totals-value-final">S/ @Math.Round(precioTotal, 2).ToString("F2")</td></tr>
+                    }
+                    else
+                    {
+                        <tr><td class="totals-label">OP. GRAVADAS</td>        <td class="totals-value">S/ @Math.Round(Cab.Tgrabado(Cab.Sum_Topgratuita(Model.ToList()), Cab.Sum_Tinafecto(Model.ToList())), 2).ToString("F2")</td></tr>
+                        <tr><td class="totals-label">OP. INAFECTAS</td>       <td class="totals-value">S/ @Cab.F_Tinafecto(Cab.Sum_Tinafecto(Model.ToList()))</td></tr>
+                        <tr><td class="totals-label">OP. EXONERADAS</td>      <td class="totals-value">S/ 0.00</td></tr>
+                        <tr><td class="totals-label">TOTAL OP. GRATUITAS</td> <td class="totals-value">S/ @Cab.F_Topgratuita(Cab.Sum_Topgratuita(Model.ToList()))</td></tr>
+                        <tr><td class="totals-label">DSCTOS. TOTALES</td>     <td class="totals-value">S/ 0.00</td></tr>
+                        <tr><td class="totals-label">IGV</td>                 <td class="totals-value">S/ @Math.Round(Cab.Impuesto, 2).ToString("F2")</td></tr>
+                        <tr><td class="totals-label-final">TOTAL</td>         <td class="totals-value-final">S/ @Math.Round(Cab.TotalFactura(Cab.Sum_Topgratuita(Model.ToList())), 2).ToString("F2")</td></tr>
+                    }
+                </table>
+            </td>
+        </tr>
+    </table>
 
     <div class="footer-son">
         SON: @Cab.TotalL()
     </div>
 
+    <table style="width:100%; border-collapse:collapse; padding: 6px 0;">
+        <tr>
+            <!-- QR -->
+            <td style="width:15%; vertical-align:middle;">
+            </td>
+            <!-- Texto central -->
+            <td style="text-align:center; vertical-align:middle; font-size:10px; color:#333; line-height:1.8;">
+                Operador de Servicios Electrónicos<br />
+                según Resolución N° 034-005-0008776<br />
+                <br />
+                Representación impresa de la nota de crédito electrónica, consulte en www.efact.pe<br />
+                Autorizado mediante la Resolución de intendencia N° 0340050004177/SUNAT
+            </td>
+            <!-- Logo efact + verificado SUNAT -->
+            <td style="width:20%; text-align:center; vertical-align:middle;">
+                <img src="~/imagenes/logo_efact.png" width="80" /><br />
+                <img src="~/imagenes/verificado_sunat.png" width="70" style="margin-top:6px;" />
+            </td>
+        </tr>
+    </table>
 </body>
 </html>

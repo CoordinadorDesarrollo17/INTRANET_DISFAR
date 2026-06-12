@@ -136,7 +136,7 @@
                                 <a href="@Url.Action("OrganolepticoVt", "DireccionTecnica", new { DocEntry = item.DocEntry })" target="_blank" class="btn btn-sm btn-dark">Organoleptico</a>
                             </td>
                             <td class="text-center">
-                                <a href="@Url.Action("ComprobanteDePago", "DireccionTecnica", new { DocEntry = item.DocEntry, Tipo = "B" })" target="_blank" class="mx-2" title="Ver Documentos"><i class="icon-folder text-warning"></i></a>
+                                <a href="@Url.Action("ComprobanteDePago", "DireccionTecnica", new { NumAtCard = item.NumAtCard })" target="_blank" class="mx-2" title="Ver Documentos"><i class="icon-folder text-warning"></i></a>
                             </td>
                         </tr>
                     }

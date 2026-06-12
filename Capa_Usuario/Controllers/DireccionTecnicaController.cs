@@ -246,18 +246,48 @@ namespace Capa_Usuario.Controllers
         {
             return View();
         }
-        public ActionResult ComprobanteDePago(int DocEntry, string Tipo, int idOperation = 1806)
+        public ActionResult ComprobanteDePago(string NumAtCard, int idOperation = 1806)
         {
-            var resultadoAcceso = VerificarPermiso(idOperation);
-            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
+            //var resultadoAcceso = VerificarPermiso(idOperation);
+            //if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
+            //{
+            //    ViewBag.Tipo = Tipo;
+            //    return View(dgN.ConsultarComprobanteDePago(DocEntry));
+            //}
+            //else
+            //{
+            //    return resultadoAcceso;
+            //}
+   
+            var parametrosFactura = new
             {
-                ViewBag.Tipo = Tipo;
-                return View(dgN.ConsultarComprobanteDePago(DocEntry));
-            }
-            else
+                NumAtCard,
+                Tipo = NumAtCard.Substring(0, 2).Equals("01") ? "F" : "B",
+                DocNumTicket = 0
+            };
+
+            string _headerUrlFactura = Url.Action("LayoutFactura_header", "ComprobantesContables", parametrosFactura, "http");
+            string _footerUrlFactura = Url.Action("LayoutFactura_footer", "ComprobantesContables", parametrosFactura, "http");
+            string urlFactura = Url.Action(
+               "LayoutFactura",
+               "ComprobantesContables",
+               new { NumAtCard = parametrosFactura.NumAtCard },
+               Request.Url.Scheme
+            );
+
+           var  pdfResult = new UrlAsPdf(urlFactura)
             {
-                return resultadoAcceso;
-            }
+                FileName = $"Comprobante_{NumAtCard}.pdf",
+                PageOrientation = Rotativa.Options.Orientation.Portrait,
+                CustomSwitches = "--header-html " + _headerUrlFactura + " --header-spacing 0 " +
+                                 "--footer-html " + _footerUrlFactura + " --footer-spacing 0 ",
+                PageSize = Rotativa.Options.Size.A4,
+                PageMargins = new Rotativa.Options.Margins(55, 10, 30, 10)
+            };
+
+
+            return pdfResult;
+
         }
         public ActionResult ListadoBoletasDeVenta(OINV_E fil, int idOperation = 1901)
         {
@@ -986,44 +1016,73 @@ namespace Capa_Usuario.Controllers
             var lista = new ORTV_N().obtenerOrdenDeVenta(filtros.DocNum);
             return View("~/Views/Ventas/PDF/PDF_OrdenesDeVentas.cshtml", lista);
         }
-
-        public JsonResult GenerarPDFNotaCredito(int DocEntry)
+        public ActionResult GenerarPDFNotaCredito(string NumAtCard)
         {
-            try
+            var parametrosNotaCredito = new
             {
-                var datos = dgN.ConsultarNotaCreditoVentaArticulos(DocEntry);
+                NumAtCard,
+                DocNumTicket = 0,
+                Tipo = "NC"
+            };
+            string _headerUrlNotaCredito = Url.Action("LayoutNotaCreditoDebito_header", "ComprobantesContables", parametrosNotaCredito, "http");
+            string _footerUrlNotaCredito = Url.Action("LayoutNotaCreditoDebito_footer", "ComprobantesContables", parametrosNotaCredito, "http");
 
-                if (datos == null || !datos.Any())
-                {
-                    return Json(new { success = false, message = "No se encontraron datos" }, JsonRequestBehavior.AllowGet);
-                }
+            string urlNotaCredito = Url.Action(
+              "LayoutNotaCreditoDebito",
+              "ComprobantesContables",
+              new { NumAtCard = parametrosNotaCredito.NumAtCard },
+              Request.Url.Scheme
+           );
 
-                var cab = datos.First();
-                string fileName = $"NotaCredito_{cab.SerieDoc}_{cab.CorreDoc}.pdf";
-
-                var pdfResult = new ViewAsPdf("NotaDeCreditoVentaArticulos", datos)
-                {
-                    FileName = fileName,
-                    PageSize = Rotativa.Options.Size.A4,
-                    PageOrientation = Rotativa.Options.Orientation.Portrait
-                };
-
-                byte[] pdfBytes = pdfResult.BuildFile(ControllerContext);
-
-                // Guardar en servidor
-                string rutaArchivo = Path.Combine(new Utilitarios_N().directorioFileServer, "NotasCredito", fileName);
-                Directory.CreateDirectory(Path.GetDirectoryName(rutaArchivo));
-                System.IO.File.WriteAllBytes(rutaArchivo, pdfBytes);
-
-                string fileUrl = Url.Action("DescargarNotaCredito", "DireccionTecnica", new { fileName }, Request.Url.Scheme);
-
-                return Json(new { success = true, fileUrl }, JsonRequestBehavior.AllowGet);
-            }
-            catch (Exception ex)
+            var pdfResult = new UrlAsPdf(urlNotaCredito)
             {
-                return Json(new { success = false, message = ex.Message }, JsonRequestBehavior.AllowGet);
-            }
+                FileName = $"NotaCredito_{NumAtCard}.pdf",
+                PageOrientation = Rotativa.Options.Orientation.Portrait,
+                CustomSwitches = "--header-html " + _headerUrlNotaCredito + " --header-spacing 0 " +
+                 "--footer-html " + _footerUrlNotaCredito + " --footer-spacing 0 ",
+                PageSize = Rotativa.Options.Size.A4,
+                PageMargins = new Rotativa.Options.Margins(55, 10, 30, 10)
+            };
+
+            return pdfResult;
         }
+        //public JsonResult GenerarPDFNotaCredito(int DocEntry)
+        //{
+        //    try
+        //    {
+        //        var datos = dgN.ConsultarNotaCreditoVentaArticulos(DocEntry);
+
+        //        if (datos == null || !datos.Any())
+        //        {
+        //            return Json(new { success = false, message = "No se encontraron datos" }, JsonRequestBehavior.AllowGet);
+        //        }
+
+        //        var cab = datos.First();
+        //        string fileName = $"NotaCredito_{cab.SerieDoc}_{cab.CorreDoc}.pdf";
+
+        //        var pdfResult = new ViewAsPdf("NotaDeCreditoVentaArticulos", datos)
+        //        {
+        //            FileName = fileName,
+        //            PageSize = Rotativa.Options.Size.A4,
+        //            PageOrientation = Rotativa.Options.Orientation.Portrait
+        //        };
+
+        //        byte[] pdfBytes = pdfResult.BuildFile(ControllerContext);
+
+        //        // Guardar en servidor
+        //        string rutaArchivo = Path.Combine(new Utilitarios_N().directorioFileServer, "NotasCredito", fileName);
+        //        Directory.CreateDirectory(Path.GetDirectoryName(rutaArchivo));
+        //        System.IO.File.WriteAllBytes(rutaArchivo, pdfBytes);
+
+        //        string fileUrl = Url.Action("DescargarNotaCredito", "DireccionTecnica", new { fileName }, Request.Url.Scheme);
+
+        //        return Json(new { success = true, fileUrl }, JsonRequestBehavior.AllowGet);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return Json(new { success = false, message = ex.Message }, JsonRequestBehavior.AllowGet);
+        //    }
+        //}
 
         public ActionResult DescargarNotaCredito(string fileName)
         {

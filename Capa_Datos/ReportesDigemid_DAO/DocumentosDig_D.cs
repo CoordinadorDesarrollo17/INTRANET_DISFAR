@@ -647,6 +647,7 @@ namespace Capa_Datos.ReportesDigemid_DAO
                     if (!hdr.IsDBNull(33)) { n.VctoLote = hdr.GetDateTime(33).ToString("dd/MM/yyyy"); }
 
                     if (!hdr.IsDBNull(34)) { n.TipoDescripcionC = hdr.GetString(34); }
+                    if (!hdr.IsDBNull(35)) { n.ItemCode = hdr.GetString(35); }
 
                     lista.Add(n);
                 }
