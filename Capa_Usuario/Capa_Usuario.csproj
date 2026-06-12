@@ -372,6 +372,8 @@
     <Content Include="Content\img\escudo_nacional.png" />
     <Content Include="imagenes\index\ReportesDigemid\impresion.gif" />
     <Content Include="imagenes\Logo - Disfar Oriente.png" />
+    <Content Include="imagenes\Logo-disfar.png" />
+    <Content Include="imagenes\Logo-disfar150.png" />
     <Content Include="imagenes\logo_efact.png" />
     <Content Include="imagenes\packing.png" />
     <Content Include="imagenes\picking.png" />
