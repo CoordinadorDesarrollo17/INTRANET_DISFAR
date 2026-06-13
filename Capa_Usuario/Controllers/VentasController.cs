@@ -70,7 +70,7 @@ namespace Capa_Usuario.Controllers
             {
                 Dictionary<string, string> opcionesColor = new Dictionary<string, string>()
                 {
-                    { "Arriola", "#FF6800" }, { "Centro", "#0AC5EA" }, { "DOMICILIO", "#F7F30E" }, { "PROVINCIA", "#F7F30E" }, { "Agencia Courier", "#F7F30E" },
+                    { "Arriola", "#FF6800" }, { "Centro", "#0AC5EA" }, { "DOMICILIO", "#F7F30E" }, { "PROVINCIA", "#F7F30E" },{ "RECOJO", "#F7F30E" }, { "Agencia Courier", "#F7F30E" },
                 };
                 colorTicket = opcionesColor[LugarDestino];
             }
