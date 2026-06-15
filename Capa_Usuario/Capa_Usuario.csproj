@@ -323,6 +323,7 @@
     <Content Include="Content\js\bootstrap.min.js" />
     <Content Include="Content\js\filepond.min.js" />
     <Content Include="Content\js\jquery-3.6.3.js" />
+    <Content Include="Content\js\jquery-3.7.1.min.js" />
     <Content Include="Content\js\jquery.datetimepicker.full.js" />
     <Content Include="Content\js\popper.min.js" />
     <Content Include="Content\js\print.min.js" />

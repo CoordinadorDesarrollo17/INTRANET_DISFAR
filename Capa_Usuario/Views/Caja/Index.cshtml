@@ -1,6 +1,6 @@
 ﻿@{
     ViewBag.Title = "Listado de Tickets - CAJA";
-    Layout = "~/Views/Shared/_Layout.cshtml";
+    Layout = "~/Views/Shared/_DefaultLayout.cshtml";
 }
 
 @section Styles{
@@ -15,55 +15,198 @@
 <div class="pt-4">
     <nav>
         <ol class="cd-breadcrumb bg-cobefar-degradado-1">
-            <li><a href="@Url.Action("Sesion", "Index")">Inicio</a></li>
-            <li class="current"><em>Listado de Tickets</em></li>
+            <li>
+                <a href="@Url.Action("Sesion", "Index")">Inicio</a>
+            </li>
+            <li class="current">
+                <a href="@Url.Action("Index", "Caja")">
+                    Listado Tickets Caja
+                </a>
+            </li>
         </ol>
     </nav>
 </div>
 
 <div class="border-cabecera-seccion bg-cobefar-degradado-1 pb-2">
-    <div class="px-3 pt-3"><h3 class="titulo-seccion">LISTADO DE TICKETS</h3></div>    
+
+    <div class="row px-3 pt-3 mb-2">
+        <h3 class="titulo-seccion">@ViewBag.Title.ToUpper()</h3>
+    </div>
+
+    <div class="mx-2 mb-2 d-inline-flex gap-2">
+        <button type="button" class="btn btn-outline-success" onclick="exportarListado()">
+            <i class="bi bi-file-earmark-excel mr-2"></i> Exportar
+        </button>
+
+        <button type="button" class="btn btn-outline-primary" onclick="abrirModalExportarPorFechas()">
+            <i class="bi bi-calendar-range mr-2"></i> Exportar por Fechas
+        </button>
+    </div>
+
 </div>
 
-<div id="div_botones" class="bg-white w-100 py-3" style="display: none">
-    <div class=" d-flex col-lg-2 col-md-3 col-sm-4 col-5">
-        <button type="button" class="btn btn-success" onclick="exportarListado()"><i class="icon-file-excel"></i> Exportar</button>
+<!-- FILTROS EN LA PARTE SUPERIOR -->
+<!--<div class="bg-white px-3 py-3 align-items-center border-bottom">
+    <form name="filterForm" id="filterForm">
+        <div class="d-flex pl-2 w-100 py-3 flex-wrap gap-2 align-items-end">
+            <div class="flex-grow-1" style="min-width: 250px;">
+                <label for="DocNum" class="form-label mb-1">Nro Ticket</label>
+                <input type="text" name="DocNum" id="DocNum" class="form-control border-success" autocomplete="off" placeholder="Buscar Nro Ticket..." />
+            </div>
+            <div class="flex-grow-1" style="min-width: 250px;">
+                <label for="CardName" class="form-label mb-1">Cliente</label>
+                <input type="text" id="CardName" name="CardName" class="form-control border-success" autocomplete="off" placeholder="Buscar Cliente..." />
+            </div>
+            <div class="flex-grow-1" style="min-width: 200px;">
+                <label for="TipoVenta" class="form-label mb-1">Tipo de Venta</label>
+                <select id="TipoVenta" name="TipoVenta" class="form-control form-control-sm border-success">
+                    <option value="">Seleccione</option>
+                    <option value="CONTADO">CONTADO</option>
+                    <option value="CREDITO 7 DIAS">CRÉDITO 7 DÍAS</option>
+                    <option value="CREDITO 10 DIAS">CRÉDITO 10 DÍAS</option>
+                    <option value="CREDITO 15 DIAS">CRÉDITO 15 DÍAS</option>
+                    <option value="CREDITO 20 DIAS">CRÉDITO 20 DÍAS</option>
+                    <option value="CREDITO 25 DIAS">CRÉDITO 25 DÍAS</option>
+                    <option value="CREDITO 30 DIAS">CRÉDITO 30 DÍAS</option>
+                    <option value="CREDITO 45 DIAS">CRÉDITO 45 DÍAS</option>
+                    <option value="CREDITO 60 DIAS">CRÉDITO 60 DÍAS</option>
+                    <option value="CREDITO 75 DIAS">CRÉDITO 75 DÍAS</option>
+                    <option value="CREDITO 90 DIAS">CRÉDITO 90 DÍAS</option>
+                </select>
+            </div>
+        </div>
+    </form>
+</div>-->
+
+<div class="bg-white px-3 py-3 align-items-center">
+    <div id="div_listado" class="row mb-4">
+
+        <div class="col-lg-12">
+            <div class="table-responsive" id="contenedorTablaCaja">
+            </div>
+        </div>
+
     </div>
 </div>
 
-<div id="div_listado" class="bg-white">
+<!-- Modal Exportar por Rango de Fechas -->
+<div class="modal fade" id="modalExportarFechas" tabindex="-1" aria-labelledby="modalExportarLabel" aria-hidden="true">
 
-</div>
-
-<!-- Modal -->
-<div class="modal fade" id="modalInfo" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-xl">
+    <div class="modal-dialog">
         <div class="modal-content">
+
             <div class="modal-header bg-cobefar text-white">
-                <h5 class="modal-title" id="exampleModalLabel">Tickets a cuadrar</h5>
+                <h5 class="modal-title" id="modalExportarLabel">
+                    Exportar Tickets por Rango de Fechas
+                </h5>
+
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true" class="text-white">&times;</span>
                 </button>
             </div>
 
             <div class="modal-body">
+
+                <div class="form-group">
+                    <label for="fechaInicio">
+                        Fecha Inicio: <span class="text-danger">*</span>
+                    </label>
+                    <input type="date" class="form-control" id="fechaInicio" required />
+                </div>
+
+                <div class="form-group">
+                    <label for="fechaFin">
+                        Fecha Fin: <span class="text-danger">*</span>
+                    </label>
+                    <input type="date" class="form-control" id="fechaFin" required />
+                </div>
+
+                <div class="alert alert-info" role="alert">
+                    <i class="bi bi-info-circle"></i>
+                    Debe seleccionar ambas fechas para exportar el listado de tickets en el rango especificado.
+                </div>
+
+            </div>
+
+            <div class="modal-footer">
+
+                <button type="button" class="btn btn-secondary" onclick="cerrarModalFechas()">
+                    <i class="bi bi-x-circle"></i> Cancelar
+                </button>
+
+                <button type="button" class="btn btn-success" onclick="exportarListadoPorFechas()">
+                    <i class="bi bi-file-earmark-excel"></i> Exportar
+                </button>
+
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="modalInfo" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+
+            <div class="modal-header bg-cobefar text-white">
+                <h5 class="modal-title" id="exampleModalLabel">
+                    Tickets a cuadrar
+                </h5>
+
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true" class="text-white">&times;</span>
+                </button>
+            </div>
+
+            <div class="modal-body">
+
                 <div class="row">
                     <div id="div_vistaParcial" class="col-12">
                     </div>
                 </div>
+
             </div>
 
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal"><i class='icon-cross'></i> Cerrar</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                    <i class='icon-cross'></i> Cerrar
+                </button>
             </div>
+
         </div>
     </div>
+
 </div>
 
 <script>
-    $(document).ready(function () {
-        $('#div_listado').load(`@Url.Action("ListarTicketsAPagar")?${window.location.search.substring(1)}`).fadeIn("fast");
 
+    $(document).ready(function () {
+
+        // Cargar la tabla de tickets en el div correspondiente y luego inicializar DataTable
+        $('#div_listado')
+            .load(`@Url.Action("ListarTicketsAPagar")?${window.location.search.substring(1)}`, function () {
+                inicializarTablaTicketsCaja();
+            })
+            .fadeIn("fast");
+
+        // Mostrar mensaje si existe
+        if ('@ViewBag.Mensaje' != "") {
+            Swal.fire('@ViewBag.Mensaje');
+        }
+
+        // Eventos para disparar filtro al hacer Enter o salir de la casilla
+        $('#DocNum, #CardName, #TipoVenta').on('keypress blur change', function (e) {
+            if (e.type === 'keypress' && e.which !== 13) {
+                return; // Solo en Enter para inputs de texto
+            }
+            e.preventDefault();
+            aplicarFiltros();
+        });
+
+        // Consultar nuevas solicitudes cada 15 segundos
         var consultarNuevasSolicitudes = function () {
             $.ajax({
                 url: '/Caja/ConsultarNuevasSolicitudesTC',
@@ -72,7 +215,7 @@
             }).done(function (response) {
                 if (response.Mensaje != '') {
                     alertify.set('notifier', 'position', 'bottom-right');
-                    alertify.set('notifier', 'delay', 15);     // 15 seg
+                    alertify.set('notifier', 'delay', 15);
 
                     var msj = alertify.warning(`${response.Mensaje}`);
 
@@ -86,15 +229,119 @@
             });
         }
 
-        // Intervalo de 15 seg.  
+        // Intervalo de 15 seg.
         setInterval(consultarNuevasSolicitudes, 15000);
+
     });
 
-    function exportarListado() {
-        $(location).attr('href', `/Caja/ExportarListadoTicketsACuadrar?${window.location.search.substring(1)}`);
+    function inicializarTablaTicketsCaja() {
+
+        if ($.fn.DataTable.isDataTable('#tbl_listadoTC')) {
+            $('#tbl_listadoTC').DataTable().destroy();
+        }
+
+        inicializarDataTable('tbl_listadoTC', 20, true, false);
+
+        setTimeout(function () {
+            $('.btn-cancelar-ticket').css('display', 'inline-block');
+        }, 100);
+
     }
 
+    // Aplicar filtros
+    function aplicarFiltros() {
+        const docNum = $('#DocNum').val();
+        const cardName = $('#CardName').val();
+        const tipoVenta = $('#TipoVenta').val();
+
+        // Construir URL con parámetros de filtro
+        let urlParams = new URLSearchParams();
+
+        if (docNum) urlParams.append('DocNum', docNum);
+        if (cardName) urlParams.append('CardName', cardName);
+        if (tipoVenta) urlParams.append('TipoVenta', tipoVenta);
+
+        // Recargar la tabla con los filtros
+        const queryString = urlParams.toString();
+        $('#div_listado')
+            .load(`@Url.Action("ListarTicketsAPagar")?${queryString}`, function () {
+                inicializarTablaTicketsCaja();
+            });
+    }
+
+    // Abrir modal de exportación por fechas
+    function abrirModalExportarPorFechas() {
+
+        // Limpiar los campos
+        $('#fechaInicio').val('');
+        $('#fechaFin').val('');
+
+        $('#modalExportarFechas').modal('show');
+
+    }
+
+    // Cerrar modal de exportación por fechas
+    function cerrarModalFechas() {
+        $('#modalExportarFechas').modal('hide');
+    }
+
+    // Exportar listado de tickets con rango de fechas
+    function exportarListadoPorFechas() {
+
+        const fechaInicio = $('#fechaInicio').val();
+        const fechaFin = $('#fechaFin').val();
+
+        // Validar que ambas fechas estén seleccionadas
+        if (!fechaInicio || !fechaFin) {
+
+            Swal.fire({
+                icon: 'warning',
+                title: 'Campos requeridos',
+                text: 'Debe seleccionar ambas fechas para continuar'
+            });
+
+            return;
+        }
+
+        if (fechaInicio > fechaFin) {
+
+            Swal.fire({
+                icon: 'error',
+                title: 'Error en fechas',
+                text: 'La fecha de inicio no puede ser mayor que la fecha fin'
+            });
+
+            return;
+        }
+
+        // Construir la URL con los parámetros
+        let url = `/Caja/ExportarListadoTicketsPorFechas?FechaSapTicketInicio=${fechaInicio}&FechaSapTicketFin=${fechaFin}`;
+
+        // Cerrar el modal
+        $('#modalExportarFechas').modal('hide');
+
+        // Redirigir para descargar
+        $(location).attr('href', url);
+
+    }
+
+    // Exportar listado de tickets
+    function exportarListado() {
+
+        $(location).attr(
+            'href',
+            `/Caja/ExportarListadoTicketsACuadrar?${window.location.search.substring(1)}`
+        );
+
+    }
+
+    // Mostrar mensaje si existe
     if ('@ViewBag.Mensaje' != "") {
         Swal.fire('@ViewBag.Mensaje');
     }
+
+    function cerrarModalFechas() {
+        $('#modalExportarFechas').modal('hide');
+    }
+
 </script>
