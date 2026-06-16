@@ -40,27 +40,12 @@
     <table border="1" width="100%">
         <tr style="background:@fondo">
             <td>
-                <strong>@Html.DisplayNameFor(model => model.LugarDestino): </strong>
-                @if (Model.LugarDestino.ToUpper() == "PROVINCIA" || Model.LugarDestino.ToUpper() == "AGENCIA COURIER")
-                {
-                    <text>PROVINCIA</text>
-                }
-                else
-                {
-                    @Html.DisplayFor(m => m.LugarDestino)
-                }
+                <strong>@Html.DisplayNameFor(model => model.LugarDestino): </strong>          
+                    @Html.DisplayFor(m => m.LugarDestino)            
             </td>
             <td style="text-align:center;">
-                <strong>@Html.DisplayNameFor(model => model.Zona): </strong><br />
-                @if (Model.Zona.ToUpper() == "AGENCIA" || Model.LugarDestino.ToUpper() == "AGENCIA COURIER")
-                {
-                    <text>PROVINCIA</text>
-                }
-                else
-                {
-                    @Model.Zona
-                }
-         
+                <strong>@Html.DisplayNameFor(model => model.Zona): </strong><br />              
+                    @Model.Zona       
             </td>
         </tr>
 

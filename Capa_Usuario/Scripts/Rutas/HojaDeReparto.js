@@ -644,13 +644,13 @@ function validarTipoRuta(tipo, estado) {
 
         $('#AlmOrigenCod').val(''); $('#AlmOrigenDesc2').val('');
 
-        if (estado !== "CREADO") {
+        if (estado !== "CREADO") { //si es diferente selecciona la zona por default de provincia
 
-            $('#Zona option[value="AGENCIA"]').prop('selected', true);
+            $('#Zona option[value="EXTERNO"]').prop('selected', true);
 
         }
 
-        buscarConductorYPlaca('AGENCIA');
+        buscarConductorYPlaca('EXTERNO'); //busca conductores y placas por default de provincia
 
     } else {
         $('#DivModalidadTraslado').hide();
@@ -665,37 +665,10 @@ function validarTipoRuta(tipo, estado) {
 
         //enviar como parametro default el valor de combobox a almacen destino
 
-        if (tipo === "VA") {
+       
+        if (tipo === "VD") {
 
-            $('#AlmDestinoDesc option[value="ALMACÉN N°5 (Arriola)"]').prop('selected', true);
-
-            if (estado !== "CREADO") {
-
-                $('#Zona option[value="ARRIOLA"]').prop('selected', true);
-
-            }
-
-            buscarConductorYPlaca('ARRIOLA');
-
-        }
-
-        else if (tipo === "VC") {
-
-            $('#AlmDestinoDesc option[value="ALMACÉN N°1"]').prop('selected', true);
-
-            if (estado !== "CREADO") {
-
-                $('#Zona option[value="CONO CENTRO"]').prop('selected', true);
-
-            }
-
-            buscarConductorYPlaca('CONO CENTRO');
-
-        }
-
-        else if (tipo === "VD") {
-
-            $('#AlmDestinoDesc option[value="DOMICILIOS"]').prop('selected', true);
+            $('#AlmDestinoDesc option[value="DOMICILIO"]').prop('selected', true);
 
         }
 
