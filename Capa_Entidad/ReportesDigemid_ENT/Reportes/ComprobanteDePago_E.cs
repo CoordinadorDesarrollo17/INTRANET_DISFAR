@@ -55,6 +55,7 @@ namespace Capa_Entidad.ReportesDigemid_ENT.Reportes
         public string PtoPartida { get; set; }
         public string DirEnvio { get; set; }
         public string Observacion { get; set; }
+        public int TipoAfectacion { get; set; }
         // metodos del layout
         public decimal cantVta()
         {
@@ -133,7 +134,7 @@ namespace Capa_Entidad.ReportesDigemid_ENT.Reportes
         }
         public decimal Tgrabado(decimal s_Topgratuita, decimal s_Tinafecto)
         {
-            return Math.Round(TotalFactura(s_Topgratuita) - F_Tinafecto(s_Tinafecto) - F_Topgratuita(s_Topgratuita) - Impuesto, 2);
+            return Math.Round(TotalFactura(s_Topgratuita) - F_Tinafecto(s_Tinafecto) - Impuesto, 2);
         }
 
         // metodos de sumatorias
@@ -142,7 +143,7 @@ namespace Capa_Entidad.ReportesDigemid_ENT.Reportes
             decimal suma = 0.00M;
             foreach (ComprobanteDePago_E c in lista)
             {
-                if (c.CodImpuesto != "IGV" && c.F_ItemPrecio() >= 0.02M)
+                if ( (c.CodImpuesto != "IGV" && c.F_ItemPrecio() >= 0.02M) || c.TipoAfectacion == 31)
                 {
                     suma += c.PrecioVenta;
                 }
@@ -152,7 +153,8 @@ namespace Capa_Entidad.ReportesDigemid_ENT.Reportes
         public decimal CalcularOpExoneradas(List<ComprobanteDePago_E> lista)
         {
             decimal suma = 0.00M;
-            foreach (ComprobanteDePago_E c in lista.Where(x => x.CodImpuesto == "EXE_IGV"))
+
+            foreach (ComprobanteDePago_E c in lista.Where(x => x.CodImpuesto == "EXE_IGV" || x.TipoAfectacion == 20 ))
             {
                 suma += c.PrecioVenta;
             }
@@ -174,7 +176,7 @@ namespace Capa_Entidad.ReportesDigemid_ENT.Reportes
             decimal suma = 0.00M;
             foreach (ComprobanteDePago_E c in lista)
             {
-                if (c.F_ItemPrecio() < 0.02M)
+                if (c.F_ItemPrecio() < 0.02M || c.TipoAfectacion == 21)               
                 {
                     suma += c.ItemTotalxLot();
                 }
