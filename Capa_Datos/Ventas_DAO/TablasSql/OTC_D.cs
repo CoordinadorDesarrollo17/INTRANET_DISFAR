@@ -532,11 +532,13 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
 
                     StringBuilder sb = new StringBuilder();
 
-                    sb.Append("SELECT TOP 100 TC.Id, TC.DocNumTicket, CONVERT(varchar, VT.FechaSapTicket, 103), REPLACE(VT.CardCode, 'C', ''), VT.CardName, VT.TipoVenta, VT.Vendedor, VT.FormaPago, VT.EstadoPago,");
-                    sb.Append(" CASE TC.TipoPago WHEN 'PCE' THEN 'PAGO COMPLETO (EFECTIVO)' WHEN 'PMI' THEN 'PAGO MIXTO O INCOMPLETO' WHEN 'PCD' THEN 'PAGO COMPLETO (DEPÓSITO)' WHEN 'SP' THEN 'SIN PAGO' ELSE '' END AS DescTipoPago,");
-                    sb.Append(" TC.Estado, TC.PersonaEntrega, TC.MontoRecibidoEfectivo, TC.MontoRecibidoDeposito, VT.MontoFinal, TC.ComportamientoPago");
-                    sb.Append(" FROM cj.OTC TC");
-                    sb.Append(" LEFT JOIN vt.ORTV VT ON VT.DocEntry = TC.DocEntryTicket");
+                    sb.Append("SELECT TOP 100 TC.Id, VT.DocNum, CONVERT(varchar, VT.FechaSapTicket, 103), REPLACE(VT.CardCode, 'C', ''), VT.CardName, VT.TipoVenta, VT.Vendedor,  VT.EstadoPago,");
+                    //sb.Append(" CASE TC.TipoPago WHEN 'PCE' THEN 'PAGO COMPLETO (EFECTIVO)' WHEN 'PMI' THEN 'PAGO MIXTO O INCOMPLETO' WHEN 'PCD' THEN 'PAGO COMPLETO (DEPÓSITO)' WHEN 'SP' THEN 'SIN PAGO' ELSE '' END AS DescTipoPago,");
+                    sb.Append(" VT.FormaPago AS DescTipoPago, ");
+                    sb.Append(" TC.Estado, CASE WHEN TC.Id IS NULL AND VT.FormaPago ='Contra Entrega: Efectivo' THEN RU.OpEntrega ELSE TC.PersonaEntrega END AS PersonaEntrega,  CASE WHEN TC.Id IS NULL AND VT.FormaPago ='Contra Entrega: Efectivo' AND RU.Estado ='ENTREGADO' THEN  VT.MontoFinal ELSE TC.MontoRecibidoEfectivo END AS MontoRecibidoEfectivo, TC.MontoRecibidoDeposito, VT.MontoFinal, TC.ComportamientoPago");
+                    sb.Append(" FROM vt.ORTV VT ");
+                    sb.Append(" LEFT JOIN cj.OTC TC ON VT.DocEntry = TC.DocEntryTicket");
+                    sb.Append(" LEFT JOIN al.RRU0 RU ON RU.DocEntryTicket = VT.DocEntry and RU.Estado <> 'LIBERADO' ");
                     sb.Append(" WHERE 1 = 1");
 
                     if (filtros != null)
@@ -609,7 +611,8 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
 
                         if (!string.IsNullOrWhiteSpace(filtros.TipoPago))
                         {
-                            sb.Append(" AND TC.TipoPago = @TipoPago");
+                            //sb.Append(" AND TC.TipoPago = @TipoPago");
+                            sb.Append(" AND VT.FormaPago = @TipoPago");
                             cmd.Parameters.AddWithValue("@TipoPago", filtros.TipoPago);
                         }
 
@@ -620,7 +623,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                         }
                     }
 
-                    sb.Append($" ORDER BY TC.Id DESC");
+                    sb.Append($" ORDER BY TC.Id DESC , VT.DocNum DESC ");
 
                     cmd.CommandText = sb.ToString();
                     cn.Open();
@@ -638,21 +641,24 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                                 if (!dr.IsDBNull(4)) { obj.CardName = dr.GetString(4); }
                                 if (!dr.IsDBNull(5)) { obj.TipoVenta = dr.GetString(5); }
                                 if (!dr.IsDBNull(6)) { obj.Vendedor = dr.GetString(6); }
-                                if (!dr.IsDBNull(7)) { obj.FormaPago = dr.GetString(7); }
-                                if (!dr.IsDBNull(8)) { obj.EstadoPago = dr.GetString(8); }
-                                if (!dr.IsDBNull(9)) { obj.TipoPago = dr.GetString(9); }
-                                if (!dr.IsDBNull(10)) { obj.EstadoCuadre = dr.GetString(10); }
-                                if (!dr.IsDBNull(11)) { obj.PersonaEntrega = dr.GetString(11); }
-                                if (!dr.IsDBNull(12)) { obj.MontoRecibidoEfectivo = dr.GetDecimal(12); }
-                                if (!dr.IsDBNull(13)) { obj.MontoRecibidoDeposito = dr.GetDecimal(13); }
-                                if (!dr.IsDBNull(14)) { obj.MontoFinal = dr.GetDecimal(14); }
-                                if (!dr.IsDBNull(15)) { obj.ComportamientoPago = dr.GetString(15); }
+                                //   if (!dr.IsDBNull(7)) { obj.FormaPago = dr.GetString(7); }
+                                if (!dr.IsDBNull(7)) { obj.EstadoPago = dr.GetString(7); }
+                                if (!dr.IsDBNull(8)) { obj.TipoPago = dr.GetString(8); }
+                                if (!dr.IsDBNull(9)) { obj.EstadoCuadre = dr.GetString(9); }
+                                if (!dr.IsDBNull(10)) { obj.PersonaEntrega = dr.GetString(10); }
+                                if (!dr.IsDBNull(11)) { obj.MontoRecibidoEfectivo = dr.GetDecimal(11); }
+                                if (!dr.IsDBNull(12)) { obj.MontoRecibidoDeposito = dr.GetDecimal(12); }
+                                if (!dr.IsDBNull(13)) { obj.MontoFinal = dr.GetDecimal(13); }
+                                if (!dr.IsDBNull(14)) { obj.ComportamientoPago = dr.GetString(14); }
 
-                                var datosCC = new CC_OTC_D().ObtenerFechaCobroFechaCuadre(dr.GetInt32(0));
+                                if (!dr.IsDBNull(0))
+                                {
+                                    var datosCC = new CC_OTC_D().ObtenerFechaCobroFechaCuadre(dr.GetInt32(0));
 
-                                obj.FechaCobro = datosCC != null && datosCC.ContainsKey("REGISTRAR") ? datosCC["REGISTRAR"].FechaOperacion : "";
-                                obj.FechaCuadre = datosCC != null && datosCC.ContainsKey("CUADRAR") ? datosCC["CUADRAR"].FechaOperacion : "";
-                                obj.PersonaRecepciona = datosCC != null && datosCC.ContainsKey("CUADRAR") ? datosCC["CUADRAR"].Operario : "";
+                                    obj.FechaCobro = datosCC != null && datosCC.ContainsKey("REGISTRAR") ? datosCC["REGISTRAR"].FechaOperacion : "";
+                                    obj.FechaCuadre = datosCC != null && datosCC.ContainsKey("CUADRAR") ? datosCC["CUADRAR"].FechaOperacion : "";
+                                    obj.PersonaRecepciona = datosCC != null && datosCC.ContainsKey("CUADRAR") ? datosCC["CUADRAR"].Operario : "";
+                                }
 
                                 lista.Add(obj);
                             }
