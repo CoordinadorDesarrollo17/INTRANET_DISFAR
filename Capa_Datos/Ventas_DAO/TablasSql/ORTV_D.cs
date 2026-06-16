@@ -20,6 +20,7 @@ using System.Deployment.Internal;
 using System.Drawing;
 using System.Dynamic;
 using System.Linq;
+using System.Security.Policy;
 using System.Text;
 using System.Web;
 using System.Windows.Forms;
@@ -579,10 +580,9 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
         {
             var zonasDestino = new Dictionary<string, string>
             {
-                { "PROVINCIA", "AGENCIA" },
-                { "Centro", "CONO CENTRO" },
-                { "Arriola", "ARRIOLA" },
-                { "DOMICILIO", zona }
+                { "PROVINCIA", zona },
+                { "DOMICILIO", zona },
+                { "RECOJO" , zona }
             };
             // Si el lugarDestino está en el diccionario, devuelve su valor; de lo contrario, devuelve una cadena vacía
             return zonasDestino.TryGetValue(lugarDestino, out var resultado) ? resultado : string.Empty;
@@ -1229,16 +1229,12 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                 switch (ticket.LugarDestino)
                 {
                     case "PROVINCIA":
-                    case "Agencia Courier":
-                        ZonaTk = "AGENCIA";
-                        break;
-                    case "Centro":
-                        ZonaTk = "CONO CENTRO";
-                        break;
-                    case "Arriola":
-                        ZonaTk = "ARRIOLA";
-                        break;
+                        ZonaTk = ticket.Zona;
+                        break;                  
                     case "DOMICILIO":
+                        ZonaTk = ticket.Zona;
+                        break;
+                    case "RECOJO":
                         ZonaTk = ticket.Zona;
                         break;
                 }

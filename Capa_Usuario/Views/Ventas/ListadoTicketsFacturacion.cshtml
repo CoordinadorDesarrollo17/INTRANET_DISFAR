@@ -781,16 +781,8 @@
                         <br />
                         <select name="Zona" id="Zona" class="form-control-sm border" onchange="filtrar();">
                             <option value="">Seleccione</option>
-                            <option value="CALLAO" @{ if (ticket != null && ticket.Zona == "CALLAO") { Write("selected"); }}>CALLAO</option>
-                            <option value="CONO SUR" @{ if (ticket != null && ticket.Zona == "CONO SUR") { Write("selected"); }}>CONO SUR</option>
-                            <option value="CONO NORTE1" @{ if (ticket != null && ticket.Zona == "CONO NORTE1") { Write("selected"); }}>CONO NORTE1</option>
-                            <option value="CONO NORTE2" @{ if (ticket != null && ticket.Zona == "CONO NORTE2") { Write("selected"); }}>CONO NORTE2</option>
-                            <option value="CONO ESTE1" @{ if (ticket != null && ticket.Zona == "CONO ESTE1") { Write("selected"); }}>CONO ESTE1</option>
-                            <option value="CONO ESTE2" @{ if (ticket != null && ticket.Zona == "CONO ESTE2") { Write("selected"); }}>CONO ESTE2</option>
-                            <option value="CONO CENTRO" @{ if (ticket != null && ticket.Zona == "CONO CENTRO") { Write("selected"); }}>CONO CENTRO</option>
-                            <option value="PREVENTA" @{ if (ticket != null && ticket.Zona == "PREVENTA") { Write("selected"); }}>PREVENTA</option>
-                            <option value="ARRIOLA" @{ if (ticket != null && ticket.Zona == "ARRIOLA") { Write("selected"); }}>ARRIOLA</option>
-                            <option value="AGENCIA" @{ if (ticket != null && ticket.Zona == "AGENCIA") { Write("selected"); }}>AGENCIA</option>
+                            <option value="DOMICILIO" @{ if (ticket != null && ticket.Zona == "DOMICILIO") { Write("selected"); }}>DOMICILIO</option>
+                            <option value="EXTERNO" @{ if (ticket != null && ticket.Zona == "EXTERNO") { Write("selected"); }}>EXTERNO</option>                   
                         </select>
                     </th><!--5-->
                     <th>

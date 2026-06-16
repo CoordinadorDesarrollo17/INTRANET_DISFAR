@@ -315,19 +315,8 @@
                         <br />
                         <select name="Zona" id="Zona" class="form-control select_filtro-table" onchange="filtrar();">
                             <option value="">Seleccione</option>
-                            <option value="CALLAO" @{ if (e != null && e.Zona == "CALLAO") { Write("selected"); }}>CALLAO</option>
-                            <option value="CONO SUR" @{ if (e != null && e.Zona == "CONO SUR") { Write("selected"); }}>CONO SUR</option>
-                            <option value="CONO NORTE1" @{ if (e != null && e.Zona == "CONO NORTE1") { Write("selected"); }}>CONO NORTE1</option>
-                            <option value="CONO NORTE2" @{ if (e != null && e.Zona == "CONO NORTE2") { Write("selected"); }}>CONO NORTE2</option>
-                            <option value="CONO ESTE1" @{ if (e != null && e.Zona == "CONO ESTE1") { Write("selected"); }}>CONO ESTE1</option>
-                            <option value="CONO ESTE2" @{ if (e != null && e.Zona == "CONO ESTE2") { Write("selected"); }}>CONO ESTE2</option>
-                            <option value="CONO CENTRO" @{ if (e != null && e.Zona == "CONO CENTRO") { Write("selected"); }}>CONO CENTRO</option>
-                            <option value="PREVENTA" @{ if (e != null && e.Zona == "PREVENTA") { Write("selected"); }}>PREVENTA</option>
-                            <option value="ARRIOLA" @{
-                              if (e != null && e.Zona == "ARRIOLA") { Write("selected"); }}>ARRIOLA</option>
-                            <option value="AGENCIA" @{ if (e != null && e.Zona == "AGENCIA") { Write("selected"); }}>AGENCIA</option>
-                            <option value="CONO AGENCIA" @{ if (e != null && e.Zona == "CONO AGENCIA") { Write("selected"); }}>CONO AGENCIA</option>
-                            <option value="CONO ARRIOLA" @{ if (e != null && e.Zona == "AGENCIA") { Write("selected"); }}>CONO ARRIOLA</option>
+                            <option value="DOMICILIO" @{ if (e != null && e.Zona == "DOMICILIO") { Write("selected"); }}>DOMICILIO</option>
+                            <option value="EXTERNO" @{ if (e != null && e.Zona == "EXTERNO") { Write("selected"); }}>EXTERNO</option>                         
                         </select>
                     </th>
                     <th class="text-center">
