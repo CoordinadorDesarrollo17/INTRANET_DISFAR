@@ -377,6 +377,7 @@ namespace Capa_Datos.ComprobantesContables_ENT
                         if (!hdr.IsDBNull(42)) { c.PtoPartida = hdr.GetString(42); }
                         if (!hdr.IsDBNull(43)) { c.DirEnvio = hdr.GetString(43); }
 
+                        if (!hdr.IsDBNull(44)) { c.TipoAfectacion = hdr.GetInt32(44); }
 
                         lista.Add(c);
                     }

@@ -8,10 +8,11 @@
     var opGravadas = Math.Round(Cab.Tgrabado(sumGratuita, sumInafecto), 2).ToString("F2");
     var opExoneradas = Cab.CalcularOpExoneradas(modelList).ToString();
     var opGratuitas = Cab.F_Topgratuita(sumGratuita).ToString();
+    var opInafectas = Cab.F_Tinafecto(0).ToString("F2"); //Cab.F_Tinafecto(sumInafecto).ToString();
     var anticipo = (Cab.Anticipo > 0 ? Math.Round(Cab.Anticipo, 2) : 0).ToString("F2");
     var igv = Math.Round(Cab.Impuesto, 2).ToString("F2");
     var total = Math.Round(Cab.TotalFactura(sumGratuita), 2).ToString("F2");
-   
+
 }
 <!DOCTYPE html>
 <html lang="es">
@@ -239,7 +240,7 @@
             <td style="width:290px; vertical-align:top;">
                 <table class="totals-table">
                     <tr><td class="totals-label">OP. GRAVADAS</td>        <td class="totals-value">S/ @opGravadas</td></tr>
-                    <tr><td class="totals-label">OP. INAFECTAS</td>       <td class="totals-value">S/ 0.00</td></tr>
+                    <tr><td class="totals-label">OP. INAFECTAS</td>       <td class="totals-value">S/ @opInafectas</td></tr>
                     <tr><td class="totals-label">OP. EXONERADAS</td>      <td class="totals-value">S/ @opExoneradas</td></tr>
                     <tr><td class="totals-label">TOTAL OP. GRATUITAS</td> <td class="totals-value">S/ @opGratuitas</td></tr>
                     <tr><td class="totals-label">DSCTOS. TOTALES</td>     <td class="totals-value">S/ 0.00</td></tr>
