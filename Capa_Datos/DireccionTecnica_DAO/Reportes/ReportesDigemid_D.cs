@@ -206,7 +206,7 @@ namespace Capa_Datos.DireccionTecnica_DAO.Reportes
         {
             List<RptBalanceControladosConsolidado_E> lista = new List<RptBalanceControladosConsolidado_E>();
 
-            string query = "call " + uti.schemaHana + "COB_BAL_CONT_CONSOLIDADO('" + f.FecIni + "'  ,  '" + f.TipoControlado + "')";
+            string query = "call " + uti.schemaHana + "DISFAR_BAL_CONT_CONSOLIDADO('" + f.FecIni + "'  ,  '" + f.TipoControlado + "')";
             try
             {
                 HanaDataReader hdr = db.HanaExecuteReaderNoSp(query);
@@ -217,8 +217,8 @@ namespace Capa_Datos.DireccionTecnica_DAO.Reportes
                     if (!hdr.IsDBNull(1)) { con.NmComercial = hdr.GetString(1); }
                     if (!hdr.IsDBNull(2)) { con.RucCob = hdr.GetString(2); }
                     if (!hdr.IsDBNull(3)) { con.Direccion = hdr.GetString(3); }
-                    if (!hdr.IsDBNull(4)) { con.Telefono2 = "01-3267430 anexo 201"; }
-                    if (!hdr.IsDBNull(5)) { con.Quimico = "PAMELA COLLAHUA SENOSAIN"; }
+                    if (!hdr.IsDBNull(4)) { con.Telefono2 = "+51 910800608"; }
+                    if (!hdr.IsDBNull(5)) { con.Quimico = "JAIME QUIJADA"; }
                     if (!hdr.IsDBNull(6)) { con.Correo = hdr.GetString(6); }
                     if (!hdr.IsDBNull(7)) { con.Anio = hdr.GetInt32(7); }
                     if (!hdr.IsDBNull(8)) { con.CodProducto = hdr.GetString(8); }
