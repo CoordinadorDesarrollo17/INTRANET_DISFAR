@@ -206,7 +206,7 @@ namespace Capa_Datos.DireccionTecnica_DAO.Reportes
         {
             List<RptBalanceControladosConsolidado_E> lista = new List<RptBalanceControladosConsolidado_E>();
 
-            string query = "call " + uti.schemaHana + "COB_BAL_CONT_CONSOLIDADO('" + f.FecIni + "'  ,  '" + f.TipoControlado + "')";
+            string query = "call " + uti.schemaHana + "DISFAR_BAL_CONT_CONSOLIDADO('" + f.FecIni + "'  ,  '" + f.TipoControlado + "')";
             try
             {
                 HanaDataReader hdr = db.HanaExecuteReaderNoSp(query);

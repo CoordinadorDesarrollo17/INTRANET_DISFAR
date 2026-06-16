@@ -38,9 +38,9 @@
             <i class="bi bi-file-earmark-excel mr-2"></i> Exportar
         </button>
 
-        <button type="button" class="btn btn-outline-primary" onclick="abrirModalExportarPorFechas()">
+        @*<button type="button" class="btn btn-outline-primary" onclick="abrirModalExportarPorFechas()">
             <i class="bi bi-calendar-range mr-2"></i> Exportar por Fechas
-        </button>
+        </button>*@
     </div>
 
 </div>
@@ -134,9 +134,9 @@
                     <i class="bi bi-x-circle"></i> Cancelar
                 </button>
 
-                <button type="button" class="btn btn-success" onclick="exportarListadoPorFechas()">
+                @*<button type="button" class="btn btn-success" onclick="exportarListadoPorFechas()">
                     <i class="bi bi-file-earmark-excel"></i> Exportar
-                </button>
+                </button>*@
 
             </div>
 
@@ -269,61 +269,61 @@
             });
     }
 
-    // Abrir modal de exportación por fechas
-    function abrirModalExportarPorFechas() {
+    //// Abrir modal de exportación por fechas
+    //function abrirModalExportarPorFechas() {
 
-        // Limpiar los campos
-        $('#fechaInicio').val('');
-        $('#fechaFin').val('');
+    //    // Limpiar los campos
+    //    $('#fechaInicio').val('');
+    //    $('#fechaFin').val('');
 
-        $('#modalExportarFechas').modal('show');
+    //    $('#modalExportarFechas').modal('show');
 
-    }
+    //}
 
     // Cerrar modal de exportación por fechas
     function cerrarModalFechas() {
         $('#modalExportarFechas').modal('hide');
     }
 
-    // Exportar listado de tickets con rango de fechas
-    function exportarListadoPorFechas() {
+    //// Exportar listado de tickets con rango de fechas
+    //function exportarListadoPorFechas() {
 
-        const fechaInicio = $('#fechaInicio').val();
-        const fechaFin = $('#fechaFin').val();
+    //    const fechaInicio = $('#fechaInicio').val();
+    //    const fechaFin = $('#fechaFin').val();
 
-        // Validar que ambas fechas estén seleccionadas
-        if (!fechaInicio || !fechaFin) {
+    //    // Validar que ambas fechas estén seleccionadas
+    //    if (!fechaInicio || !fechaFin) {
 
-            Swal.fire({
-                icon: 'warning',
-                title: 'Campos requeridos',
-                text: 'Debe seleccionar ambas fechas para continuar'
-            });
+    //        Swal.fire({
+    //            icon: 'warning',
+    //            title: 'Campos requeridos',
+    //            text: 'Debe seleccionar ambas fechas para continuar'
+    //        });
 
-            return;
-        }
+    //        return;
+    //    }
 
-        if (fechaInicio > fechaFin) {
+    //    if (fechaInicio > fechaFin) {
 
-            Swal.fire({
-                icon: 'error',
-                title: 'Error en fechas',
-                text: 'La fecha de inicio no puede ser mayor que la fecha fin'
-            });
+    //        Swal.fire({
+    //            icon: 'error',
+    //            title: 'Error en fechas',
+    //            text: 'La fecha de inicio no puede ser mayor que la fecha fin'
+    //        });
 
-            return;
-        }
+    //        return;
+    //    }
 
-        // Construir la URL con los parámetros
-        let url = `/Caja/ExportarListadoTicketsPorFechas?FechaSapTicketInicio=${fechaInicio}&FechaSapTicketFin=${fechaFin}`;
+    //    // Construir la URL con los parámetros
+    //    let url = `/Caja/ExportarListadoTicketsPorFechas?FechaSapTicketInicio=${fechaInicio}&FechaSapTicketFin=${fechaFin}`;
 
-        // Cerrar el modal
-        $('#modalExportarFechas').modal('hide');
+    //    // Cerrar el modal
+    //    $('#modalExportarFechas').modal('hide');
 
-        // Redirigir para descargar
-        $(location).attr('href', url);
+    //    // Redirigir para descargar
+    //    $(location).attr('href', url);
 
-    }
+    //}
 
     // Exportar listado de tickets
     function exportarListado() {
