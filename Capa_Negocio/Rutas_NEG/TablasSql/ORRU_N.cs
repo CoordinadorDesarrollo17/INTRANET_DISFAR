@@ -183,6 +183,31 @@ namespace Capa_Negocio.Rutas_NEG.TablasSql
                         d.Cajas = t.Cajas;
                     }
                 }
+                if (o.TipoRuta.Equals("VG"))
+                {
+                    if (string.IsNullOrWhiteSpace(o.ModalidadTraslado))
+                    {
+                        throw new Exception("Debe seleccionar una modalidad de traslado");
+                    }
+                    else
+                    {
+                        if (o.ModalidadTraslado == "PCO")
+                        {
+                            if (string.IsNullOrWhiteSpace(o.ProvDesc)) { throw new Exception("Debe seleccionar un proveedor de transporte"); }
+                        }
+                        else if (o.ModalidadTraslado == "PVD")
+                        {
+                            if (string.IsNullOrWhiteSpace(o.TransDesc) || string.IsNullOrWhiteSpace(o.Placa)) 
+                            { 
+                                throw new Exception("Debe seleccionar un conductor y una placa");
+                            }
+                            else
+                            {
+                                o.ProvDesc = o.TransDesc;
+                            }
+                        }
+                    }       
+                }
             }
             //Validaciones exclusivas para Transferencia entre almacenes ( tambien son parte de las hojas de ruta )
             else if(o.TipoRuta.Equals("TA"))
@@ -216,7 +241,7 @@ namespace Capa_Negocio.Rutas_NEG.TablasSql
                     }
                 }
 
-            }
+            }         
         }
         public void validarDatosEncabezadoRuta(ORRU_E o)
         {
