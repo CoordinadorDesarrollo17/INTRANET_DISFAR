@@ -15,17 +15,26 @@
             $('#Conductor').show();
             $('#PlacaDiv').show();
             $('#ProvedorDiv').hide();
+
+            $('#ProveedorTrans').val('');
         }
         else if (modalidad == "PCO") { // PUBLICO
             $('#Conductor').hide();
             $('#PlacaDiv').hide();
             $('#ProvedorDiv').show();
+
+            $('#Conductor').val('');
+            $('#Placa').val('');
         }
         else {
             // Si no selecciona nada
             $('#Conductor').hide();
             $('#PlacaDiv').hide();
             $('#ProvedorDiv').hide();
+
+            $('#Conductor').val('');
+            $('#Placa').val('');
+            $('#ProveedorTrans').val('');
         }
        
     });

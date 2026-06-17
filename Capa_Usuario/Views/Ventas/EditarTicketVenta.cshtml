@@ -293,7 +293,7 @@
                                     onchange="muestraCampo(); mostrarOficinas(); mostrarTableTicketsVinculados($('#selectVinculado').val()); validarLugarDestino(this.value);  limpiarAlmProcedencia(this.value);">
                                 <option value="">Seleccione</option>
                                 <option value="DOMICILIO" @{ if (Model.LugarDestino == "DOMICILIO") { Write("selected"); } }>DOMICILIO</option>
-                                <option value="PROVINCIA" @{ if (Model.LugarDestino == "´PROVINCIA") { Write("selected"); } }>PROVINCIA</option>
+                                <option value="PROVINCIA" @{ if (Model.LugarDestino == "PROVINCIA") { Write("selected"); } }>PROVINCIA</option>
                                 <option value="RECOJO" @{ if (Model.LugarDestino == "RECOJO") { Write("selected"); } }>RECOJO</option>
                             </select>
                         </div>

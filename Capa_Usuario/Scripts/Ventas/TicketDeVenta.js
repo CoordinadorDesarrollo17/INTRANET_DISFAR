@@ -142,9 +142,11 @@ function validacionDirDestino(estado) {
         $('#infoListaClientes input').on('change', function () {
             CardCode = $("#infoListaClientes #ListaClientes option[value='" + $("#infoListaClientes input").val() + "']").attr("CardCode");
             var Docnum = $("#DocNum").val(); // <-- Obtiene el valor del input DocNum
+            var fechaTK = $("#FechaSapTicket").val(); //fecha del ticket
             if (!CardCode) { CardCode = ""; }
             if (!Docnum) { Docnum = ""; }
-            var parametros = { "CardCode": CardCode, "DocNum": Docnum }; // <-- Agrega DocNum al objeto
+            if (!fechaTK) { fechaTK = ""; }
+            var parametros = { "CardCode": CardCode, "DocNum": Docnum, "fechaTK": fechaTK }; // <-- Agrega DocNum al objeto
             $.ajax('/Ventas/infoDirDestino',
                 {
                     data: parametros,
@@ -169,9 +171,11 @@ function validacionDirDestino(estado) {
     } else {
         CardCode = $("#CardCode").val();
         var Docnum = $("#DocNum").val(); // <-- Obtiene el valor del input DocNum
+        var fechaTK = $("#FechaSapTicket").val(); //fecha del ticket
         //si CardCode no encuenta un valor
         if (!CardCode) { CardCode = "" };
-        var parametros = { "CardCode": CardCode, "DocNum": Docnum }; // <-- Agrega DocNum al objeto
+        if (!fechaTK) { fechaTK = ""; };
+        var parametros = { "CardCode": CardCode, "DocNum": Docnum, "fechaTK": fechaTK }; // <-- Agrega DocNum al objeto
         $.ajax('/Ventas/infoDirDestino',
             {
                 data: parametros,
@@ -385,8 +389,8 @@ function muestraCampo() {
         $('#divDocPer').show();
     }
 
-    if ($("#LugarDestino").val() == 'PROVINCIA' || $("#LugarDestino").val() == 'Agencia Courier') {
-        $("#CamposAgDom").show(); $("#CamposAgencia").show(); $("#Referencia").val(""); $("#Zona").val("AGENCIA")
+    if ($("#LugarDestino").val() == 'PROVINCIA') {
+        $("#CamposAgDom").show(); $("#CamposAgencia").show(); $("#Referencia").val(""); $("#Zona").val("EXTERNO")
     }
     else if ($("#LugarDestino").val() == 'DOMICILIO') {
         $("#Agencia").val(""); $("#EnvioAgencia").val(""); $("#Referencia").val("");
