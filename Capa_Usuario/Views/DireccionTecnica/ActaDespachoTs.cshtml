@@ -20,7 +20,7 @@
             <table width="100%">
                 <tr class="SBorde">
                     <td width="100" style="text-align: center;"><strong>REG-012-00</strong></td>
-                    @*<td style="text-align:center;" width="30"><strong>V1</strong></td>*@
+                    <td style="text-align:center;" width="30"><strong>V01</strong></td>
                 </tr>
             </table>
         </td>
@@ -59,7 +59,7 @@
         <td width=40px colspan=2>PROTOCOLO DE ANALISIS</td>
         <td width=40px colspan=2>CAJAS LIMPIAS</td>
         <td width=40px colspan=2>EMBALAJE CERRADO</td>
-        <td width=40px colspan=2>CONSGINA CONDICION DE EMBALAJE</td>
+        <td width=40px colspan=2>CONSIGNA CONDICION DE EMBALAJE</td>
         <td width=60px>CONDICION ALMACENAMIENTO</td>
         <td width=40px colspan=2>MANCHADO DERRAME ARRUGADO QUEBRADO HUMEDO</td>
         <td width=40px colspan=2>PRODUCTO CORRESPONDE AL DOCUMENTO</td>
@@ -127,43 +127,37 @@
 <table border="0" style="font-size:9px;text-align:center" width="900">
     <tr>
         <td width="400" align="center" valign="bottom">
-            <div style="border-bottom: solid 1px black; width: 150px; margin: 0 auto;">
-                <img src="~/imagenes/FirmaJulioRoman.png" width="150" />
+            <div style="width:180px; height:80px; margin:0 auto; border-bottom:1px solid #000;">
+                <img src="~/imagenes/FirmaJulioRoman.png"
+                     style="max-width:150px; max-height:70px;" />
             </div>
         </td>
 
         <td width="100"></td>
 
-        @*<td width="400" align="center" valign="bottom">
-            <div style="border-bottom: solid 1px black; width: 80%; margin: 0 auto;">
+        <td width="400" align="center" valign="bottom">
+            <div style="width:180px; height:80px; margin:0 auto; border-bottom:1px solid #000;">
                 @if (ViewBag.PersonaEntrega != null)
                 {
-                    <img src="@ViewBag.PersonaEntrega" width="150" onerror="this.style.display='none'" />
+                    <img src="@ViewBag.PersonaEntrega"
+                         style="max-width:150px; max-height:70px;"
+                         onerror="this.style.display='none'" />
                 }
-                else
-                {
-                    <br /><br /><br /><br />}
             </div>
-        </td>*@
-    </tr>
-    <tr>
-        <td align="center" valign="top">
-            JEFE DE ALMACEN:<br />
-            (FIRMA Y SELLO)
         </td>
-        @*<td></td>
-        <td align="center" valign="top">
-            RECIBIDO POR:
-        </td>*@
     </tr>
 
-    @*<tr>
-        <td colspan="3">
-            <table width="50%" style="margin: auto; padding-top: 20px">
-                <tr>
-                    <td style="color: black; border: solid 1px; border-color: gray; font-size: 11px;text-align: center">Prohibido reproducir sin autorización de DROGUERÍA COBEFAR</td>
-                </tr>
-            </table>
+    <tr>
+        <td align="center">
+            JEFE DE ALMACÉN<br />
+            (FIRMA Y SELLO)
         </td>
-    </tr>*@
+
+        <td></td>
+
+        <td align="center">
+            RECIBIDO POR<br />
+            (FIRMA Y SELLO)
+        </td>
+    </tr>
 </table>
