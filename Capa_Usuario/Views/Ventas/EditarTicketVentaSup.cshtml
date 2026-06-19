@@ -529,6 +529,17 @@
                                     <option value="Aereo" @{ if (Model.EnvioAgencia == "Aereo") { Write("selected"); } }>Envío Aéreo</option>
                                 </select>
                             </div>
+                            <div class="col-lg-3">
+                                <label class="text-dark form-label font-weight-bold font-18">Agencia:</label>
+                                <input type="text" name="Agencia" id="Agencia" value="@Model.Agencia" class="form-control border-success" list="ListAgencias" autocomplete="off" />
+                                <datalist id="ListAgencias">
+                                    @foreach (var i in Agencias)
+                                    {
+                                        <option value="@i.Nombre" />
+                                    }
+                                </datalist>
+
+                            </div>
                         </div>
 
                         <div class="row mt-4">
