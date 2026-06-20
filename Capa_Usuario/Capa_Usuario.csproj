@@ -319,6 +319,7 @@
     <Content Include="Content\img\LogoFarmacovigilancia.jpg" />
     <Content Include="Content\img\logo_blanco.png" />
     <Content Include="Content\img\video-presentacion-24-05-23.mp4" />
+    <Content Include="Content\img\VIDEO_DISFAR.mp4" />
     <Content Include="Content\img\white-background-abstract.jpg" />
     <Content Include="Content\js\alertify.min.js" />
     <Content Include="Content\js\bootstrap.bundle.js" />
