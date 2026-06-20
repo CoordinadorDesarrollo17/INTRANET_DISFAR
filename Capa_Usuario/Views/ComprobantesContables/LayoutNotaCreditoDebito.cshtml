@@ -292,50 +292,73 @@
                 </tr>
             </thead>
             <tbody>
-                @* Productos normales *@
-                @foreach (var item in Model.Where(x => x.TipoDescripcionC == null || x.TipoDescripcionC.Trim() != "05"))
+
+                @if (Model.First().MotivoNC.ToUpper() == "DISMINUCIÓN EN EL VALOR")
                 {
-                    <tr style="page-break-inside:avoid;">
-                        <td>@item.ItemCode</td>
-                        <td>
-                            @Math.Round(Convert.ToDouble(item.CantidadL), 0)  @if (item.UmLinea.Equals("PZA"))
-                            {<span>PZA</span>}
-                        </td>
-                        <td>@item.UmLinea</td>
-                        <td style="text-align:left;">@Html.DisplayFor(m => item.DescripcionLinea)</td>
-                        <td>@Html.DisplayFor(m => item.LoteNum)</td>
-                        <td>@Html.DisplayFor(m => item.VencLote)</td>
-                        <td>@Math.Round(item.F_ItemPrecio(), 2)</td>
-                        <td>@Html.DisplayFor(m => item.Descuento)</td>
-                        <td>@Html.DisplayFor(m => item.PreVentaNeto)</td>
-                        <td>@Math.Round(item.ItemTotalxLot(), 2)</td>
+                    var item = Model.First();
+                    var total = Math.Round(Cab.TotalFactura(Cab.Sum_Topgratuita(Model.ToList())), 2);
+                    <tr>
+                        <td></td>
+                        <td>1</td>
+                        <td></td>
+                        <td>@item.MotivoNC.ToUpper()</td>
+                        <td></td>
+                        <td></td>                     
+                        <td>@total</td>
+                        <td>0.00</td>
+                        <td>@total</td>
+                        <td>@total</td>
                     </tr>
                 }
-                @* Descuento especial 05 *@
-                @{
-                    var listaSolo05 = Model.Where(x => x.TipoDescripcionC != null && x.TipoDescripcionC.Trim() == "05").ToList();
-                    if (listaSolo05.Any())
+                else
+                {
+
+                    //Productos normales 
+                    foreach (var item in Model.Where(x => x.TipoDescripcionC == null || x.TipoDescripcionC.Trim() != "05"))
                     {
-                        var total = Model.ToList()[0].DocTotal;
                         <tr style="page-break-inside:avoid;">
-                            <td></td>
-                            <td>1</td>
-                            <td></td>
-                            <td style="text-align:center;"><strong>DESCUENTO ESPECIAL</strong></td>
-                            <td></td>
-                            <td></td>
-
-                            <td>@total</td>
-                            <td>0.00</td>
-                            <td>@total</td>
-                            <td>@total</td>
-
-                            @*<td>@Math.Round(Cab.Tgrabado(Cab.Sum_Topgratuita(Model.ToList()), Cab.Sum_Tinafecto(Model.ToList())), 2)</td>
-                                <td>0.00</td>
-                                <td>@Math.Round(Cab.Tgrabado(Cab.Sum_Topgratuita(Model.ToList()), Cab.Sum_Tinafecto(Model.ToList())), 2)</td>
-                                <td>@Math.Round(Cab.TotalFactura(Cab.Sum_Topgratuita(Model.ToList())), 2)</td>*@
+                            <td>@item.ItemCode</td>
+                            <td>
+                                @Math.Round(Convert.ToDouble(item.CantidadL), 0)  @if (item.UmLinea.Equals("PZA"))
+                                {<span>PZA</span>}
+                            </td>
+                            <td>@item.UmLinea</td>
+                            <td style="text-align:left;">@Html.DisplayFor(m => item.DescripcionLinea)</td>
+                            <td>@Html.DisplayFor(m => item.LoteNum)</td>
+                            <td>@Html.DisplayFor(m => item.VencLote)</td>
+                            <td>@Math.Round(item.F_ItemPrecio(), 2)</td>
+                            <td>@Html.DisplayFor(m => item.Descuento)</td>
+                            <td>@Html.DisplayFor(m => item.PreVentaNeto)</td>
+                            <td>@Math.Round(item.ItemTotalxLot(), 2)</td>
                         </tr>
                     }
+                    // Descuento especial 05 
+                    {
+                        var listaSolo05 = Model.Where(x => x.TipoDescripcionC != null && x.TipoDescripcionC.Trim() == "05").ToList();
+                        if (listaSolo05.Any())
+                        {
+                            var total = Model.ToList()[0].DocTotal;
+                            <tr style="page-break-inside:avoid;">
+                                <td></td>
+                                <td>1</td>
+                                <td></td>
+                                <td style="text-align:center;"><strong>DESCUENTO ESPECIAL</strong></td>
+                                <td></td>
+                                <td></td>
+
+                                <td>@total</td>
+                                <td>0.00</td>
+                                <td>@total</td>
+                                <td>@total</td>
+
+                                @*<td>@Math.Round(Cab.Tgrabado(Cab.Sum_Topgratuita(Model.ToList()), Cab.Sum_Tinafecto(Model.ToList())), 2)</td>
+                        <td>0.00</td>
+                        <td>@Math.Round(Cab.Tgrabado(Cab.Sum_Topgratuita(Model.ToList()), Cab.Sum_Tinafecto(Model.ToList())), 2)</td>
+                        <td>@Math.Round(Cab.TotalFactura(Cab.Sum_Topgratuita(Model.ToList())), 2)</td>*@
+                            </tr>
+                        }
+                    }
+
                 }
             </tbody>
         </table>

@@ -655,10 +655,10 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
         public int Entregar(ORTV_E t)
         {
             if (t.Estado.Equals("ENTREGADO")) { throw new Exception("El ticket ya se encuentra ENTREGADO"); }
-            if (!t.Estado.Equals("ENVIADO"))
-            {
-                throw new Exception("El ticket debe estar en ENVIADO, debes revertir o continuar el proceso");
-            }
+            //if (!t.Estado.Equals("ENVIADO"))
+            //{
+            //    throw new Exception("El ticket debe estar en ENVIADO, debes revertir o continuar el proceso");
+            //}
             if (!t.EstadoFacturacion.Equals("FACTURADO")) { throw new Exception("Solo puedes entregar ticket facturado"); }
             if (t.Det5 != null && t.Det5.Count >= 1)
             {

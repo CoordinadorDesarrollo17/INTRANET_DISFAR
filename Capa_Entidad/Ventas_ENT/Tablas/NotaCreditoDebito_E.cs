@@ -58,6 +58,7 @@ namespace Capa_Entidad.Ventas_ENT.Tablas
         public string TipoDescripcionC { get; set; }
         public string ItemCode { get; set; }
         public string FechaVencimiento { get; set; }
+        public string MotivoNC { get; set; }
         public string TotalL()
         {
             string toWords = "";

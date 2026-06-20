@@ -243,10 +243,10 @@
 
     </div>
 
-    <div class="bg-white bg-form-cobefar">
+    <div class="table-responsive bg-white bg-form-cobefar">
 
         <table class="table table-light table-sm table-hover cls-dataTable50 no-auto-dt" cellspacing="0" width="100%">
-          <thead class="bg-cobefar-6">
+            <thead class="bg-cobefar-6">
                 <tr>
                     <th class="text-center">
                         @Html.DisplayNameFor(model => model.DocNum)
@@ -308,7 +308,7 @@
                             <option value="DOMICILIO" @{ if (e != null && e.LugarDestino == "DOMICILIO") { Write("selected"); } }>DOMICILIO</option>
                             <option value="PROVINCIA" @{ if (e != null && e.LugarDestino == "PROVINCIA") { Write("selected"); } }>PROVINCIA</option>
                             <option value="RECOJO" @{ if (e != null && e.LugarDestino == "RECOJO") { Write("selected"); } }>RECOJO</option>
-                     </select>
+                        </select>
                     </th>
                     <th class="text-center">
                         Zona
@@ -316,7 +316,7 @@
                         <select name="Zona" id="Zona" class="form-control select_filtro-table" onchange="filtrar();">
                             <option value="">Seleccione</option>
                             <option value="DOMICILIO" @{ if (e != null && e.Zona == "DOMICILIO") { Write("selected"); }}>DOMICILIO</option>
-                            <option value="EXTERNO" @{ if (e != null && e.Zona == "EXTERNO") { Write("selected"); }}>EXTERNO</option>                         
+                            <option value="EXTERNO" @{ if (e != null && e.Zona == "EXTERNO") { Write("selected"); }}>EXTERNO</option>
                         </select>
                     </th>
                     <th class="text-center">
@@ -392,9 +392,9 @@
                     string styleEstado = "";
                     string claseDocNum = (ViewBag.DocNum == item.DocNum ? "d-flex bg-success" : "d-flex align-self-center form-inline");
 
-                    if (item.Estado.Equals("ENVIADO"))
+                    if (item.Estado.Equals("EMPACADO"))
                     {
-                        if (item.LugarDestino == "Centro" || item.LugarDestino == "Arriola")
+                        if (item.LugarDestino == "RECOJO")
                         {
                             if ((item.TipoVenta == "Normal" && item.EstadoPago == "PAGADO")
                             || (item.TipoVenta == "Credito" && (item.EstadoPago == "PENDIENTE" || item.EstadoPago == "PAGADO"))
@@ -405,7 +405,7 @@
                         }
                     }
 
-                    if (item.Estado.Equals("EMPACADO"))
+                    if (item.Estado.Equals("EMPACADO") && item.LugarDestino != "RECOJO")
                     {
                         condPesar = true;
                     }
@@ -414,7 +414,7 @@
                     {
                         condAnularPesar = true;
                     }
-                    else if (item.Estado.Equals("ENTREGADO"))
+                    else if (item.Estado.Equals("ENTREGADO") && item.LugarDestino == "RECOJO")
                     {
                         condAnularEntrega = true;
                         styleEstado = "background-color: #96FF33; font-weight: bold";
@@ -424,7 +424,7 @@
                         styleEstado = "background-color: #F2F526; font-weight: bold;";
                     }
 
-                    if (item.Det5 != null && item.Det5.Count >= 1 && item.Estado.Equals("ENTREGADO") && item.Det5[0].RegEstado != "PENDIENTE")
+                    if (item.Det5 != null && item.Det5.Count >= 1 && (item.Estado.Equals("ENTREGADO") && item.LugarDestino == "RECOJO") && item.Det5[0].RegEstado != "PENDIENTE")
                     {
                         condAnularEntrega = true;
                     }
