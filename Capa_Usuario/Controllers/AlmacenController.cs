@@ -142,7 +142,7 @@ namespace Capa_Usuario.Controllers
                 }
                 else
                 {
-                    string[] arrWhsCode = { "03", "05", "06", "CUAR07" };
+                    string[] arrWhsCode = { "01" };
                     ViewBag.Almacenes = owhsN.listarAlmacenes(arrWhsCode);
                 }
                 return View(nombreVista);
