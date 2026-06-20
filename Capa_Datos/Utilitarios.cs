@@ -40,7 +40,7 @@ namespace Capa_Datos
 
             // HANA Database Configuration
             this.cadHana = "Server=172.16.55.36:30015;UserName=B1ADMIN;Password=Passw0rd;";
-            this.schemaHana = "\"B1H_DISFAR_TEST\".";
+            this.schemaHana = "\"B1H_DISFAR\".";
 
 
             this.BDsql = Environment.GetEnvironmentVariable("NOMBRE_BD_PRINCIPAL_DISFAR", EnvironmentVariableTarget.Machine);
