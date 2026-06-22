@@ -276,15 +276,18 @@ namespace Capa_Datos.ReportesDigemid_DAO
                     if (!hdr.IsDBNull(4)) { a.T3_ExpDate = hdr.GetDateTime(4).ToString("dd/MM/yyyy"); }
                     if (!hdr.IsDBNull(5)) { a.Registro = hdr.GetString(5); }
                     if (!hdr.IsDBNull(6)) { a.T6_Location = hdr.GetString(6); }
-                    if (!hdr.IsDBNull(7)) { a.ItemName = hdr.GetString(7); }
-                    if (!hdr.IsDBNull(8)) { a.T7_FrgnName = hdr.GetString(8); }
-                    if (!hdr.IsDBNull(9)) { a.Concentracion = hdr.GetString(9); }
-                    if (!hdr.IsDBNull(10)) { a.FormaPresentacion = hdr.GetString(10); }
-                    if (!hdr.IsDBNull(11)) { a.FormaFarmaceutica = hdr.GetString(11); }
-                    if (!hdr.IsDBNull(12)) { a.Fabricante = hdr.GetString(12); }
-                    if (!hdr.IsDBNull(13)) { a.NroFactura = hdr.GetString(13); }
-                    if (!hdr.IsDBNull(14)) { a.Comentario = hdr.GetString(14); }
-                    if (!hdr.IsDBNull(15)) { a.Comentario2 = hdr.GetString(15); }
+                  
+                    if (!hdr.IsDBNull(7)) { a.T7_FrgnName = hdr.GetString(7); }
+                    if (!hdr.IsDBNull(8)) { a.Concentracion = hdr.GetString(8); }
+                    if (!hdr.IsDBNull(9)) { a.FormaPresentacion = hdr.GetString(9); }
+                    if (!hdr.IsDBNull(10)) { a.FormaFarmaceutica = hdr.GetString(10); }
+                    if (!hdr.IsDBNull(11)) { a.Fabricante = hdr.GetString(11); }
+                    if (!hdr.IsDBNull(12)) { a.NroFactura = hdr.GetString(12); }
+                    if (!hdr.IsDBNull(13)) { a.Comentario = hdr.GetString(13); }
+                    if (!hdr.IsDBNull(14)) { a.Comentario2 = hdr.GetString(14); }
+
+                    if (!hdr.IsDBNull(15)) { a.ItemName = hdr.GetString(15); }
+
                     lista.Add(a);
                 }
                 hdr.Close();
@@ -310,14 +313,17 @@ namespace Capa_Datos.ReportesDigemid_DAO
                     if (!hdr.IsDBNull(5)) { a.T3_ExpDate = hdr.GetDateTime(5).ToString("dd/MM/yyyy"); }
                     if (!hdr.IsDBNull(6)) { a.Registro = hdr.GetString(6); }
                     if (!hdr.IsDBNull(7)) { a.T6_Location = hdr.GetString(7); }
-                    if (!hdr.IsDBNull(8)) { a.ItemName = hdr.GetString(8); }
-                    if (!hdr.IsDBNull(9)) { a.T7_FrgnName = hdr.GetString(9); }
-                    if (!hdr.IsDBNull(10)) { a.Concentracion = hdr.GetString(10); }
-                    if (!hdr.IsDBNull(11)) { a.FormaPresentacion = hdr.GetString(11); }
-                    if (!hdr.IsDBNull(12)) { a.FormaFarmaceutica = hdr.GetString(12); }
-                    if (!hdr.IsDBNull(13)) { a.Fabricante = hdr.GetString(13); }
-                    if (!hdr.IsDBNull(14)) { a.NroFactura = hdr.GetString(14); }
-                    if (!hdr.IsDBNull(15)) { a.XDevolucion = hdr.GetDecimal(15); }
+                   
+                    if (!hdr.IsDBNull(8)) { a.T7_FrgnName = hdr.GetString(8); }
+                    if (!hdr.IsDBNull(9)) { a.Concentracion = hdr.GetString(9); }
+                    if (!hdr.IsDBNull(10)) { a.FormaPresentacion = hdr.GetString(10); }
+                    if (!hdr.IsDBNull(11)) { a.FormaFarmaceutica = hdr.GetString(11); }
+                    if (!hdr.IsDBNull(12)) { a.Fabricante = hdr.GetString(12); }
+                    if (!hdr.IsDBNull(13)) { a.NroFactura = hdr.GetString(13); }
+                    if (!hdr.IsDBNull(14)) { a.XDevolucion = hdr.GetDecimal(14); }
+
+                    if (!hdr.IsDBNull(15)) { a.ItemName = hdr.GetString(15); }
+
                     lista.Add(a);
                 }
                 hdr.Close();
