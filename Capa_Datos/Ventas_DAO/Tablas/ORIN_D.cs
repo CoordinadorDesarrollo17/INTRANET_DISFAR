@@ -42,7 +42,7 @@ namespace Capa_Datos.Ventas_DAO.Tablas
         public ORIN_E ObtenerCabecera(int docEntry, string numAtCard)
         {
             ORIN_E o = null;
-            string query = $"select \"DocEntry\",\"DocNum\",\"DocDate\",\"CardName\",\"NumAtCard\",\"DocTotal\",\"U_SYP_STATUS\", IFNULL(\"U_SYP_MDTO\"||'-','')||IFNULL(\"U_SYP_MDSO\"||'-','')||IFNULL(\"U_SYP_MDCO\",''), \"DocType\", \"U_SYP_MDSD\",\"U_SYP_MDCD\",\"Address\", (SELECT \"LicTradNum\" FROM {uti.schemaHana}OCRD WHERE \"CardCode\" = {uti.schemaHana}ORIN.\"CardCode\"),(SELECT \"CurrName\" FROM {uti.schemaHana}\"OCRN\" WHERE \"CurrCode\" = {uti.schemaHana}ORIN.\"DocCur\"), \"U_SYP_MOTNCND\" from {uti.schemaHana}ORIN where \"DocEntry\"={docEntry} or \"NumAtCard\" ='{numAtCard}'";
+            string query = $"select \"DocEntry\",\"DocNum\",\"DocDate\",\"CardName\",\"NumAtCard\",\"DocTotal\",\"U_SYP_STATUS\", IFNULL(\"U_SYP_MDTO\"||'-','')||IFNULL(\"U_SYP_MDSO\"||'-','')||IFNULL(\"U_SYP_MDCO\",''), \"DocType\", \"U_SYP_MDSD\",\"U_SYP_MDCD\",\"Address\", (SELECT \"LicTradNum\" FROM {uti.schemaHana}OCRD WHERE \"CardCode\" = {uti.schemaHana}ORIN.\"CardCode\"),(SELECT \"CurrName\" FROM {uti.schemaHana}\"OCRN\" WHERE \"CurrCode\" = {uti.schemaHana}ORIN.\"DocCur\"), \"U_IDC_MOTNC\" from {uti.schemaHana}ORIN where \"DocEntry\"={docEntry} or \"NumAtCard\" ='{numAtCard}'";
             try
             {
                 HanaDataReader hdr = db.HanaExecuteReaderNoSp(query);
