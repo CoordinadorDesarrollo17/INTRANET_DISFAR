@@ -587,8 +587,8 @@
                                 @*<select name="EnvioAgencia" id="EnvioAgencia" class="form-control bg-cobefar text-white" onchange="mostrarOficinas();">*@
                                 <select name="EnvioAgencia" id="EnvioAgencia" class="form-control bg-cobefar text-white">
                                     <option value="">Seleccione</option>
-                                    <option value="Terrestre" selected @{ if (Model.EnvioAgencia == "Terrestre") { Write("selected"); } }>Envío Terrestre</option>
-                                    <option value="Aereo" @{ if (Model.EnvioAgencia == "Aereo") { Write("selected"); } }>Envío Aéreo</option>
+                                    <option value="Recojo agencia" selected @{ if (Model.EnvioAgencia == "Recojo agencia") { Write("selected"); } }>Recojo agencia</option>
+                                    <option value="Domicilio del cliente" @{ if (Model.EnvioAgencia == "Domicilio del cliente") { Write("selected"); } }>Domicilio del cliente</option>
                                 </select>
                             </div>
                             <div class="col-lg-3">
