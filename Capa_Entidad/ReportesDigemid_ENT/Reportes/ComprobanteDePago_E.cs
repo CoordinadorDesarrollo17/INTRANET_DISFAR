@@ -57,21 +57,59 @@ namespace Capa_Entidad.ReportesDigemid_ENT.Reportes
         public string Observacion { get; set; }
         public int TipoAfectacion { get; set; }
         // metodos del layout
+        //public decimal cantVta()
+        //{
+        //    //define si es fraccion o lote
+        //    if (LoteNum == null || LoteNum == "") { return Cantidad; }
+        //    else
+        //    {
+        //        if ((CantidadL / QUMVta) < 1) { return CantidadL; }
+        //        else { return CantidadL / QUMVta; }
+        //    }
+        //}
+
         public decimal cantVta()
         {
-            //define si es fraccion o lote
-            if (LoteNum == null || LoteNum == "") { return Cantidad; }
+            // Si es PZA, retornar cantidad directamente
+            if (Um != null && Um.ToUpper().Contains("PZA"))
+            {
+                return CantidadL;
+            }
+
+            // Si es CAJA u otra unidad, hacer el cálculo
+            if (LoteNum == null || LoteNum == "")
+            {
+                return CantidadL / QUMVta;
+            }
             else
             {
-                if ((CantidadL / QUMVta) < 1) { return CantidadL; }
-                else { return CantidadL / QUMVta; }
+                if ((CantidadL / QUMVta) < 1)
+                {
+                    return CantidadL;
+                }
+                else
+                {
+                    return CantidadL / QUMVta;
+                }
             }
         }
+        //public string UM()
+        //{
+        //    if ((CantidadL / QUMVta) < 1) { return "PZA"; }
+        //    else { return Um; }
+        //}
         public string UM()
         {
-            if ((CantidadL / QUMVta) < 1) { return "PZA"; }
-            else { return Um; }
+            if (!string.IsNullOrWhiteSpace(Um))
+            {
+                if (Um.ToUpper().Contains("PZA"))
+                    return "PZA";
+            }
+
+            // Si viene vacío = es CAJA
+            return "CAJA";
         }
+
         public decimal F_ItemPrecio()
         {
             if (PorcenImpto == 0.00M || CodImpuesto != "IGV")

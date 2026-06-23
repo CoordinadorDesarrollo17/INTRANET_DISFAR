@@ -217,12 +217,16 @@
                 <tr style="page-break-inside:avoid;">
                     <td>@item.ItemCode</td>
                     <td>@Math.Round(item.cantVta(), 0)</td>
-                    <td>@item.UM()</td>
+                    <td>
+                        @(item.UM() == "CAJA"
+                        ? "CAJA x " + item.QUMVta
+                        : item.QUMVta + " " + item.UM())
+                    </td>
                     <td style="text-align:left;">@item.Descripcion</td>
                     <td>@item.LoteNum</td>
                     <td>@item.VctoLote</td>
                     <td>@Math.Round(item.F_ItemPrecio(), 2).ToString("F2")</td>
-                    <td>@item.Descuento</td>
+                    <td>@Math.Round(item.Descuento, 2).ToString("F2")</td>
                     <td>@item.PreVentaNeto</td>
                     <td>@Math.Round(item.ItemTotalxLot(), 2).ToString("F2")</td>
                 </tr>
