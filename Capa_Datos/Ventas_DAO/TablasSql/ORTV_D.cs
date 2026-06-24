@@ -2146,7 +2146,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
         }
         public void Enviar(ORTV_E o, SqlTransaction tran, SqlConnection cn)
         {
-            ORTV_E ortvE = ObtenerDatosCompletosTicket(o.DocEntry);
+            ORTV_E ortvE = ObtenerDatosCompletosTicket(o.DocEntry,cn,tran);
             if (ortvE.Estado != "PREENVIO") { throw new Exception("Error envio: El ticket " + ortvE.DocNum + " no esta preenvio"); }
             try
             {
