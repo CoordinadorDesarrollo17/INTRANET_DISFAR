@@ -67,7 +67,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
             return lista;
         }
 
-        public List<CC_ORTV_E> ListarCC_ORTV(int DocEntry, string operacion, bool excluir = false)
+        public List<CC_ORTV_E> ListarCC_ORTV(int DocEntry, string operacion, bool excluir = false, SqlConnection cnExterna = null, SqlTransaction tranExterna = null)
         {
             List<CC_ORTV_E> lista = new List<CC_ORTV_E>();
             string condWhere = string.Empty, top = string.Empty;
@@ -78,11 +78,26 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
             }
             if (excluir) { condWhere = $"AND Operacion not in ('PI','EDITAR','EDITAR SUPERVISOR','FACTURAR','ANULAR FACTURAR','GUIA EMITIDA','REVERTIR GUIA')"; }
             string query = $"SELECT {top} Id, DocEntry, Operacion, Operario, CONVERT(varchar, FechaOperacion, 103) AS FechaOperacion, HoraOperacion FROM vt.CC_ORTV WHERE DocEntry = @DocEntry {condWhere} ORDER BY Id DESC";
-            SqlConnection cn = new SqlConnection(uti.cadSql);
+
+            //SqlConnection cn = new SqlConnection(uti.cadSql);
+            SqlConnection cn = cnExterna ?? new SqlConnection(uti.cadSql);
+            bool esConexionLocal = cnExterna == null;
+
             try
             {
-                cn.Open();
+                if (esConexionLocal)
+                {
+                    cn.Open();
+                }
+                //cn.Open();
+
                 SqlCommand cmd = new SqlCommand(query, cn);         // prepara
+
+                if (tranExterna != null)
+                {
+                    cmd.Transaction = tranExterna;
+                }
+
                 cmd.Parameters.AddWithValue("@DocEntry", DocEntry);
                 SqlDataReader dr = cmd.ExecuteReader();             // ejecuta
 
@@ -106,11 +121,19 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                 }
 
                 dr.Close();
-                cn.Close();
+                //cn.Close();
+                if (esConexionLocal)
+                {
+                    cn.Close();
+                }
             }
             catch
             {
-                cn.Close();
+                if (esConexionLocal)
+                {
+                    cn.Close();
+                }
+                throw;
             }
             return lista;
         }

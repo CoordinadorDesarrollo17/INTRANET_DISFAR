@@ -2100,7 +2100,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
         //Metodos desde Hojas de Reparto
         public void Preenviar(int DocEntry, string Operario, SqlTransaction tran, SqlConnection cn)
         {
-            ORTV_E tk = ObtenerDatosCompletosTicket(DocEntry);
+            ORTV_E tk = ObtenerDatosCompletosTicket(DocEntry, cn, tran);
             try
             {
                 SqlCommand cmd = new SqlCommand("vt.MANT_ORTV", cn, tran)
@@ -2146,7 +2146,7 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
         }
         public void Enviar(ORTV_E o, SqlTransaction tran, SqlConnection cn)
         {
-            ORTV_E ortvE = ObtenerDatosCompletosTicket(o.DocEntry);
+            ORTV_E ortvE = ObtenerDatosCompletosTicket(o.DocEntry,cn,tran);
             if (ortvE.Estado != "PREENVIO") { throw new Exception("Error envio: El ticket " + ortvE.DocNum + " no esta preenvio"); }
             try
             {
@@ -3129,13 +3129,23 @@ AND YEAR(T0.FechaSapTicket) = (SELECT YEAR(GETDATE())) AND ((SELECT  Estado FROM
             catch (Exception e) { cn.Close(); throw new Exception(e.Message); }
             return t;
         }
-        public ORTV_E ObtenerDatosCompletosTicket(int DocEntry)
+        public ORTV_E ObtenerDatosCompletosTicket(int DocEntry, SqlConnection cn = null, SqlTransaction tran = null)
         {
             ORTV_E t = new ORTV_E();
-            SqlConnection cn = new SqlConnection(uti.cadSql);
+            //SqlConnection cn = new SqlConnection(uti.cadSql);
+
+            bool cerrarConexion = false;
+            if (cn == null)
+            {
+                cn = new SqlConnection(uti.cadSql);
+                cn.Open();
+                cerrarConexion = true;
+            }
+
+
             try
             {
-                cn.Open();
+                //cn.Open();
                 SqlCommand cmd = new SqlCommand("select DocEntry,DocNum,CardCode, CardName,Estado,TipoVenta,LugarDestino, " +
                     "DirDestino,Referencia,Agencia,EnvioAgencia,Embalaje,CodSapVendedor,Vendedor,MontoTotal,Flete,GastoEnvio," +
                     "EstadoGasto,PagoEnv,ClaveEnv,TiempoEntrega,DescuentoNC,DeudaCliente,DeudaEmpresa,MontoFinal,FormaPago,MontoRecibido," +
@@ -3144,7 +3154,7 @@ AND YEAR(T0.FechaSapTicket) = (SELECT YEAR(GETDATE())) AND ((SELECT  Estado FROM
                     "from vt.CC_ORTV where DocEntry=" + DocEntry + " and Operacion='REGISTRAR' order by FechaOperacion DESC,HoraOperacion DESC ) AS 'FECHA REGISTRO'," +
                     " (Select top 1 HoraOperacion from vt.CC_ORTV where DocEntry=" + DocEntry + " and Operacion='REGISTRAR' order by FechaOperacion,HoraOperacion desc ) " +
                     "AS 'HORA REGISTRO' ,AlmProcedencia, Zona,Notificado,Visible,Presupuesto, (Select  Estado from vt.BusquedaProducto where DocEntry=vt.ORTV.DocEntry )   " +
-                    "from vt.ORTV where DocEntry=" + DocEntry, cn);
+                    "from vt.ORTV where DocEntry=" + DocEntry, cn, tran);
                 cmd.CommandType = CommandType.Text;
                 SqlDataReader dr = cmd.ExecuteReader();
                 dr.Read();
@@ -3208,7 +3218,7 @@ AND YEAR(T0.FechaSapTicket) = (SELECT YEAR(GETDATE())) AND ((SELECT  Estado FROM
                     else { t.ProductoPendiente = 0; }
                 }
                 dr.Close();
-                cn.Close();
+                //cn.Close();
                 t.Det1 = obtenerDet1Ticket(DocEntry); if (t.Det1.Count == 0) { t.Det1 = null; }      //Datos de recojo
                 t.Det2 = obtenerDet2Ticket(DocEntry); if (t.Det2.Count == 0) { t.Det2 = null; }     //Ordenes de venta
                 t.Det3 = obtenerDet3Ticket(DocEntry); if (t.Det3.Count == 0) { t.Det3 = null; }       //Direcciones
@@ -3217,7 +3227,15 @@ AND YEAR(T0.FechaSapTicket) = (SELECT YEAR(GETDATE())) AND ((SELECT  Estado FROM
                 t.Det6 = obtenerDet6Ticket(DocEntry); if (t.Det6.Count == 0) { t.Det6 = null; }       // Pesos
                 t.Det7 = obtenerDet7Ticket(DocEntry); if (t.Det7.Count == 0) { t.Det7 = null; }       // Tickets vinculados para reparto
             }
-            catch (Exception e) { cn.Close(); throw new Exception(e.Message); }
+            catch (Exception e) { throw new Exception(e.Message); }
+            finally
+            {
+                if (cerrarConexion)
+                {
+                    cn.Close();
+                }
+
+            }
             return t;
         }
         public ORTV_E ObtenerTicketRotulado(int DocEntry)

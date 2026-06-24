@@ -662,14 +662,14 @@ namespace Capa_Datos.Rutas_DAO.TablasSql
                                 // cambio de estado ticket
                                 foreach (RRU0_E dr in RRU0_E.listaFinalDetalles(o.DetRRU0))
                                 {
-                                    ORTV_E tcv = ticketD.ObtenerDatosCompletosTicket(dr.DocEntryTicket);
+                                    ORTV_E tcv = ticketD.ObtenerDatosCompletosTicket(dr.DocEntryTicket,cn,tran);
                                     CC_ORTV_D ccORTV_D = new CC_ORTV_D();
 
                                     // Si es devolución (TipoRuta == "DE") saltamos las validaciones de PESADO / EMPACADO
                                     if (o.TipoRuta != "DE")
                                     {
-                                        List<CC_ORTV_E> estadoPesado = ccORTV_D.ListarCC_ORTV(tcv.DocEntry, "PESAR");
-                                        List<CC_ORTV_E> estadoEmpacado = ccORTV_D.ListarCC_ORTV(tcv.DocEntry, "FIN EMPACAR");
+                                        List<CC_ORTV_E> estadoPesado = ccORTV_D.ListarCC_ORTV(tcv.DocEntry, "PESAR",false, cn, tran);
+                                        List<CC_ORTV_E> estadoEmpacado = ccORTV_D.ListarCC_ORTV(tcv.DocEntry, "FIN EMPACAR", false, cn, tran);
 
                                         if (o.TipoRuta == "AC")
                                         {

@@ -227,7 +227,7 @@
                     <td>@item.VctoLote</td>
                     <td>@Math.Round(item.F_ItemPrecio(), 2).ToString("F2")</td>
                     <td>@Math.Round(item.Descuento, 2).ToString("F2")</td>
-                    <td>@item.PreVentaNeto</td>
+                    <td>@item.PreVentaNeto.ToString("F2")</td>
                     <td>@Math.Round(item.ItemTotalxLot(), 2).ToString("F2")</td>
                 </tr>
             }
