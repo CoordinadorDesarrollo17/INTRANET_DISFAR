@@ -201,6 +201,7 @@
     <Compile Include="Rutas_ENT\TablasSql\MotivoLiberacion.cs" />
     <Compile Include="Rutas_ENT\TablasSql\ProvedorTrans.cs" />
     <Compile Include="Rutas_ENT\TablasSql\RRU01_E.cs" />
+    <Compile Include="Rutas_ENT\TablasSql\RRU0_DE_E.cs" />
     <Compile Include="Rutas_ENT\TablasSql\RRU0_E.cs" />
     <Compile Include="Rutas_ENT\Formularios\FrmHojasRutaFormatoA_E.cs" />
     <Compile Include="Rutas_ENT\TablasSql\ORRU_E.cs" />

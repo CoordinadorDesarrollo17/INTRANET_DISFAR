@@ -54,6 +54,9 @@ namespace Capa_Entidad.Rutas_ENT.TablasSql
         public List<RRU01_E> DetRRU01 { get; set; }
         public List<RRU1_E> DetRRU1 { get; set; }
         public List<RRU11_E> DetRRU11 { get; set; }
+
+        public List<RRU0_DE_E> DetRRU0DE { get; set; }
+
         public int TotCajas()
         {
             int tot = 0;

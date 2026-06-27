@@ -1,7 +1,9 @@
-﻿using Capa_Datos.Ventas_DAO.TablasSql;
+﻿using Capa_Datos.Ventas_DAO.Tablas;
+using Capa_Datos.Ventas_DAO.TablasSql;
 using Capa_Entidad.Almacen_ENT.Tablas;
 using Capa_Entidad.Rutas_ENT.ReportesSql;
 using Capa_Entidad.Rutas_ENT.TablasSql;
+using Capa_Entidad.Ventas_ENT.Tablas;
 using Capa_Entidad.Ventas_ENT.TablasSql;
 using Sap.Data.Hana;
 using System;
@@ -1766,6 +1768,405 @@ T5.CardName
             }
             return lista;
         }
+
+        public int  NuevaHojaDeDevolucion(ORRU_E o)
+        {
+            int status = -1;
+            string TipoMant = "ARD";
+            string TipoPost = "C";
+
+            // ✅ DEBUG: Verificar qué está llegando
+            System.Diagnostics.Debug.WriteLine($"DetRRU0DE Count: {o.DetRRU0DE?.Count ?? 0}");
+            System.Diagnostics.Debug.WriteLine($"DetRRU0 Count: {o.DetRRU0?.Count ?? 0}");
+
+            // Si DetRRU0DE está vacío pero DetRRU0 tiene datos, copiar
+            if ((o.DetRRU0DE == null || o.DetRRU0DE.Count == 0) && o.DetRRU0 != null && o.DetRRU0.Count > 0)
+            {
+                o.DetRRU0DE = o.DetRRU0.Select(rru0 => new RRU0_DE_E
+                {
+                    Linea = rru0.Linea,
+                    DocEntryTicket = rru0.DocEntryTicket,
+                    DocNumTicket = rru0.DocNumTicket,
+                    Socio = rru0.Socio,
+                    Guias = rru0.Guias,
+                    Verificado = rru0.Verificado,
+                    Cajas = rru0.Cajas,
+                    Observaciones = rru0.Observaciones,
+                    MontoFinal = rru0.MontoFinal,
+                    Envio = rru0.Envio,
+                    Direcciones = rru0.Direcciones,
+                    Estado = "PREENVIO",
+                    ConducYPlaca = rru0.ConducYPlaca,
+                    EnvioAgencia = rru0.EnvioAgencia
+                }).ToList();
+
+                System.Diagnostics.Debug.WriteLine($"Copié DetRRU0 a DetRRU0DE. Nuevo count: {o.DetRRU0DE.Count}");
+            }
+
+            using (SqlConnection cn = new SqlConnection(uti.cadSql))
+            {
+                try
+                {
+                    cn.Open();
+                    SqlTransaction tran = cn.BeginTransaction();
+                    try
+                    {
+                        SqlCommand cmd = new SqlCommand("al.MANT_ORRU_DEVOLUCIONES", cn, tran)
+                        {
+                            CommandType = CommandType.StoredProcedure
+                        };
+
+                        cmd.Parameters.AddWithValue("@TipoMantenimiento", TipoMant);
+                        cmd.Parameters.Add("@DocEntry", SqlDbType.Int).Direction = ParameterDirection.Output;
+                        cmd.Parameters.Add("@DocNum", SqlDbType.Int).Direction = ParameterDirection.Output;
+                        cmd.Parameters.AddWithValue("@TipoRuta", "DE");
+                        cmd.Parameters.AddWithValue("@TransCod", o.TransCod ?? (object)DBNull.Value);
+                        cmd.Parameters.AddWithValue("@TransDesc", o.TransDesc ?? (object)DBNull.Value);
+                        cmd.Parameters.AddWithValue("@VehiculoCod", o.VehiculoCod ?? (object)DBNull.Value);
+                        cmd.Parameters.AddWithValue("@Placa", o.Placa ?? (object)DBNull.Value);
+                        cmd.Parameters.AddWithValue("@Marca", o.Marca ?? (object)DBNull.Value);
+                        cmd.Parameters.AddWithValue("@Modelo", o.Modelo ?? (object)DBNull.Value);
+                        cmd.Parameters.AddWithValue("@CopilDesc", o.CopilDesc ?? (object)DBNull.Value);
+                        cmd.Parameters.AddWithValue("@Copil2Desc", o.Copil2Desc ?? (object)DBNull.Value);
+                        cmd.Parameters.AddWithValue("@Copil3Desc", o.Copil3Desc ?? (object)DBNull.Value);
+                        cmd.Parameters.AddWithValue("@Copil4Desc", o.Copil4Desc ?? (object)DBNull.Value);
+                        cmd.Parameters.AddWithValue("@FechaCont", o.FechaCont);
+                        cmd.Parameters.AddWithValue("@AlmOrigenCod", o.AlmOrigenCod ?? (object)DBNull.Value);
+                        cmd.Parameters.AddWithValue("@AlmOrigenDesc", o.AlmOrigenDesc ?? (object)DBNull.Value);
+                        cmd.Parameters.AddWithValue("@AlmOrigenDesc2", o.AlmOrigenDesc2 ?? (object)DBNull.Value);
+                        cmd.Parameters.AddWithValue("@AlmDestinoCod", o.AlmDestinoCod ?? (object)DBNull.Value);
+                        cmd.Parameters.AddWithValue("@AlmDestinoDesc", o.AlmDestinoDesc ?? (object)DBNull.Value);
+                        cmd.Parameters.AddWithValue("@AlmDestinoDesc2", o.AlmDestinoDesc2 ?? (object)DBNull.Value);
+                        cmd.Parameters.AddWithValue("@Propietario", o.Propietario ?? (object)DBNull.Value);
+
+                        DateTime newTiempoPac = Convert.ToDateTime(o.TiempoPac);
+                        DateTime tiempoPacFormatted = new DateTime(newTiempoPac.Year, newTiempoPac.Month, newTiempoPac.Day, newTiempoPac.Hour, 0, 0);
+                        cmd.Parameters.AddWithValue("@TiempoPac", tiempoPacFormatted);
+                        cmd.Parameters.AddWithValue("@Observaciones", o.Observaciones ?? (object)DBNull.Value);
+                        cmd.Parameters.AddWithValue("@Operario", o.Propietario ?? (object)DBNull.Value);
+                        cmd.Parameters.AddWithValue("@Origen", o.Origen ?? (object)DBNull.Value);
+
+                        // ✅ PARÁMETROS DE TABLA ESTRUCTURADA
+                        SqlParameter tbDet = new SqlParameter("@Det", SqlDbType.Structured)
+                        {
+                            TypeName = "al.TPRRU0",
+                            Value = (o.DetRRU0DE != null && o.DetRRU0DE.Count > 0)
+                                ? RRU0_DE_E.tbDetalleDE(o.DetRRU0DE)
+                                : RRU0_DE_E.tbDetalleDE(new List<RRU0_DE_E>())
+                        };
+                        cmd.Parameters.Add(tbDet);
+
+                        // DEBUG: Verificar el DataTable
+                        DataTable dt = (DataTable)tbDet.Value;
+                        System.Diagnostics.Debug.WriteLine($"DataTable @Det tiene {dt?.Rows.Count ?? 0} filas");
+
+                        SqlParameter tbDetDoc = new SqlParameter("@DetDoc", SqlDbType.Structured)
+                        {
+                            TypeName = "al.TPRRU01",
+                            Value = (o.DetRRU01 != null && o.DetRRU01.Count > 0)
+                                ? RRU01_E.tbDetalle(o.DetRRU01)
+                                : RRU01_E.tbDetalle(new List<RRU01_E>())
+                        };
+                        cmd.Parameters.Add(tbDetDoc);
+
+                        cmd.ExecuteNonQuery();
+
+                        int docEntry = (int)cmd.Parameters["@DocEntry"].Value;
+                        int docNum = (int)cmd.Parameters["@DocNum"].Value;
+                        status = docNum;
+
+                        SqlCommand cmd2 = new SqlCommand("dbo.POST_TRANSACCIONES", cn, tran);
+                        cmd2.CommandType = CommandType.StoredProcedure;
+                        cmd2.Parameters.AddWithValue("@Tipo", TipoPost);
+                        cmd2.Parameters.AddWithValue("@Tabla", "ORRU");
+                        cmd2.Parameters.AddWithValue("@DocNum", docNum);
+                        cmd2.Parameters.AddWithValue("@DocEntry", docEntry);
+                        cmd2.ExecuteNonQuery();
+
+                        tran.Commit();
+                    }
+                    catch (Exception e1)
+                    {
+                        tran.Rollback();
+                        throw new Exception("Error en creación de devolución: " + e1.Message);
+                    }
+                }
+                catch (Exception e2)
+                {
+                    throw new Exception("Error en creación y conexión: " + e2.Message);
+                }
+            }
+
+            return status;
+        }
+
+        /// ✅ NUEVO MÉTODO: Obtener orden de ruta ESPECÍFICAMENTE para DEVOLUCIONES
+        /// ✅ NUEVO MÉTODO: Obtener orden de ruta ESPECÍFICAMENTE para DEVOLUCIONES
+        public ORRU_E obtenerOrdenDeRutaDevolucion(int DocEntry, SqlConnection cn = null, SqlTransaction tran = null)
+        {
+            ORRU_E o = new ORRU_E();
+            o.DetRRU0 = new List<RRU0_E>();
+            o.DetRRU01 = new List<RRU01_E>();
+            o.DetRRU1 = new List<RRU1_E>();
+            o.DetRRU11 = new List<RRU11_E>();
+            o.DetRRU0DE = new List<RRU0_DE_E>();
+
+            bool cerrarConexion = false;
+
+            if (cn == null)
+            {
+                cn = new SqlConnection(uti.cadSql);
+                cn.Open();
+                cerrarConexion = true;
+            }
+
+            try
+            {
+                // ✅ CARGAR ENCABEZADO DE LA RUTA
+                SqlCommand cmd = new SqlCommand("select T1.DocEntry,T1.DocNum,T1.TipoRuta,T1.TransCod,T1.TransDesc,T1.VehiculoCod,T1.Placa," +
+                    " T1.Marca,T1.Modelo,T1.CopilDesc,T1.Copil2Desc,T1.Copil3Desc,T1.Copil4Desc,T1.FechaCont,T1.FechaDoc," +
+                    " T1.AlmOrigenCod,T1.AlmOrigenDesc,T1.AlmOrigenDesc2,T1.AlmDestinoCod,T1.AlmDestinoDesc,T1.AlmDestinoDesc2," +
+                    " T1.Propietario,T1.TiempoPac,(select top 1 concat(FechaOperacion,' ',convert(varchar(8),HoraOperacion)) from al.CC_ORRU " +
+                    " where Operacion='INICIAR' and DocEntry=t1.DocEntry order by FechaOperacion,HoraOperacion desc),(select top 1 concat(FechaOperacion,' ',convert(varchar(8),HoraOperacion)) from al.CC_ORRU " +
+                    " where Operacion='TERMINAR' and DocEntry=t1.DocEntry order by FechaOperacion,HoraOperacion desc),T1.Estado,T1.Observaciones,(select top 1 Operario from al.CC_ORRU " +
+                    " where Operacion='INICIAR' and DocEntry=t1.DocEntry order by FechaOperacion,HoraOperacion desc) ,(select top 1 Operario from " +
+                    "al.CC_ORRU where Operacion='TERMINAR' and DocEntry=t1.DocEntry order by FechaOperacion,HoraOperacion desc),T1.Agencia,T1.RucAgencia," +
+                    " (select SerieT1 from al.oveh where Code = T1.VehiculoCod), (select SerieT2 from al.oveh where Code = T1.VehiculoCod), " +
+                    " T1.HoraRegistro " +  // ✅ AGREGAR ESTA LÍNEA
+                    "from al.ORRU T1 where T1.DocEntry=@DocEntry", cn, tran);
+
+                cmd.CommandType = CommandType.Text;
+                cmd.Parameters.AddWithValue("@DocEntry", DocEntry);
+                SqlDataReader dr = cmd.ExecuteReader();
+                dr.Read();
+                if (!dr.IsDBNull(0)) { o.DocEntry = dr.GetInt32(0); }
+                if (!dr.IsDBNull(1)) { o.DocNum = dr.GetInt32(1); }
+                if (!dr.IsDBNull(2)) { o.TipoRuta = dr.GetString(2); }
+                if (!dr.IsDBNull(3)) { o.TransCod = dr.GetString(3); }
+                if (!dr.IsDBNull(4)) { o.TransDesc = dr.GetString(4); }
+                if (!dr.IsDBNull(5)) { o.VehiculoCod = dr.GetString(5); }
+                if (!dr.IsDBNull(6)) { o.Placa = dr.GetString(6); }
+                if (!dr.IsDBNull(7)) { o.Marca = dr.GetString(7); }
+                if (!dr.IsDBNull(8)) { o.Modelo = dr.GetString(8); }
+                if (!dr.IsDBNull(9)) { o.CopilDesc = dr.GetString(9); }
+                if (!dr.IsDBNull(10)) { o.Copil2Desc = dr.GetString(10); }
+                if (!dr.IsDBNull(11)) { o.Copil3Desc = dr.GetString(11); }
+                if (!dr.IsDBNull(12)) { o.Copil4Desc = dr.GetString(12); }
+                if (!dr.IsDBNull(13)) { o.FechaCont = dr.GetDateTime(13); }
+                if (!dr.IsDBNull(14)) { o.FechaDoc = dr.GetDateTime(14); }
+                if (!dr.IsDBNull(15)) { o.AlmOrigenCod = dr.GetString(15); }
+                if (!dr.IsDBNull(16)) { o.AlmOrigenDesc = dr.GetString(16); }
+                if (!dr.IsDBNull(17)) { o.AlmOrigenDesc2 = dr.GetString(17); }
+                if (!dr.IsDBNull(18)) { o.AlmDestinoCod = dr.GetString(18); }
+                if (!dr.IsDBNull(19)) { o.AlmDestinoDesc = dr.GetString(19); }
+                if (!dr.IsDBNull(20)) { o.AlmDestinoDesc2 = dr.GetString(20); }
+                if (!dr.IsDBNull(21)) { o.Propietario = dr.GetString(21); }
+                if (!dr.IsDBNull(22)) { o.TiempoPac = dr.GetDateTime(22); }
+                if (!dr.IsDBNull(23)) { o.TiempoIniEn = dr.GetString(23); }
+                if (!dr.IsDBNull(24)) { o.TiempoTerEn = dr.GetString(24); }
+                if (!dr.IsDBNull(25)) { o.Estado = dr.GetString(25); }
+                if (!dr.IsDBNull(26)) { o.Observaciones = dr.GetString(26); }
+                if (!dr.IsDBNull(27)) { o.OpInicio = dr.GetString(27); }
+                if (!dr.IsDBNull(28)) { o.OpTermino = dr.GetString(28); }
+                if (!dr.IsDBNull(29)) { o.Agencia = dr.GetString(29); }
+                if (!dr.IsDBNull(30)) { o.RucAgencia = dr.GetString(30); }
+                if (!dr.IsDBNull(31)) { o.SerieT1 = dr.GetString(31); }
+                if (!dr.IsDBNull(32)) { o.SerieT2 = dr.GetString(32); }
+                if (!dr.IsDBNull(33)) { o.HoraRegistro = dr.GetTimeSpan(33).ToString(); } // ✅ AGREGAR ESTA LÍNEA
+
+                dr.Close();
+
+                // ✅ CARGAR DETALLES DESDE RRU0_DE (SIN CARGAR TICKET COMPLETO)
+                StringBuilder sb = new StringBuilder();
+
+                sb.Append("SELECT R0.DocEntry, R0.Linea, R0.DocEntryTicket, R0.DocNumTicket, R0.Guias, R0.Verificado, R0.Cajas, R0.Observaciones, R0.MontoFinal, R0.Envio, R0.Direcciones,");
+                sb.Append(" R0.Estado, R0.TempI1, R0.TempI2, R0.TempF1, R0.TempF2, R0.OpEntrega, R0.FechaEntrega, R0.HoraEntrega, R0.Socio,");
+                sb.Append(" ISNULL((SELECT TOP 1 CardCode FROM vt.ORTV WHERE CardName = R0.Socio), '') as CardCode");
+                sb.Append(" FROM al.RRU0_DE R0");
+                sb.Append(" WHERE R0.DocEntry=@DocEntry");
+                sb.Append(" ORDER BY R0.Linea ASC");
+
+                string query = sb.ToString();
+
+                SqlCommand cmd2 = new SqlCommand(query, cn, tran);
+                cmd2.CommandType = CommandType.Text;
+                cmd2.Parameters.AddWithValue("@DocEntry", DocEntry);
+                SqlDataReader dr2 = cmd2.ExecuteReader();
+
+                while (dr2.Read())
+                {
+                    RRU0_DE_E d = new RRU0_DE_E();
+                    if (!dr2.IsDBNull(0)) d.DocEntry = dr2.GetInt32(0);
+                    if (!dr2.IsDBNull(1)) d.Linea = dr2.GetInt32(1);
+                    if (!dr2.IsDBNull(2)) d.DocEntryTicket = dr2.GetInt32(2);
+                    if (!dr2.IsDBNull(3)) d.DocNumTicket = dr2.GetInt32(3);
+                    if (!dr2.IsDBNull(4)) d.Guias = dr2.GetString(4);
+                    if (!dr2.IsDBNull(5)) d.Verificado = dr2.GetString(5);
+                    if (!dr2.IsDBNull(6)) d.Cajas = dr2.GetInt32(6);
+                    if (!dr2.IsDBNull(7)) d.Observaciones = dr2.GetString(7);
+                    if (!dr2.IsDBNull(8)) d.MontoFinal = dr2.GetDecimal(8);
+                    if (!dr2.IsDBNull(9)) d.Envio = dr2.GetDecimal(9);
+                    if (!dr2.IsDBNull(10)) d.Direcciones = dr2.GetString(10);
+                    if (!dr2.IsDBNull(11)) d.Estado = dr2.GetString(11);
+                    if (!dr2.IsDBNull(12)) d.TempI1 = dr2.GetDecimal(12);
+                    if (!dr2.IsDBNull(13)) d.TempI2 = dr2.GetDecimal(13);
+                    if (!dr2.IsDBNull(14)) d.TempF1 = dr2.GetDecimal(14);
+                    if (!dr2.IsDBNull(15)) d.TempF2 = dr2.GetDecimal(15);
+                    if (!dr2.IsDBNull(16)) d.OpEntrega = dr2.GetString(16);
+                    if (!dr2.IsDBNull(17)) d.FechaEntrega = dr2.GetDateTime(17).ToString("yyyy-MM-dd");
+                    if (!dr2.IsDBNull(18)) d.HoraEntrega = dr2.GetTimeSpan(18).ToString();
+                    if (!dr2.IsDBNull(19)) d.Socio = dr2.GetString(19);
+                    if (!dr2.IsDBNull(20)) d.CardCode = dr2.GetString(20);  // ✅ NUEVO
+
+
+                    // ✅ CREAR TICKET BÁSICO - SOLO CON SOCIO Y CARDCODE
+                    d.Ticket = new ORTV_E();
+
+                    // Si existe socio, buscar CardCode en vt.ORTV
+                    if (!string.IsNullOrWhiteSpace(d.Socio))
+                    {
+                        try
+                        {
+                            string sqlRuc = "SELECT TOP 1 CardCode FROM vt.ORTV WHERE CardName = @SocioName";
+                            SqlCommand cmdRuc = new SqlCommand(sqlRuc, cn, tran);
+                            cmdRuc.Parameters.AddWithValue("@SocioName", d.Socio);
+
+                            object resultado = cmdRuc.ExecuteScalar();
+
+                            // ✅ ASIGNAR CARDCODE SI EXISTE
+                            if (resultado != null && resultado != DBNull.Value)
+                            {
+                                d.Ticket.CardCode = resultado.ToString();
+                                d.Ticket.CardName = d.Socio;
+                            }
+                            else
+                            {
+                                // Si no encuentra en ORTV, usar el nombre del socio como es
+                                d.Ticket.CardCode = "";
+                                d.Ticket.CardName = d.Socio;
+                            }
+                        }
+                        catch
+                        {
+                            // Si falla la búsqueda, solo asignar el nombre
+                            d.Ticket.CardCode = "";
+                            d.Ticket.CardName = d.Socio;
+                        }
+                    }
+                    else
+                    {
+                        // Si no hay socio, inicializar vacío
+                        d.Ticket.CardCode = "";
+                        d.Ticket.CardName = "";
+                    }
+
+                    o.DetRRU0DE.Add(d);
+                }
+                dr2.Close();
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
+            }
+            finally
+            {
+                if (cerrarConexion && cn != null)
+                {
+                    cn.Close();
+                }
+            }
+            return o;
+        }
+
+        //public List<ODLN_E> ObtenerListaGuiasSap(string zona, DateTime? fechaSapTicket, string socio = null, string guias = null, string nroSap = null)
+        //{
+        //    List<ODLN_E> lista = new List<ODLN_E>();
+        //    OINV_D oinvD = new OINV_D();
+        //    ODLN_D odlnD = new ODLN_D();
+
+        //    var query = new System.Text.StringBuilder();
+
+        //    query.AppendLine($@"
+        //        SELECT 
+        //            ""DocNum"",
+        //            ""DocDate"",
+        //            ""CardCode"",
+        //            ""CardName"",
+        //            ""NumAtCard"",
+        //            ""DocTotal"",
+        //            IFNULL(""U_SYP_MDFN"", '') || ' - ' || IFNULL(""U_SYP_MDVC"", '') AS ""ConductorYPlaca"",
+        //            ""U_COB_ZONA""
+        //        FROM {uti.schemaHana}ODLN
+        //        WHERE 1=1   
+        //    ");
+        //    //AND IFNULL(""U_SYP_MDFN"", '') <> ''
+        //    //AND IFNULL(""U_SYP_MDVC"", '') <> ''
+
+        //    // filtros dinámicos
+        //    if (!string.IsNullOrEmpty(zona))
+        //        query.AppendLine(@" AND ""U_COB_ZONA"" = ? ");
+        //    if (fechaSapTicket.HasValue)
+        //        query.AppendLine(@" AND TO_DATE(""DocDate"") = ? ");
+        //    if (!string.IsNullOrEmpty(socio))
+        //        query.AppendLine(@" AND UPPER(""CardName"") LIKE ? ");
+        //    if (!string.IsNullOrEmpty(guias))
+        //        query.AppendLine(@" AND UPPER(""NumAtCard"") LIKE ? ");
+        //    if (!string.IsNullOrEmpty(nroSap))
+        //        query.AppendLine(@" AND ""DocNum"" = ? ");
+
+        //    query.AppendLine(@" ORDER BY ""DocEntry"" DESC ");
+        //    query.AppendLine(@" LIMIT 50 ");
+
+        //    using (HanaConnection conn = new HanaConnection(uti.cadHana))
+        //    {
+        //        conn.Open();
+
+        //        using (HanaCommand cmd = new HanaCommand(query.ToString(), conn))
+        //        {
+        //            if (!string.IsNullOrEmpty(zona))
+        //                cmd.Parameters.Add(new HanaParameter { Value = zona });
+        //            if (fechaSapTicket.HasValue)
+        //                cmd.Parameters.Add(new HanaParameter { Value = fechaSapTicket.Value.Date });
+        //            if (!string.IsNullOrEmpty(socio))
+        //                cmd.Parameters.Add(new HanaParameter { Value = "%" + socio.ToUpper() + "%" });
+        //            if (!string.IsNullOrEmpty(guias))
+        //                cmd.Parameters.Add(new HanaParameter { Value = "%" + guias.ToUpper() + "%" });
+        //            if (!string.IsNullOrEmpty(nroSap))
+        //                cmd.Parameters.Add(new HanaParameter { Value = nroSap });
+
+        //            using (HanaDataReader dr = cmd.ExecuteReader())
+        //            {
+        //                while (dr.Read())
+        //                {
+        //                    ODLN_E obj = new ODLN_E();
+
+        //                    obj.DocNum = Convert.ToInt32(dr["DocNum"]);
+        //                    obj.CardCode = dr["CardCode"].ToString();
+        //                    obj.CardName = dr["CardName"].ToString();
+        //                    obj.NumAtCard = dr["NumAtCard"].ToString();
+        //                    obj.DocTotal = Convert.ToDecimal(dr["DocTotal"]);
+        //                    obj.ConductorYPlaca = dr["ConductorYPlaca"].ToString();
+        //                    //if(string.IsNullOrEmpty(obj.ConductorYPlaca) )
+        //                    //{
+        //                    //    obj.ConductorYPlaca = odlnD.buscarConducyPlacaRemision(obj.DocNum);
+        //                    //    if (string.IsNullOrEmpty(obj.ConductorYPlaca))
+        //                    //    {
+        //                    //        obj.ConductorYPlaca = oinvD.buscarConducyPlacaSinEnt(obj.DocNum);
+        //                    //    }
+        //                    //}
+
+        //                    obj.Zona = dr["U_COB_ZONA"].ToString();
+
+        //                    lista.Add(obj);
+        //                }
+
+        //            }
+        //        }
+        //    }
+
+        //    return lista;
+        //}
+
 
     }
 }

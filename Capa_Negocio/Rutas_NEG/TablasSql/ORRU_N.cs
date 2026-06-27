@@ -396,6 +396,16 @@ namespace Capa_Negocio.Rutas_NEG.TablasSql
             return new ORRU_D().ListarClientesPorFechaDesdeHana(fecha);
         }
 
+        public int NuevaHojaDeDevolucion(ORRU_E o)
+        {
+            // Validación básica (sin validar tickets)
+            if (string.IsNullOrWhiteSpace(o.Propietario))
+                throw new Exception("El propietario es requerido");
+
+            // Llamar al DAO específico para devoluciones
+            return orruD.NuevaHojaDeDevolucion(o);
+        }
+
         public void RecibirDevolucion(int DocEntry, string opRegistro)
         {
             // 1. Obtener la ruta completa

@@ -1640,19 +1640,27 @@ namespace Capa_Usuario.Controllers
                     o.Propietario = $"{user.Nombres} {user.Apellidos}";
                     o.TipoRuta = "DE";
 
+                    // ✅ DEBUG: Ver qué llega del formulario
+                    System.Diagnostics.Debug.WriteLine($"=== SOLICITUD DEVOLUCIÓN DEBUG ===");
+                    System.Diagnostics.Debug.WriteLine($"DetRRU0 Count al llegar: {o.DetRRU0DE?.Count ?? 0}");
+                    if (o.DetRRU0DE != null && o.DetRRU0DE.Count > 0)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"Primer detalle - DocEntryTicket: {o.DetRRU0DE[0].DocEntryTicket}, DocNumTicket: {o.DetRRU0DE[0].DocNumTicket}");
+                    }
+
                     // Asignar TiempoPac por defecto si es null
                     if (o.TiempoPac == null)
                     {
                         o.TiempoPac = o.FechaCont ?? DateTime.Now;
                     }
 
-                    // TRUNCAR Observaciones a 400 caracteres
+                    // TRUNCAR Observaciones
                     if (!string.IsNullOrEmpty(o.Observaciones) && o.Observaciones.Length > 400)
                     {
                         o.Observaciones = o.Observaciones.Substring(0, 397) + "...";
                     }
 
-                    // TRUNCAR AlmOrigenDesc2 y AlmDestinoDesc2 a 300 caracteres
+                    // TRUNCAR AlmOrigenDesc2 y AlmDestinoDesc2
                     if (!string.IsNullOrEmpty(o.AlmOrigenDesc2) && o.AlmOrigenDesc2.Length > 300)
                     {
                         o.AlmOrigenDesc2 = o.AlmOrigenDesc2.Substring(0, 297) + "...";
@@ -1663,9 +1671,9 @@ namespace Capa_Usuario.Controllers
                         o.AlmDestinoDesc2 = o.AlmDestinoDesc2.Substring(0, 297) + "...";
                     }
 
-                    int DocNum = orruN.NuevaHojaDeReparto(o);
+                    // ✅ LLAMAR AL NEGOCIO
+                    int DocNum = orruN.NuevaHojaDeDevolucion(o);
 
-                    // Redirigir a HojaRuta en AtencionCliente con mensaje de éxito
                     TempData["Mensaje"] = "Devolución creada exitosamente";
                     return RedirectToAction("HojaRuta", "AtencionCliente", new { DocNum });
                 }
