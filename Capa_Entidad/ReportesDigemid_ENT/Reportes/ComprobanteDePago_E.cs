@@ -168,11 +168,27 @@ namespace Capa_Entidad.ReportesDigemid_ENT.Reportes
         }
         public decimal TotalFactura(decimal s_Topgratuita)
         {
-            return Math.Round(DocTotal - s_Topgratuita, 2);
+            //return Math.Round(DocTotal - s_Topgratuita, 2);
+
+            if (DocTotal > 0)
+            {
+                return Math.Round(DocTotal - s_Topgratuita, 2);
+            }
+
+            return 0;
         }
         public decimal Tgrabado(decimal s_Topgratuita, decimal s_Tinafecto)
         {
-            return Math.Round(TotalFactura(s_Topgratuita) - F_Tinafecto(s_Tinafecto) - Impuesto, 2);
+            //return Math.Round(TotalFactura(s_Topgratuita) - F_Tinafecto(s_Tinafecto) - Impuesto, 2);
+
+            decimal totalFactura = TotalFactura(s_Topgratuita);
+
+            if (totalFactura > 0)
+            {
+                return Math.Round(totalFactura - F_Tinafecto(s_Tinafecto) - Impuesto, 2);
+            }
+
+            return 0;
         }
 
         // metodos de sumatorias
