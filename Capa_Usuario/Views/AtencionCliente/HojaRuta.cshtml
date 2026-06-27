@@ -164,7 +164,14 @@
                         //}
                         <tr>
                             <td class="text-center @if (ViewBag.DocNum == item.DocNum) { Write("bg-success"); }">@Html.DisplayFor(modelItem => item.DocNum)</td>
-                            <td class="text-center">@item.CardName</td>
+                            <td class="text-center">
+                                @{
+                                    string socio = item.DetRRU0DE != null && item.DetRRU0DE.Count > 0
+                                        ? item.DetRRU0DE.First().Socio
+                                        : string.Empty;
+                                }
+                                @socio
+                            </td>
                             <td class="text-center">@Html.DisplayFor(modelItem => item.TransDesc)</td>
                             <td class="text-center">
                                 @if (item.TiempoPac != null)
@@ -175,8 +182,14 @@
                                 }
                             </td>
                             <td class="text-center">@Html.DisplayFor(modelItem => item.Estado)</td>
-                            <td class="text-center">@Html.DisplayFor(modelItem => item.TotalCajas)</td>
-
+                            <td class="text-center">
+                                @{
+                                    int totalCajas = item.DetRRU0DE != null && item.DetRRU0DE.Count > 0
+                                        ? item.DetRRU0DE.Sum(x => x.Cajas)
+                                        : 0;
+                                }
+                                @totalCajas
+                            </td>
                             <td class="text-center">
                                 <div class="d-flex justify-content-center align-items-center">
                                     @* Botón Editar - Solo si está CREADO o ENVIADO *@
@@ -191,7 +204,7 @@
                                     }
 
                                     @* Botón PDF *@
-                                    <a href="@Url.Action("DocumentoRutas", "Rutas", new { DocEntry = item.DocEntry, TipoRuta = item.TipoRuta })"
+                                    <a href="@Url.Action("DocumentoRutasDevolucion", "Rutas", new { DocEntry = item.DocEntry, TipoRuta = item.TipoRuta })"
                                        class="btn btn-light btn-sm rounded-circle shadow-sm mx-1"
                                        data-bs-toggle="tooltip"
                                        title="Pdf">

@@ -52,6 +52,12 @@ namespace Capa_Negocio.Rutas_NEG.TablasSql
         {
             return orruD.obtenerOrdenDeRuta(DocEntry);
         }
+
+        public ORRU_E obtenerOrdenDeRutaDevolucion(int DocEntry)
+        {
+            return orruD.obtenerOrdenDeRutaDevolucion(DocEntry);
+        }
+
         public void validarNuevaHojaDeRepartoOTransferencia(ORRU_E o)
         {
             if (string.IsNullOrWhiteSpace(o.TipoRuta)) { throw new Exception("No lleno tipo de ruta encabezado"); }
@@ -412,15 +418,15 @@ namespace Capa_Negocio.Rutas_NEG.TablasSql
             ORRU_E ruta = obtenerOrdenDeRuta(DocEntry);
 
           // 2. Validar que sea una devolución
-  if (ruta.TipoRuta != "DE")
-            {
-    throw new Exception("Solo se pueden recibir devoluciones (TipoRuta = DE)");
-    }
+          if (ruta.TipoRuta != "DE")
+                    {
+            throw new Exception("Solo se pueden recibir devoluciones (TipoRuta = DE)");
+            }
 
-// 3. Validar estado previo
-  if (ruta.Estado != "ENVIADO")
-    {
-  throw new Exception("La devolución debe estar en estado ENVIADO para poder recibirse");
+            // 3. Validar estado previo
+              if (ruta.Estado != "ENVIADO")
+                {
+              throw new Exception("La devolución debe estar en estado ENVIADO para poder recibirse");
             }
 
          // 4. Cambiar estado a "DEVUELTO" usando el SP con URD

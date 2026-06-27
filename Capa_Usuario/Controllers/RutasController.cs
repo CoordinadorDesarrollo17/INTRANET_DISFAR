@@ -1,4 +1,5 @@
 ﻿using Capa_Datos;
+using Capa_Datos.Rutas_DAO.TablasSql;
 using Capa_Entidad.General_ENT.TablasSql;
 using Capa_Entidad.Rutas_ENT.ReportesSql;
 using Capa_Entidad.Rutas_ENT.TablasSql;
@@ -1408,31 +1409,46 @@ namespace Capa_Usuario.Controllers
 
         public ActionResult DocumentoRutasDevolucion(int DocEntry)
         {
-            // verificacionAccesos(0);
             ORRU_E o = new ORRU_E();
             ORTV_N ortvN = new ORTV_N();
             Utilitarios uti = new Utilitarios();
 
             try
             {
-                o = orruN.obtenerOrdenDeRuta(DocEntry);
+                // ✅ USAR EL NUEVO MÉTODO ESPECÍFICO PARA DEVOLUCIONES
+                ORRU_D orruD = new ORRU_D();
+                o = orruD.obtenerOrdenDeRutaDevolucion(DocEntry);
 
-                if (o.DetRRU0 != null)
+                // ✅ VALIDAR QUE o Y DetRRU0DE NO SEAN NULL (CAMBIO: usar DetRRU0DE)
+                if (o == null)
                 {
-                    // Usamos la cadena de conexión. Asegúrate que 'uti' es accesible aquí.
-                    // Si 'uti' no funciona aquí, usa la misma variable que usas en tu capa de datos (ej. ConfigurationManager...)
+                    o = new ORRU_E();
+                    o.DetRRU0DE = new List<RRU0_DE_E>();
+                }
+
+                if (o.DetRRU0DE == null)
+                {
+                    o.DetRRU0DE = new List<RRU0_DE_E>();
+                }
+
+                // ✅ SOLO PROCESAR SI HAY DETALLES (CAMBIO: DetRRU0DE en lugar de DetRRU0)
+                if (o.DetRRU0DE != null && o.DetRRU0DE.Count > 0)
+                {
                     using (SqlConnection cnAux = new SqlConnection(uti.cadSql))
                     {
                         cnAux.Open();
 
-                        foreach (RRU0_E r0 in o.DetRRU0)
+                        foreach (RRU0_DE_E r0 in o.DetRRU0DE)
                         {
-                            // 1. Cargamos los datos completos del ticket (esto trae el RUC original)
-                            r0.Ticket = ortvN.ObtenerDatosCompletosTicket(r0.DocEntryTicket);
+                            // Los datos del ticket ya fueron cargados en ORRU_D.obtenerOrdenDeRutaDevolucion()
+                            // Por lo que aquí solo confirmamos que existan
+                            if (r0.Ticket == null && r0.DocEntryTicket > 0)
+                            {
+                                r0.Ticket = ortvN.ObtenerDatosCompletosTicket(r0.DocEntryTicket);
+                            }
 
-                            // 2. APLICAMOS EL PARCHE AQUÍ: 
-                            // Si existe un Socio manual, buscamos su RUC y lo forzamos en el ticket
-                            if (!string.IsNullOrWhiteSpace(r0.Socio))
+                            // Si existe socio manual, buscar su RUC
+                            if (!string.IsNullOrWhiteSpace(r0.Socio) && r0.Ticket != null)
                             {
                                 try
                                 {
@@ -1444,22 +1460,32 @@ namespace Capa_Usuario.Controllers
 
                                         if (resultado != null && resultado != DBNull.Value)
                                         {
-                                            // Sobrescribimos el RUC del ticket original con el del Socio encontrado
                                             r0.Ticket.CardCode = resultado.ToString();
                                         }
                                     }
                                 }
                                 catch
                                 {
-                                    // Si falla, se queda el RUC original del ticket
+                                    // Mantener RUC original
                                 }
                             }
                         }
                         cnAux.Close();
                     }
                 }
+
+                // ✅ INICIALIZAR DetRRU0 COMO LISTA VACÍA PARA COMPATIBILIDAD CON OTRAS VISTAS
+                if (o.DetRRU0DE == null)
+                {
+                    o.DetRRU0DE = new List<RRU0_DE_E>();
+                }
             }
-            catch { }
+            catch (Exception ex)
+            {
+                // ✅ REGISTRAR ERROR O ASIGNAR VALORES VACÍOS
+                o.DetRRU0DE = new List<RRU0_DE_E>();
+                o.DetRRU0DE = new List<RRU0_DE_E>();
+            }
 
             ViewBag.Letra = 2;
             return View(o);

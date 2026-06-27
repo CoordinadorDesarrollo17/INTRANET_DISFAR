@@ -108,7 +108,68 @@ namespace Capa_Datos.Rutas_DAO.TablasSql
                 cn.Close();
             }
             catch { cn.Close(); }
+            // ✅ AGREGAR AQUÍ: Cargar DetRRU0DE para DEVOLUCIONES
+            foreach (var item in lista)
+            {
+                if (item.TipoRuta == "DE")
+                {
+                    item.DetRRU0DE = new List<RRU0_DE_E>();
+                    try
+                    {
+                        string queryDE = @"
+                            SELECT R0.DocEntry, R0.Linea, R0.DocEntryTicket, R0.DocNumTicket, 
+                                   R0.Guias, R0.Verificado, R0.Cajas, R0.Observaciones, R0.MontoFinal, 
+                                   R0.Envio, R0.Direcciones, R0.Estado, R0.TempI1, R0.TempI2, R0.TempF1, 
+                                   R0.TempF2, R0.OpEntrega, R0.FechaEntrega, R0.HoraEntrega, R0.Socio,
+                                   (select sum(Cajas) from al.rru0_de where DocEntry=R0.DocEntry)
+                            FROM al.RRU0_DE R0
+                            WHERE R0.DocEntry = @DocEntry
+                            ORDER BY R0.Linea ASC";
 
+                        using (SqlConnection cnDE = new SqlConnection(uti.cadSql))
+                        {
+                            cnDE.Open();
+                            using (SqlCommand cmdDE = new SqlCommand(queryDE, cnDE))
+                            {
+                                cmdDE.Parameters.AddWithValue("@DocEntry", item.DocEntry);
+                                using (SqlDataReader drDE = cmdDE.ExecuteReader())
+                                {
+                                    while (drDE.Read())
+                                    {
+                                        RRU0_DE_E det = new RRU0_DE_E();
+                                        if (!drDE.IsDBNull(0)) det.DocEntry = drDE.GetInt32(0);
+                                        if (!drDE.IsDBNull(1)) det.Linea = drDE.GetInt32(1);
+                                        if (!drDE.IsDBNull(2)) det.DocEntryTicket = drDE.GetInt32(2);
+                                        if (!drDE.IsDBNull(3)) det.DocNumTicket = drDE.GetInt32(3);
+                                        if (!drDE.IsDBNull(4)) det.Guias = drDE.GetString(4);
+                                        if (!drDE.IsDBNull(5)) det.Verificado = drDE.GetString(5);
+                                        if (!drDE.IsDBNull(6)) det.Cajas = drDE.GetInt32(6);
+                                        if (!drDE.IsDBNull(7)) det.Observaciones = drDE.GetString(7);
+                                        if (!drDE.IsDBNull(8)) det.MontoFinal = drDE.GetDecimal(8);
+                                        if (!drDE.IsDBNull(9)) det.Envio = drDE.GetDecimal(9);
+                                        if (!drDE.IsDBNull(10)) det.Direcciones = drDE.GetString(10);
+                                        if (!drDE.IsDBNull(11)) det.Estado = drDE.GetString(11);
+                                        if (!drDE.IsDBNull(12)) det.TempI1 = drDE.GetDecimal(12);
+                                        if (!drDE.IsDBNull(13)) det.TempI2 = drDE.GetDecimal(13);
+                                        if (!drDE.IsDBNull(14)) det.TempF1 = drDE.GetDecimal(14);
+                                        if (!drDE.IsDBNull(15)) det.TempF2 = drDE.GetDecimal(15);
+                                        if (!drDE.IsDBNull(16)) det.OpEntrega = drDE.GetString(16);
+                                        if (!drDE.IsDBNull(17)) det.FechaEntrega = drDE.GetDateTime(17).ToString("yyyy-MM-dd");
+                                        if (!drDE.IsDBNull(18)) det.HoraEntrega = drDE.GetTimeSpan(18).ToString();
+                                        if (!drDE.IsDBNull(19)) det.Socio = drDE.GetString(19);
+                                        if (!drDE.IsDBNull(20)) { det.TotalCajasDevolucion = drDE.GetInt32(20); }  // ✅ NUEVO
+
+
+                                        item.DetRRU0DE.Add(det);
+                                    }
+                                }
+                            }
+                            cnDE.Close();
+                        }
+                    }
+                    catch { }
+                }
+            }
             return lista;
         }
         public List<RRU11_E> listaProductosOWTQ(string guia, string Origen)
