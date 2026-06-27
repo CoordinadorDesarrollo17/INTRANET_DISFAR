@@ -168,7 +168,7 @@ namespace Capa_Negocio.Rutas_NEG.TablasSql
 
             ORRU_E orruE = orruN.obtenerOrdenDeRuta(o.DocEntry);
             if (orruE.Estado != "ENVIADO") { throw new Exception("El reparto debe estar enviado"); }
-            if (!(orruE.TipoRuta == "VC" || orruE.TipoRuta == "VA")) { throw new Exception("No se puede entregar masivamente en caso de rutas centro o arriola"); }
+            //if (!(orruE.TipoRuta == "VC" || orruE.TipoRuta == "VA")) { throw new Exception("No se puede entregar masivamente en caso de rutas centro o arriola"); }
             foreach (RRU0_E r in orruE.DetRRU0.Where(x => x.Estado == "ENVIADO"))
             {
                 r.TempF1 = o.TempF1;
