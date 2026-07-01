@@ -202,6 +202,10 @@ namespace Capa_Datos.Ventas_DAO.Tablas
 
                             lista.Add(c);
                         }
+                        if (lista.Count > 0)
+                        {
+                            lista[0].Observacion = ObtenerDatosxDocEntry(DocEntry);
+                        }
                     }
                     hdr.Close();
                 }
@@ -209,7 +213,30 @@ namespace Capa_Datos.Ventas_DAO.Tablas
             }
             return lista;
         }
+        public string ObtenerDatosxDocEntry(int DocEntry)
+        {
+            string resultado = string.Empty;
+            try
+            {
+                string tabla = "ORIN";
 
+                var query = string.Empty;
+            
+                query = $"SELECT \"Comments\" FROM {uti.schemaHana}{tabla} WHERE \"DocEntry\" = '{DocEntry}'";
+             
+                HanaDataReader hdr = db.HanaExecuteReaderNoSp(query);
+                if (hdr.HasRows && hdr.Read())
+                {
+                    if (!hdr.IsDBNull(0)) { resultado = hdr.GetValue(0).ToString(); }
+                }
+                hdr.Close();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            return resultado;
+        }
         public NotaFinanciera_E ObtenerNotaFinancieraPorFactura(string factura)
         {
             var resultado = new NotaFinanciera_E();
