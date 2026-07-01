@@ -395,8 +395,8 @@
                     else
                     {
                         <tr><td class="totals-label">OP. GRAVADAS</td>        <td class="totals-value">S/ @Math.Round(Cab.Tgrabado(Cab.Sum_Topgratuita(Model.ToList()), Cab.Sum_Tinafecto(Model.ToList())), 2).ToString("F2")</td></tr>
-                        <tr><td class="totals-label">OP. INAFECTAS</td>       <td class="totals-value">S/ @Cab.F_Tinafecto(Cab.Sum_Tinafecto(Model.ToList()))</td></tr>
-                        <tr><td class="totals-label">OP. EXONERADAS</td>      <td class="totals-value">S/ 0.00</td></tr>
+                        <tr><td class="totals-label">OP. INAFECTAS</td>       <td class="totals-value">S/ 0.00</td></tr> //@Cab.F_Tinafecto(Cab.Sum_Tinafecto(Model.ToList()))
+                        <tr><td class="totals-label">OP. EXONERADAS</td>      <td class="totals-value">S/ @Cab.CalcularOpExoneradas(Model.ToList()).ToString()</td></tr>
                         <tr><td class="totals-label">TOTAL OP. GRATUITAS</td>      <td class="totals-value">S/ @Cab.F_Topgratuita(Cab.Sum_Topgratuita(Model.ToList()))</td></tr>
                         <tr><td class="totals-label">DSCTOS. TOTALES</td>     <td class="totals-value">S/ 0.00</td></tr>
                         <tr><td class="totals-label">IGV</td>              <td class="totals-value">S/ @Math.Round(Cab.Impuesto, 2).ToString("F2")</td></tr>

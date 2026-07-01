@@ -197,6 +197,9 @@ namespace Capa_Datos.Ventas_DAO.Tablas
                             if (!hdr.IsDBNull(34)) { c.TipoDescripcionC = hdr.GetString(34); }
                             if (!hdr.IsDBNull(35)) { c.ItemCode = hdr.GetString(35); }
                             if (!hdr.IsDBNull(36)) { c.MotivoNC = hdr.GetString(36); }
+
+                            if (!hdr.IsDBNull(37)) { c.TipoAfectacion = hdr.GetInt32(37); }
+
                             lista.Add(c);
                         }
                     }
