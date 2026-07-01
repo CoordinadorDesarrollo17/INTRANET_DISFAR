@@ -74,7 +74,7 @@ namespace Capa_Entidad.Ventas_ENT.Tablas
         // metodos del layout
         public decimal cantVta()
         {
-            if (LoteNum == null || LoteNum == "") { return Cantidad; }
+            if (LoteNum == null || LoteNum == "") { return CantidadL; }
             else
             {
                 if ((CantidadL / QUMVta) < 1) { return CantidadL; }

@@ -319,7 +319,7 @@
                         <tr style="page-break-inside:avoid;">
                             <td>@item.ItemCode</td>
                             <td>
-                                @Math.Round(Convert.ToDouble(item.CantidadL), 0)  @if (item.UmLinea.Equals("PZA"))
+                                @Math.Round(Convert.ToDouble(item.cantVta()), 0)  @if (item.UmLinea.Equals("PZA"))
                                 {<span>PZA</span>}
                             </td>
                             <td>@item.UmLinea</td>
