@@ -4167,5 +4167,30 @@ AND YEAR(T0.FechaSapTicket) = (SELECT YEAR(GETDATE())) AND ((SELECT  Estado FROM
             return peso;
         }
 
+        public string ActualizarFechaSapTicket(int docNum, DateTime fecha)
+        {
+            string query = "UPDATE vt.ORTV SET FechaSapTicket = @FechaSapTicket WHERE DocNum = @DocNum";
+            using (SqlConnection cn = new SqlConnection(uti.cadSql))
+            {
+                try
+                {
+                    cn.Open();
+                    using (SqlCommand cmd = new SqlCommand(query, cn))
+                    {
+                        cmd.CommandType = CommandType.Text;
+                        cmd.Parameters.AddWithValue("@FechaSapTicket", fecha.ToString("yyyy-MM-dd"));
+                        cmd.Parameters.AddWithValue("@DocNum", docNum);
+                        int filas = cmd.ExecuteNonQuery();
+                        if (filas > 0) return "Fecha de ticket actualizada correctamente.";
+                        return "No se encontró el ticket o no se actualizó.";
+                    }
+                }
+                catch (Exception e)
+                {
+                    throw new Exception("Error actualizando FechaSapTicket: " + e.Message);
+                }
+            }
+        }
+
     }
 }

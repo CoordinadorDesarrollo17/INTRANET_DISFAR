@@ -4134,5 +4134,31 @@ namespace Capa_Usuario.Controllers
             }
         }
 
+
+        [HttpPost]
+        public JsonResult ActualizarFechaSapTicket(int docNum, string fecha)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(fecha))
+                {
+                    return Json(new { success = false, message = "Fecha inválida." });
+                }
+
+                DateTime fechaDt;
+                if (!DateTime.TryParse(fecha, out fechaDt))
+                {
+                    return Json(new { success = false, message = "Formato de fecha inválido." });
+                }
+
+                var resultado = _ticketN.ActualizarFechaSapTicket(docNum, fechaDt);
+                return Json(new { success = true, message = resultado ?? "Fecha actualizada correctamente." });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
+        }
+
     }
 }
