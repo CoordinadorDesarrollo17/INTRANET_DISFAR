@@ -1256,6 +1256,9 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                     cmd.Parameters.AddWithValue("@LugarDestino", ticket.LugarDestino);
                     cmd.Parameters.AddWithValue("@Referencia", ticket.Referencia);
                     cmd.Parameters.AddWithValue("@AlmProcedencia", ticket.AlmProcedencia);
+
+                    cmd.Parameters.AddWithValue("@FechaSapTicket", ticket.FechaSapTicket); //new
+
                     if (ticket.LugarDestino.Equals("PROVINCIA") || ticket.LugarDestino.Equals("Agencia Courier"))
                     {
                         cmd.Parameters.AddWithValue("@Agencia", ticket.Agencia);

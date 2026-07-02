@@ -3824,6 +3824,10 @@ namespace Capa_Usuario.Controllers
                 ViewBag.Ubigeos = ubigN.Listar(null);
                 ViewBag.Oficinas = ofiN.Listar();
                 ViewBag.Agencias = couN.Listar();
+
+                Usuario_E user = (Usuario_E)Session["UsuarioId"];
+                ViewBag.IdRol = user.IdRol;
+
                 if (t.Estado.Equals("SEPARADO")) { return RedirectToAction("CreaTicketVenta", new { DocEntry = t.DocEntry }); }
                 else { return View(t); }
             }
