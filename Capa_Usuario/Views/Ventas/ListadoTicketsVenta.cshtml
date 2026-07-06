@@ -168,12 +168,40 @@ function enviarDatosTicketReemplazo() {
             </div>
             @if (ViewBag.IdRol == 6 || ViewBag.IdRol == 1)
             {
-                <div class="ms-auto">
-                    <input type="text" style="width: 250px; cursor: pointer"
-                           value="REGULARIZAR AUTORIZACION: @ViewBag.FaltaRegularizar"
-                           onclick="redirigirListadoRegularizar()"
-                           class="form-control form-control-sm border-danger bg-danger text-white fw-bold"
-                           readonly />
+                <div class="d-flex align-items-center gap-1">
+                    <div class="ms-auto">
+                        <input type="text" style="width: 235px; cursor: pointer"
+                               value="REGULARIZAR AUTORIZACION: @ViewBag.FaltaRegularizar"
+                               onclick="redirigirListadoRegularizar()"
+                               class="form-control form-control-sm border-danger bg-danger text-white fw-bold"
+                               readonly />
+                    </div>
+
+                    <a href="@Url.Action("ListadoNotasDeCreditoVenta", "DireccionTecnica")"
+                       class="btn btn-outline-primary d-flex align-items-center"
+                       data-toggle="tooltip" title="Ver Notas de Crédito">
+                        <i class="icon-file-text2 mr-2"></i>
+                        NOTAS DE CRÉDITO
+                    </a>
+
+                    <a href="@Url.Action("ListadoFacturasDeVenta", "DireccionTecnica")"
+                       class="btn btn-outline-primary d-flex align-items-center"
+                       data-toggle="tooltip" title="Ver facturas/boletas">
+                        <i class="icon-file-text2 mr-2"></i>
+                        FACTURAS
+                    </a>
+                    <a href="@Url.Action("ListadoBoletasDeVenta", "DireccionTecnica")"
+                       class="btn btn-outline-primary d-flex align-items-center"
+                       data-toggle="tooltip" title="Ver facturas/boletas">
+                        <i class="icon-file-text2 mr-2"></i>
+                        BOLETAS
+                    </a>
+                    <a href="@Url.Action("ListadoEntregasDeVenta", "DireccionTecnica", new { mostrarPdf = true })"
+                       class="btn btn-outline-primary d-flex align-items-center"
+                       data-toggle="tooltip" title="Ver entregas de venta">
+                        <i class="icon-file-text2 mr-2"></i>
+                        ENTREGAS DE VENTA
+                    </a>
                 </div>
             }
         </div>

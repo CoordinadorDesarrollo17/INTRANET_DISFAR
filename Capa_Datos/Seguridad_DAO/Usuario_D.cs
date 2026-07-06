@@ -463,7 +463,9 @@ namespace Capa_Datos
                         dr2.Read();
                         if (!dr2.IsDBNull(0))
                         {
-                            accesoUsuario.Add("id", dr2.GetString(0));
+                            //accesoUsuario.Add("id", dr2.GetString(0));
+                            int id = int.Parse(dr2.GetString(0));
+                            accesoUsuario.Add("id", id.ToString("D2"));
                         }
                         else
                         {
