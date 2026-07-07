@@ -67,49 +67,7 @@ function busqueda(dom, tabla) {
     });
 }
 //v
-function agregarDatos(ubi, dis, pro, dep, Zona) {
-    //caso Pachacamac, si la direccion fiscal es pachacamac o lima y el distrito 2 es igual a la 1, la Zona debe ser la de SAP
-    if ((dis === 'Pachacamac' && $("#Distrito").val() === 'Pachacamac') || (dis === 'Lima' && $("#Distrito").val() === 'Lima')) {
-        var DirDestino = $('#DirDestino');
-        var selectedOption = DirDestino.find('option:selected');
-        var Zona;
-        if (selectedOption.length === 0 || selectedOption.val() === "") {
-            var direccionEscogida = $('#DireccionEscogida').text().trim();
-            DirDestino.find('option:not(:first-child)').each(function () {
-                var direccionCompleta = $(this).val();
-                if (direccionCompleta === direccionEscogida) {
-                    Zona = $(this).attr('Zona');
-                    return false;
-                }
-            });
-        } else {
-            Zona = selectedOption.attr('Zona');
-        }
-        $("#Zona").val(Zona);
-        $("#Zona").removeAttr("list");
-        $("#Zona").prop("readonly", true);
-    } else if ($("#Zona").val() != "PREVENTA" &&
-        ((dis !== 'Pachacamac' && $("#Distrito").val() !== 'Pachacamac'
-        ) && (dis !== 'Lima' && $("#Distrito").val() !== 'Lima'))) {
-        $("#Zona").val(Zona);
-        $("#Zona").removeAttr("list");
-        $("#Zona").prop("readonly", true);
-    } else if ($("#Zona").val() != "PREVENTA" &&
-        ((dis === 'Pachacamac' && $("#Distrito").val() !== 'Pachacamac'
-        ) || (dis === 'Lima' && $("#Distrito").val() !== 'Lima'))) {
-        //se activa datalist para Zona, primero se borra el valor y readonly false
-        $("#Zona").val('');
-        $("#Zona").prop("readonly", false);
-        if (dis === 'Pachacamac') {
-            $("#Zona").attr("list", "opcionesZonaPachacamac");
-        } else if (dis === 'Lima') {
-            $("#Zona").attr("list", "opcionesZonaLima");
-        }
-    } else {
-        $("#Zona").val(Zona);
-        $("#Zona").removeAttr("list");
-        $("#Zona").prop("readonly", true);
-    }
+function agregarDatos(ubi, dis, pro, dep, Zona) {   
     $("#Ubigeo2").val(ubi);
     $("#Distrito2").val(dis);
     $("#Provincia2").val(pro);
