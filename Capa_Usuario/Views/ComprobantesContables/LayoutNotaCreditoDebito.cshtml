@@ -319,7 +319,7 @@
                         <tr style="page-break-inside:avoid;">
                             <td>@item.ItemCode</td>
                             <td>
-                                @Math.Round(Convert.ToDouble(item.CantidadL), 0)  @if (item.UmLinea.Equals("PZA"))
+                                @Math.Round(Convert.ToDouble(item.cantVta()), 0)  @if (item.UmLinea.Equals("PZA"))
                                 {<span>PZA</span>}
                             </td>
                             <td>@item.UmLinea</td>
@@ -369,6 +369,8 @@
     <table style="width:100%; margin-top:5px; margin-bottom:10px; border-collapse:collapse; page-break-inside:avoid;">
         <tr>
             <td style="vertical-align:top; padding-top:5px; font-weight:bold; color:#555;">
+                OBSERVACIONES<br />
+                <span style="font-weight:normal;">@Cab.Observacion</span>
             </td>
             <td style="width:290px; vertical-align:top;">
                 <table class="totals-table">
@@ -395,8 +397,8 @@
                     else
                     {
                         <tr><td class="totals-label">OP. GRAVADAS</td>        <td class="totals-value">S/ @Math.Round(Cab.Tgrabado(Cab.Sum_Topgratuita(Model.ToList()), Cab.Sum_Tinafecto(Model.ToList())), 2).ToString("F2")</td></tr>
-                        <tr><td class="totals-label">OP. INAFECTAS</td>       <td class="totals-value">S/ @Cab.F_Tinafecto(Cab.Sum_Tinafecto(Model.ToList()))</td></tr>
-                        <tr><td class="totals-label">OP. EXONERADAS</td>      <td class="totals-value">S/ 0.00</td></tr>
+                        <tr><td class="totals-label">OP. INAFECTAS</td>       <td class="totals-value">S/ 0.00</td></tr> //@Cab.F_Tinafecto(Cab.Sum_Tinafecto(Model.ToList()))
+                        <tr><td class="totals-label">OP. EXONERADAS</td>      <td class="totals-value">S/ @Cab.CalcularOpExoneradas(Model.ToList()).ToString()</td></tr>
                         <tr><td class="totals-label">TOTAL OP. GRATUITAS</td>      <td class="totals-value">S/ @Cab.F_Topgratuita(Cab.Sum_Topgratuita(Model.ToList()))</td></tr>
                         <tr><td class="totals-label">DSCTOS. TOTALES</td>     <td class="totals-value">S/ 0.00</td></tr>
                         <tr><td class="totals-label">IGV</td>              <td class="totals-value">S/ @Math.Round(Cab.Impuesto, 2).ToString("F2")</td></tr>

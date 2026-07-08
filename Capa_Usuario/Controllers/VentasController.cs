@@ -3824,6 +3824,10 @@ namespace Capa_Usuario.Controllers
                 ViewBag.Ubigeos = ubigN.Listar(null);
                 ViewBag.Oficinas = ofiN.Listar();
                 ViewBag.Agencias = couN.Listar();
+
+                Usuario_E user = (Usuario_E)Session["UsuarioId"];
+                ViewBag.IdRol = user.IdRol;
+
                 if (t.Estado.Equals("SEPARADO")) { return RedirectToAction("CreaTicketVenta", new { DocEntry = t.DocEntry }); }
                 else { return View(t); }
             }
@@ -4127,6 +4131,32 @@ namespace Capa_Usuario.Controllers
             catch (Exception ex)
             {
                 return Json(new { success = false, mensaje = ex.Message });
+            }
+        }
+
+
+        [HttpPost]
+        public JsonResult ActualizarFechaSapTicket(int docNum, string fecha)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(fecha))
+                {
+                    return Json(new { success = false, message = "Fecha inválida." });
+                }
+
+                DateTime fechaDt;
+                if (!DateTime.TryParse(fecha, out fechaDt))
+                {
+                    return Json(new { success = false, message = "Formato de fecha inválido." });
+                }
+
+                var resultado = _ticketN.ActualizarFechaSapTicket(docNum, fechaDt);
+                return Json(new { success = true, message = resultado ?? "Fecha actualizada correctamente." });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
             }
         }
 

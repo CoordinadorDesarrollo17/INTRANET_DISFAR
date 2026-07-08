@@ -1,6 +1,8 @@
-﻿using Humanizer;
+﻿using Capa_Entidad.ReportesDigemid_ENT.Reportes;
+using Humanizer;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Capa_Entidad.Ventas_ENT.Tablas
 {
@@ -59,6 +61,8 @@ namespace Capa_Entidad.Ventas_ENT.Tablas
         public string ItemCode { get; set; }
         public string FechaVencimiento { get; set; }
         public string MotivoNC { get; set; }
+        public int TipoAfectacion { get; set; }
+        public string Observacion { get; set; }
         public string TotalL()
         {
             string toWords = "";
@@ -74,7 +78,7 @@ namespace Capa_Entidad.Ventas_ENT.Tablas
         // metodos del layout
         public decimal cantVta()
         {
-            if (LoteNum == null || LoteNum == "") { return Cantidad; }
+            if (LoteNum == null || LoteNum == "") { return CantidadL; }
             else
             {
                 if ((CantidadL / QUMVta) < 1) { return CantidadL; }
@@ -134,7 +138,11 @@ namespace Capa_Entidad.Ventas_ENT.Tablas
         }
         public decimal TotalFactura(decimal s_Topgratuita)
         {
-            return DocTotal - s_Topgratuita;
+            if (DocTotal > 0)
+            {
+                return DocTotal - s_Topgratuita;
+            }
+            return 0;
         }
         public decimal Tgrabado(decimal s_Topgratuita, decimal s_Tinafecto)
         {
@@ -146,19 +154,31 @@ namespace Capa_Entidad.Ventas_ENT.Tablas
             decimal suma = 0.00M;
             foreach (NotaCreditoDebito_E c in lista)
             {
-                if (c.CodImpuesto != "IGV" && c.F_ItemPrecio() >= 0.02M)
+                if ( (c.CodImpuesto != "IGV" && c.F_ItemPrecio() >= 0.02M) || c.TipoAfectacion == 31 )
                 {
                     suma += c.PrecioLinea;
                 }
             }
             return suma;
         }
+
+        public decimal CalcularOpExoneradas(List<NotaCreditoDebito_E> lista)
+        {
+            decimal suma = 0.00M;
+
+            foreach (NotaCreditoDebito_E c in lista.Where(x => x.CodImpuesto == "EXE_IGV" || x.TipoAfectacion == 20 ))
+            {
+                suma += c.PrecioLinea;
+            }
+            return Math.Round(suma, 2);
+        }
+
         public decimal Sum_Topgratuita(List<NotaCreditoDebito_E> lista)
         {
             decimal suma = 0.00M;
             foreach (NotaCreditoDebito_E c in lista)
             {
-                if (c.F_ItemPrecio() < 0.02M)
+                if (c.F_ItemPrecio() < 0.02M || c.TipoAfectacion == 21 )
                 {
                     suma += c.ItemTotalxLot();
                 }

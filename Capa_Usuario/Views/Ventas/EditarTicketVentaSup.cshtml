@@ -10,6 +10,20 @@
     List<COUR_E> Agencias = new List<COUR_E>(ViewBag.Agencias);
 
     string regalo = (Model.Det5 != null && Model.Det5[0].RegCate != null) ? $"{Model.Det5[0].RegCate} - {Model.Det5[0].RegTipo}" : "";
+
+    var estadosEditables1 = new List<string> //estados editables
+    {
+        "ABIERTO",
+        "RECIBIDO",
+        "PICKEANDO",
+        "VERIFICANDO",
+        "EMPACANDO",
+        "EMPACADO",
+        "PESADO"
+    };
+    bool esEditable1 = estadosEditables1.Contains(Model.Estado);
+    bool soloLectura = !((ViewBag.IdRol == 4 || ViewBag.IdRol == 6 || ViewBag.IdRol == 1) && esEditable1); //si es true es readonly
+
 }
 <script>
   $(document).ready(function () {
@@ -446,9 +460,9 @@
                     <h2 class="mt-4 text-cobefar font-weight-bold">DATOS PEDIDO</h2>
                     <div class="form-group row pt-4">
                         <div class="col-lg-10">
-                            <div id="infoFechaTicket" class="col-lg-2">
+                            <div id="infoFechaTicket" class="col-lg-3">
                                 <label for="FechaSapTicket" class="text-dark form-label font-weight-bold font-18">@Html.DisplayNameFor(m => m.FechaSapTicket):</label>
-                                <input id="FechaSapTicket" type="date" name="FechaSapTicket" value="@Model.FechaSapTicket" class="form-control text-center border-success" readonly>
+                                <input id="FechaSapTicket" type="date" name="FechaSapTicket" value="@Model.FechaSapTicket" class="form-control text-center border-success"  @(soloLectura ? "readonly" : "") >
                             </div>
                         </div>
 

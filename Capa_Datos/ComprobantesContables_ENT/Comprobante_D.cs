@@ -304,10 +304,10 @@ namespace Capa_Datos.ComprobantesContables_ENT
                                 lista.Add(c);
                             }
 
-                            if (lista.Count() > 0)
-                            {
-                                lista[0].Observacion = ObtenerDatosxDocEntry(lista[0].DocEntry,"G", NumAtCard);
-                            }
+                            //if (lista.Count() > 0)
+                            //{
+                            //    lista[0].Observacion = ObtenerDatosxDocEntry(lista[0].DocEntry,"G", NumAtCard);
+                            //}
 
                         }
                         hdr.Close();
@@ -381,10 +381,10 @@ namespace Capa_Datos.ComprobantesContables_ENT
 
                         lista.Add(c);
                     }
-                    if (lista.Count() >0)
-                    {
-                        lista[0].Observacion = ObtenerDatosxDocEntry(lista[0].DocEntry,"F");
-                    } 
+                    //if (lista.Count() >0)
+                    //{
+                    //    lista[0].Observacion = ObtenerDatosxDocEntry(lista[0].DocEntry,"F");
+                    //} 
                 }
                 hdr.Close();
             }

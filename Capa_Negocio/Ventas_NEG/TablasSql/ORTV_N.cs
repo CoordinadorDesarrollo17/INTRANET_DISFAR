@@ -1020,5 +1020,10 @@ namespace Capa_Negocio.Ventas_NEG.TablasSql
             ORTV_E t = tkD.ObtenerDatosCompletosTicket(docEntry);
             return t;
         }
+
+        public string ActualizarFechaSapTicket(int docNum, DateTime fecha)
+        {
+            return tkD.ActualizarFechaSapTicket(docNum, fecha);
+        }
     }
 }

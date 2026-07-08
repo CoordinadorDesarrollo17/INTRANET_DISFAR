@@ -13,9 +13,17 @@
 
 <script>
     $(document).ready(function () {
+
+        var estadosEditables1 = ["ABIERTO", "RECIBIDO", "PICKEANDO", "VERIFICANDO", "EMPACANDO", "EMPACADO", "PESADO"];
+        var estadoActual = '@(Model.Estado ?? "")';
+
         $("#btnEdit").hide();
+        $("#btnFecha").hide();
         if (@user.IdRol== 1 || @user.IdRol== 6) {
             $("#btnEdit").show();
+        }
+        if (@user.IdRol == 4 && estadosEditables1.indexOf(estadoActual.toUpperCase()) !== -1) {
+           $("#btnFecha").show();
         }
         var vinculado = $("#VinculacionTicket").val();
         if (vinculado == "SI") { $("#divVinculados").show(); }
@@ -41,6 +49,12 @@
             <a class="btn btn-warning" href="@Url.Action("EditarTicketVentaSup", "Ventas", new { DocEntry=Model.DocEntry})">
                 <i class="icon icon-pencil"></i><span class="font-weight-bold"> Editar Encabezado</span>
             </a>
+        </div>
+
+        <div id="btnFecha" class="mx-2" style="display:none">
+            <button type="button" class="btn btn-warning" id="btnOpenFecha">
+                <i class="icon icon-calendar"></i><span class="font-weight-bold"> Actualizar Fecha Ticket</span>
+            </button>
         </div>
 
         @if (@Request["view"] == "despacho" && @ViewBag.BtnNuevaSolicitud == true)
@@ -914,6 +928,31 @@
 
     }
 </div><!-- // PESTAÑAS -->
+<!-- Modal: pegar antes del script final de la vista -->
+<div class="modal fade" id="modalFechaSap" tabindex="-1" role="dialog" aria-labelledby="modalFechaSapLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Actualizar Fecha Ticket</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Cerrar">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="modalFechaInput">Fecha</label>
+                    <input type="date" id="modalFechaInput" class="form-control" />
+                </div>
+                <input type="hidden" id="modalDocNum" value="@Model.DocNum" />
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="btnActualizarFecha" class="btn btn-success">Actualizar</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
@@ -943,5 +982,47 @@
             }
         });
     }
+</script>
+
+
+<script>
+    // Abrir modal
+    $(document).on('click', '#btnOpenFecha', function () {
+        // Si ya hay fecha en pantalla, precargarla
+        var fechaActual = $('#FechaSapTicket').val();
+        if (fechaActual && fechaActual !== '') {
+            $('#modalFechaInput').val(fechaActual);
+        }
+        $('#modalFechaSap').modal('show');
+    });
+
+    // Envío por AJAX
+    $(document).on('click', '#btnActualizarFecha', function () {
+        var fecha = $('#modalFechaInput').val();
+        var docNum = $('#modalDocNum').val();
+        if (!fecha || fecha.trim() === '') {
+            Swal.fire('Debe ingresar una fecha');
+            return;
+        }
+
+        $.ajax({
+            url: '@Url.Action("ActualizarFechaSapTicket", "Ventas")',
+            method: 'POST',
+            data: { docNum: docNum, fecha: fecha },
+            headers: {},
+            success: function (resp) {
+                if (resp && resp.success) {
+                    Swal.fire({ icon: 'success', text: resp.message }).then(function () {                     
+                        location.reload();
+                    });
+                } else {
+                    Swal.fire({ icon: 'error', text: resp.message || 'Error al actualizar' });
+                }
+            },
+            error: function (xhr, status, err) {
+                Swal.fire({ icon: 'error', text: 'Error en la petición: ' + err });
+            }
+        });
+    });
 </script>
 
