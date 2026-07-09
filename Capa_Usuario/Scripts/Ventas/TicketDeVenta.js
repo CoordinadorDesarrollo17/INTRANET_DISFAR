@@ -348,10 +348,10 @@ function muestraCampo() {
     }
 
     if ($("#LugarDestino").val() == 'PROVINCIA') {
-        $("#CamposAgDom").show(); $("#CamposAgencia").show(); $("#Referencia").val(""); $("#Zona").val("EXTERNO")
+        $("#CamposAgDom").show(); $("#CamposAgencia").show();  $("#Zona").val("EXTERNO")
     }
     else if ($("#LugarDestino").val() == 'DOMICILIO') {
-        $("#Agencia").val(""); $("#EnvioAgencia").val(""); $("#Referencia").val("");
+        $("#Agencia").val(""); $("#EnvioAgencia").val(""); 
         $("#CamposAgDom").show(); $("#CamposAgencia").hide();
         var zonaDefault = $("#DirDestino option:selected").attr("Zona") || "";
         $("#Zona").val(zonaDefault);
