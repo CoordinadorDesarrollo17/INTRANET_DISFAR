@@ -155,7 +155,6 @@ namespace Capa_Datos.ReportesDigemid_DAO
                     if (!hdr.IsDBNull(4)) { a.T2_ItemCode = hdr.GetString(4); }
                     if (!hdr.IsDBNull(5)) { a.T2_Dscription = hdr.GetString(5); }
                     if (!hdr.IsDBNull(6)) { a.T3_Quantity = hdr.GetDecimal(6); }
-                    if (!hdr.IsDBNull(7)) { a.T8_ItemName = hdr.GetString(7); }
                     if (!hdr.IsDBNull(8)) { a.T8_FrgnName = hdr.GetString(8); }
                     if (!hdr.IsDBNull(9)) { a.Concentracion = hdr.GetString(9); }
                     if (!hdr.IsDBNull(10)) { a.FormaPresentacion = hdr.GetString(10); }

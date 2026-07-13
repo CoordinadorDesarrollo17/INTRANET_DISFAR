@@ -224,11 +224,18 @@
                 <td></td>
                 <td align="center" style="border-bottom: solid 1px"><img src="~/imagenes/FirmaJulioRoman.png" width="150" /></td>
             </tr>
+            @*<tr>
+            <td align="center">Elaborado por: @if (ViewBag.QuimicoFarmaceuticoAsistente != null) { Write(ViewBag.QuimicoFarmaceuticoAsistente); }</td>
+            <td></td>
+            <td></td>
+            <td align="center">V°B° Director Técnico</td>
+            </tr>*@
             <tr>
-                <td align="center">Elaborado por: @if (ViewBag.QuimicoFarmaceuticoAsistente != null) { Write(ViewBag.QuimicoFarmaceuticoAsistente); }</td>
-                <td></td>
-                <td></td>
-                <td align="center">V°B° Director Técnico</td>
+                <td colspan="4" align="center" style="padding-top:30px;">
+                    <img src="~/imagenes/FirmaJaimeQuijadaAcuña.png" width="150" /><br />
+                    <div style="border-top:1px solid black; width:180px; margin:auto;"></div>
+                    <strong> V°B° Director Técnico</strong>
+                </td>
             </tr>
             <tr>
                 <td align="center">Químico Farmaceutico Asistente</td>
@@ -237,14 +244,14 @@
                 <td></td>
             </tr>
             @*<tr>
-                <td colspan="4">
-                    <table width="50%" style="margin: auto; padding-top: 20px">
-                        <tr>
-                            <td style="color: black; border: solid 1px; border-color: gray; font-size: 11px;text-align: center">Prohibido reproducir sin autorización de DROGUERÍA COBEFAR</td>
-                        </tr>
-                    </table>
-                </td>
-            </tr>*@
+            <td colspan="4">
+                <table width="50%" style="margin: auto; padding-top: 20px">
+                    <tr>
+                        <td style="color: black; border: solid 1px; border-color: gray; font-size: 11px;text-align: center">Prohibido reproducir sin autorización de DROGUERÍA COBEFAR</td>
+                    </tr>
+                </table>
+            </td>
+        </tr>*@
         </table>
     </div>
 }
