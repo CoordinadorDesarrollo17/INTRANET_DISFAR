@@ -37,8 +37,9 @@
         });
     }
     function ConfirGastoEnv() {
-        var o = $("#form").serialize();
-        $(location).attr('href', "/Caja/ConfGastEnvio?" + o);
+        $("#form")
+            .attr("action", '@Url.Action("ConfGastEnvio", "Caja")')
+            .submit();
     }
 </script>
 
