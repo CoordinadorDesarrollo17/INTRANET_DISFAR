@@ -817,7 +817,6 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                 T1.""CardCode"" = '{CardCode}'
                 AND T1.""Comments"" = '{docnum}'
                 AND T0.""Address"" LIKE 'ENV%'
-                AND T1.""DocDate"" = '{fechaFiltro}'
                 AND T1.""CANCELED"" = 'N'
                 AND
                 REPLACE(
