@@ -165,25 +165,37 @@ function enviarDatosTicketReemplazo() {
                 <button type="button" class="btn btn-primary d-flex align-items-center me-1" data-bs-toggle="modal" data-bs-target="#filterModal">
                     <i class="bi bi-funnel-fill me-2"></i> Filtrar
                 </button>
+
+                @if (ViewBag.IdRol == 6 || ViewBag.IdRol == 1)
+                {
+                    <div class="d-flex align-items-center gap-1">
+                        <div class="ms-auto">
+                            <input type="text" style="width: 235px; cursor: pointer"
+                                   value="REGULARIZAR AUTORIZACION: @ViewBag.FaltaRegularizar"
+                                   onclick="redirigirListadoRegularizar()"
+                                   class="form-control form-control-sm border-danger bg-danger text-white fw-bold"
+                                   readonly />
+                        </div>
+                    </div>
+                }
+
             </div>
+          
             @if (ViewBag.IdRol == 6 || ViewBag.IdRol == 1)
             {
-                <div class="d-flex align-items-center gap-1">
-                    <div class="ms-auto">
-                        <input type="text" style="width: 235px; cursor: pointer"
-                               value="REGULARIZAR AUTORIZACION: @ViewBag.FaltaRegularizar"
-                               onclick="redirigirListadoRegularizar()"
-                               class="form-control form-control-sm border-danger bg-danger text-white fw-bold"
-                               readonly />
-                    </div>
-
+                <div class="d-flex flex-wrap align-items-center gap-2 mt-2">
                     <a href="@Url.Action("ListadoNotasDeCreditoVenta", "DireccionTecnica")"
                        class="btn btn-outline-primary d-flex align-items-center"
                        data-toggle="tooltip" title="Ver Notas de Crédito">
                         <i class="icon-file-text2 mr-2"></i>
                         NOTAS DE CRÉDITO
                     </a>
-
+                    <a href="@Url.Action("ListadoNotasDeDebitoVenta", "DireccionTecnica")"
+                       class="btn btn-outline-primary d-flex align-items-center"
+                       data-toggle="tooltip" title="Ver Notas de Debito">
+                        <i class="icon-file-text2 mr-2"></i>
+                        NOTAS DE DEBITO
+                    </a>
                     <a href="@Url.Action("ListadoFacturasDeVenta", "DireccionTecnica")"
                        class="btn btn-outline-primary d-flex align-items-center"
                        data-toggle="tooltip" title="Ver facturas/boletas">
@@ -203,7 +215,8 @@ function enviarDatosTicketReemplazo() {
                         ENTREGAS DE VENTA
                     </a>
                 </div>
-            }
+             }
+
         </div>
     </div>
 </div>
