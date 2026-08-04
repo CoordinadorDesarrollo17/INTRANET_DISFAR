@@ -343,5 +343,19 @@ namespace Capa_Negocio.AtencionCliente_NEG.TablasSql
             if (obj.DocEntry == 0) { throw new Exception("Error al identificar el nro de solicitud"); }
 
         }
+
+        public List<BusquedaFactura_E> BuscarFacturaModal(BusquedaFactura_E filtro)
+        {
+            if (filtro != null &&
+                filtro.FechaDesde.HasValue &&
+                filtro.FechaHasta.HasValue &&
+                filtro.FechaDesde.Value.Date > filtro.FechaHasta.Value.Date)
+            {
+                throw new Exception("La fecha inicial no puede ser mayor que la fecha final.");
+            }
+
+            return osatD.BuscarFacturaModal(filtro ?? new BusquedaFactura_E());
+        }
+
     }
 }

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Web;
 
@@ -81,5 +82,36 @@ namespace Capa_Entidad.AtencionCliente_ENT.TablasSql
             }
             return false;
         }
+    }
+    public class BusquedaFactura_E
+    {
+        [DisplayName("Código cliente")]
+        public string CardCode { get; set; }
+
+        [DisplayName("Cliente")]
+        public string CardName { get; set; }
+
+        [DisplayName("Código artículo")]
+        public string ItemCode { get; set; }
+
+        [DisplayName("Artículo")]
+        public string ItemName { get; set; }
+
+        [DisplayName("Fecha factura")]
+        public string DocDate { get; set; }
+
+        public int DocEntry { get; set; }
+
+        [DisplayName("Desde")]
+        public DateTime? FechaDesde { get; set; }
+
+        [DisplayName("Hasta")]
+        public DateTime? FechaHasta { get; set; }
+
+        public string Factura { get; set; }
+
+        public string NumOV { get; set; }
+
+
     }
 }

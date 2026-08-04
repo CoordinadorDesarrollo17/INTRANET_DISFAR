@@ -4,6 +4,7 @@ using Capa_Entidad.AtencionCliente_ENT.ReportesSql;
 using Capa_Entidad.AtencionCliente_ENT.TablasSql;
 using Capa_Entidad.Ventas_ENT.Tablas;
 using Capa_Entidad.Ventas_ENT.TablasSql;
+using Sap.Data.Hana;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -1132,6 +1133,103 @@ namespace Capa_Datos.AtencionCliente_DAO.TablasSql
             }
             return lista;
         }
+
+        public List<BusquedaFactura_E> BuscarFacturaModal(BusquedaFactura_E filtro)
+        {
+            var lista = new List<BusquedaFactura_E>();
+
+            string query = @"
+        SELECT TOP 100
+            T0.""DocEntry"",
+            T0.""CardCode"",
+            T0.""CardName"",
+            T0.""NumAtCard"",
+            T1.""ItemCode"",
+            T1.""Dscription"" AS ""ItemName"",
+            TO_VARCHAR(T0.""DocDate"", 'YYYY-MM-DD') AS ""DocDate""
+        FROM " + uti.schemaHana + @"OINV T0
+        INNER JOIN " + uti.schemaHana + @"INV1 T1 ON T1.""DocEntry"" = T0.""DocEntry""
+        WHERE T0.""DocEntry"" > 0
+          AND T0.""CANCELED"" = 'N'";
+
+            using (HanaConnection cn = new HanaConnection(uti.cadHana))
+            using (HanaCommand cmd = new HanaCommand())
+            {
+                cmd.Connection = cn;
+                cmd.CommandType = CommandType.Text;
+
+                // IMPORTANTE: ORDEN DE PARÁMETROS
+                var parametros = new List<object>();
+
+                if (filtro != null)
+                {
+                    if (!string.IsNullOrWhiteSpace(filtro.CardCode))
+                    {
+                        query += " AND UPPER(T0.\"CardCode\") LIKE UPPER(?)";
+                        parametros.Add("%" + filtro.CardCode.Trim() + "%");
+                    }
+
+                    if (!string.IsNullOrWhiteSpace(filtro.CardName))
+                    {
+                        query += " AND UPPER(T0.\"CardName\") LIKE UPPER(?)";
+                        parametros.Add("%" + filtro.CardName.Trim() + "%");
+                    }
+
+                    if (!string.IsNullOrWhiteSpace(filtro.ItemName))
+                    {
+                        query += @" AND (
+                        UPPER(T1.""Dscription"") LIKE UPPER(?)
+                        OR UPPER(T1.""ItemCode"") LIKE UPPER(?)
+                    )";
+                        parametros.Add("%" + filtro.ItemName.Trim() + "%");
+                        parametros.Add("%" + filtro.ItemName.Trim() + "%");
+                    }
+
+                    DateTime desde, hasta;
+                    bool okDesde = DateTime.TryParse(filtro.FechaDesde?.ToString(), out desde);
+                    bool okHasta = DateTime.TryParse(filtro.FechaHasta?.ToString(), out hasta);
+
+                    if (okDesde && okHasta)
+                    {
+                        query += " AND T0.\"DocDate\" BETWEEN ? AND ADD_DAYS(?, 1)";
+                        parametros.Add(desde.Date);
+                        parametros.Add(hasta.Date);
+                    }
+                }
+
+                query += " ORDER BY T0.\"DocDate\" DESC";
+
+                cmd.CommandText = query;
+
+                // agregar parámetros en orden
+                foreach (var p in parametros)
+                {
+                    cmd.Parameters.Add(new HanaParameter { Value = p });
+                }
+
+                cn.Open();
+
+                using (var dr = cmd.ExecuteReader())
+                {
+                    while (dr.Read())
+                    {
+                        lista.Add(new BusquedaFactura_E
+                        {
+                            DocEntry = dr.IsDBNull(0) ? 0 : dr.GetInt32(0),
+                            CardCode = dr.IsDBNull(1) ? "" : dr.GetString(1),
+                            CardName = dr.IsDBNull(2) ? "" : dr.GetString(2),
+                            Factura = dr.IsDBNull(3) ? "" : dr.GetString(3),
+                            ItemCode = dr.IsDBNull(4) ? "" : dr.GetString(4),
+                            ItemName = dr.IsDBNull(5) ? "" : dr.GetString(5),
+                            DocDate = dr.IsDBNull(6) ? "" : dr.GetString(6)
+                        });
+                    }
+                }
+            }
+
+            return lista;
+        }
+
 
     }
 }

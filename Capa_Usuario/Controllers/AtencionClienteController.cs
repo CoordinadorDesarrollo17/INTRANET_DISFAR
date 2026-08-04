@@ -805,5 +805,90 @@ namespace Capa_Usuario.Controllers
                 return resultadoAcceso;
             }
         }
+
+        public ActionResult ExportarExcelFiltroFactura(BusquedaFactura_E filtro)
+        {
+            try
+            {
+                OSAT_N osatN = new OSAT_N();
+
+                var lista = osatN.BuscarFacturaModal(filtro);
+
+                if (lista != null && lista.Any())
+                {
+                    using (var libro = new ExcelPackage())
+                    {
+                        var worksheet = libro.Workbook.Worksheets.Add("Facturas");
+
+                        worksheet.Cells["A1"].Value = "#";
+                        worksheet.Cells["B1"].Value = "CodigoCliente";
+                        worksheet.Cells["C1"].Value = "Cliente";
+                        worksheet.Cells["D1"].Value = "Producto";
+                        worksheet.Cells["E1"].Value = "Fecha";
+                        worksheet.Cells["F1"].Value = "Factura";
+
+                        int fila = 2;
+                        int contador = 1;
+
+                        foreach (var item in lista)
+                        {
+                            worksheet.Cells[fila, 1].Value = contador;
+                            worksheet.Cells[fila, 2].Value = item.CardCode;
+                            worksheet.Cells[fila, 3].Value = item.CardName;
+                            worksheet.Cells[fila, 4].Value = item.ItemName;
+                            worksheet.Cells[fila, 5].Value = item.DocDate;
+                            worksheet.Cells[fila, 6].Value = item.Factura;
+
+                            fila++;
+                            contador++;
+                        }
+
+                        for (int col = 1; col <= 6; col++)
+                        {
+                            worksheet.Column(col).AutoFit();
+                        }
+
+                        var tabla = worksheet.Tables.Add(
+                            new ExcelAddressBase(1, 1, lista.Count + 1, 6),
+                            "Facturas");
+
+                        tabla.ShowHeader = true;
+                        tabla.TableStyle = OfficeOpenXml.Table.TableStyles.Medium2;
+
+                        string excelContentType =
+                            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+
+                        return File(
+                            libro.GetAsByteArray(),
+                            excelContentType,
+                            $"Facturas_{DateTime.Now:yyyyMMddHHmmss}.xlsx");
+                    }
+                }
+
+                return Content("No hay datos para exportar");
+            }
+            catch (Exception ex)
+            {
+                return Content(ex.Message);
+            }
+        }
+        [HttpPost]
+        public JsonResult BuscarFacturaModal(BusquedaFactura_E filtro)
+        {
+            try
+            {
+                OSAT_N osat_negocio = new OSAT_N();
+
+                // Llamas a tu método en la capa de negocio
+                var resultados = osat_negocio.BuscarFacturaModal(filtro);
+
+                return Json(new { success = true, data = resultados });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
+        }
+
     }
 }
