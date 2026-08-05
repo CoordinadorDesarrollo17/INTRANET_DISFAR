@@ -84,10 +84,12 @@
       }
       $("#Zona").on("keydown", bloquearEscritura);
       //Si el ticket esta en PAGADO pero ABIERTO se puede editar el tiempoEntrega
-      if ("@(Model.Estado)" === 'ABIERTO') {
-          $("#TiempoEntrega").prop('readonly', false);
-      } else {
+
+      //if ("@(Model.Estado)" === 'ABIERTO') {
+      if (@soloLectura.ToString().ToLower()){
           $("#TiempoEntrega").prop('readonly', true);
+      } else {
+          $("#TiempoEntrega").prop('readonly', false);
       }
 
   });

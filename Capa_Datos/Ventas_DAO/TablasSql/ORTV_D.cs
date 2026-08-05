@@ -1262,11 +1262,9 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                     {
                         cmd.Parameters.AddWithValue("@Agencia", ticket.Agencia);
                         cmd.Parameters.AddWithValue("@EnvioAgencia", ticket.EnvioAgencia);
-                    }
-                    if (ticket.Estado.Equals("ABIERTO"))
-                    {
+                    }             
                         cmd.Parameters.AddWithValue("@TiempoEntrega", ticket.TiempoEntrega);
-                    }
+               
                     if (ticket.Det1 != null && ticket.Det1.Count >= 1)
                     {
                         SqlParameter tbDet1 = new SqlParameter("@TPRTV1", SqlDbType.Structured);
