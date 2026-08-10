@@ -176,7 +176,7 @@
         <table>
             <thead>
                 <tr>
-                    <th style="width:18%;">Nro Ticket:</th>
+                    @*<th style="width:18%;">Nro Ticket:</th>*@
                     <th style="width:18%;">Fecha de Emisión:</th>
                     <th style="width:18%;">Forma de Pago:</th>
                     @*<th style="width:10%;">Nro. Orden de venta</th>*@
@@ -186,7 +186,7 @@
             </thead>
             <tbody>
                 <tr>
-                    <td>@Cab.DocNumTicket</td>
+                    @*<td>@Cab.DocNumTicket</td>*@
                     <td>@Cab.Fecha</td>
                     <td>@Cab.CondPago</td>
                     @*<td>@Cab.NroOrdVenta</td>*@
@@ -240,8 +240,12 @@
     <table style="width:100%; margin-top:5px; margin-bottom:10px; border-collapse:collapse; page-break-inside:avoid;">
         <tr>
             <td style="vertical-align:top; padding-top:5px; font-weight:bold; color:#555;">
-                @*OBSERVACIONES<br />
-                <span style="font-weight:normal;">@Cab.Observacion</span>*@
+                OBSERVACIONES<br />
+                <span style="font-weight:normal;">@Cab.Observacion</span>
+                <br /><br />
+
+                Nro Ticket:<br />
+                <span style="font-weight:normal;">@Cab.DocNumTicket</span>
             </td>
             <td style="width:290px; vertical-align:top;">
                 <table class="totals-table">
