@@ -29,6 +29,7 @@
 <div class="pt-3 bg-form-pestanas-cobefar">
     <div class="bg-white">
         <form name="frm" id="frm">
+            <input type="hidden" name="mostrarPdf" value="@(ViewBag.MostrarPdf == true ? "true" : "false")" />
             <table class="table table-light table-sm table-hover cls-dataTable" cellspacing="0" width="100%">
                 <thead class="bg-cobefar-6">
                     <tr>
@@ -77,6 +78,10 @@
                                 }
                             </select>
                         </th>
+                        @if (ViewBag.MostrarPdf == true)
+                        {
+                            <th class="text-center">PDF</th>
+                        }
                     </tr>
                 </thead>
                 <tbody>
@@ -107,7 +112,12 @@
                             <td class="text-center">
                                 @Html.DisplayFor(modelItem => item.U_COB_LUGAREN)
                             </td>
-
+                            @if (ViewBag.MostrarPdf == true)
+                            {
+                                <td class="text-center">
+                                    <a href="@Url.Action("GenerarPdf", "ComprobantesContables", new { NroSap = item.DocNum, Tipo = "G",NumAtCard = item.NumAtCard })" target="_blank" class="btn btn-sm btn-light mx-2" title="Ver Documentos"> <i class="icon-download text-danger"></i></a>
+                                </td>
+                            }
                         </tr>
                     }
                 </tbody>

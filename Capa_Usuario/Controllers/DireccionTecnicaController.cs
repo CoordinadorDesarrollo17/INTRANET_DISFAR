@@ -303,13 +303,16 @@ namespace Capa_Usuario.Controllers
                 return resultadoAcceso;
             }
         }
-        public ActionResult ListadoEntregasDeVenta(ODLN_E fil, int idOperation = 2001)
+        public ActionResult ListadoEntregasDeVenta(ODLN_E fil, int idOperation = 2001, bool mostrarPdf = false)
         {
             var resultadoAcceso = VerificarPermiso(idOperation);
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
                 if (fil != null) { ViewBag.Odln = fil; } else { ViewBag.Odln = new ODLN_E(); }
                 ViewBag.ListaLugarEntregas = new COB_LUG_ENTREGA_N().listadoLugaresDeEntrega();
+
+                ViewBag.MostrarPdf = mostrarPdf;
+
                 return View(new ODLN_N().listarEntregasVenta(fil));
             }
             else
