@@ -817,7 +817,6 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                 T1.""CardCode"" = '{CardCode}'
                 AND T1.""Comments"" = '{docnum}'
                 AND T0.""Address"" LIKE 'ENV%'
-                AND T1.""DocDate"" = '{fechaFiltro}'
                 AND T1.""CANCELED"" = 'N'
                 AND
                 REPLACE(
@@ -1263,11 +1262,9 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
                     {
                         cmd.Parameters.AddWithValue("@Agencia", ticket.Agencia);
                         cmd.Parameters.AddWithValue("@EnvioAgencia", ticket.EnvioAgencia);
-                    }
-                    if (ticket.Estado.Equals("ABIERTO"))
-                    {
+                    }             
                         cmd.Parameters.AddWithValue("@TiempoEntrega", ticket.TiempoEntrega);
-                    }
+               
                     if (ticket.Det1 != null && ticket.Det1.Count >= 1)
                     {
                         SqlParameter tbDet1 = new SqlParameter("@TPRTV1", SqlDbType.Structured);
@@ -1941,9 +1938,12 @@ namespace Capa_Datos.Ventas_DAO.TablasSql
             if (tk.LugarDestino.Equals("DOMICILIO") || tk.LugarDestino.Equals("PROVINCIA"))
             {
                 List<RTV1_E> rtv1 = obtenerDet1Ticket(docEntry);
-                Persona = rtv1[0].NombrePer;
-                Documento = rtv1[0].DocPer;
-                telefono = rtv1[0].TelfPer;
+                if (rtv1 != null && rtv1.Count > 0) 
+                {
+                    Persona = rtv1[0].NombrePer;
+                    Documento = rtv1[0].DocPer;
+                    telefono = rtv1[0].TelfPer;
+                }              
             }
             return (Persona, Documento, telefono);
         }
@@ -3160,75 +3160,77 @@ AND YEAR(T0.FechaSapTicket) = (SELECT YEAR(GETDATE())) AND ((SELECT  Estado FROM
                     "from vt.ORTV where DocEntry=" + DocEntry, cn, tran);
                 cmd.CommandType = CommandType.Text;
                 SqlDataReader dr = cmd.ExecuteReader();
-                dr.Read();
-                t.DocEntry = dr.GetInt32(0);
-                t.DocNum = dr.GetInt32(1);
-                if (!dr.IsDBNull(2)) { t.CardCode = dr.GetString(2); }
-                if (!dr.IsDBNull(3)) { t.CardName = dr.GetString(3); }
-                if (!dr.IsDBNull(4)) { t.Estado = dr.GetString(4); }
-                if (!dr.IsDBNull(5)) { t.TipoVenta = dr.GetString(5); }
-                if (!dr.IsDBNull(6)) { t.LugarDestino = dr.GetString(6); }
-                if (!dr.IsDBNull(7)) { t.DirDestino = dr.GetString(7); }
-                if (!dr.IsDBNull(8)) { t.Referencia = dr.GetString(8); }
-                if (!dr.IsDBNull(9)) { t.Agencia = dr.GetString(9); }
-                if (!dr.IsDBNull(10)) { t.EnvioAgencia = dr.GetString(10); }
-                if (!dr.IsDBNull(11)) { t.Embalaje = dr.GetString(11); }
-                if (!dr.IsDBNull(12)) { t.CodSapVendedor = dr.GetInt32(12); }
-                if (!dr.IsDBNull(13)) { t.Vendedor = dr.GetString(13); }
-                if (!dr.IsDBNull(14)) { t.MontoTotal = dr.GetDecimal(14); }
-                if (!dr.IsDBNull(15)) { t.Flete = dr.GetDecimal(15); }
-                if (!dr.IsDBNull(16)) { t.GastoEnvio = dr.GetDecimal(16); }
-                if (!dr.IsDBNull(17)) { t.EstadoGasto = dr.GetString(17); }
-                if (!dr.IsDBNull(18)) { t.PagoEnv = dr.GetDecimal(18); }
-                if (!dr.IsDBNull(19)) { t.ClaveEnv = dr.GetString(19); }
-                if (!dr.IsDBNull(20)) { t.TiempoEntrega = dr.GetDateTime(20); }
-                if (!dr.IsDBNull(21)) { t.DescuentoNC = dr.GetDecimal(21); }
-                if (!dr.IsDBNull(22)) { t.DeudaCliente = dr.GetDecimal(22); }
-                if (!dr.IsDBNull(23)) { t.DeudaEmpresa = dr.GetDecimal(23); }
-                if (!dr.IsDBNull(24)) { t.MontoFinal = dr.GetDecimal(24); }
-                if (!dr.IsDBNull(25)) { t.FormaPago = dr.GetString(25); }
-                if (!dr.IsDBNull(26)) { t.MontoRecibido = dr.GetDecimal(26); }
-                if (!dr.IsDBNull(27)) { t.EstadoPago = dr.GetString(27); }
-                if (!dr.IsDBNull(28)) { t.FechaPago = dr.GetDateTime(28).ToString("yyyy-MM-dd"); }
-                if (!dr.IsDBNull(29)) { t.HoraPago = dr.GetTimeSpan(29).ToString(); }
-                if (!dr.IsDBNull(30)) { t.Cajero = dr.GetString(30); }
-                if (!dr.IsDBNull(31)) { t.Comentario = dr.GetString(31); }
-                if (!dr.IsDBNull(32)) { t.Cajas = dr.GetInt32(32); }
-                if (!dr.IsDBNull(33)) { t.NroMesa = dr.GetInt32(33); }
-                if (!dr.IsDBNull(34)) { t.FechaNC = dr.GetDateTime(34).ToString("yyyy-MM-dd"); }
-                if (!dr.IsDBNull(35)) { t.EstadoFacturacion = dr.GetString(35); }
-                if (!dr.IsDBNull(36)) { t.FechaFacturacion = dr.GetDateTime(36).ToString("yyyy-MM-dd"); }
-                if (!dr.IsDBNull(37)) { t.HoraFacturacion = dr.GetTimeSpan(37).ToString(); }
-                if (!dr.IsDBNull(38)) { t.OpFacturacion = dr.GetString(38); }
-                if (!dr.IsDBNull(39)) { t.Observaciones = dr.GetString(39); }
-                if (!dr.IsDBNull(40)) { t.Observaciones2 = dr.GetString(40); }
-                if (!dr.IsDBNull(41)) { t.Observaciones3 = dr.GetString(41); }
-                if (!dr.IsDBNull(42)) { t.FechaSapTicket = dr.GetDateTime(42).ToString("yyyy-MM-dd"); }
-                if (!dr.IsDBNull(43)) { t.FechaRegistro = dr.GetDateTime(43).ToString("yyyy-MM-dd"); }
-                if (!dr.IsDBNull(44)) { t.HoraRegistro = dr.GetTimeSpan(44).ToString(); }
-                if (!dr.IsDBNull(45)) { t.AlmProcedencia = dr.GetString(45); }
-                if (!dr.IsDBNull(46)) { t.Zona = dr.GetString(46); }
-                if (!dr.IsDBNull(47)) { t.Notificado = dr.GetInt32(47); }
-                if (!dr.IsDBNull(48)) { t.Visible = dr.GetString(48); }
-                if (!dr.IsDBNull(49)) { t.Presupuesto = dr.GetString(49); }
-                if (!dr.IsDBNull(50))
+                if (dr.Read())
                 {
-                    var ProductoPendiente = dr.GetString(50);
-                    if (ProductoPendiente == "PENDIENTE")
+                    t.DocEntry = dr.GetInt32(0);
+                    t.DocNum = dr.GetInt32(1);
+                    if (!dr.IsDBNull(2)) { t.CardCode = dr.GetString(2); }
+                    if (!dr.IsDBNull(3)) { t.CardName = dr.GetString(3); }
+                    if (!dr.IsDBNull(4)) { t.Estado = dr.GetString(4); }
+                    if (!dr.IsDBNull(5)) { t.TipoVenta = dr.GetString(5); }
+                    if (!dr.IsDBNull(6)) { t.LugarDestino = dr.GetString(6); }
+                    if (!dr.IsDBNull(7)) { t.DirDestino = dr.GetString(7); }
+                    if (!dr.IsDBNull(8)) { t.Referencia = dr.GetString(8); }
+                    if (!dr.IsDBNull(9)) { t.Agencia = dr.GetString(9); }
+                    if (!dr.IsDBNull(10)) { t.EnvioAgencia = dr.GetString(10); }
+                    if (!dr.IsDBNull(11)) { t.Embalaje = dr.GetString(11); }
+                    if (!dr.IsDBNull(12)) { t.CodSapVendedor = dr.GetInt32(12); }
+                    if (!dr.IsDBNull(13)) { t.Vendedor = dr.GetString(13); }
+                    if (!dr.IsDBNull(14)) { t.MontoTotal = dr.GetDecimal(14); }
+                    if (!dr.IsDBNull(15)) { t.Flete = dr.GetDecimal(15); }
+                    if (!dr.IsDBNull(16)) { t.GastoEnvio = dr.GetDecimal(16); }
+                    if (!dr.IsDBNull(17)) { t.EstadoGasto = dr.GetString(17); }
+                    if (!dr.IsDBNull(18)) { t.PagoEnv = dr.GetDecimal(18); }
+                    if (!dr.IsDBNull(19)) { t.ClaveEnv = dr.GetString(19); }
+                    if (!dr.IsDBNull(20)) { t.TiempoEntrega = dr.GetDateTime(20); }
+                    if (!dr.IsDBNull(21)) { t.DescuentoNC = dr.GetDecimal(21); }
+                    if (!dr.IsDBNull(22)) { t.DeudaCliente = dr.GetDecimal(22); }
+                    if (!dr.IsDBNull(23)) { t.DeudaEmpresa = dr.GetDecimal(23); }
+                    if (!dr.IsDBNull(24)) { t.MontoFinal = dr.GetDecimal(24); }
+                    if (!dr.IsDBNull(25)) { t.FormaPago = dr.GetString(25); }
+                    if (!dr.IsDBNull(26)) { t.MontoRecibido = dr.GetDecimal(26); }
+                    if (!dr.IsDBNull(27)) { t.EstadoPago = dr.GetString(27); }
+                    if (!dr.IsDBNull(28)) { t.FechaPago = dr.GetDateTime(28).ToString("yyyy-MM-dd"); }
+                    if (!dr.IsDBNull(29)) { t.HoraPago = dr.GetTimeSpan(29).ToString(); }
+                    if (!dr.IsDBNull(30)) { t.Cajero = dr.GetString(30); }
+                    if (!dr.IsDBNull(31)) { t.Comentario = dr.GetString(31); }
+                    if (!dr.IsDBNull(32)) { t.Cajas = dr.GetInt32(32); }
+                    if (!dr.IsDBNull(33)) { t.NroMesa = dr.GetInt32(33); }
+                    if (!dr.IsDBNull(34)) { t.FechaNC = dr.GetDateTime(34).ToString("yyyy-MM-dd"); }
+                    if (!dr.IsDBNull(35)) { t.EstadoFacturacion = dr.GetString(35); }
+                    if (!dr.IsDBNull(36)) { t.FechaFacturacion = dr.GetDateTime(36).ToString("yyyy-MM-dd"); }
+                    if (!dr.IsDBNull(37)) { t.HoraFacturacion = dr.GetTimeSpan(37).ToString(); }
+                    if (!dr.IsDBNull(38)) { t.OpFacturacion = dr.GetString(38); }
+                    if (!dr.IsDBNull(39)) { t.Observaciones = dr.GetString(39); }
+                    if (!dr.IsDBNull(40)) { t.Observaciones2 = dr.GetString(40); }
+                    if (!dr.IsDBNull(41)) { t.Observaciones3 = dr.GetString(41); }
+                    if (!dr.IsDBNull(42)) { t.FechaSapTicket = dr.GetDateTime(42).ToString("yyyy-MM-dd"); }
+                    if (!dr.IsDBNull(43)) { t.FechaRegistro = dr.GetDateTime(43).ToString("yyyy-MM-dd"); }
+                    if (!dr.IsDBNull(44)) { t.HoraRegistro = dr.GetTimeSpan(44).ToString(); }
+                    if (!dr.IsDBNull(45)) { t.AlmProcedencia = dr.GetString(45); }
+                    if (!dr.IsDBNull(46)) { t.Zona = dr.GetString(46); }
+                    if (!dr.IsDBNull(47)) { t.Notificado = dr.GetInt32(47); }
+                    if (!dr.IsDBNull(48)) { t.Visible = dr.GetString(48); }
+                    if (!dr.IsDBNull(49)) { t.Presupuesto = dr.GetString(49); }
+                    if (!dr.IsDBNull(50))
                     {
-                        t.ProductoPendiente = 1;
+                        var ProductoPendiente = dr.GetString(50);
+                        if (ProductoPendiente == "PENDIENTE")
+                        {
+                            t.ProductoPendiente = 1;
+                        }
+                        else { t.ProductoPendiente = 0; }
                     }
-                    else { t.ProductoPendiente = 0; }
+                    dr.Close();
+                    //cn.Close();
+                    t.Det1 = obtenerDet1Ticket(DocEntry); if (t.Det1.Count == 0) { t.Det1 = null; }      //Datos de recojo
+                    t.Det2 = obtenerDet2Ticket(DocEntry); if (t.Det2.Count == 0) { t.Det2 = null; }     //Ordenes de venta
+                    t.Det3 = obtenerDet3Ticket(DocEntry); if (t.Det3.Count == 0) { t.Det3 = null; }       //Direcciones
+                    t.Det4 = obtenerDet4Ticket(DocEntry); if (t.Det4.Count == 0) { t.Det4 = null; }       //Notas de credito
+                    t.Det5 = obtenerDet5Ticket(DocEntry); if (t.Det5.Count == 0) { t.Det5 = null; }       // Regalos
+                    t.Det6 = obtenerDet6Ticket(DocEntry); if (t.Det6.Count == 0) { t.Det6 = null; }       // Pesos
+                    t.Det7 = obtenerDet7Ticket(DocEntry); if (t.Det7.Count == 0) { t.Det7 = null; }       // Tickets vinculados para reparto
                 }
-                dr.Close();
-                //cn.Close();
-                t.Det1 = obtenerDet1Ticket(DocEntry); if (t.Det1.Count == 0) { t.Det1 = null; }      //Datos de recojo
-                t.Det2 = obtenerDet2Ticket(DocEntry); if (t.Det2.Count == 0) { t.Det2 = null; }     //Ordenes de venta
-                t.Det3 = obtenerDet3Ticket(DocEntry); if (t.Det3.Count == 0) { t.Det3 = null; }       //Direcciones
-                t.Det4 = obtenerDet4Ticket(DocEntry); if (t.Det4.Count == 0) { t.Det4 = null; }       //Notas de credito
-                t.Det5 = obtenerDet5Ticket(DocEntry); if (t.Det5.Count == 0) { t.Det5 = null; }       // Regalos
-                t.Det6 = obtenerDet6Ticket(DocEntry); if (t.Det6.Count == 0) { t.Det6 = null; }       // Pesos
-                t.Det7 = obtenerDet7Ticket(DocEntry); if (t.Det7.Count == 0) { t.Det7 = null; }       // Tickets vinculados para reparto
             }
             catch (Exception e) { throw new Exception(e.Message); }
             finally

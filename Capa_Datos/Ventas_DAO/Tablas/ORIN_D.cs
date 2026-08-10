@@ -39,6 +39,44 @@ namespace Capa_Datos.Ventas_DAO.Tablas
             catch { }
             return lista;
         }
+
+        public List<ORIN_E> ListarNotasDebito(ORIN_E fil)
+        {
+            List<ORIN_E> lista = new List<ORIN_E>();
+            string filtros = string.Empty;
+            if (filtros != null)
+            {
+                if (fil.DocNum > 0) { filtros += " and \"DocNum\" like '%" + fil.DocNum + "'"; }
+                if (!string.IsNullOrWhiteSpace(fil.DocDate)) { filtros += " and \"DocDate\"='" + fil.DocDate + "'"; }
+                if (!string.IsNullOrWhiteSpace(fil.CardName)) { filtros += " and UPPER(\"CardName\") like UPPER('%" + fil.CardName + "%')"; }
+                if (!string.IsNullOrWhiteSpace(fil.NumAtCard)) { filtros += " and UPPER(\"NumAtCard\") like UPPER('%" + fil.NumAtCard + "')"; }
+                if (fil.DocTotal > 0.00M) { filtros += " and \"DocTotal\" like '%" + fil.DocTotal + "%'"; }
+                if (!string.IsNullOrWhiteSpace(fil.U_SYP_STATUS)) { filtros += " and UPPER(\"U_SYP_STATUS\")=UPPER('" + fil.U_SYP_STATUS + "')"; }
+                if (!string.IsNullOrWhiteSpace(fil.RefFactura)) { filtros += " and UPPER(IFNULL(\"U_SYP_MDTO\"||'-','')||IFNULL(\"U_SYP_MDSO\"||'-','')||IFNULL(\"U_SYP_MDCO\",'')) like UPPER('%" + fil.RefFactura + "%')"; }
+            }
+            string query = $"SELECT top 50 \"DocEntry\",\"DocNum\",\"DocDate\",\"CardName\",\"NumAtCard\",\"DocTotal\",\"U_SYP_STATUS\", IFNULL(\"U_SYP_MDTO\"||'-','')||IFNULL(\"U_SYP_MDSO\"||'-','')||IFNULL(\"U_SYP_MDCO\",'') from {uti.schemaHana}OINV where \"DocEntry\">0 AND \"DocType\" = 'S' AND \"CANCELED\" ='N' {filtros} ORDER BY 1 DESC";
+            try
+            {
+                HanaDataReader hdr = db.HanaExecuteReaderNoSp(query);
+                while (hdr.Read())
+                {
+                    ORIN_E o = new ORIN_E();
+                    if (!hdr.IsDBNull(0)) { o.DocEntry = hdr.GetInt32(0); }
+                    if (!hdr.IsDBNull(1)) { o.DocNum = hdr.GetInt32(1); }
+                    if (!hdr.IsDBNull(2)) { o.DocDate = hdr.GetDateTime(2).ToString("dd/MM/yyyy"); }
+                    if (!hdr.IsDBNull(3)) { o.CardName = hdr.GetString(3); }
+                    if (!hdr.IsDBNull(4)) { o.NumAtCard = hdr.GetString(4); }
+                    if (!hdr.IsDBNull(5)) { o.DocTotal = Math.Round(hdr.GetDecimal(5), 2); }
+                    if (!hdr.IsDBNull(6)) { o.U_SYP_STATUS = hdr.GetString(6); }
+                    if (!hdr.IsDBNull(7)) { o.RefFactura = hdr.GetString(7); }
+                    lista.Add(o);
+                }
+                hdr.Close();
+            }
+            catch { }
+            return lista;
+        }
+
         public ORIN_E ObtenerCabecera(int docEntry, string numAtCard)
         {
             ORIN_E o = null;

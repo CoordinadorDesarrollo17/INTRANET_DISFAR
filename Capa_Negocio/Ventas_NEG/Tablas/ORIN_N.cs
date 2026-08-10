@@ -13,6 +13,10 @@ namespace Capa_Negocio.Ventas_NEG.Tablas
         {
             return orinD.Listar(fil);
         }
+        public List<ORIN_E> ListarNotasDebito(ORIN_E fil)
+        {
+            return orinD.ListarNotasDebito(fil);
+        }
         public ORIN_E ObtenerCabecera(int docEntry = 0, string numAtCard = "")
         {
             return orinD.ObtenerCabecera(docEntry, numAtCard);

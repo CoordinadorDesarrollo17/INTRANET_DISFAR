@@ -1066,6 +1066,7 @@
     <Content Include="Views\ComprobantesContables\LayoutFactura_footer.cshtml" />
     <Content Include="Views\ComprobantesContables\LayoutGuia_footer.cshtml" />
     <Content Include="Views\ComprobantesContables\LayoutNotaCreditoDebito_footer.cshtml" />
+    <Content Include="Views\DireccionTecnica\ListadoNotasDeDebitoVenta.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

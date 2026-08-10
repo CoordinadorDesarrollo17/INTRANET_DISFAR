@@ -303,13 +303,16 @@ namespace Capa_Usuario.Controllers
                 return resultadoAcceso;
             }
         }
-        public ActionResult ListadoEntregasDeVenta(ODLN_E fil, int idOperation = 2001)
+        public ActionResult ListadoEntregasDeVenta(ODLN_E fil, int idOperation = 2001, bool mostrarPdf = false)
         {
             var resultadoAcceso = VerificarPermiso(idOperation);
             if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
             {
                 if (fil != null) { ViewBag.Odln = fil; } else { ViewBag.Odln = new ODLN_E(); }
                 ViewBag.ListaLugarEntregas = new COB_LUG_ENTREGA_N().listadoLugaresDeEntrega();
+
+                ViewBag.MostrarPdf = mostrarPdf;
+
                 return View(new ODLN_N().listarEntregasVenta(fil));
             }
             else
@@ -330,6 +333,21 @@ namespace Capa_Usuario.Controllers
                 return resultadoAcceso;
             }
         }
+
+        public ActionResult ListadoNotasDeDebitoVenta(ORIN_E fil, int idOperation = 2103)
+        {
+            var resultadoAcceso = VerificarPermiso(idOperation);
+            if (resultadoAcceso is HttpStatusCodeResult statusCodeResult && statusCodeResult.StatusCode == 200)
+            {
+                if (fil != null) { ViewBag.Orin = fil; } else { ViewBag.Orin = new ORIN_E(); }
+                return View(new ORIN_N().ListarNotasDebito(fil));
+            }
+            else
+            {
+                return resultadoAcceso;
+            }
+        }
+
         public ActionResult NotaDeCreditoVentaArticulos(int DocEntry, int idOperation = 2102)
         {
             var resultadoAcceso = VerificarPermiso(idOperation);
@@ -1016,13 +1034,13 @@ namespace Capa_Usuario.Controllers
             var lista = new ORTV_N().obtenerOrdenDeVenta(filtros.DocNum);
             return View("~/Views/Ventas/PDF/PDF_OrdenesDeVentas.cshtml", lista);
         }
-        public ActionResult GenerarPDFNotaCredito(string NumAtCard)
+        public ActionResult GenerarPDFNotaCredito(string NumAtCard,string TipoDoc)
         {
             var parametrosNotaCredito = new
             {
                 NumAtCard,
                 DocNumTicket = 0,
-                Tipo = "NC"
+                Tipo = TipoDoc
             };
             string _headerUrlNotaCredito = Url.Action("LayoutNotaCreditoDebito_header", "ComprobantesContables", parametrosNotaCredito, "http");
             string _footerUrlNotaCredito = Url.Action("LayoutNotaCreditoDebito_footer", "ComprobantesContables", parametrosNotaCredito, "http");

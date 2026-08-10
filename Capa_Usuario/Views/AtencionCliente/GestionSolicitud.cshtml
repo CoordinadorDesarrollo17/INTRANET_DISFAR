@@ -122,6 +122,9 @@
             <button type="button" class="btn btn-outline-success d-flex justify-content-center align-items-center ms-2" onclick="excel();">
                 <i class="bi bi-file-earmark-excel mr-2"></i> Exportar a Excel
             </button>
+            <button type="button" class="btn btn-primary d-flex align-items-center ms-2" data-bs-toggle="modal" data-bs-target="#miModalFactura">
+                <i class="bi bi-window mr-2"></i> Buscar Factura
+            </button>
         </div>
         <div class="ml-auto" style="display:inline-block; min-width:120px; min-height:60px; background:#fff3cd; border:2px solid #ffeeba; border-radius:8px; margin:0 15px 10px 0; padding:10px; text-align:center;">
             <span style="font-size:16px; color:#b94a48; font-weight:bold;">
@@ -268,6 +271,91 @@
         </form>
     </div>
 </div>
+
+<div class="modal fade" id="miModalFactura" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+
+            <!-- HEADER -->
+            <div class="modal-header bg-cobefar-degradado-1">
+                <h5 class="modal-title fw-bold text-white">Buscar Factura </h5>
+                <!-- Cruz en negrito usando font-weight de bootstrap o style directo -->
+                <button type="button" class="btn-close fw-bold text-dark" data-bs-dismiss="modal" aria-label="Close" style="font-weight: 900;"></button>
+            </div>
+
+            <!-- BODY -->
+            <div class="modal-body p-4">
+
+                <!-- FILTROS -->
+                <div class="row mb-4">
+                    <div class="col-md-3">
+                        <label class="form-label text-secondary">Código Cliente</label>
+                        <input type="text" id="filtroCodigo" name="filtroCodigo" class="form-control text-secondary" placeholder="Ingrese Código">
+                    </div>
+
+                    <div class="col-md-3">
+                        <label class="form-label text-secondary">Nombre Cliente</label>
+                        <input type="text" id="filtroCliente" name="filtroCliente" class="form-control text-secondary" placeholder="Ingrese nombre">
+                    </div>
+
+                    <div class="col-md-3">
+                        <label class="form-label text-secondary">Producto</label>
+                        <input type="text" id="filtroProducto" name="filtroProducto" class="form-control text-secondary" placeholder="Ingrese producto">
+                    </div>
+
+                    <div class="col-md-3">
+                        <label class="form-label text-secondary">Rango de Fechas</label>
+                        <div class="row">
+                            <div class="col-6 pe-1">
+                                <input type="date" id="filtroFechaInicio" name="filtroFechaInicio" class="form-control text-secondary">
+                            </div>
+                            <div class="col-6 ps-1">
+                                <input type="date" id="filtroFechaFin" name="filtroFechaFin" class="form-control text-secondary">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- BOTÓN BUSCAR A LA DERECHA -->
+                <div class="d-flex justify-content-end gap-2 mb-3">
+
+                    <button type="button"
+                            id="btnExportarFactura"
+                            class="btn btn-success px-4 py-2">
+                        <i class="bi bi-file-earmark-excel"></i>
+                        Exportar Excel
+                    </button>
+
+                    <button type="button" id="btnBuscarFactura" class="btn btn-primary px-4 py-2">
+                        <i class="bi bi-search"></i> Buscar
+                    </button>
+
+                </div>
+
+                <!-- RESULTADOS -->
+                <div class="table-responsive">
+                    <table class="table table-bordered table-hover align-middle" id="tablaResultadosFactura">
+                        <thead class="table-light">
+                            <tr>
+                                <th style="width: 5%;" class="text-center">#</th>
+                                <th style="width: 15%;" class="text-center">CodigoCliente</th>
+                                <th style="width: 25%;" class="text-center">Cliente</th>
+                                <th style="width: 25%;" class="text-center">Producto</th>
+                                <th style="width: 10%;" class="text-center">Fecha</th>
+                                <th style="width: 12%;" class="text-center">N° Factura</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Los datos se llenarán dinámicamente aquí mediante AJAX -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
     function filtrar() {
@@ -383,4 +471,97 @@
             }
         });
     });
+
+
+     // =========================
+ // 🔍 MODAL BUSCAR FACTURA
+ // =========================
+ $('#btnBuscarFactura').click(function () {
+
+     let btn = $(this);
+     btn.prop('disabled', true);
+
+     let filtro = {
+         CardCode: $('#filtroCodigo').val().trim(),
+         CardName: $('#filtroCliente').val().trim(),
+         ItemName: $('#filtroProducto').val().trim(),
+         FechaDesde: $('#filtroFechaInicio').val(),
+         FechaHasta: $('#filtroFechaFin').val()
+     };
+
+     if (filtro.FechaDesde && filtro.FechaHasta && filtro.FechaDesde > filtro.FechaHasta) {
+         alert('Oe causa, la fecha inicio no puede ser mayor que la final pe');
+         btn.prop('disabled', false);
+         return;
+     }
+
+     let $tbody = $('#tablaResultadosFactura tbody');
+     $tbody.html('<tr><td colspan="6" class="text-center">Buscando...</td></tr>');
+
+     $.ajax({
+         url: '@Url.Action("BuscarFacturaModal", "AtencionCliente")',
+         type: 'POST',
+         data: filtro,
+         dataType: 'json',
+
+         success: function (response) {
+
+             if (response.success && response.data.length > 0) {
+
+                 let filas = '';
+
+                 $.each(response.data, function (index, item) {
+
+                     filas += `
+                     <tr>
+                         <td class="text-center">${index + 1}</td>
+                         <td>${item.CardCode || ''}</td>
+                         <td>${item.CardName || ''}</td>
+                         <td>${item.ItemName || ''}</td>
+                         <td class="text-center">${item.DocDate || ''}</td>
+                         <td class="text-center">${item.Factura || ''}</td>
+                     </tr>`;
+                 });
+
+                 $tbody.html(filas);
+
+             } else {
+                 $tbody.html('<tr><td colspan="6" class="text-center">No se encontraron resultados</td></tr>');
+             }
+         },
+
+         error: function () {
+             $tbody.html('<tr><td colspan="6" class="text-center text-danger">Error al consultar</td></tr>');
+         },
+
+         complete: function () {
+             btn.prop('disabled', false);
+         }
+     });
+ });
+
+
+ // =========================
+ // 📊 EXPORTAR EXCEL FACTURAS
+ // =========================
+ $('#btnExportarFactura').click(function () {
+
+     let filtro = {
+         CardCode: $('#filtroCodigo').val().trim(),
+         CardName: $('#filtroCliente').val().trim(),
+         ItemName: $('#filtroProducto').val().trim(),
+         FechaDesde: $('#filtroFechaInicio').val(),
+         FechaHasta: $('#filtroFechaFin').val()
+     };
+
+     if (filtro.FechaDesde && filtro.FechaHasta && filtro.FechaDesde > filtro.FechaHasta) {
+         alert('La fecha inicio no puede ser mayor que la fecha final');
+         return;
+     }
+
+     let queryString = $.param(filtro);
+
+     window.location.href =
+         '@Url.Action("ExportarExcelFiltroFactura", "AtencionCliente")?' + queryString;
+ });
 </script>

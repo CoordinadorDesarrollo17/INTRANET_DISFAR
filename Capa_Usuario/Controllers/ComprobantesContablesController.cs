@@ -480,5 +480,56 @@ namespace Capa_Usuario.Controllers
                 existeG,
             }, JsonRequestBehavior.AllowGet);
         }
+
+        public ActionResult GenerarPdf(int NroSap, string Tipo, string NumAtCard)
+        {
+            var pdfResult = new ActionAsPdf(null);
+            switch (Tipo)
+            {
+                case "F":
+                    var parametrosFactura = new
+                    {
+                        NumAtCard,
+                        Tipo = NumAtCard.Substring(0, 2).Equals("01") ? "F" : "B",
+                        DocNumTicket = 0
+                    };
+                    string _headerUrlFactura = Url.Action("LayoutFactura_header", "ComprobantesContables", parametrosFactura, "http");
+                    pdfResult = new ActionAsPdf("LayoutFactura", new { NumAtCard = parametrosFactura.NumAtCard })
+                    {
+                        FileName = $"Comprobante_{NumAtCard}.pdf",
+                        PageOrientation = Rotativa.Options.Orientation.Portrait,
+                        CustomSwitches = "--header-html " + _headerUrlFactura + " --header-spacing 0 ",
+                        PageSize = Rotativa.Options.Size.A4,
+                        PageMargins = new Rotativa.Options.Margins(65, 10, 20, 10)
+                    };
+
+                    break;
+                case "G":
+                    var parametrosGuia = new
+                    {
+                        NumAtCard,
+                        DocNumTicket = 0,
+                        Tabla = "ODLN",
+                        agencia = false
+                    };
+                    string _headerUrlGuia = Url.Action("LayoutGuia_header", "ComprobantesContables", parametrosGuia, "http");
+                    string _footerUrlGuia = Url.Action("LayoutGuia_footer", "ComprobantesContables", null, "http");
+                    pdfResult = new ActionAsPdf("LayoutGuia", parametrosGuia)
+                    {
+                        FileName = $"Guia_{NumAtCard}.pdf",
+                        PageOrientation = Rotativa.Options.Orientation.Portrait,
+                        CustomSwitches = "--header-html " + _headerUrlGuia + " --header-spacing 0 " +
+                         "--footer-html " + _footerUrlGuia + " --footer-spacing 0 ",
+                        PageSize = Rotativa.Options.Size.A4,
+                        PageMargins = new Rotativa.Options.Margins(55, 10, 30, 10)
+                    };
+                    break;
+                default:
+                    return Json(new { success = false, message = "Tipo del documento no reconocido." }, JsonRequestBehavior.AllowGet);
+            }
+
+            return pdfResult;
+        }
+
     }
 }

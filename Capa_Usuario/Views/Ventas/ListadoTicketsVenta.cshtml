@@ -166,6 +166,7 @@ function enviarDatosTicketReemplazo() {
                     <i class="bi bi-funnel-fill me-2"></i> Filtrar
                 </button>
             </div>
+
             @if (ViewBag.IdRol == 6 || ViewBag.IdRol == 1)
             {
                 <div class="d-flex align-items-center gap-1">
@@ -183,7 +184,12 @@ function enviarDatosTicketReemplazo() {
                         <i class="icon-file-text2 mr-2"></i>
                         NOTAS DE CRÉDITO
                     </a>
-
+                    <a href="@Url.Action("ListadoNotasDeDebitoVenta", "DireccionTecnica")"
+                       class="btn btn-outline-primary d-flex align-items-center"
+                       data-toggle="tooltip" title="Ver Notas de Debito">
+                        <i class="icon-file-text2 mr-2"></i>
+                        NOTAS DE DEBITO
+                    </a>
                     <a href="@Url.Action("ListadoFacturasDeVenta", "DireccionTecnica")"
                        class="btn btn-outline-primary d-flex align-items-center"
                        data-toggle="tooltip" title="Ver facturas/boletas">
@@ -204,6 +210,7 @@ function enviarDatosTicketReemplazo() {
                     </a>
                 </div>
             }
+
         </div>
     </div>
 </div>
