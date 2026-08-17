@@ -482,8 +482,13 @@ namespace Capa_Datos.ComprobantesContables_ENT
                             ON t2.""DocEntry"" = t1.""BaseEntry""
                             AND t2.""ObjType"" = t1.""BaseType""
                             AND t2.""ItemCode"" = t1.""ItemCode""
+
+ INNER JOIN {uti.schemaHana}INV1 T3 ON T3.""BaseEntry"" = T1.""DocEntry"" AND T3.""BaseType"" = T1.""ObjType"" AND T3.""BaseLine"" = T1.""LineNum"" 
+ INNER JOIN {uti.schemaHana}OINV T4 ON T4.""DocEntry"" = T3.""DocEntry"" AND T4.""CANCELED"" = 'N' 
+
                         WHERE t0.""CANCELED"" = 'N'
                           AND t2.""DocEntry"" IN({docEntryList})
+ AND NOT EXISTS (select 1 from {uti.schemaHana}ORIN where ""U_SYP_MDTO"" ||'-'||""U_SYP_MDSO"" ||'-'||""U_SYP_MDCO"" = T4.""NumAtCard"" and ""DocTotal""= T4.""DocTotal"" AND ""U_IDC_TIPONC"" = '06' )
                     ) AS t WHERE t.""FormatearNumAtCard"" IS NOT NULL";
 
                     try
