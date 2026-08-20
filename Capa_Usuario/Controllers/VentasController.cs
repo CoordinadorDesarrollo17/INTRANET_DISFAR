@@ -3338,7 +3338,7 @@ namespace Capa_Usuario.Controllers
                         }
                         else if (t.LugarDestino == "DOMICILIO" || t.LugarDestino == "PROVINCIA")
                         {
-                            t.TiempoEntrega = Convert.ToDateTime(t.TiempoEntrega).AddMinutes(15);
+                            t.TiempoEntrega = Convert.ToDateTime(t.TiempoEntrega).AddMinutes(00);
                         }
                     }
                     ViewBag.ColorTicket = ResaltarTicket(t.LugarDestino);
@@ -3555,7 +3555,7 @@ namespace Capa_Usuario.Controllers
                     try
                     {
                         DateTime dt = Convert.ToDateTime(t.TiempoEntrega);
-                        dt = dt.AddMinutes(-70);
+                        dt = dt.AddMinutes(-00);
                         t.TiempoEntrega = Convert.ToDateTime(dt.ToString("dd/MM/yyyy hh:mm tt"));
                     }
                     catch { }
@@ -3685,7 +3685,7 @@ namespace Capa_Usuario.Controllers
             if (ticket.TiempoEntrega != null)
             {
                 DateTime dt = Convert.ToDateTime(ticket.TiempoEntrega);
-                dt = dt.AddMinutes(-70);
+                dt = dt.AddMinutes(-00);
                 ticket.TiempoEntrega = Convert.ToDateTime(dt.ToString("dd/MM/yyyy hh:mm tt"));
             }
         }
