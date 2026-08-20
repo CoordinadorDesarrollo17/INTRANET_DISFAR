@@ -482,8 +482,13 @@ namespace Capa_Datos.ComprobantesContables_ENT
                             ON t2.""DocEntry"" = t1.""BaseEntry""
                             AND t2.""ObjType"" = t1.""BaseType""
                             AND t2.""ItemCode"" = t1.""ItemCode""
+
+ INNER JOIN {uti.schemaHana}INV1 T3 ON T3.""BaseEntry"" = T1.""DocEntry"" AND T3.""BaseType"" = T1.""ObjType"" AND T3.""BaseLine"" = T1.""LineNum"" 
+ INNER JOIN {uti.schemaHana}OINV T4 ON T4.""DocEntry"" = T3.""DocEntry"" AND T4.""CANCELED"" = 'N' 
+
                         WHERE t0.""CANCELED"" = 'N'
                           AND t2.""DocEntry"" IN({docEntryList})
+ AND NOT EXISTS (select 1 from {uti.schemaHana}ORIN where ""U_SYP_MDTO"" ||'-'||""U_SYP_MDSO"" ||'-'||""U_SYP_MDCO"" = T4.""NumAtCard"" and ""DocTotal""= T4.""DocTotal"" AND ""U_IDC_TIPONC"" = '06' )
                     ) AS t WHERE t.""FormatearNumAtCard"" IS NOT NULL";
 
                     try
@@ -554,12 +559,13 @@ namespace Capa_Datos.ComprobantesContables_ENT
             {
                 //Consulta las entregas en tabla ODLN -- factura costo 0 no tienen entregas
                 query = $" SELECT DISTINCT 'OINV',T4.\"U_SYP_MDTD\",T4.\"U_SYP_MDSD\",T4.\"U_SYP_MDCD\",to_char(T4.\"DocDate\",'YYYY-MM-DD'),to_char(T4.\"U_BPP_FECINITRA\",'YYYY-MM-DD'),'F',T4.\"DocTotal\",T5.\"Gross\" FROM {uti.schemaHana}ODLN T0 INNER JOIN {uti.schemaHana}DLN1 T1 ON T1.\"DocEntry\" = T0.\"DocEntry\" INNER JOIN {uti.schemaHana}RDR1 T2 ON T2.\"DocEntry\" = T1.\"BaseEntry\" AND T2.\"ObjType\" = T1.\"BaseType\" AND T2.\"LineNum\" = T1.\"BaseLine\" AND T2.\"DocEntry\" = {DocEntryOrden} INNER JOIN {uti.schemaHana}INV1 T3 ON T3.\"BaseEntry\" = T1.\"DocEntry\" AND T3.\"BaseType\" = T1.\"ObjType\" AND T3.\"BaseLine\" = T1.\"LineNum\" INNER JOIN {uti.schemaHana}OINV T4 ON T4.\"DocEntry\" = T3.\"DocEntry\" AND T4.\"CANCELED\" = 'N' LEFT JOIN {uti.schemaHana}INV9 T5 ON  T4.\"DocEntry\" = T5.\"DocEntry\" WHERE T0.\"CANCELED\" = 'N'";
+                query += $" AND NOT EXISTS (select 1 from {uti.schemaHana}ORIN where \"U_SYP_MDTO\" ||'-'||\"U_SYP_MDSO\" ||'-'||\"U_SYP_MDCO\" = T4.\"NumAtCard\" and \"DocTotal\"= T4.\"DocTotal\" AND \"U_IDC_TIPONC\" = '06' ) ";
             }
             else
             {
                 //Consulta las facturas en tabla OINV
                 query = $" SELECT DISTINCT 'OINV',T0.\"U_SYP_MDTD\",T0.\"U_SYP_MDSD\",T0.\"U_SYP_MDCD\",to_char(T0.\"DocDate\",'YYYY-MM-DD'),to_char(T0.\"U_BPP_FECINITRA\",'YYYY-MM-DD'),'F',T0.\"DocTotal\",(select sum(\"Gross\") FROM {uti.schemaHana}INV9  WHERE \"DocEntry\"= T0.\"DocEntry\" ) FROM {uti.schemaHana}OINV T0  INNER JOIN {uti.schemaHana}INV1 T1 ON T1.\"DocEntry\" = T0.\"DocEntry\" INNER JOIN {uti.schemaHana}RDR1 T2 ON T2.\"DocEntry\" = T1.\"BaseEntry\" AND T2.\"ObjType\" = T1.\"BaseType\" AND T2.\"LineNum\" = T1.\"BaseLine\" AND T2.\"DocEntry\" ={DocEntryOrden} WHERE T0.\"CANCELED\" = 'N'";
-
+                query += $" AND NOT EXISTS (select 1 from {uti.schemaHana}ORIN where \"U_SYP_MDTO\" ||'-'||\"U_SYP_MDSO\" ||'-'||\"U_SYP_MDCO\" = T0.\"NumAtCard\" and \"DocTotal\"= T0.\"DocTotal\" AND \"U_IDC_TIPONC\" = '06' ) ";
             }
 
             List<Comprobante_E> lista = EjecutarConsultaComprobante(query);

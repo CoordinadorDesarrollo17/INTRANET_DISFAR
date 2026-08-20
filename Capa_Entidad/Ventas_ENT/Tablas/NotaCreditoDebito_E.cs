@@ -156,7 +156,7 @@ namespace Capa_Entidad.Ventas_ENT.Tablas
             {
                 if ( (c.CodImpuesto != "IGV" && c.F_ItemPrecio() >= 0.02M) || c.TipoAfectacion == 31 )
                 {
-                    suma += c.PrecioLinea;
+                    suma += c.PrecioLineaTotal;
                 }
             }
             return suma;
@@ -168,7 +168,7 @@ namespace Capa_Entidad.Ventas_ENT.Tablas
 
             foreach (NotaCreditoDebito_E c in lista.Where(x => x.CodImpuesto == "EXE_IGV" || x.TipoAfectacion == 20 ))
             {
-                suma += c.PrecioLinea;
+                suma += c.PrecioLineaTotal;
             }
             return Math.Round(suma, 2);
         }
