@@ -154,7 +154,8 @@ namespace Capa_Entidad.Ventas_ENT.Tablas
             decimal suma = 0.00M;
             foreach (NotaCreditoDebito_E c in lista)
             {
-                if ( (c.CodImpuesto != "IGV" && c.F_ItemPrecio() >= 0.02M) || c.TipoAfectacion == 31 )
+                //if ( (c.CodImpuesto != "IGV" && c.F_ItemPrecio() >= 0.02M) || c.TipoAfectacion == 31 )
+                if ((c.CodImpuesto != "IGV") || c.TipoAfectacion == 31)
                 {
                     suma += c.PrecioLineaTotal;
                 }
