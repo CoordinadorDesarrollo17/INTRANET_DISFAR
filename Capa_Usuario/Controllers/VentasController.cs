@@ -3626,7 +3626,7 @@ namespace Capa_Usuario.Controllers
         }
         private bool EsEstadoEmpacado(string estado)
         {
-            return estado.Equals("EMPACADO") || estado.Equals("PREENVIO") || estado.Equals("ENVIADO") || estado.Equals("ENTREGADO");
+            return estado.Equals("EMPACADO") || estado.Equals("PREENVIO") || estado.Equals("ENVIADO") || estado.Equals("ENTREGADO") || estado.Equals("PESADO");
         }
         private void ObtenerOperariosVerificacion(ORTV_E ticket, int docEntry)
         {
