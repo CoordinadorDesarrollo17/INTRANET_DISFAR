@@ -262,7 +262,7 @@
                             }
                         </td>
                         <td>@item.LoteNum</td>
-                        <td>@item.FechaVencimiento</td>
+                        <td></td>
 
                         <td>@total</td>
                         <td>0.00</td>
@@ -385,9 +385,9 @@
                     }
                     else if (ViewBag.Tipo == "ND")
                     {
-                        <tr><td class="totals-label">OP. GRAVADAS</td>   <td class="totals-value">S/ @Math.Round(Cab.PrecioLinea, 2).ToString("F2")</td></tr>
+                        <tr><td class="totals-label">OP. GRAVADAS</td>   <td class="totals-value">S/ 0.00</td></tr>
                         <tr><td class="totals-label">OP. INAFECTAS</td> <td class="totals-value">S/ 0.00</td></tr>
-                        <tr><td class="totals-label">OP. EXONERADAS</td> <td class="totals-value">S/ 0.00</td></tr>
+                        <tr><td class="totals-label">OP. EXONERADAS</td> <td class="totals-value">S/  @Math.Round(Cab.PrecioLinea, 2).ToString("F2")</td></tr>
                         <tr><td class="totals-label">TOTAL OP. GRATUITAS</td> <td class="totals-value">S/ 0.00</td></tr>
                         <tr><td class="totals-label">DSCTOS. TOTALES</td> <td class="totals-value">S/ 0.00</td></tr>
                         <tr><td class="totals-label">IGV</td>   <td class="totals-value">S/ @Math.Round(Cab.Impuesto, 2).ToString("F2")</td></tr>

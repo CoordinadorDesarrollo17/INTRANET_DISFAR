@@ -395,7 +395,7 @@ namespace Capa_Datos.Ventas_DAO.Tablas
         public NotaCreditoDebito_E ObtenerCabeceraNotaDebito(string numAtCard)
         {
             NotaCreditoDebito_E o = new NotaCreditoDebito_E();
-            string query = $"select \"U_SYP_MDSD\",\"U_SYP_MDCD\",\"CardName\",\"Address\",(SELECT \"LicTradNum\" FROM {uti.schemaHana}OCRD WHERE \"CardCode\" = {uti.schemaHana}OINV.\"CardCode\"),\"DocDate\",(SELECT \"CurrName\" FROM {uti.schemaHana}\"OCRN\" WHERE \"CurrCode\" = {uti.schemaHana}OINV.\"DocCur\")  FROM {uti.schemaHana}OINV where \"U_SYP_MDTD\" || '-' ||\"U_SYP_MDSD\" || '-' || \"U_SYP_MDCD\" ='{numAtCard}'";
+            string query = $"select \"U_SYP_MDSD\",\"U_SYP_MDCD\",\"CardName\",\"Address\",(SELECT \"LicTradNum\" FROM {uti.schemaHana}OCRD WHERE \"CardCode\" = {uti.schemaHana}OINV.\"CardCode\"),\"DocDate\",(SELECT \"CurrName\" FROM {uti.schemaHana}\"OCRN\" WHERE \"CurrCode\" = {uti.schemaHana}OINV.\"DocCur\"), \"U_SYP_MOTNCND\"  FROM {uti.schemaHana}OINV where \"U_SYP_MDTD\" || '-' ||\"U_SYP_MDSD\" || '-' || \"U_SYP_MDCD\" ='{numAtCard}'";
             try
             {
                 HanaDataReader hdr = db.HanaExecuteReaderNoSp(query);
@@ -408,6 +408,7 @@ namespace Capa_Datos.Ventas_DAO.Tablas
                 if (!hdr.IsDBNull(4)) { o.Ruc = hdr.GetString(4); }
                 if (!hdr.IsDBNull(5)) { o.DocDate = hdr.GetDateTime(5).ToString("dd/MM/yyyy"); }
                 if (!hdr.IsDBNull(6)) { o.MonedaLetras = hdr.GetString(6); }
+                if (!hdr.IsDBNull(7)) { o.Motivo = hdr.GetString(7); }
 
                 hdr.Close();
             }
