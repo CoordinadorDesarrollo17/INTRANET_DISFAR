@@ -199,7 +199,7 @@ namespace Capa_Entidad.ReportesDigemid_ENT.Reportes
             {
                 if ( (c.CodImpuesto != "IGV" && c.F_ItemPrecio() >= 0.02M) || c.TipoAfectacion == 31)
                 {
-                    suma += c.PrecioVenta;
+                    suma += c.ItemTotalxLot();
                 }
             }
             return suma;
@@ -210,7 +210,7 @@ namespace Capa_Entidad.ReportesDigemid_ENT.Reportes
 
             foreach (ComprobanteDePago_E c in lista.Where(x => x.CodImpuesto == "EXE_IGV" || x.TipoAfectacion == 20 ))
             {
-                suma += c.PrecioVenta;
+                suma += c.ItemTotalxLot();
             }
             return Math.Round(suma, 2);
         }
