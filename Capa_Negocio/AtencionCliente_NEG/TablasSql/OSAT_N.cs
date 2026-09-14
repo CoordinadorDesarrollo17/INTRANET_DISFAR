@@ -289,7 +289,14 @@ namespace Capa_Negocio.AtencionCliente_NEG.TablasSql
                 if (o.TareaFact == "N.C.")
                 {
                     if (string.IsNullOrWhiteSpace(o.ComprobanteVinc)) { throw new Exception("El campo comprobante debe ser ingresado si hay una NC vinculada linea:" + o.Linea); }
-                    if (string.IsNullOrWhiteSpace(o.AlmTransf)) { throw new Exception("El campo almacen debe ser seleccionado si hay una NC vinculada linea:" + o.Linea); }
+                    // AlmTransf no es obligatorio únicamente para:
+                    // Tipo Error = RetiroMercado
+                    // Tipo Solución = Nota De Credito por Descuento
+                    if (o.TipoError != "RetiroMercado" || obj.TipoSolucion != "NCPorDesc")
+                    {
+                        if (string.IsNullOrWhiteSpace(o.AlmTransf))
+                            throw new Exception("El campo almacen debe ser seleccionado si hay una NC vinculada linea:" + o.Linea);
+                    }
                 }
 
                 if (o.NuevoPrecioArticulo != null && o.NuevoPrecioArticulo <= 0)
