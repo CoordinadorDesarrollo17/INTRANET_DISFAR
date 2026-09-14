@@ -221,8 +221,8 @@
                     <td>@Math.Round(item.cantVta(), 0)</td>
                     <td>
                         @(item.UM() == "CAJA"
-                        ? "CAJA x " + item.QUMVta
-                        : item.QUMVta + " " + item.UM())
+                            ? "CAJA x " + item.QUMVta
+                            : "PZA")
                     </td>
                     <td style="text-align:left;">@item.Descripcion</td>
                     <td>@item.LoteNum</td>
