@@ -160,7 +160,8 @@ namespace Capa_Entidad.ReportesDigemid_ENT.Reportes
 
         public decimal F_Tinafecto(decimal s_Tinafecto)
         {
-            return Math.Round(s_Tinafecto, 2);
+            //return Math.Round(s_Tinafecto, 2);
+            return (Math.Ceiling(s_Tinafecto * 100) / 100);
         }
         public decimal F_Topgratuita(decimal s_Topgratuita)
         {
@@ -212,7 +213,8 @@ namespace Capa_Entidad.ReportesDigemid_ENT.Reportes
             {
                 suma += c.ItemTotalxLot();
             }
-            return Math.Round(suma, 2);
+            //return Math.Round(suma, 2);
+            return (Math.Ceiling(suma * 100) / 100);
         }
 
         public decimal OpGravadas(List<ComprobanteDePago_E> lista)
