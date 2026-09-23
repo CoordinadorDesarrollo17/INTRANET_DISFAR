@@ -6,7 +6,7 @@
     var sumGratuita = Cab.Sum_Topgratuita(modelList);
     var sumInafecto = Cab.Sum_Tinafecto(modelList);
     var opGravadas = Math.Round(Cab.Tgrabado(sumGratuita, sumInafecto), 2).ToString("F2");
-    var opExoneradas = Cab.CalcularOpExoneradas(modelList).ToString();
+    var opExoneradas = Cab.CalcularOpExoneradas(modelList).ToString("F2");
     var opGratuitas = Cab.F_Topgratuita(sumGratuita).ToString();
     var opInafectas = Cab.F_Tinafecto(0).ToString("F2"); //Cab.F_Tinafecto(sumInafecto).ToString();
     var anticipo = (Cab.Anticipo > 0 ? Math.Round(Cab.Anticipo, 2) : 0).ToString("F2");
