@@ -712,6 +712,7 @@ namespace Capa_Usuario.Controllers
             Firmas_E firE = new Firmas_E();
             Dictionary<string, int> listaEncargados = new Dictionary<string, int>
             {
+                { "01", 185},					// Julio Roman Silva
                 { "03", 185},					// Julio Roman Silva
 				{ "06", 185},					// Julio Roman Silva
 				{ "DEV07", 161},			    // Carmen Condori Saravia
