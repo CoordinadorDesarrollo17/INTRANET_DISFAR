@@ -147,6 +147,7 @@
                         <th class="cabecera1 text-center font-weight-bold border-dark">FECHA VTO</th>
                         <th class="cabecera1 text-center font-weight-bold border-dark">CANTIDAD</th>
                         <th class="cabecera2 text-center font-weight-bold border-dark">MOTIVO</th>
+                        <th class="cabecera2 text-center font-weight-bold border-dark">OBSERVACIONES</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -180,6 +181,7 @@
                                 }
                                 <th class="text-center border-dark font-weight-normal f12">@displayQuantity @if (m.BuyUnitMsr.Equals("PZA")) { Write(" (PZA)"); }</th>
                                 <th class="text-center border-dark font-weight-normal f12">@m.DescMotivo</th>
+                                <th class="text-center border-dark font-weight-normal f12">@obs</th>
                             </tr>
                         }
                     }
@@ -228,6 +230,8 @@
                             <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
                             <td class="border-bottom border-dark text-center" style="width: 240px; height: 160px">
                                 @*<img src="@ViewBag.FirmaDT" width="250" />*@
+                                <img src="~/imagenes/FirmaJaimeQuijada.png"
+                                     width="250" />
                             </td>
                         </tr>
                         <tr>

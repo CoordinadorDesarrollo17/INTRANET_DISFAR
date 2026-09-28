@@ -564,6 +564,7 @@ namespace Capa_Usuario.Controllers
 
             if (WhsCode.Equals("03")) { DocEntryEncargado = 185; }
             else if (WhsCode.Equals("05")) { DocEntryEncargado = 697; }
+            else if (WhsCode.Equals("01")) { DocEntryEncargado = 185; }
             else if (WhsCode.Equals("06")) { DocEntryEncargado = 202; }
             else if (WhsCode.Equals("CUAR07")) { DocEntryEncargado = 161; }
             else if (WhsCode.Equals("DEV07")) { DocEntryEncargado = 161; }
