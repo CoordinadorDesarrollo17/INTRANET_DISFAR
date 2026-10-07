@@ -218,8 +218,9 @@ namespace Capa_Datos.DireccionTecnica_DAO.Reportes
                     if (!hdr.IsDBNull(2)) { con.RucCob = hdr.GetString(2); }
                     if (!hdr.IsDBNull(3)) { con.Direccion = hdr.GetString(3); }
                     //if (!hdr.IsDBNull(4)) { con.Telefono2 = "+51 910800608"; }
-                    con.Telefono2 = "+51 910800608"; 
-                    if (!hdr.IsDBNull(5)) { con.Quimico = "JAIME ALEXANDER QUIJADA ACUÑA"; }
+                    con.Telefono2 = "+51 910800608";
+                    //if (!hdr.IsDBNull(5)) { con.Quimico = "JAIME ALEXANDER QUIJADA ACUÑA"; }
+                    con.Quimico = "JAIME ALEXANDER QUIJADA ACUÑA";
                     //if (!hdr.IsDBNull(6)) { con.Correo = hdr.GetString(6); }
                     con.Correo = "direcciontecnica@disfaroriente.com.pe";
                     if (!hdr.IsDBNull(7)) { con.Anio = hdr.GetInt32(7); }
