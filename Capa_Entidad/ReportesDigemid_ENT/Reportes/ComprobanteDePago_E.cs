@@ -160,8 +160,8 @@ namespace Capa_Entidad.ReportesDigemid_ENT.Reportes
 
         public decimal F_Tinafecto(decimal s_Tinafecto)
         {
-            //return Math.Round(s_Tinafecto, 2);
-            return (Math.Ceiling(s_Tinafecto * 100) / 100);
+            return Math.Round(s_Tinafecto, 2);
+            //return (Math.Ceiling(s_Tinafecto * 100) / 100);
         }
         public decimal F_Topgratuita(decimal s_Topgratuita)
         {
@@ -186,7 +186,15 @@ namespace Capa_Entidad.ReportesDigemid_ENT.Reportes
 
             if (totalFactura > 0)
             {
-                return Math.Round(totalFactura - F_Tinafecto(s_Tinafecto) - Impuesto, 2);
+                var diferencia =  Math.Round(totalFactura - F_Tinafecto(s_Tinafecto) - Impuesto, 2);
+                if (diferencia <= 0.01m)
+                {
+                  return 0;
+                }
+                else
+                {
+                    return diferencia;
+                }
             }
 
             return 0;
@@ -213,8 +221,19 @@ namespace Capa_Entidad.ReportesDigemid_ENT.Reportes
             {
                 suma += c.ItemTotalxLot();
             }
+
+            var exonerado = DocTotal - Math.Round(suma, 2);
+            if(exonerado <= 0.01m)
+            {
+                return Math.Round(DocTotal, 2);
+            }
+            else
+            {
+                return Math.Round(suma, 2);
+            }
+
             //return Math.Round(suma, 2);
-            return (Math.Ceiling(suma * 100) / 100);
+            //return (Math.Ceiling(suma * 100) / 100);
         }
 
         public decimal OpGravadas(List<ComprobanteDePago_E> lista)
