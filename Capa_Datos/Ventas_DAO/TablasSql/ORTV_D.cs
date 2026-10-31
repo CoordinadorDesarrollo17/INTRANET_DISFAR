@@ -4074,10 +4074,10 @@ AND YEAR(T0.FechaSapTicket) = (SELECT YEAR(GETDATE())) AND ((SELECT  Estado FROM
                 using (SqlConnection cn = new SqlConnection(uti.cadSql))
                 {
                     cn.Open();
-                    string query = "SELECT fill FROM dbo.AgenciaFill WHERE UPPER(agencia) = TRIM(UPPER(@Agencia))";
+                    string query = "SELECT fill FROM dbo.AgenciaFill WHERE UPPER(agencia) LIKE TRIM(UPPER(@Agencia))";
                     using (SqlCommand cmd = new SqlCommand(query, cn))
                     {
-                        cmd.Parameters.AddWithValue("@Agencia", Agencia);
+                        cmd.Parameters.AddWithValue("@Agencia", "%" + Agencia + "%");
                         object valor = cmd.ExecuteScalar();
                         if (valor != null && valor != DBNull.Value)
                         {

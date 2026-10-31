@@ -40,15 +40,21 @@
     <table border="1" width="100%">
         <tr style="background:@fondo">
             <td>
-                <strong>@Html.DisplayNameFor(model => model.LugarDestino): </strong>          
-                    @Html.DisplayFor(m => m.LugarDestino)            
+                <strong>@Html.DisplayNameFor(model => model.LugarDestino): </strong>
+                @Html.DisplayFor(m => m.LugarDestino)
             </td>
             <td style="text-align:center;">
-                <strong>@Html.DisplayNameFor(model => model.Zona): </strong><br />              
-                    @Model.Zona       
+                <strong>@Html.DisplayNameFor(model => model.Zona): </strong><br />
+                @Model.Zona
             </td>
         </tr>
 
+        @if (Model.LugarDestino.ToUpper() == "PROVINCIA" && Model.isFill == 1)
+        {
+            <tr>
+                <td colspan="2" style="text-align:center;"><strong>FILL</strong></td>
+            </tr>
+        }
 
         <tr style="background:@fondo">
             <td width="30%"><strong>@Html.DisplayNameFor(model => model.DocNum): </strong></td>
