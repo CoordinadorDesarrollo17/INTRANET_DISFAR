@@ -87,9 +87,15 @@
                 <td>@d.DocNumTicket</td>
 
                 <td>@d.Socio</td>
-                <td>@d.Ticket.Det3[0].Departamento</td>
+
+                @*<td>@d.Ticket.Det3[0].Departamento</td>
                 <td>@d.Ticket.Det3[0].Provincia</td>
-                <td>@d.Ticket.Det3[0].Distrito</td>
+                <td>@d.Ticket.Det3[0].Distrito</td>*@
+
+                <td>@(d.Ticket.Det3.Count > 1 && d.Ticket.Det3[1] != null ? d.Ticket.Det3[1].Departamento : d.Ticket.Det3[0].Departamento)</td>
+                <td>@(d.Ticket.Det3.Count > 1 && d.Ticket.Det3[1] != null ? d.Ticket.Det3[1].Provincia : d.Ticket.Det3[0].Provincia)</td>
+                <td>@(d.Ticket.Det3.Count > 1 && d.Ticket.Det3[1] != null ? d.Ticket.Det3[1].Distrito : d.Ticket.Det3[0].Distrito)</td>
+
                 <td>@d.Ticket.Vendedor</td>
                 @if (d.Ticket.Det3.Count <= 1)
                 {       // si solo tiene 1 direcciòn

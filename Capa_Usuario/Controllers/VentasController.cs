@@ -3532,9 +3532,16 @@ namespace Capa_Usuario.Controllers
         public ActionResult PdfTacoComentarios(int DocEntry)
         {
             ORTV_E ticket = _ticketN.ObtenerDatosCompletosTicket(DocEntry);
-            var agenciaStr = ticket.Agencia ?? string.Empty;
-            int agenciaFill = _ticketN.AgenciaFill(agenciaStr);
-            if (agenciaFill < 0) agenciaFill = 0;
+            
+            var agencia = ticket.Agencia ?? string.Empty;
+            var agenciaStr = agencia.Trim().Length > 10 ? agencia.Trim().Substring(0, 10) : agencia.Trim();
+
+            int agenciaFill = 0;
+            if (agenciaStr != "")
+            {
+                agenciaFill = _ticketN.AgenciaFill(agenciaStr);
+                if (agenciaFill < 0) agenciaFill = 0;
+            }
 
             List<CC_ORTV_E> ticketAbierto = ccORTV_N.ListarCC_ORTV(DocEntry, "REGISTRAR");
             // Si el ticket no está ABIERTO y en el control de cambios nunca hubo un movimiento
