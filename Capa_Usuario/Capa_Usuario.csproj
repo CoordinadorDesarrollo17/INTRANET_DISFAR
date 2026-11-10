@@ -374,6 +374,7 @@
     <Content Include="Content\css\bootstrap.min.css.map" />
     <Content Include="Content\estilos.less" />
     <Content Include="imagenes\FirmaJaimeQuijada.png" />
+    <Content Include="imagenes\FirmaJaimeQuijadaAcuña_old.png" />
     <Content Include="imagenes\FirmaJaimeQuijadaAcuña.png" />
     <Content Include="imagenes\FirmaJulioRoman.png" />
     <Content Include="imagenes\index\ReportesDigemid\cargando.gif" />
