@@ -173,6 +173,9 @@ namespace Capa_Usuario.Controllers
                 ViewBag.Oficinas = ofiN.Listar();
                 ViewBag.Agencias = couN.Listar();
                 ViewBag.Usuario = $"{user.Prefijo}{user.Id}";
+
+                ViewBag.EsSupervisor = user.IdRol == 6; //boolean que nos dice si el usuario es supervisor
+
                 if (DocEntry > 0) { return View(_ticketN.ObtenerDatosCompletosTicket(DocEntry)); }
                 else
                 {
@@ -254,6 +257,9 @@ namespace Capa_Usuario.Controllers
                 ViewBag.Agencias = couN.Listar();
                 ViewBag.IdRol = user.IdRol;
                 ViewBag.Usuario = $"{user.Prefijo}{user.Id}";
+
+                ViewBag.EsSupervisor = user.IdRol == 6; //boolean que nos dice si el usuario es supervisor
+
                 // --- INICIO: OBTENER RECLAMOS CON TICKETSOLUCION ---
                 var osatN = new Capa_Negocio.AtencionCliente_NEG.TablasSql.OSAT_N();
                 var filtro = new Capa_Entidad.AtencionCliente_ENT.TablasSql.OSAT_E
@@ -3834,6 +3840,8 @@ namespace Capa_Usuario.Controllers
 
                 Usuario_E user = (Usuario_E)Session["UsuarioId"];
                 ViewBag.IdRol = user.IdRol;
+
+                ViewBag.EsSupervisor = user.IdRol == 6; //boolean que nos dice si el usuario es supervisor
 
                 if (t.Estado.Equals("SEPARADO")) { return RedirectToAction("CreaTicketVenta", new { DocEntry = t.DocEntry }); }
                 else { return View(t); }

@@ -388,57 +388,57 @@
                             </div>
                         </div>
 
-                        <div class="row mt-4">
-                            <div class="col-lg-7">
-                                <label class="text-dark form-label font-weight-bold font-18">DirDestino2:</label>
-                                <input type="text" name="Det3[1].Calle" id="DirDestino2" class="form-control border-success" value="@if (Model.Det3 != null && Model.Det3.Count >= 2 && Model.Det3[1].Calle != null) { Write(Model.Det3[1].Calle); }" autocomplete="off" onkeyup="validarDirDestino2(this.value);" />
-                            </div>
-                            <div class="col-lg-3 d-flex align-items-end">
-                                <button id="btnUbigeo" type="button" class="btn btn-warning mx-2" data-toggle="modal" data-target="#modalUbigeo"><i class="icon icon-location"></i> Selec. Ubigeo</button>
-                                <button id="btnOficinas" type="button" class="btn btn-warning mx-2" data-toggle="modal" data-target="#modalOficinas" onclick="buscarOficina()"><i class="icon icon-office"></i> Selec.  Oficina</button>
-                                <button id="btn_verTarifario" type="button" class="btn btn-warning mx-2" onclick="verTarifario()"><i class="icon icon-book"></i> Ver Tarifario</button>
-                            </div>
-                        </div>
-
-                        <div class="row mt-4">
-
-                            @if (Model.Det3 != null && Model.Det3.Count > 1)
+                           @if (ViewBag.EsSupervisor == true)
                             {
-                                if (Model.Det3[1].Ubigeo != null)
-                                {
-                                    <div class="col-lg-3">
-                                        <input type="text" name="Det3[1].Distrito" id="Distrito2" value="@if (Model.Det3.Count >= 1) { Write(Model.Det3[1].Distrito); }" class="form-control text-center border-success" readonly />
+                                <div class="row mt-4">
+                                    <div class="col-lg-7">
+                                        <label class="text-dark form-label font-weight-bold font-18">DirDestino2:</label>
+                                        <input type="text" name="Det3[1].Calle" id="DirDestino2" class="form-control border-success" value="@if (Model.Det3 != null && Model.Det3.Count >= 2 && Model.Det3[1].Calle != null) { Write(Model.Det3[1].Calle); }" autocomplete="off" onkeyup="validarDirDestino2(this.value);" />
                                     </div>
-                                    <div class="col-lg-3">
-                                        <input type="text" name="Det3[1].Provincia" id="Provincia2" value="@if (Model.Det3.Count >= 1) { Write(Model.Det3[1].Provincia); }" class="form-control text-center border-success" readonly />
+                                    <div class="col-lg-3 d-flex align-items-end">
+                                        <button id="btnUbigeo" type="button" class="btn btn-warning mx-2" data-toggle="modal" data-target="#modalUbigeo"><i class="icon icon-location"></i> Selec. Ubigeo</button>
+                                        <button id="btnOficinas" type="button" class="btn btn-warning mx-2" data-toggle="modal" data-target="#modalOficinas" onclick="buscarOficina()"><i class="icon icon-office"></i> Selec.  Oficina</button>
+                                        <button id="btn_verTarifario" type="button" class="btn btn-warning mx-2" onclick="verTarifario()"><i class="icon icon-book"></i> Ver Tarifario</button>
                                     </div>
-                                    <div class="col-lg-3">
-                                        <input type="text" name="Det3[1].Departamento" id="Departamento2" value="@if (Model.Det3.Count >= 1) { Write(Model.Det3[1].Departamento); }" class="form-control text-center border-success" readonly />
-                                    </div>
-                                    <div class="col-lg-3">
-                                        <input type="text" name="Det3[1].Ubigeo" id="Ubigeo2" value="@if (Model.Det3.Count >= 1) { Write(Model.Det3[1].Ubigeo); }" class="form-control text-center border-success" readonly />
-                                    </div>
-                                }
-                            }
-                            else
-                            {
-                                <div class="col-lg-3">
-                                    <input type="text" name="Det3[1].Distrito" id="Distrito2" value="" class="form-control text-center border-success" readonly />
                                 </div>
-                                <div class="col-lg-3">
-                                    <input type="text" name="Det3[1].Provincia" id="Provincia2" value="" class="form-control text-center border-success" readonly />
-                                </div>
-                                <div class="col-lg-3">
-                                    <input type="text" name="Det3[1].Departamento" id="Departamento2" value="" class="form-control text-center border-success" readonly />
-                                </div>
-                                <div class="col-lg-3">
-                                    <input type="text" name="Det3[1].Ubigeo" id="Ubigeo2" value="" class="form-control text-center border-success" readonly />
-                                </div>
-                            }
 
+                                <div class="row mt-4">
 
-
-                        </div>
+                                    @if (Model.Det3 != null && Model.Det3.Count > 1)
+                                    {
+                                        if (Model.Det3[1].Ubigeo != null)
+                                        {
+                                            <div class="col-lg-3">
+                                                <input type="text" name="Det3[1].Distrito" id="Distrito2" value="@if (Model.Det3.Count >= 1) { Write(Model.Det3[1].Distrito); }" class="form-control text-center border-success" readonly />
+                                            </div>
+                                            <div class="col-lg-3">
+                                                <input type="text" name="Det3[1].Provincia" id="Provincia2" value="@if (Model.Det3.Count >= 1) { Write(Model.Det3[1].Provincia); }" class="form-control text-center border-success" readonly />
+                                            </div>
+                                            <div class="col-lg-3">
+                                                <input type="text" name="Det3[1].Departamento" id="Departamento2" value="@if (Model.Det3.Count >= 1) { Write(Model.Det3[1].Departamento); }" class="form-control text-center border-success" readonly />
+                                            </div>
+                                            <div class="col-lg-3">
+                                                <input type="text" name="Det3[1].Ubigeo" id="Ubigeo2" value="@if (Model.Det3.Count >= 1) { Write(Model.Det3[1].Ubigeo); }" class="form-control text-center border-success" readonly />
+                                            </div>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <div class="col-lg-3">
+                                            <input type="text" name="Det3[1].Distrito" id="Distrito2" value="" class="form-control text-center border-success" readonly />
+                                        </div>
+                                        <div class="col-lg-3">
+                                            <input type="text" name="Det3[1].Provincia" id="Provincia2" value="" class="form-control text-center border-success" readonly />
+                                        </div>
+                                        <div class="col-lg-3">
+                                            <input type="text" name="Det3[1].Departamento" id="Departamento2" value="" class="form-control text-center border-success" readonly />
+                                        </div>
+                                        <div class="col-lg-3">
+                                            <input type="text" name="Det3[1].Ubigeo" id="Ubigeo2" value="" class="form-control text-center border-success" readonly />
+                                        </div>
+                                    }                     
+                                </div>
+                           }
 
                         <div class="row mt-4">
                             <div class="col-lg-12">
