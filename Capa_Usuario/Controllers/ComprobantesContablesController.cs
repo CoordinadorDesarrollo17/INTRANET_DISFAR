@@ -50,7 +50,7 @@ namespace Capa_Usuario.Controllers
                     break;
                 case "G":
                     documentos.AddRange(
-                        (obj.LugarDestino.Equals("DOMICILIO") || obj.LugarDestino.Equals("PROVINCIA"))
+                        (obj.LugarDestino.Equals("DOMICILIO") || obj.LugarDestino.Equals("PROVINCIA") || obj.LugarDestino.Equals("RECOJO"))
                         ? compN.ObtenerEncabezadoGuiasPorEntrega(listDocEntrySap)
                         : compN.ObtenerEncabezadoGuiasTransferencia(obj)
                     );
